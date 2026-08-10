@@ -320,7 +320,9 @@
       "notifications_disabled_message": "Aktive notifikasyon yo nan paramèt tèminal la.",
       "critical_only": "Sèlman kritik",
       "manual_print": "Enpresyon manyèl",
-      "auto_printing": "Enpresyon otomatik"
+      "auto_printing": "Enpresyon otomatik",
+      "saved": "Paramèt yo anrejistre.",
+      "save_error": "Nou pa kapab anrejistre paramèt yo."
     },
     "session": {
       "card_title": "Sesyon",

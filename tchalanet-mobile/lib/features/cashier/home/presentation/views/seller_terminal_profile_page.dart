@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
-import '../../../../../design_system/components/feedback_state.dart';
+import '../../../../../design_system/components/components.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
@@ -195,14 +195,59 @@ class SellerTerminalSettingsPage extends ConsumerWidget {
   }
 }
 
-class _SettingsBody extends ConsumerWidget {
+class _SettingsBody extends ConsumerStatefulWidget {
   const _SettingsBody({required this.translations, this.profile});
 
   final I18nBundle translations;
   final PosProfileResponse? profile;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SettingsBody> createState() => _SettingsBodyState();
+}
+
+class _SettingsBodyState extends ConsumerState<_SettingsBody> {
+  String? _savingKey;
+
+  Future<void> _save(
+    String key, {
+    bool? receiptAutoPrint,
+    int? receiptCopyCount,
+    bool? notificationsEnabled,
+    bool? notificationsCriticalOnly,
+  }) async {
+    setState(() => _savingKey = key);
+    try {
+      await _updateSettings(
+        ref,
+        receiptAutoPrint: receiptAutoPrint,
+        receiptCopyCount: receiptCopyCount,
+        notificationsEnabled: notificationsEnabled,
+        notificationsCriticalOnly: notificationsCriticalOnly,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.translations.translate('pos.settings.saved')),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.translations.translate('pos.settings.save_error'),
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _savingKey = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profile = widget.profile;
+    final translations = widget.translations;
     final settings = profile?.settings;
     return ListView(
       padding: const EdgeInsets.all(TchSpacing.s16),
@@ -238,11 +283,15 @@ class _SettingsBody extends ConsumerWidget {
             title: translations.translate('pos.settings.receipt'),
             children: [
               SwitchListTile(
-                secondary: const Icon(Icons.print_rounded),
                 title: Text(translations.translate('pos.settings.auto_print')),
                 value: settings?.receipt.autoPrint ?? true,
-                onChanged: (value) =>
-                    _updateSettings(ref, receiptAutoPrint: value),
+                onChanged: _savingKey == null
+                    ? (value) =>
+                          _save('receiptAutoPrint', receiptAutoPrint: value)
+                    : null,
+                secondary: _savingKey == 'receiptAutoPrint'
+                    ? const _SettingProgress()
+                    : const Icon(Icons.print_rounded),
               ),
               ListTile(
                 leading: const Icon(Icons.copy_rounded),
@@ -258,8 +307,12 @@ class _SettingsBody extends ConsumerWidget {
                       ),
                   ],
                   selected: {settings?.receipt.copyCount ?? 1},
-                  onSelectionChanged: (selection) =>
-                      _updateSettings(ref, receiptCopyCount: selection.single),
+                  onSelectionChanged: _savingKey == null
+                      ? (selection) => _save(
+                          'receiptCopyCount',
+                          receiptCopyCount: selection.single,
+                        )
+                      : null,
                 ),
               ),
             ],
@@ -269,26 +322,36 @@ class _SettingsBody extends ConsumerWidget {
             title: translations.translate('pos.settings.notifications'),
             children: [
               SwitchListTile(
-                secondary: const Icon(Icons.notifications_active_rounded),
                 title: Text(
                   translations.translate('pos.settings.notifications_enabled'),
                 ),
                 value: settings?.notifications.enabled ?? true,
-                onChanged: (value) =>
-                    _updateSettings(ref, notificationsEnabled: value),
+                onChanged: _savingKey == null
+                    ? (value) => _save(
+                        'notificationsEnabled',
+                        notificationsEnabled: value,
+                      )
+                    : null,
+                secondary: _savingKey == 'notificationsEnabled'
+                    ? const _SettingProgress()
+                    : const Icon(Icons.notifications_active_rounded),
               ),
               SwitchListTile(
-                secondary: const Icon(Icons.priority_high_rounded),
                 title: Text(
                   translations.translate('pos.settings.critical_only'),
                 ),
                 value: settings?.notifications.criticalOnly ?? false,
-                onChanged: settings?.notifications.enabled == false
+                onChanged:
+                    settings?.notifications.enabled == false ||
+                        _savingKey != null
                     ? null
-                    : (value) => _updateSettings(
-                        ref,
+                    : (value) => _save(
+                        'notificationsCriticalOnly',
                         notificationsCriticalOnly: value,
                       ),
+                secondary: _savingKey == 'notificationsCriticalOnly'
+                    ? const _SettingProgress()
+                    : const Icon(Icons.priority_high_rounded),
               ),
             ],
           ),
@@ -320,7 +383,7 @@ class _SettingsBody extends ConsumerWidget {
         ),
         const SizedBox(height: TchSpacing.s12),
         OutlinedButton.icon(
-          onPressed: () => _confirmLogout(context, ref, translations),
+          onPressed: () => showLogoutConfirmation(context, ref),
           icon: const Icon(Icons.logout_rounded),
           label: Text(translations.translate('pos.profile.sign_out')),
         ),
@@ -346,32 +409,14 @@ Future<void> _updateSettings(
       );
 }
 
-Future<void> _confirmLogout(
-  BuildContext context,
-  WidgetRef ref,
-  I18nBundle translations,
-) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(translations.translate('pos.profile.sign_out_title')),
-      content: Text(translations.translate('pos.profile.sign_out_message')),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(translations.translate('common.cancel')),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(translations.translate('pos.profile.sign_out')),
-        ),
-      ],
-    ),
-  );
-  if (confirmed != true) return;
+class _SettingProgress extends StatelessWidget {
+  const _SettingProgress();
 
-  await ref.read(authControllerProvider.notifier).logout();
-  if (context.mounted) context.go('/login');
+  @override
+  Widget build(BuildContext context) => const SizedBox.square(
+    dimension: 16,
+    child: CircularProgressIndicator(strokeWidth: 2),
+  );
 }
 
 class _LocaleSelector extends ConsumerWidget {

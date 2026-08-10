@@ -3,6 +3,7 @@ export 'app_notification_banner.dart';
 export 'bottom_action_bar.dart';
 export 'feedback_state.dart';
 export 'field_error.dart';
+export 'logout_confirmation.dart';
 export 'online_badge.dart';
 export 'pos_action_button.dart';
 export 'section_header.dart';

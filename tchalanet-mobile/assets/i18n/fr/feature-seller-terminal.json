@@ -320,7 +320,9 @@
       "notifications_disabled_message": "Activez les notifications dans les paramètres du terminal.",
       "critical_only": "Critiques seulement",
       "manual_print": "Impression manuelle",
-      "auto_printing": "Impression automatique"
+      "auto_printing": "Impression automatique",
+      "saved": "Paramètres enregistrés.",
+      "save_error": "Impossible d'enregistrer les paramètres."
     },
     "session": {
       "card_title": "Session",

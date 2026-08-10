@@ -22,15 +22,36 @@ class ForbiddenPage extends ConsumerWidget {
             padding: const EdgeInsets.all(32),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
-              child: FeedbackState(
-                kind: FeedbackStateKind.blocked,
-                title: translations.translate(state.titleKey),
-                message: translations.translate(state.messageKey),
-                actionLabel: translations.translate(state.backActionKey),
-                onAction: () async {
-                  await ref.read(authControllerProvider.notifier).logout();
-                  if (context.mounted) context.go('/login');
-                },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FeedbackState(
+                    kind: FeedbackStateKind.blocked,
+                    title: translations.translate(state.titleKey),
+                    message:
+                        state.runtimeReason ??
+                        translations.translate(state.messageKey),
+                    actionLabel: translations.translate(state.backActionKey),
+                    onAction: () async {
+                      await ref.read(authControllerProvider.notifier).logout();
+                      if (context.mounted) context.go('/login');
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            translations.translate(state.contactMessageKey),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.support_agent_rounded),
+                    label: Text(translations.translate(state.contactActionKey)),
+                  ),
+                ],
               ),
             ),
           ),

@@ -320,7 +320,9 @@
       "notifications_disabled_message": "Enable notifications in terminal settings.",
       "critical_only": "Critical only",
       "manual_print": "Manual print",
-      "auto_printing": "Automatic printing"
+      "auto_printing": "Automatic printing",
+      "saved": "Settings saved.",
+      "save_error": "Unable to save settings."
     },
     "session": {
       "card_title": "Session",

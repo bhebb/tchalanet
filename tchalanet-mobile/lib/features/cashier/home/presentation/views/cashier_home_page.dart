@@ -187,24 +187,8 @@ class _SellerTerminalHome extends ConsumerStatefulWidget {
 }
 
 class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
-  Timer? _countdownTimer;
-  DateTime _now = DateTime.now();
   bool _providerFilterExpanded = false;
   String? _selectedProvider;
-
-  @override
-  void initState() {
-    super.initState();
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _now = DateTime.now());
-    });
-  }
-
-  @override
-  void dispose() {
-    _countdownTimer?.cancel();
-    super.dispose();
-  }
 
   Future<void> _refresh() async {
     ref.invalidate(cashierHomeProvider);
@@ -300,7 +284,6 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
                         draws: draws,
                         selectedProvider: _selectedProvider,
                         providerFilterExpanded: _providerFilterExpanded,
-                        now: _now,
                         translations: translations,
                         onFilterExpandedChanged: (expanded) =>
                             setState(() => _providerFilterExpanded = expanded),
@@ -545,7 +528,6 @@ class _FilteredAvailableDraws extends StatelessWidget {
     required this.draws,
     required this.selectedProvider,
     required this.providerFilterExpanded,
-    required this.now,
     required this.translations,
     required this.onFilterExpandedChanged,
     required this.onProviderChanged,
@@ -556,7 +538,6 @@ class _FilteredAvailableDraws extends StatelessWidget {
   final List<CashierAvailableDrawView> draws;
   final String? selectedProvider;
   final bool providerFilterExpanded;
-  final DateTime now;
   final I18nBundle translations;
   final ValueChanged<bool> onFilterExpandedChanged;
   final ValueChanged<String?> onProviderChanged;
@@ -589,7 +570,6 @@ class _FilteredAvailableDraws extends StatelessWidget {
         ],
         _AvailableDrawList(
           draws: filteredDraws,
-          now: now,
           translations: translations,
           onDrawTap: onDrawTap,
           onDrawSell: onDrawSell,
@@ -665,14 +645,12 @@ class _AvailableDrawProviderFilter extends StatelessWidget {
 class _AvailableDrawList extends StatelessWidget {
   const _AvailableDrawList({
     required this.draws,
-    required this.now,
     required this.translations,
     required this.onDrawTap,
     required this.onDrawSell,
   });
 
   final List<CashierAvailableDrawView> draws;
-  final DateTime now;
   final I18nBundle translations;
   final ValueChanged<CashierAvailableDrawView> onDrawTap;
   final ValueChanged<CashierAvailableDrawView> onDrawSell;
@@ -683,7 +661,6 @@ class _AvailableDrawList extends StatelessWidget {
       for (final draw in draws) ...[
         _AvailableDrawCard(
           draw: draw,
-          now: now,
           translations: translations,
           onTap: () => onDrawTap(draw),
           onSell: () => onDrawSell(draw),
@@ -697,14 +674,12 @@ class _AvailableDrawList extends StatelessWidget {
 class _AvailableDrawCard extends StatelessWidget {
   const _AvailableDrawCard({
     required this.draw,
-    required this.now,
     required this.translations,
     required this.onTap,
     required this.onSell,
   });
 
   final CashierAvailableDrawView draw;
-  final DateTime now;
   final I18nBundle translations;
 
   /// Tapping the card body opens the draw report.
@@ -716,8 +691,8 @@ class _AvailableDrawCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final now = DateTime.now();
     final urgency = _drawUrgencyFor(draw, now);
-    final cutoffLabel = _cutoffLabel(draw, now, translations);
 
     return SurfaceCard(
       onTap: onTap,
@@ -745,12 +720,10 @@ class _AvailableDrawCard extends StatelessWidget {
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: TchSpacing.s4),
-                Text(
-                  cutoffLabel,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: urgency.foregroundColor(scheme),
-                    fontWeight: FontWeight.w800,
-                  ),
+                _DrawCountdown(
+                  cutoffAt: draw.cutoffAt,
+                  translations: translations,
+                  color: urgency.foregroundColor(scheme),
                 ),
               ],
             ),
@@ -788,6 +761,49 @@ class _AvailableDrawCard extends StatelessWidget {
   }
 }
 
+class _DrawCountdown extends StatefulWidget {
+  const _DrawCountdown({
+    required this.cutoffAt,
+    required this.translations,
+    required this.color,
+  });
+
+  final DateTime? cutoffAt;
+  final I18nBundle translations;
+  final Color color;
+
+  @override
+  State<_DrawCountdown> createState() => _DrawCountdownState();
+}
+
+class _DrawCountdownState extends State<_DrawCountdown> {
+  Timer? _timer;
+  DateTime _now = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Text(
+    _cutoffLabelFromDate(widget.cutoffAt, _now, widget.translations),
+    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: widget.color,
+      fontWeight: FontWeight.w800,
+    ),
+  );
+}
+
 enum _DrawUrgency { ready, soon, urgent, closed }
 
 _DrawUrgency _drawUrgencyFor(CashierAvailableDrawView draw, DateTime now) {
@@ -802,12 +818,11 @@ _DrawUrgency _drawUrgencyFor(CashierAvailableDrawView draw, DateTime now) {
   return _DrawUrgency.ready;
 }
 
-String _cutoffLabel(
-  CashierAvailableDrawView draw,
+String _cutoffLabelFromDate(
+  DateTime? cutoffAt,
   DateTime now,
   I18nBundle translations,
 ) {
-  final cutoffAt = draw.cutoffAt;
   if (cutoffAt == null) {
     return translations.translate('pos.dashboard.closes_soon');
   }
@@ -1277,36 +1292,8 @@ Future<void> _showAccountMenu(
     case _AccountMenuAction.settings:
       context.go('/pos/settings');
     case _AccountMenuAction.logout:
-      await _confirmAccountLogout(context, ref, translations);
+      await showLogoutConfirmation(context, ref);
   }
-}
-
-Future<void> _confirmAccountLogout(
-  BuildContext context,
-  WidgetRef ref,
-  I18nBundle translations,
-) async {
-  final confirmed = await showDialog<bool>(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(translations.translate('pos.profile.sign_out_title')),
-      content: Text(translations.translate('pos.profile.sign_out_message')),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: Text(translations.translate('common.cancel')),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: Text(translations.translate('pos.profile.sign_out')),
-        ),
-      ],
-    ),
-  );
-  if (confirmed != true) return;
-
-  await ref.read(authControllerProvider.notifier).logout();
-  if (context.mounted) context.go('/login');
 }
 
 enum _AccountMenuAction { profile, settings, logout }

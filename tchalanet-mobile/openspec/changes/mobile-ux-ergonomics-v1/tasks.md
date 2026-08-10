@@ -23,7 +23,7 @@
 ## D — Dashboard améliorations
 
 - [x] Remplacer `SizedBox.shrink()` en erreur/vide dans la section "dernier ticket" de `cashier_home_page.dart` par un `FeedbackState(compact: true)` avec message traduit.
-- [ ] Extraire le `Timer.periodic(1s)` et `_now` dans un widget `_DrawCountdown` avec son propre `State` pour isoler les rebuilds du countdown.
+- [x] Extraire le `Timer.periodic(1s)` et `_now` dans un widget `_DrawCountdown` avec son propre `State` pour isoler les rebuilds du countdown.
 
 ## E — Historique et rapports
 
@@ -33,18 +33,18 @@
 
 ## F — Résultats tirage
 
-- [ ] Condenser les filtres de `seller_terminal_results_page.dart` : chips horizontaux scrollables pour la période + dropdown cascading unique provider→slot.
+- [x] Condenser les filtres de `seller_terminal_results_page.dart` : chips horizontaux scrollables pour la période + dropdown cascading unique provider→slot.
 - [x] Sélectionner le preset "7 jou" par défaut au lieu de laisser aucun preset actif.
 
 ## G — Profil et settings
 
-- [ ] Ajouter `CircularProgressIndicator` 16dp sur le toggle pendant l'appel `_updateSettings` dans `seller_terminal_profile_page.dart`, et snackbar succès/erreur.
-- [ ] Enrichir `forbidden_page.dart` : afficher la raison de blocage depuis l'API runtime + bouton contact admin (téléphone ou WhatsApp).
+- [x] Ajouter `CircularProgressIndicator` 16dp sur le toggle pendant l'appel `_updateSettings` dans `seller_terminal_profile_page.dart`, et snackbar succès/erreur.
+- [x] Enrichir `forbidden_page.dart` : afficher la raison de blocage depuis l'API runtime + bouton contact admin (téléphone ou WhatsApp).
 
 ## H — Maintenance
 
-- [ ] Créer `showLogoutConfirmation(BuildContext, WidgetRef)` dans `design_system/components/`.
-- [ ] Remplacer les 3 copies du dialog logout (change_pin_page, cashier_home_page, seller_terminal_profile_page) par l'appel partagé.
+- [x] Créer `showLogoutConfirmation(BuildContext, WidgetRef)` dans `design_system/components/`.
+- [x] Remplacer les 3 copies du dialog logout (change_pin_page, cashier_home_page, seller_terminal_profile_page) par l'appel partagé.
 
 ## Validation
 

@@ -34,7 +34,9 @@
     "forbidden": {
       "title": "Access denied",
       "message": "You do not have the required permissions to access this page.",
-      "back": "Back to sign in"
+      "back": "Back to sign in",
+      "contact_admin": "Contact admin",
+      "contact_admin_message": "Contact your operator's administrator to verify this terminal's access."
     }
   }
 }

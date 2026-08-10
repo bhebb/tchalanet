@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/i18n_repository.dart';
+import '../../../../design_system/components/components.dart';
 import '../../../../design_system/tokens/tch_spacing.dart';
 import '../../../cashier/home/presentation/view_models/cashier_home_providers.dart';
-import '../view_models/auth_controller.dart';
 import '../view_models/change_pin_controller.dart';
 
 class ChangePinPage extends ConsumerStatefulWidget {
@@ -94,31 +94,6 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
     }
   }
 
-  Future<void> _confirmLogout() async {
-    final translations = ref.read(i18nBundleProvider);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(translations.translate('pos.profile.sign_out_title')),
-        content: Text(translations.translate('pos.profile.sign_out_message')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(translations.translate('common.cancel')),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(translations.translate('pos.profile.sign_out')),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
-    await ref.read(authControllerProvider.notifier).logout();
-    if (mounted) context.go('/login');
-  }
-
   String _errorTranslationKey(List<String> errorKeys) {
     final translations = ref.read(i18nBundleProvider);
     for (final key in errorKeys) {
@@ -149,7 +124,9 @@ class _ChangePinPageState extends ConsumerState<ChangePinPage> {
         // way out via sign-out rather than trapping the seller here.
         actions: [
           TextButton(
-            onPressed: state.submitting ? null : () => _confirmLogout(),
+            onPressed: state.submitting
+                ? null
+                : () => showLogoutConfirmation(context, ref),
             child: Text(translations.translate('pos.profile.sign_out')),
           ),
         ],
