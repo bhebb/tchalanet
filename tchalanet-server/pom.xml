@@ -31,7 +31,7 @@
     <java.version>25</java.version>
 
     <!-- Library versions -->
-    <archunit.version>1.4.2</archunit.version>
+    <archunit.version>1.5.0</archunit.version>
     <aws-sdk.version>2.35.9</aws-sdk.version>
     <caffeine.version>3.2.4</caffeine.version>
     <firebase-admin.version>9.10.0</firebase-admin.version>
