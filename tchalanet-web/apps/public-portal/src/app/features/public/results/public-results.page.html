@@ -146,6 +146,11 @@
                   <span class="results-page__ball">{{ n }}</span>
                   }
                 </div>
+                @if (shouldShowCaMiddayDaily4Note(row)) {
+                <p class="results-page__provider-note">
+                  {{ 'public.results.ca_mid_daily4_unavailable' | translate }}
+                </p>
+                }
                 } @else {
                 <span class="results-page__numbers-pending">
                   {{ 'public.results.numbers_pending' | translate }}
@@ -196,6 +201,11 @@
             <span class="results-page__ball">{{ n }}</span>
             }
           </div>
+          @if (shouldShowCaMiddayDaily4Note(row)) {
+          <p class="results-page__provider-note">
+            {{ 'public.results.ca_mid_daily4_unavailable' | translate }}
+          </p>
+          }
           } @else {
           <p class="results-page__numbers-pending">
             {{ 'public.results.numbers_pending' | translate }}

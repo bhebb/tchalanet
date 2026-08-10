@@ -184,6 +184,10 @@ export class PublicResultsPage {
     }
   }
 
+  shouldShowCaMiddayDaily4Note(row: PublicDrawResultRow): boolean {
+    return row.slotKey.trim().toUpperCase() === 'CA_MID' && row.numbers.length > 0 && row.numbers.length < 4;
+  }
+
   // ── Static filter definitions ───────────────────────────────────────────────
 
   readonly providerFilters = computed<

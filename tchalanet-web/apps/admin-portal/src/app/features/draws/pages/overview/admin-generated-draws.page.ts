@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatNativeDateModule } from '@angular/material/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TCH_DEFAULT_PAGE_SIZE } from '@tch/api';
 import { AccessService } from '@tch/core/auth';
@@ -56,14 +57,14 @@ import {
   DrawChannelFilterValue,
 } from '../../../draw-sales-matrix/components/draw-channel-filter-select/draw-channel-filter-select.component';
 
-const LIFECYCLE_LABELS: Record<DrawLifecycleAction, string> = {
-  open: 'Ouvert',
-  close: 'Fermé',
-  cancel: 'Annulé',
-  lock: 'Verrouillé',
-  unlock: 'Déverrouillé',
-  settle: 'Réglé',
-  archive: 'Archivé',
+const LIFECYCLE_LABEL_KEYS: Record<DrawLifecycleAction, string> = {
+  open: 'admin.generatedDraws.lifecycle.open',
+  close: 'admin.generatedDraws.lifecycle.close',
+  cancel: 'admin.generatedDraws.lifecycle.cancel',
+  lock: 'admin.generatedDraws.lifecycle.lock',
+  unlock: 'admin.generatedDraws.lifecycle.unlock',
+  settle: 'admin.generatedDraws.lifecycle.settle',
+  archive: 'admin.generatedDraws.lifecycle.archive',
 };
 
 interface LifecycleInput {
@@ -97,6 +98,7 @@ interface LifecycleInput {
     GeneratedDrawsTableComponent,
     DrawResultDrawerComponent,
     DrawChannelFilterSelectComponent,
+    TranslatePipe,
   ],
   templateUrl: './admin-generated-draws.page.html',
   styleUrls: ['./admin-generated-draws.page.scss'],
@@ -108,6 +110,7 @@ export class AdminGeneratedDrawsPage {
   private readonly dialog = inject(MatDialog);
   private readonly access = inject(AccessService);
   private readonly drawSalesMatrix = inject(AdminDrawSalesMatrixApi);
+  private readonly translate = inject(TranslateService);
 
   /**
    * Today on the tenant's calendar — `businessDate` and the from/to filters are channel-local,
@@ -116,8 +119,8 @@ export class AdminGeneratedDrawsPage {
   readonly today = computed(() => tenantTodayIsoDate(this.api.tenantTimezone()));
   private readonly yesterday = computed(() => shiftIsoDate(this.today(), -1));
 
-  readonly statusFilters: { key: DrawStatusFilter; label: string }[] = [
-    { key: 'all', label: 'Tous les statuts' },
+  readonly statusFilters: { key: DrawStatusFilter; labelKey?: string; label?: string }[] = [
+    { key: 'all', labelKey: 'admin.generatedDraws.statusFilters.all' },
     { key: 'SCHEDULED', label: consoleDrawStatusLabel('SCHEDULED') },
     { key: 'OPEN', label: consoleDrawStatusLabel('OPEN') },
     { key: 'LOCKED', label: consoleDrawStatusLabel('LOCKED') },
@@ -126,7 +129,7 @@ export class AdminGeneratedDrawsPage {
     { key: 'SETTLED', label: consoleDrawStatusLabel('SETTLED') },
     { key: 'CANCELLED', label: consoleDrawStatusLabel('CANCELLED') },
     { key: 'ARCHIVED', label: consoleDrawStatusLabel('ARCHIVED') },
-    { key: 'PAST', label: 'Terminés / à traiter' },
+    { key: 'PAST', labelKey: 'admin.generatedDraws.statusFilters.past' },
     { key: 'NOT_DUE', label: consoleDrawResultStatusLabel('NOT_DUE') },
     { key: 'EXPECTED', label: consoleDrawResultStatusLabel('EXPECTED') },
     { key: 'MISSING', label: consoleDrawResultStatusLabel('MISSING') },
@@ -135,11 +138,11 @@ export class AdminGeneratedDrawsPage {
     { key: 'SOURCE_ERROR', label: consoleDrawResultStatusLabel('SOURCE_ERROR') },
   ];
 
-  readonly datePresets: { key: DatePreset; label: string }[] = [
-    { key: 'LAST_48H', label: '48 dernières heures' },
-    { key: 'TODAY', label: "Aujourd'hui" },
-    { key: 'TOMORROW', label: 'Demain' },
-    { key: 'THIS_WEEK', label: 'Cette semaine' },
+  readonly datePresets: { key: DatePreset; labelKey: string }[] = [
+    { key: 'LAST_48H', labelKey: 'admin.generatedDraws.datePresets.last48h' },
+    { key: 'TODAY', labelKey: 'admin.generatedDraws.datePresets.today' },
+    { key: 'TOMORROW', labelKey: 'admin.generatedDraws.datePresets.tomorrow' },
+    { key: 'THIS_WEEK', labelKey: 'admin.generatedDraws.datePresets.thisWeek' },
   ];
 
   // ── URL = source de vérité pour les filtres/pagination ──────────────────────
@@ -171,7 +174,7 @@ export class AdminGeneratedDrawsPage {
   readonly statusFilterOptions = computed<readonly AdminListStatusOption[]>(() =>
     this.statusFilters
       .filter(filter => filter.key !== 'all')
-      .map(filter => ({ value: filter.key, label: filter.label })),
+      .map(filter => ({ value: filter.key, label: this.filterLabel(filter) })),
   );
   readonly page = computed(() => numberParam(this.qp().get('page'), 0));
 
@@ -214,14 +217,14 @@ export class AdminGeneratedDrawsPage {
    */
   readonly pageSize = computed(() => this.draws.value()?.size ?? TCH_DEFAULT_PAGE_SIZE);
   readonly isEmpty = (): boolean => (this.draws.value()?.items?.length ?? 0) === 0;
-  readonly pageTitle = computed(() => {
+  readonly pageTitleKey = computed(() => {
     switch (this.statusFilter()) {
-      case 'OPEN': return 'Tirages ouverts';
-      case 'PAST': return 'Tirages passés';
-      case 'CLOSED': return 'Tirages fermés';
-      case 'CONFIRMED': return 'Tirages confirmés';
-      case 'EXPECTED_OR_MISSING': return 'Résultats attendus';
-      default: return 'Tirages générés';
+      case 'OPEN': return 'admin.generatedDraws.titleByFilter.open';
+      case 'PAST': return 'admin.generatedDraws.titleByFilter.past';
+      case 'CLOSED': return 'admin.generatedDraws.titleByFilter.closed';
+      case 'CONFIRMED': return 'admin.generatedDraws.titleByFilter.confirmed';
+      case 'EXPECTED_OR_MISSING': return 'admin.generatedDraws.titleByFilter.expected';
+      default: return 'admin.generatedDraws.title';
     }
   });
   readonly canEnterManualResults = computed(() =>
@@ -259,8 +262,8 @@ export class AdminGeneratedDrawsPage {
       this.selectedDraw.set(updated);
       this.resultMessage.set(
         input.mode === 'confirmed'
-          ? 'Résultat confirmé et publié.'
-          : 'Résultat enregistré en provisoire.',
+          ? this.translate.instant('admin.generatedDraws.result.confirmed')
+          : this.translate.instant('admin.generatedDraws.result.provisional'),
       );
       this.reload();
     },
@@ -293,8 +296,12 @@ export class AdminGeneratedDrawsPage {
       this.pendingDrawIds.set(new Set());
       this.lifecycleNotice.set(
         input.drawIds.length > 1
-          ? `${input.drawIds.length} tirages mis à jour avec succès.`
-          : `Tirage ${LIFECYCLE_LABELS[input.action]} avec succès.`,
+          ? this.translate.instant('admin.generatedDraws.lifecycle.updatedMany', {
+              count: input.drawIds.length,
+            })
+          : this.translate.instant('admin.generatedDraws.lifecycle.updatedOne', {
+              action: this.translate.instant(LIFECYCLE_LABEL_KEYS[input.action]),
+            }),
       );
       this.reload();
     },
@@ -452,13 +459,13 @@ export class AdminGeneratedDrawsPage {
     if (this.hasResult(draw)) {
       return this.canOverrideResults()
         ? null
-        : 'Le résultat existe déjà. Seul un super admin peut le corriger.';
+        : this.translate.instant('admin.generatedDraws.resultUnavailable.alreadyExists');
     }
     if (!this.canEnterManualResults()) {
-      return 'Vous n’avez pas l’autorisation de saisir un résultat manuel.';
+      return this.translate.instant('admin.generatedDraws.resultUnavailable.noPermission');
     }
     if (!this.isManualResultDue(draw)) {
-      return 'La saisie manuelle sera disponible 30 minutes après l’heure prévue du tirage.';
+      return this.translate.instant('admin.generatedDraws.resultUnavailable.notDue');
     }
     return null;
   }
@@ -549,6 +556,10 @@ export class AdminGeneratedDrawsPage {
     this.resultMessage.set(null);
     this.saveResult.clearFeedback();
     this.selectedDraw.set(draw);
+  }
+
+  private filterLabel(filter: { labelKey?: string; label?: string }): string {
+    return filter.labelKey ? this.translate.instant(filter.labelKey) : filter.label ?? '';
   }
 }
 

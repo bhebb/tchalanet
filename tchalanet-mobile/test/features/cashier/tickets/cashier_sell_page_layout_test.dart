@@ -259,6 +259,21 @@ void main() {
     expect(find.text('Loto 3'), findsWidgets);
     expect(find.textContaining('123'), findsOneWidget);
   });
+
+  testWidgets('completing a bolet number moves focus to stake', (tester) async {
+    await _pumpAtTerminalSize(tester);
+
+    await tester.tap(find.text('Bòlèt'));
+    await tester.pumpAndSettle();
+
+    final selectionField = find.byType(TextField).first;
+    await tester.tap(selectionField);
+    await tester.enterText(selectionField, '12');
+    await tester.pump();
+
+    final stakeField = find.byType(TextField).last;
+    expect(tester.widget<TextField>(stakeField).focusNode?.hasFocus, isTrue);
+  });
 }
 
 class _FakeSell extends SellController {

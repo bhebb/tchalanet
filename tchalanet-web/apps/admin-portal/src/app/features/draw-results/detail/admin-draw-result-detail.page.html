@@ -2,7 +2,7 @@
   [title]="title()"
   [description]="description()"
   [state]="pageState()"
-  loadingLabel="Chargement du résultat..."
+  [loadingLabel]="'admin.drawResults.detail.loading' | translate"
   [error]="detailError()"
   [meta]="detailMeta()"
   [actions]="detailActions()"
@@ -38,7 +38,7 @@
   @if (result(); as result) {
     <ng-container aside>
       <tch-identity-card
-        eyebrow="Résumé"
+        [eyebrow]="'admin.drawResults.detail.summary' | translate"
         [title]="title()"
         [code]="providerCode(result)"
         [status]="statusLabel(result.status)"

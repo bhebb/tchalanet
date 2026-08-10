@@ -564,6 +564,13 @@
     "generatedDraws": {
       "title": "Tirages générés",
       "description": "Suivez les tirages générés, leur état de vente et les résultats attendus.",
+      "titleByFilter": {
+        "open": "Tirages ouverts",
+        "past": "Tirages passés",
+        "closed": "Tirages fermés",
+        "confirmed": "Tirages confirmés",
+        "expected": "Résultats attendus"
+      },
       "summary": {
         "today": "Aujourd'hui",
         "salesOpen": "Vente ouverte",
@@ -571,6 +578,7 @@
         "confirmed": "Confirmés"
       },
       "datePresets": {
+        "last48h": "48 dernières heures",
         "today": "Aujourd'hui",
         "tomorrow": "Demain",
         "thisWeek": "Cette semaine"
@@ -578,10 +586,21 @@
       "statusFilters": {
         "all": "Tous les statuts",
         "open": "Ouverts à la vente",
+        "past": "Terminés / à traiter",
         "expected": "Résultats attendus",
         "missing": "Résultats manquants",
         "confirmed": "Confirmés",
         "sourceError": "Erreur source"
+      },
+      "filters": {
+        "search": "Recherche",
+        "searchPlaceholder": "Rechercher provider, slot...",
+        "status": "Statut",
+        "reset": "Réinitialiser",
+        "draw": "Tirage",
+        "allDraws": "Tous les tirages",
+        "from": "Du",
+        "to": "Au"
       },
       "salesStatus": {
         "UPCOMING": "À venir",
@@ -602,12 +621,42 @@
       },
       "actions": {
         "refresh": "Actualiser",
+        "more": "Actions",
         "planNextDraws": "Planifier les prochains tirages",
-        "configureDrawChannels": "Configurer les canaux de tirage",
+        "configureDrawChannels": "Configurer les tirages",
         "enterResult": "Saisir résultat",
         "viewResult": "Voir résultat",
         "verify": "Vérifier",
         "viewDetails": "Voir détails"
+      },
+      "loading": "Chargement des tirages...",
+      "feedback": {
+        "actionImpossible": "Action impossible",
+        "actionDone": "Action effectuée"
+      },
+      "empty": {
+        "title": "Aucun tirage généré pour cette période.",
+        "message": "Ajustez les filtres ou planifiez les prochains tirages."
+      },
+      "result": {
+        "confirmed": "Résultat confirmé et publié.",
+        "provisional": "Résultat enregistré en provisoire."
+      },
+      "resultUnavailable": {
+        "alreadyExists": "Le résultat existe déjà. Seul un super admin peut le corriger.",
+        "noPermission": "Vous n’avez pas l’autorisation de saisir un résultat manuel.",
+        "notDue": "La saisie manuelle sera disponible 30 minutes après l’heure prévue du tirage."
+      },
+      "lifecycle": {
+        "open": "ouvert",
+        "close": "fermé",
+        "cancel": "annulé",
+        "lock": "verrouillé",
+        "unlock": "déverrouillé",
+        "settle": "réglé",
+        "archive": "archivé",
+        "updatedMany": "{{count}} tirages mis à jour avec succès.",
+        "updatedOne": "Tirage {{action}} avec succès."
       }
     },
     "pos": {
@@ -1917,7 +1966,62 @@
       "description": "Gérez les accès des utilisateurs de votre entreprise."
     },
     "drawResults": {
+      "title": "Résultats des tirages",
+      "description": "Consultez les résultats, recherchez par slot et vérifiez l'historique appliqué au santral.",
+      "loading": "Chargement...",
+      "action": {
+        "refresh": "Rafraîchir",
+        "detail": "Voir détail"
+      },
+      "timezone": {
+        "local": "Fuseau local :"
+      },
+      "filters": {
+        "title": "Filtres",
+        "searchPlaceholder": "Rechercher un slot...",
+        "status": "Statut",
+        "quality": "Qualité",
+        "from": "Du",
+        "to": "Au",
+        "allStatuses": "Tous les statuts",
+        "allQualities": "Toutes qualités"
+      },
+      "empty": {
+        "title": "Aucun résultat",
+        "message": "Aucun résultat trouvé pour les filtres sélectionnés."
+      },
       "detail": {
+        "titleFallback": "Détail du résultat",
+        "descriptionFallback": "Consultez le résultat appliqué à ce tirage.",
+        "drawFallback": "Tirage",
+        "loading": "Chargement du résultat...",
+        "summary": "Résumé",
+        "action": {
+          "backToDraws": "Tirages",
+          "drawDetail": "Détail du tirage"
+        },
+        "fact": {
+          "status": "Statut",
+          "quality": "Qualité",
+          "draw": "Tirage",
+          "slot": "Slot",
+          "slotLabel": "Créneau",
+          "date": "Date",
+          "appliedAt": "Appliqué le",
+          "publishedAt": "Publié le",
+          "officialTime": "Heure officielle",
+          "enteredAt": "Saisi le",
+          "fetchedAt": "Récupéré le"
+        },
+        "value": {
+          "notApplied": "Non appliqué",
+          "notPublished": "Non publié"
+        },
+        "error": {
+          "notFoundTitle": "Résultat introuvable",
+          "missingId": "Aucun identifiant de résultat n’a été fourni.",
+          "notFoundMessage": "Le résultat n’a pas été trouvé pour ce tirage. Revenez au détail du tirage ou rafraîchissez la page."
+        },
         "tab": {
           "results": "Résultats",
           "combinations": "Combinaisons & règles",

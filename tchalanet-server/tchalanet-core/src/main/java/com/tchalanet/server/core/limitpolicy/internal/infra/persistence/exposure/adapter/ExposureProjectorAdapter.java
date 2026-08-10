@@ -4,7 +4,6 @@ import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.exposure.ExposureProjectorPort;
 import com.tchalanet.server.core.limitpolicy.internal.infra.persistence.exposure.ScopePersistenceMapper;
 import com.tchalanet.server.core.sales.api.event.TicketPlacedEvent;
-import com.tchalanet.server.core.selection.api.SelectionApi;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +17,6 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
 
   private final JdbcTemplate jdbc;
 
-  private final SelectionApi selectionApi;
-
   @Override
   public void applyTicketSold(TicketPlacedEvent event) {
     var scopes = scopesFor(event);
@@ -29,9 +26,6 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
 
       for (var line : event.lines()) {
         var stake = line.stakeAmount().amount();
-
-        var canonicalSelection =
-            selectionApi.canonicalize(line.betType(), line.betOption(), line.selectionKey());
 
         // `SELECT fn(...)` returns a row (the function's return value), so we use
         // query(...) with a no-op extractor instead of update(...) which would throw
@@ -46,7 +40,7 @@ public class ExposureProjectorAdapter implements ExposureProjectorPort {
             scopeRow.scopeType().name(),
             scopeRow.scopeId(),
             line.betType().name(),
-            canonicalSelection.key().value(),
+            line.selectionKey(),
             stake,
             event.eventId().value(),
             Timestamp.from(event.occurredAt()));

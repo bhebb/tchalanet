@@ -1690,6 +1690,13 @@
     "generatedDraws": {
       "title": "Tiraj jenere",
       "description": "Swiv tiraj ki jenere yo, eta vant yo ak rezilta ki espere yo.",
+      "titleByFilter": {
+        "open": "Tiraj ki louvri",
+        "past": "Tiraj pase",
+        "closed": "Tiraj ki fèmen",
+        "confirmed": "Tiraj konfime",
+        "expected": "Rezilta ki espere"
+      },
       "summary": {
         "today": "Jodi a",
         "salesOpen": "Vant ouvè",
@@ -1697,6 +1704,7 @@
         "confirmed": "Konfime"
       },
       "datePresets": {
+        "last48h": "48 dènye èdtan yo",
         "today": "Jodi a",
         "tomorrow": "Demen",
         "thisWeek": "Semèn sa a"
@@ -1704,10 +1712,21 @@
       "statusFilters": {
         "all": "Tout estati",
         "open": "Ouvè pou vant",
+        "past": "Fini / pou trete",
         "expected": "Rezilta espere",
         "missing": "Rezilta manke",
         "confirmed": "Konfime",
         "sourceError": "Erè sous"
+      },
+      "filters": {
+        "search": "Rechèch",
+        "searchPlaceholder": "Chèche provider, slot...",
+        "status": "Estati",
+        "reset": "Reyinisyalize",
+        "draw": "Tiraj",
+        "allDraws": "Tout tiraj yo",
+        "from": "Soti",
+        "to": "Rive"
       },
       "salesStatus": {
         "UPCOMING": "Ap vini",
@@ -1728,12 +1747,42 @@
       },
       "actions": {
         "refresh": "Rafrechi",
+        "more": "Aksyon",
         "planNextDraws": "Planifye pwochen tiraj yo",
-        "configureDrawChannels": "Konfigire règ tiraj yo",
+        "configureDrawChannels": "Konfigire tiraj yo",
         "enterResult": "Antre rezilta",
         "viewResult": "Gade rezilta",
         "verify": "Verifye",
         "viewDetails": "Gade detay"
+      },
+      "loading": "Y ap chaje tiraj yo...",
+      "feedback": {
+        "actionImpossible": "Aksyon an pa posib",
+        "actionDone": "Aksyon an fèt"
+      },
+      "empty": {
+        "title": "Pa gen tiraj pou peryòd sa a.",
+        "message": "Ajiste filtè yo oswa planifye pwochen tiraj yo."
+      },
+      "result": {
+        "confirmed": "Rezilta a konfime epi pibliye.",
+        "provisional": "Rezilta a anrejistre kòm pwovizwa."
+      },
+      "resultUnavailable": {
+        "alreadyExists": "Rezilta a deja egziste. Se sèlman yon super admin ki ka korije li.",
+        "noPermission": "Ou pa gen otorizasyon pou antre yon rezilta manyèl.",
+        "notDue": "Antre rezilta manyèl la ap disponib 30 minit apre lè tiraj la te prevwa."
+      },
+      "lifecycle": {
+        "open": "louvri",
+        "close": "fèmen",
+        "cancel": "anile",
+        "lock": "bloke",
+        "unlock": "debloke",
+        "settle": "regle",
+        "archive": "achive",
+        "updatedMany": "{{count}} tiraj modifye avèk siksè.",
+        "updatedOne": "Tiraj la {{action}} avèk siksè."
       }
     },
     "pos": {
@@ -1917,7 +1966,62 @@
       }
     },
     "drawResults": {
+      "title": "Rezilta tiraj yo",
+      "description": "Gade rezilta yo, chèche pa slot epi verifye istwa ki aplike sou santral la.",
+      "loading": "Y ap chaje...",
+      "action": {
+        "refresh": "Rafrechi",
+        "detail": "Gade detay"
+      },
+      "timezone": {
+        "local": "Fuseau lokal :"
+      },
+      "filters": {
+        "title": "Filtè",
+        "searchPlaceholder": "Chèche yon slot...",
+        "status": "Estati",
+        "quality": "Kalite",
+        "from": "Soti",
+        "to": "Rive",
+        "allStatuses": "Tout estati",
+        "allQualities": "Tout kalite"
+      },
+      "empty": {
+        "title": "Pa gen rezilta",
+        "message": "Pa gen rezilta pou filtè yo chwazi yo."
+      },
       "detail": {
+        "titleFallback": "Detay rezilta a",
+        "descriptionFallback": "Gade rezilta ki aplike sou tiraj sa a.",
+        "drawFallback": "Tiraj",
+        "loading": "Y ap chaje rezilta a...",
+        "summary": "Rezime",
+        "action": {
+          "backToDraws": "Tiraj yo",
+          "drawDetail": "Detay tiraj la"
+        },
+        "fact": {
+          "status": "Estati",
+          "quality": "Kalite",
+          "draw": "Tiraj",
+          "slot": "Slot",
+          "slotLabel": "Kreno",
+          "date": "Dat",
+          "appliedAt": "Aplike le",
+          "publishedAt": "Pibliye le",
+          "officialTime": "Lè ofisyèl",
+          "enteredAt": "Antre le",
+          "fetchedAt": "Ranmase le"
+        },
+        "value": {
+          "notApplied": "Pa aplike",
+          "notPublished": "Pa pibliye"
+        },
+        "error": {
+          "notFoundTitle": "Rezilta a pa jwenn",
+          "missingId": "Pa gen idantifyan rezilta ki bay.",
+          "notFoundMessage": "Rezilta a pa jwenn pou tiraj sa a. Retounen nan detay tiraj la oswa rafrechi paj la."
+        },
         "tab": {
           "results": "Rezilta",
           "combinations": "Konbinezon & règ",

@@ -573,6 +573,8 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                           enabled: !_isLoading && !_isTicketLocked,
                           onFocus: () =>
                               _scrollFocusedFieldIntoView(_selectionFieldKey),
+                          onComplete: () =>
+                              widget.stakeFocusNode.requestFocus(),
                           onChanged: widget.onSelectionChanged,
                         ),
                       ),
@@ -1416,6 +1418,7 @@ class _SelectionInput extends StatelessWidget {
     required this.value,
     required this.enabled,
     required this.onFocus,
+    required this.onComplete,
     required this.onChanged,
   });
 
@@ -1424,6 +1427,7 @@ class _SelectionInput extends StatelessWidget {
   final String value;
   final bool enabled;
   final VoidCallback onFocus;
+  final VoidCallback onComplete;
   final ValueChanged<String> onChanged;
 
   @override
@@ -1434,6 +1438,7 @@ class _SelectionInput extends StatelessWidget {
       value: value,
       enabled: enabled,
       onFocus: onFocus,
+      onComplete: onComplete,
       onChanged: onChanged,
     );
   }
@@ -1445,6 +1450,7 @@ class _GroupedSelectionInput extends StatefulWidget {
     required this.value,
     required this.enabled,
     required this.onFocus,
+    required this.onComplete,
     required this.onChanged,
   });
 
@@ -1452,6 +1458,7 @@ class _GroupedSelectionInput extends StatefulWidget {
   final String value;
   final bool enabled;
   final VoidCallback onFocus;
+  final VoidCallback onComplete;
   final ValueChanged<String> onChanged;
 
   @override
@@ -1512,8 +1519,12 @@ class _GroupedSelectionInputState extends State<_GroupedSelectionInput> {
   }
 
   void _changed(int index, String value) {
-    if (value.length == widget.shape.digits && index < _focusNodes.length - 1) {
-      _focusNodes[index + 1].requestFocus();
+    if (value.length == widget.shape.digits) {
+      if (index < _focusNodes.length - 1) {
+        _focusNodes[index + 1].requestFocus();
+      } else {
+        widget.onComplete();
+      }
     }
     widget.onChanged(_value());
   }

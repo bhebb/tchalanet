@@ -26,6 +26,7 @@ import com.tchalanet.server.platform.notification.api.model.view.NotificationIte
 import com.tchalanet.server.platform.notification.api.model.view.NotificationSummaryView;
 import com.tchalanet.server.platform.notification.api.model.view.NotificationUnreadCountView;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +40,13 @@ class DefaultNotificationApi implements NotificationApi {
 
   @Override
   public void createNotification(CreateNotificationRequest request) {
-    if (request != null && request.tenantId() != null && !hasCurrentTenant(request.tenantId())) {
+    Objects.requireNonNull(request, "request");
+    if (request.tenantId() != null && !hasCurrentTenant(request.tenantId())) {
       TchContextScope.runWithTemporaryTenant(
           request.tenantId().value(), requestId("notification-tenant"), () -> doCreate(request));
       return;
     }
-    if (request != null && request.tenantId() == null && !hasCurrentPlatformScope()) {
+    if (request.tenantId() == null && !hasCurrentPlatformScope()) {
       TchContextScope.runPlatformSystem(
           requestId("notification-platform"), () -> doCreate(request));
       return;

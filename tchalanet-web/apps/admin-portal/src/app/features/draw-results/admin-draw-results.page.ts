@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 
 import { TchLoading, TchErrorPanel } from '@tch/ui/components';
@@ -46,16 +46,16 @@ import {
   generatedDrawTimeWithZoneLabel,
 } from '../draws/data-access/admin-generated-draws.models';
 
-const RESULT_STATUS_OPTIONS: Array<{ value: DrawResultStatus | ''; label: string }> = [
-  { value: '', label: 'Tous les statuts' },
+const RESULT_STATUS_OPTIONS: Array<{ value: DrawResultStatus | ''; label?: string; labelKey?: string }> = [
+  { value: '', labelKey: 'admin.drawResults.filters.allStatuses' },
   { value: 'PROVISIONAL', label: consoleDrawResultStatusLabel('PROVISIONAL') },
   { value: 'CONFIRMED', label: consoleDrawResultStatusLabel('CONFIRMED') },
   { value: 'OVERRIDDEN', label: consoleDrawResultStatusLabel('OVERRIDDEN') },
   { value: 'ERROR', label: consoleDrawResultStatusLabel('ERROR') },
 ];
 
-const RESULT_QUALITY_OPTIONS: Array<{ value: DrawResultQuality | ''; label: string }> = [
-  { value: '', label: 'Toutes qualités' },
+const RESULT_QUALITY_OPTIONS: Array<{ value: DrawResultQuality | ''; label?: string; labelKey?: string }> = [
+  { value: '', labelKey: 'admin.drawResults.filters.allQualities' },
   { value: 'COMPLETE', label: consoleDrawResultQualityLabel('COMPLETE') },
   { value: 'SUSPECT', label: consoleDrawResultQualityLabel('SUSPECT') },
   { value: 'INVALID', label: consoleDrawResultQualityLabel('INVALID') },
@@ -83,6 +83,7 @@ const RESULT_QUALITY_OPTIONS: Array<{ value: DrawResultQuality | ''; label: stri
     MatNativeDateModule,
     MatPaginatorModule,
     MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './admin-draw-results.page.html',
   styleUrls: ['./admin-draw-results.page.scss'],
@@ -109,8 +110,14 @@ export class AdminDrawResultsPage implements OnInit {
   readonly toFilter = signal('');
   readonly pageIndex = signal(0);
   readonly pageSize = signal(20);
-  readonly statusOptions = RESULT_STATUS_OPTIONS;
-  readonly qualityOptions = RESULT_QUALITY_OPTIONS;
+  readonly statusOptions = RESULT_STATUS_OPTIONS.map(option => ({
+    ...option,
+    label: this.optionLabel(option),
+  }));
+  readonly qualityOptions = RESULT_QUALITY_OPTIONS.map(option => ({
+    ...option,
+    label: this.optionLabel(option),
+  }));
   readonly fromDateValue = computed(() => this.fromFilter() ? isoDateToLocalDate(this.fromFilter()) : null);
   readonly toDateValue = computed(() => this.toFilter() ? isoDateToLocalDate(this.toFilter()) : null);
   readonly rows = computed<readonly ConsoleDrawResultRow[]>(() =>
@@ -316,7 +323,9 @@ export class AdminDrawResultsPage implements OnInit {
   }
 
   appliedLabel(row: DrawResultView): string {
-    return row.appliedAt ? this.tenantTimestamp(row.appliedAt) : 'Non appliqué';
+    return row.appliedAt
+      ? this.tenantTimestamp(row.appliedAt)
+      : this.translate.instant('admin.drawResults.detail.value.notApplied');
   }
 
   tenantTimezoneLabel(): string {
@@ -407,12 +416,16 @@ export class AdminDrawResultsPage implements OnInit {
       actions: [
         {
           id: 'detail',
-          label: 'Voir détail',
+          label: this.translate.instant('admin.drawResults.action.detail'),
           icon: 'open_in_new',
           variant: 'button',
         },
       ],
     });
+  }
+
+  private optionLabel(option: { label?: string; labelKey?: string }): string {
+    return option.labelKey ? this.translate.instant(option.labelKey) : option.label ?? '';
   }
 }
 

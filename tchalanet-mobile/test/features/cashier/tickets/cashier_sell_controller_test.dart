@@ -82,6 +82,46 @@ void main() {
       ]);
     },
   );
+
+  test(
+    'confirm/sell reloads ticket details after an idempotent replay',
+    () async {
+      final container = _containerWith(
+        ticketService: _FakeTicketService(
+          preview: _acceptedPreview(),
+          confirmResponse: const CashierSellTicketResponse(
+            preparationId: 'prep-1',
+            alreadyConfirmed: true,
+            outcome: 'CONFIRMED',
+            ticketId: 'ticket-1',
+            ticketCode: '',
+          ),
+          details: const CashierTicketDetailsView(
+            id: 'ticket-1',
+            ticketCode: 'TCK-1',
+            publicCode: 'PUB-1',
+            status: 'PLACED',
+            totalAmountCents: 1000,
+            currency: 'HTG',
+          ),
+        ),
+      );
+      addTearDown(container.dispose);
+
+      final controller = container.read(sellControllerProvider.notifier);
+      await _loadReadySale(controller);
+      await controller.prepare();
+
+      await controller.confirmSell();
+
+      final state = container.read(sellControllerProvider);
+      expect(state, isA<SellSuccess>());
+      final success = state as SellSuccess;
+      expect(success.response.ticketId, 'ticket-1');
+      expect(success.response.ticketCode, 'TCK-1');
+      expect(success.response.publicCode, 'PUB-1');
+    },
+  );
 }
 
 ProviderContainer _containerWith({
@@ -129,12 +169,19 @@ class _FakeCatalogService extends CashierSellCatalogService {
 }
 
 class _FakeTicketService extends CashierTicketService {
-  _FakeTicketService({this.preview, this.prepareError, this.confirmError})
-    : super(Dio());
+  _FakeTicketService({
+    this.preview,
+    this.prepareError,
+    this.confirmError,
+    this.confirmResponse,
+    this.details,
+  }) : super(Dio());
 
   final CashierTicketPreviewResponse? preview;
   final ApiException? prepareError;
   final ApiException? confirmError;
+  final CashierSellTicketResponse? confirmResponse;
+  final CashierTicketDetailsView? details;
 
   @override
   Future<CashierTicketPreviewResponse> prepare(
@@ -150,13 +197,26 @@ class _FakeTicketService extends CashierTicketService {
     required String idempotencyKey,
   }) async {
     if (confirmError != null) throw confirmError!;
-    return CashierSellTicketResponse(
-      preparationId: preparationId,
-      alreadyConfirmed: false,
-      outcome: 'ACCEPTED',
-      ticketId: 'ticket-1',
-      ticketCode: 'TCK-1',
-    );
+    return confirmResponse ??
+        CashierSellTicketResponse(
+          preparationId: preparationId,
+          alreadyConfirmed: false,
+          outcome: 'ACCEPTED',
+          ticketId: 'ticket-1',
+          ticketCode: 'TCK-1',
+        );
+  }
+
+  @override
+  Future<CashierTicketDetailsView> getDetails(String ticketId) async {
+    return details ??
+        CashierTicketDetailsView(
+          id: ticketId,
+          ticketCode: 'TCK-1',
+          status: 'PLACED',
+          totalAmountCents: 1000,
+          currency: 'HTG',
+        );
   }
 }
 

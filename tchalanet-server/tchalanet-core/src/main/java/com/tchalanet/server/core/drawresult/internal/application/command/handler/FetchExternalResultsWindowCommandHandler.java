@@ -170,7 +170,7 @@ public class FetchExternalResultsWindowCommandHandler
         return;
       }
 
-      var projection = haitiProjectionService.project(slot, date, external);
+      var projection = haitiProjectionService.project(slot, date, external, sourceCfg);
 
       var payload =
           drawResultPersistenceAssembler.assemble(
