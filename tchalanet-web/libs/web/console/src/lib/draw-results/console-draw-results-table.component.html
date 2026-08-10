@@ -1,15 +1,15 @@
 <div class="console-draw-results-table">
   <table mat-table [dataSource]="rows()">
     <ng-container matColumnDef="draw">
-      <th mat-header-cell *matHeaderCellDef>Tirage</th>
-      <td mat-cell *matCellDef="let row" data-label="Tirage">
+      <th mat-header-cell *matHeaderCellDef>{{ 'console.drawResultsTable.column.draw' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawResultsTable.column.draw' | translate">
         <tch-console-draw-slot-identity [identity]="row.identity" />
       </td>
     </ng-container>
 
     <ng-container matColumnDef="numbers">
-      <th mat-header-cell *matHeaderCellDef>Numéros</th>
-      <td mat-cell *matCellDef="let row" data-label="Numéros">
+      <th mat-header-cell *matHeaderCellDef>{{ 'console.drawResultsTable.column.numbers' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawResultsTable.column.numbers' | translate">
         <div class="console-draw-results-table__numbers-cell">
           @if (row.numbers.length > 0) {
             <span class="console-draw-results-table__numbers">
@@ -33,40 +33,40 @@
             <span class="material-symbols-outlined">
               {{ isExpanded(row) ? 'expand_less' : 'expand_more' }}
             </span>
-            {{ isExpanded(row) ? 'Masquer' : 'Détails' }}
+            {{ isExpanded(row) ? ('console.drawResultsTable.toggle.hide' | translate) : ('console.drawResultsTable.toggle.details' | translate) }}
           </button>
         </div>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Statut</th>
-      <td mat-cell *matCellDef="let row" data-label="Statut">
+      <th mat-header-cell *matHeaderCellDef>{{ 'console.drawResultsTable.column.status' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawResultsTable.column.status' | translate">
         <tch-admin-status-pill [label]="(row.statusLabel | translate)" [tone]="row.statusTone" />
       </td>
     </ng-container>
 
     <ng-container matColumnDef="quality">
-      <th mat-header-cell *matHeaderCellDef>Qualité</th>
-      <td mat-cell *matCellDef="let row" data-label="Qualité">
+      <th mat-header-cell *matHeaderCellDef>{{ 'console.drawResultsTable.column.quality' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawResultsTable.column.quality' | translate">
         <tch-admin-status-pill [label]="(row.qualityLabel | translate)" [tone]="row.qualityTone" />
       </td>
     </ng-container>
 
     <ng-container matColumnDef="occurredAt">
-      <th mat-header-cell *matHeaderCellDef>Date &amp; heure</th>
-      <td mat-cell *matCellDef="let row" data-label="Date & heure">
+      <th mat-header-cell *matHeaderCellDef>{{ 'console.drawResultsTable.column.dateTime' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawResultsTable.column.dateTime' | translate">
         <div class="console-draw-results-table__time-stack">
           <p class="console-draw-results-table__date">{{ row.providerDateLabel || row.occurredDateLabel || '—' }}</p>
           @if (row.providerTimeLabel) {
             <p class="console-draw-results-table__time">
-              <span>Officiel</span>
+              <span>{{ 'console.drawResultsTable.time.official' | translate }}</span>
               {{ row.providerTimeLabel }}
             </p>
           }
           @if (row.localTimeLabel) {
             <p class="console-draw-results-table__time">
-              <span>Local</span>
+              <span>{{ 'console.drawResultsTable.time.local' | translate }}</span>
               @if (row.localDateLabel) {
                 {{ row.localDateLabel }} ·
               }
@@ -78,8 +78,8 @@
     </ng-container>
 
     <ng-container matColumnDef="fetchedAt">
-      <th mat-header-cell *matHeaderCellDef>Récupéré</th>
-      <td mat-cell *matCellDef="let row" data-label="Récupéré">
+      <th mat-header-cell *matHeaderCellDef>{{ 'console.drawResultsTable.column.fetchedAt' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawResultsTable.column.fetchedAt' | translate">
         <span
           class="console-draw-results-table__fetched-at"
           [class.console-draw-results-table__fetched-at--empty]="!row.fetchedAtLabel"
@@ -90,13 +90,13 @@
     </ng-container>
 
     <ng-container matColumnDef="appliedAt">
-      <th mat-header-cell *matHeaderCellDef>Appliqué le</th>
-      <td mat-cell *matCellDef="let row" data-label="Appliqué">
+      <th mat-header-cell *matHeaderCellDef>{{ 'console.drawResultsTable.column.appliedAt' | translate }}</th>
+      <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawResultsTable.column.appliedAt' | translate">
         <span
           class="console-draw-results-table__application-state"
           [class.console-draw-results-table__application-state--pending]="!row.appliedAtLabel"
         >
-          {{ row.appliedAtLabel || 'Non appliqué' }}
+          {{ row.appliedAtLabel || ('console.drawResultsTable.notApplied' | translate) }}
         </span>
       </td>
     </ng-container>
@@ -114,7 +114,7 @@
               (click)="emitSource(row)"
             >
               <span class="material-symbols-outlined">data_object</span>
-              Afficher source
+              {{ 'console.drawResultsTable.showSource' | translate }}
             </button>
           }
         </div>

@@ -20,6 +20,27 @@
       "nextPage": "Page suivante",
       "selection": "Sélection"
     },
+    "drawResultsTable": {
+      "column": {
+        "draw": "Tirage",
+        "numbers": "Numéros",
+        "status": "Statut",
+        "quality": "Qualité",
+        "dateTime": "Date & heure",
+        "fetchedAt": "Récupéré",
+        "appliedAt": "Appliqué le"
+      },
+      "toggle": {
+        "hide": "Masquer",
+        "details": "Détails"
+      },
+      "time": {
+        "official": "Officiel",
+        "local": "Local"
+      },
+      "notApplied": "Non appliqué",
+      "showSource": "Afficher source"
+    },
     "gamesTable": {
       "title": "Jeux",
       "column": {

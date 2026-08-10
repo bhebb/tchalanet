@@ -688,6 +688,27 @@
         "confirmed": "Filtrer sur les résultats confirmés"
       }
     },
+    "drawActivity": {
+      "salesEnd": "Fin des ventes",
+      "statusOpen": "En cours",
+      "loading": "Chargement de l'activité...",
+      "loadError": "Impossible de charger les indicateurs de vente du tirage.",
+      "kpiLabel": "Indicateurs du tirage",
+      "ticketsSold": "Tickets vendus",
+      "grossSales": "Montant vendu",
+      "activeSellers": "Vendeurs actifs",
+      "viewSellersReport": "Voir les vendeurs du tirage",
+      "estimatedCommission": "Commission estimée",
+      "estimatedNet": "Net estimé",
+      "promoBase": "Promo base",
+      "hotSelectionsOpen": "Sélections chaudes",
+      "hotSelectionsClosed": "Exposition du tirage",
+      "top5Open": "Top 5 à surveiller",
+      "top5Closed": "Top 5 des sélections vendues",
+      "loadingShort": "Chargement...",
+      "loadSelectionsError": "Impossible de charger les sélections les plus jouées.",
+      "noSelections": "Aucune sélection vendue sur ce tirage pour le moment."
+    },
     "pos": {
       "title": "Vente ticket",
       "changeDraw": "Changer de tirage",

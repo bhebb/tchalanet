@@ -1820,6 +1820,27 @@
         "confirmed": "Filtre sou rezilta konfime yo"
       }
     },
+    "drawActivity": {
+      "salesEnd": "Fen vant",
+      "statusOpen": "Ap fèt",
+      "loading": "Ap chaje aktivite...",
+      "loadError": "Enposib chaje endikate vant tiraj la.",
+      "kpiLabel": "Endikate tiraj la",
+      "ticketsSold": "Tikè vann",
+      "grossSales": "Montan vann",
+      "activeSellers": "Machann aktif",
+      "viewSellersReport": "Gade machann nan tiraj la",
+      "estimatedCommission": "Komisyon estime",
+      "estimatedNet": "Nèt estime",
+      "promoBase": "Baz pwomo",
+      "hotSelectionsOpen": "Seleksyon cho",
+      "hotSelectionsClosed": "Ekspozisyon tiraj la",
+      "top5Open": "Top 5 pou siveye",
+      "top5Closed": "Top 5 seleksyon vann",
+      "loadingShort": "Ap chaje...",
+      "loadSelectionsError": "Enposib chaje seleksyon ki pi jwe yo.",
+      "noSelections": "Okenn seleksyon vann sou tiraj sa a pou kounya."
+    },
     "pos": {
       "title": "Vann tikè",
       "changeDraw": "Chanje tiraj",

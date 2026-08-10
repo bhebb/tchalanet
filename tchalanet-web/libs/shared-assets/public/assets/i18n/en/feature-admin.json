@@ -1820,6 +1820,27 @@
         "confirmed": "Filter confirmed results"
       }
     },
+    "drawActivity": {
+      "salesEnd": "Sales close",
+      "statusOpen": "In progress",
+      "loading": "Loading activity...",
+      "loadError": "Unable to load draw sales indicators.",
+      "kpiLabel": "Draw indicators",
+      "ticketsSold": "Tickets sold",
+      "grossSales": "Gross sales",
+      "activeSellers": "Active sellers",
+      "viewSellersReport": "View draw sellers",
+      "estimatedCommission": "Estimated commission",
+      "estimatedNet": "Estimated net",
+      "promoBase": "Promo base",
+      "hotSelectionsOpen": "Hot selections",
+      "hotSelectionsClosed": "Draw exposure",
+      "top5Open": "Top 5 to watch",
+      "top5Closed": "Top 5 sold selections",
+      "loadingShort": "Loading...",
+      "loadSelectionsError": "Unable to load most played selections.",
+      "noSelections": "No selections sold on this draw yet."
+    },
     "pos": {
       "title": "Sell a ticket",
       "changeDraw": "Change draw",

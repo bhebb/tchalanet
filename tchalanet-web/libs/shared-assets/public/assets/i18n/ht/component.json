@@ -20,6 +20,27 @@
       "nextPage": "Paj apre",
       "selection": "Seleksyon"
     },
+    "drawResultsTable": {
+      "column": {
+        "draw": "Tiraj",
+        "numbers": "Nimewo",
+        "status": "Estati",
+        "quality": "Kalite",
+        "dateTime": "Dat ak lè",
+        "fetchedAt": "Rekipere",
+        "appliedAt": "Aplike le"
+      },
+      "toggle": {
+        "hide": "Kache",
+        "details": "Detay"
+      },
+      "time": {
+        "official": "Ofisyèl",
+        "local": "Lokal"
+      },
+      "notApplied": "Pa aplike",
+      "showSource": "Montre sous"
+    },
     "gamesTable": {
       "title": "Jwèt",
       "column": {

@@ -1,65 +1,65 @@
 <div class="draw-detail-activity__head">
   <div>
-    <p class="draw-detail-activity__eyebrow">Fin des ventes</p>
+    <p class="draw-detail-activity__eyebrow">{{ 'admin.drawActivity.salesEnd' | translate }}</p>
     <h2>{{ view().countdown }}</h2>
   </div>
   @if (view().salesOpen) {
-    <span class="draw-detail-activity__status is-open">En cours</span>
+    <span class="draw-detail-activity__status is-open">{{ 'admin.drawActivity.statusOpen' | translate }}</span>
   } @else {
     <span class="draw-detail-activity__status">{{ view().salesStatus | translate }}</span>
   }
 </div>
 
 @if (view().activityState === 'loading') {
-  <tch-loading label="Chargement de l’activité..." />
+  <tch-loading [label]="'admin.drawActivity.loading' | translate" />
 } @else if (view().activityState === 'error') {
   <div class="draw-detail-activity__error">
-    {{ view().activityErrorMessage || 'Impossible de charger les indicateurs de vente du tirage.' }}
+    {{ view().activityErrorMessage || ('admin.drawActivity.loadError' | translate) }}
   </div>
 } @else if (view().activityReport; as report) {
   @if (view().noSalesHint; as hint) {
     <p class="draw-detail-activity__notice">{{ hint }}</p>
   }
 
-  <section class="tch-metric-grid draw-detail-activity__kpis" aria-label="Indicateurs du tirage">
+  <section class="tch-metric-grid draw-detail-activity__kpis" [attr.aria-label]="'admin.drawActivity.kpiLabel' | translate">
     <tch-admin-metric-card
       icon="confirmation_number"
-      label="Tickets vendus"
+      [label]="'admin.drawActivity.ticketsSold' | translate"
       [value]="(report.ticketsSold | number: '1.0-0') ?? '0'"
     />
     <tch-admin-metric-card
       icon="payments"
       tone="accent"
-      label="Montant vendu"
+      [label]="'admin.drawActivity.grossSales' | translate"
       [value]="(report.grossSales | number: '1.0-2') ?? '0'"
       hint="HTG"
     />
     <tch-admin-metric-card
       icon="groups"
       tone="info"
-      label="Vendeurs actifs"
+      [label]="'admin.drawActivity.activeSellers' | translate"
       [value]="(report.activeSellerCount | number: '1.0-0') ?? '0'"
       [interactive]="true"
-      actionLabel="Voir les vendeurs du tirage"
+      [actionLabel]="'admin.drawActivity.viewSellersReport' | translate"
       (action)="openSellersReport()"
     />
     <tch-admin-metric-card
       icon="percent"
-      label="Commission estimée"
+      [label]="'admin.drawActivity.estimatedCommission' | translate"
       [value]="(report.sellerCommission | number: '1.0-2') ?? '0'"
       hint="HTG"
     />
     <tch-admin-metric-card
       icon="account_balance"
       tone="positive"
-      label="Net estimé"
+      [label]="'admin.drawActivity.estimatedNet' | translate"
       [value]="(report.netRevenueEstimated | number: '1.0-2') ?? '0'"
       hint="HTG"
     />
     <tch-admin-metric-card
       icon="redeem"
       tone="warning"
-      label="Promo base"
+      [label]="'admin.drawActivity.promoBase' | translate"
       [value]="(report.promotionPayoutBase | number: '1.0-2') ?? '0'"
       hint="HTG"
     />
@@ -72,7 +72,7 @@
         <h3>{{ topSelectionsTitle() }}</h3>
       </div>
       @if (view().topSelectionsState === 'loading') {
-        <span>Chargement...</span>
+        <span>{{ 'admin.drawActivity.loadingShort' | translate }}</span>
       }
     </div>
 
@@ -80,7 +80,7 @@
       <p class="draw-detail-activity__empty-hint">
         {{
           view().topSelectionsErrorMessage ||
-            'Impossible de charger les sélections les plus jouées.'
+            ('admin.drawActivity.loadSelectionsError' | translate)
         }}
       </p>
     } @else if (view().topSelections.length) {
@@ -97,7 +97,7 @@
       </ol>
     } @else if (view().topSelectionsState === 'ready') {
       <p class="draw-detail-activity__empty-hint">
-        Aucune sélection vendue sur ce tirage pour le moment.
+        {{ 'admin.drawActivity.noSelections' | translate }}
       </p>
     }
   </div>

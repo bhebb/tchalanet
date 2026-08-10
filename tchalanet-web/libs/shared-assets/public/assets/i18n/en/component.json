@@ -20,6 +20,27 @@
       "nextPage": "Next page",
       "selection": "Selection"
     },
+    "drawResultsTable": {
+      "column": {
+        "draw": "Draw",
+        "numbers": "Numbers",
+        "status": "Status",
+        "quality": "Quality",
+        "dateTime": "Date & time",
+        "fetchedAt": "Fetched",
+        "appliedAt": "Applied at"
+      },
+      "toggle": {
+        "hide": "Hide",
+        "details": "Details"
+      },
+      "time": {
+        "official": "Official",
+        "local": "Local"
+      },
+      "notApplied": "Not applied",
+      "showSource": "Show source"
+    },
     "gamesTable": {
       "title": "Games",
       "column": {
