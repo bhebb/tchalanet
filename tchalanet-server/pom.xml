@@ -31,7 +31,7 @@
     <java.version>25</java.version>
 
     <!-- Library versions -->
-    <archunit.version>1.4.2</archunit.version>
+    <archunit.version>1.5.0</archunit.version>
     <aws-sdk.version>2.35.9</aws-sdk.version>
     <caffeine.version>3.2.4</caffeine.version>
     <firebase-admin.version>9.10.0</firebase-admin.version>
@@ -75,7 +75,7 @@
     <pmd.plugin.version>3.28.0</pmd.plugin.version>
     <pmd.version>7.26.0</pmd.version>
     <spotbugs.plugin.version>4.10.3.0</spotbugs.plugin.version>
-    <owasp.plugin.version>12.2.2</owasp.plugin.version>
+    <owasp.plugin.version>13.0.0</owasp.plugin.version>
     <sonar.maven.plugin.version>5.3.0.6276</sonar.maven.plugin.version>
 
     <sonar.projectKey>tchalanet:tchalanet-server</sonar.projectKey>
