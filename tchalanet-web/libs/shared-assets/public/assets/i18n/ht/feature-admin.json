@@ -2087,12 +2087,15 @@
     "admin": {
       "quick_actions": {
         "title": "Aksyon rapid",
+        "today_draws": "Tiraj jodi a",
+        "today_report": "Rapò jodi a",
+        "machines": "Machin yo",
+        "sales_by_terminal": "Vant pa tèminal",
+        "sales_by_draw": "Vant pa tiraj",
         "block_number": "Bloke nimewo",
-        "draws": "Tiraj yo",
-        "sellers": "Machann yo",
-        "sell_ticket": "Vann tikè",
-        "verify_ticket": "Tcheke tikè",
-        "reports": "Rapò"
+        "block_machine": "Bloke yon machin",
+        "reset_machine_pin": "Reyinisyalize PIN yon machin",
+        "draw_results": "Rezilta bòlèt yo"
       }
     },
     "superadmin": {

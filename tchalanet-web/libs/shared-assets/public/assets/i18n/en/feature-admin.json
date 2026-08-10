@@ -2087,12 +2087,15 @@
     "admin": {
       "quick_actions": {
         "title": "Quick actions",
+        "today_draws": "Today's draws",
+        "today_report": "Today's report",
+        "machines": "Machines",
+        "sales_by_terminal": "Sales by terminal",
+        "sales_by_draw": "Sales by draw",
         "block_number": "Block number",
-        "draws": "Draws",
-        "sellers": "Sellers",
-        "sell_ticket": "Sell ticket",
-        "verify_ticket": "Verify ticket",
-        "reports": "Reports"
+        "block_machine": "Block machine",
+        "reset_machine_pin": "Reset machine PIN",
+        "draw_results": "Borlette results"
       }
     },
     "superadmin": {

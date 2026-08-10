@@ -51,6 +51,6 @@ content so mobile admins can act without opening the sidenav.
 #### Scenario: Admin opens the dashboard on mobile
 
 - **WHEN** the admin dashboard renders
-- **THEN** the quick-action area includes block number, draws, sellers, sell ticket, verify ticket,
-  and reports
+- **THEN** the quick-action area includes today's draws, today's report, machines, sales by
+  terminal, sales by draw, block number, block machine, reset machine PIN, and borlette results
 - **AND** each action routes to the existing admin operation page.

@@ -2087,12 +2087,15 @@
     "admin": {
       "quick_actions": {
         "title": "Actions rapides",
+        "today_draws": "Tirages du jour",
+        "today_report": "Rapport du jour",
+        "machines": "Machines",
+        "sales_by_terminal": "Ventes par terminal",
+        "sales_by_draw": "Ventes par tirage",
         "block_number": "Bloquer un numéro",
-        "draws": "Tirages",
-        "sellers": "Vendeurs",
-        "sell_ticket": "Vendre un ticket",
-        "verify_ticket": "Vérifier un ticket",
-        "reports": "Rapports"
+        "block_machine": "Bloquer une machine",
+        "reset_machine_pin": "Réinitialiser PIN machine",
+        "draw_results": "Résultats bòlèt"
       }
     },
     "superadmin": {
