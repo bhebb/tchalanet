@@ -234,11 +234,11 @@ describe('TENANT_ADMIN_NAVIGATION', () => {
     expect(TENANT_ADMIN_NAVIGATION.map(section => section.id)).toEqual(['admin', 'config']);
     expect(TENANT_ADMIN_NAVIGATION[0].items.map(item => item.id)).toEqual([
       'dashboard',
-      'sellers',
       'draws',
-      'reports',
+      'sellers',
       'limits',
       'tickets',
+      'reports',
     ]);
     expect(TENANT_ADMIN_NAVIGATION[1].items.map(item => item.id)).toEqual([
       'setup',

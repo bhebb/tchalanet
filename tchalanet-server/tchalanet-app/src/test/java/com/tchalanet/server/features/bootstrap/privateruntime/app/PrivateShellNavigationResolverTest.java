@@ -45,7 +45,7 @@ class PrivateShellNavigationResolverTest {
     assertThat(sections).hasSize(2);
     assertThat(itemIds(sections.get(0)))
         .as("operations: what a tenant admin opens every day")
-        .containsExactly("dashboard", "sellers", "draws", "reports", "limits", "tickets");
+        .containsExactly("dashboard", "draws", "sellers", "limits", "tickets", "reports");
     assertThat(itemIds(sections.get(1)))
         .as("configuration: rarely-touched setup, kept out of the daily section")
         .containsExactly("setup", "draws-channels", "games", "maryaj-gratis", "company");
