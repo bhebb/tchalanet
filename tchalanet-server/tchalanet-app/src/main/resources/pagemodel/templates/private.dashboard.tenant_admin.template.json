@@ -41,6 +41,11 @@
         "component": "GridLayout",
         "rows": [
           {
+            "id": "quickActions",
+            "labelKey": "layout.dashboard.tenant_admin.quick_actions",
+            "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.quickActions"] }]
+          },
+          {
             "id": "period",
             "labelKey": "layout.dashboard.tenant_admin.period",
             "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.periodSelector"] }]
@@ -59,11 +64,6 @@
             "id": "salesTrend",
             "labelKey": "layout.dashboard.tenant_admin.sales_trend",
             "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.salesTrend"] }]
-          },
-          {
-            "id": "quickActions",
-            "labelKey": "layout.dashboard.tenant_admin.quick_actions",
-            "columns": [{ "span": 12, "widgets": ["dashboard.tenantAdmin.quickActions"] }]
           }
         ]
       },
@@ -158,22 +158,52 @@
                 "destination": { "kind": "route", "value": "/app/admin/draws?date=TODAY" }
               },
               {
-                "id": "salesByTerminal",
-                "labelKey": "quickaction.admin.sales_by_terminal",
-                "icon": "point_of_sale",
-                "destination": { "kind": "route", "value": "/app/admin/reports/sellers" }
-              },
-              {
                 "id": "dailyReport",
                 "labelKey": "quickaction.admin.daily_report",
                 "icon": "today",
                 "destination": { "kind": "route", "value": "/app/admin/reports/daily" }
               },
               {
+                "id": "sellerTerminals",
+                "labelKey": "quickaction.admin.seller_terminals",
+                "icon": "point_of_sale",
+                "destination": { "kind": "route", "value": "/app/admin/seller-terminals" }
+              },
+              {
+                "id": "salesByTerminal",
+                "labelKey": "quickaction.admin.sales_by_terminal",
+                "icon": "receipt_long",
+                "destination": { "kind": "route", "value": "/app/admin/reports/sellers" }
+              },
+              {
+                "id": "salesByDraw",
+                "labelKey": "quickaction.admin.sales_by_draw",
+                "icon": "analytics",
+                "destination": { "kind": "route", "value": "/app/admin/reports/draws" }
+              },
+              {
                 "id": "blockNumber",
                 "labelKey": "quickaction.admin.block_number",
                 "icon": "block",
                 "destination": { "kind": "route", "value": "/app/admin/limits/number" }
+              },
+              {
+                "id": "blockSeller",
+                "labelKey": "quickaction.admin.block_seller",
+                "icon": "phonelink_lock",
+                "destination": { "kind": "route", "value": "/app/admin/seller-terminals" }
+              },
+              {
+                "id": "resetSellerPin",
+                "labelKey": "quickaction.admin.reset_seller_pin",
+                "icon": "lock_reset",
+                "destination": { "kind": "route", "value": "/app/admin/seller-terminals" }
+              },
+              {
+                "id": "drawResults",
+                "labelKey": "quickaction.admin.draw_results",
+                "icon": "fact_check",
+                "destination": { "kind": "route", "value": "/app/admin/draws/results" }
               }
             ]
           }

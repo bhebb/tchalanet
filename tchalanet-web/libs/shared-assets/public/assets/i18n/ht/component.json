@@ -159,14 +159,19 @@
     "admin": {
       "daily_report": "Rapò jodi a",
       "todays_draws": "Tiraj jodi a",
-      "sales_by_terminal": "Vant pa tèminal",
+      "seller_terminals": "Machann yo",
+      "sales_by_terminal": "Vant pa machann",
+      "sales_by_draw": "Vant pa tiraj",
       "block_number": "Bloke yon nimewo",
+      "block_seller": "Bloke yon machann",
+      "reset_seller_pin": "Reyinisyalize PIN machann",
+      "draw_results": "Rezilta tiraj yo",
       "draws_pending_results": "Tiraj k ap tann rezilta",
       "manage_limits": "Jere limit",
       "manage_odds": "Jere odds",
       "maryaj_gratis": "Maryaj gratis",
-      "add_seller_terminal": "Ajoute tèminal POS",
-      "active_seller_terminals": "Tèminal POS aktif"
+      "add_seller_terminal": "Ajoute machann",
+      "active_seller_terminals": "Machann aktif"
     },
     "platform": {
       "create_tenant": "Kreye santral",

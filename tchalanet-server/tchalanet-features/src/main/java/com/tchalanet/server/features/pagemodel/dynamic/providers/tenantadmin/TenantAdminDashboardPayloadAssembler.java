@@ -764,20 +764,45 @@ public class TenantAdminDashboardPayloadAssembler {
                 "event_available",
                 "/app/admin/draws?date=TODAY"),
             new ActionItem(
-                "SALES_BY_TERMINAL",
-                "quickaction.admin.sales_by_terminal",
-                "point_of_sale",
-                "/app/admin/reports/sellers"),
-            new ActionItem(
                 "DAILY_REPORT",
                 "quickaction.admin.daily_report",
                 "today",
                 "/app/admin/reports/daily"),
             new ActionItem(
+                "SELLER_TERMINALS",
+                "quickaction.admin.seller_terminals",
+                "point_of_sale",
+                "/app/admin/seller-terminals"),
+            new ActionItem(
+                "SALES_BY_TERMINAL",
+                "quickaction.admin.sales_by_terminal",
+                "receipt_long",
+                "/app/admin/reports/sellers"),
+            new ActionItem(
+                "SALES_BY_DRAW",
+                "quickaction.admin.sales_by_draw",
+                "analytics",
+                "/app/admin/reports/draws"),
+            new ActionItem(
                 "BLOCK_NUMBER",
                 "quickaction.admin.block_number",
                 "block",
-                "/app/admin/limits/number")));
+                "/app/admin/limits/number"),
+            new ActionItem(
+                "BLOCK_SELLER",
+                "quickaction.admin.block_seller",
+                "phonelink_lock",
+                "/app/admin/seller-terminals"),
+            new ActionItem(
+                "RESET_SELLER_PIN",
+                "quickaction.admin.reset_seller_pin",
+                "lock_reset",
+                "/app/admin/seller-terminals"),
+            new ActionItem(
+                "DRAW_RESULTS",
+                "quickaction.admin.draw_results",
+                "fact_check",
+                "/app/admin/draws/results")));
   }
 
   public record Payload(
