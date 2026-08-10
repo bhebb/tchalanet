@@ -79,6 +79,7 @@ Configurer dans : GitHub → Settings → Secrets and variables → Actions → 
 | `R2_BUCKET` | ✅ requis | ✅ requis | Bucket de destination des backups |
 | `BACKUP_AGE_PUBLIC_KEY` | ✅ requis | ✅ requis | Clé publique `age` — chiffre les backups |
 | `BACKUP_AGE_PRIVATE_KEY` | ✅ requis | ✅ requis | Clé privée `age` — répétition de restauration |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` | — | ✅ futur mobile | JSON base64 du service account Google Play Console, droits limités aux releases |
 
 > Les secrets d'**archive** ne figurent pas dans ce tableau : ils vivent dans
 > Doppler, pas ici. Voir la section « Cas d'école » ci-dessus.
@@ -105,6 +106,9 @@ Configurer dans : GitHub → Settings → Secrets and variables → Actions → 
 |---|---|---|
 | `TCH_API_BASE_URL_STG` | `https://api.stg.tchalanet.com` | Utilisé par le workflow mobile (RB-03) |
 | `TCH_TERMINAL_EMAIL_DOMAIN_STG` | `terminal.stg.tchalanet.com` | Domaine email terminaux staging |
+| `TCH_MOBILE_API_BASE_URL_PROD` | `https://api.tchalanet.com/api/v1` | Build mobile prod |
+| `TCH_TERMINAL_EMAIL_DOMAIN_PROD` | `terminal.tchalanet.com` | Domaine email terminaux prod |
+| `FIREBASE_ANDROID_APP_ID_PROD` | `1:...:android:...` | App ID Android Firebase prod si différent du défaut staging |
 
 ---
 
@@ -181,14 +185,25 @@ Requis pour le workflow manuel `.github/workflows/mobile-distribute-staging.yml`
 | `TCH_ANDROID_KEYSTORE_PASSWORD` | Mot de passe du keystore |
 | `TCH_ANDROID_KEY_ALIAS` | Alias de la clé release |
 | `TCH_ANDROID_KEY_PASSWORD` | Mot de passe de la clé release |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` | Futur prod : JSON base64 du service account Google Play Console |
 
 | Variable | Description |
 |---|---|
 | `FIREBASE_ANDROID_APP_ID` | App ID Android Firebase (`1:1050094456835:android:afb4836a45c441769a3e36` si différent du défaut workflow) |
+| `FIREBASE_ANDROID_APP_ID_PROD` | App ID Android Firebase prod si projet/app prod séparé |
+| `TCH_MOBILE_API_BASE_URL_PROD` | `https://api.tchalanet.com/api/v1` |
+| `TCH_TERMINAL_EMAIL_DOMAIN_PROD` | `terminal.tchalanet.com` |
 
 **À créer dans Firebase Console :** service account avec rôle `Firebase App Distribution Admin` → Download JSON key → encoder en base64 pour `FIREBASE_ADMIN_JSON_BASE64`.
 
-**Futur Google Play :** prévoir un secret séparé `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` quand le workflow Play Console sera créé.
+**Google Play :** prévoir un secret séparé
+`GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64` avant la MEP mobile prod. Le service
+account doit avoir uniquement les droits nécessaires aux releases Android.
+
+**Règle mobile :** aucun secret applicatif ne doit être embarqué dans l'APK/AAB.
+Le mobile reçoit seulement des identifiants publics et des URLs via
+`--dart-define`; les secrets restent dans GitHub Actions, Doppler ou les
+services externes.
 
 ---
 
@@ -221,4 +236,7 @@ Requis pour le workflow manuel `.github/workflows/mobile-distribute-staging.yml`
 [ ] SSH_PRIVATE_KEY_PROD → GitHub Secrets
 [ ] PROD_SERVER_HOST     → GitHub Secrets
 [ ] DOPPLER_TOKEN_PROD   → GitHub Secrets
+[ ] GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 → GitHub Secrets
+[ ] TCH_MOBILE_API_BASE_URL_PROD            → GitHub Variables
+[ ] TCH_TERMINAL_EMAIL_DOMAIN_PROD          → GitHub Variables
 ```

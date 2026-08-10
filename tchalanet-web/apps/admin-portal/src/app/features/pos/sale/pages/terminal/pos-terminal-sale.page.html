@@ -1,5 +1,5 @@
 <tch-admin-page-shell
-  title="Vente ticket"
+  title="Vann yon tikè"
   [description]="pageDescription()"
 >
   <div actions>
@@ -25,7 +25,7 @@
   } @else {
     @if (sellerTerminal(); as terminal) {
       <tch-notice type="info" class="pos-page__acting-notice">
-        Mode admin : les tickets seront rattachés à ce terminal vendeur.
+        Mode admin : les tickets seront rattachés à ce machann.
       </tch-notice>
       @if (sellerTerminalActor(); as actor) {
         <div class="pos-page__terminal-strip">
@@ -37,7 +37,7 @@
     <!-- Terminal bloqué -->
     @if (isTerminalBlocked()) {
       <tch-notice type="warning" class="pos-page__blocked-notice">
-        Ce seller-terminal est bloqué. Il ne peut pas vendre de tickets.
+        Ce machann est bloqué. Il ne peut pas vendre de tickets.
       </tch-notice>
     }
 

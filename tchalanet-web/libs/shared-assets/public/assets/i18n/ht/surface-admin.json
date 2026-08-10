@@ -237,9 +237,9 @@
           "emptyMessage": "Dènye tikè vann yo ap parèt isit la."
         },
         "topTerminals": {
-          "title": "Pi bon tèminal POS jodi a",
-          "emptyTitle": "Pa gen tèminal POS aktif",
-          "emptyMessage": "Tèminal POS yo ap parèt isit la apre analiz yo."
+          "title": "Pi bon machann jodi a",
+          "emptyTitle": "Pa gen machann aktif",
+          "emptyMessage": "Machann yo ap parèt isit la apre analiz yo."
         }
       }
     }

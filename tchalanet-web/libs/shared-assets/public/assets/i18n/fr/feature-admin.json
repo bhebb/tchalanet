@@ -1825,6 +1825,7 @@
         },
         "action": {
           "backToList": "Retour à la liste",
+          "cancel": "Annuler",
           "regenerateCode": "Générer un nouveau code",
           "showPin": "Afficher le PIN",
           "hidePin": "Masquer le PIN",
@@ -1901,6 +1902,29 @@
           "commissionRate": "Commission",
           "addressId": "Adresse",
           "tenantId": "Santral"
+        }
+      },
+      "overrides": {
+        "title": "Règles spéciales vendeur",
+        "description": "Barèmes spécifiques appliqués à ce vendeur. Les ventes futures utilisent la règle spéciale active ; les tickets déjà vendus gardent leur snapshot.",
+        "action": {
+          "backToSeller": "Retour vendeur",
+          "save": "Enregistrer",
+          "revertToTenant": "Revenir à l'espace client"
+        },
+        "loading": "Chargement des règles spéciales...",
+        "error": {
+          "title": "Règles spéciales indisponibles",
+          "message": "Impossible de charger les barèmes et règles spéciales de ce vendeur."
+        },
+        "empty": {
+          "title": "Aucun barème espace client",
+          "message": "Configurez d'abord les barèmes globaux avant de créer une règle spéciale vendeur."
+        },
+        "field": {
+          "tenant": "Espace client",
+          "overrideActive": "Règle spéciale active",
+          "inheritsTenant": "Hérite de l'espace client"
         }
       },
       "status": {
