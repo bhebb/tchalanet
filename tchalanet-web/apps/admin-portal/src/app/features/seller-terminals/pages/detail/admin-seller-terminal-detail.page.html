@@ -12,12 +12,39 @@
         <mat-icon>receipt_long</mat-icon>
         {{ 'admin.sellerTerminals.detail.action.tickets' | translate }}
       </a>
+      <a mat-stroked-button routerLink="/app/admin/reports/sellers">
+        <mat-icon>query_stats</mat-icon>
+        {{ 'admin.sellerTerminals.detail.action.report' | translate }}
+      </a>
+      <a mat-stroked-button [routerLink]="['/app/admin/seller-terminals', t.id.value, 'overrides']">
+        <mat-icon>tune</mat-icon>
+        {{ 'admin.sellerTerminals.detail.action.overrides' | translate }}
+      </a>
+      <button mat-stroked-button type="button" (click)="openResetPin(t)" [disabled]="t.status === 'DISABLED'">
+        <mat-icon>lock_reset</mat-icon>
+        {{ 'admin.sellerTerminals.detail.action.resetPin' | translate }}
+      </button>
+      @if (t.status === 'BLOCKED') {
+        <button mat-stroked-button type="button" (click)="unblock(t)">
+          <mat-icon>lock_open</mat-icon>
+          {{ 'admin.sellerTerminals.detail.action.unblock' | translate }}
+        </button>
+      } @else if (t.status !== 'DISABLED') {
+        <button mat-stroked-button color="warn" type="button" (click)="openBlock(t)">
+          <mat-icon>block</mat-icon>
+          {{ 'admin.sellerTerminals.detail.action.block' | translate }}
+        </button>
+      }
       <a mat-flat-button color="primary" [routerLink]="['/app/admin/seller-terminals', t.id.value, 'pos']">
         <mat-icon>point_of_sale</mat-icon>
         {{ 'admin.sellerTerminals.detail.action.sellTickets' | translate }}
       </a>
     }
   </div>
+
+  @if (actionSuccess(); as actionSuccessKey) {
+    <tch-notice type="success" [focusOnRender]="true">{{ actionSuccessKey | translate }}</tch-notice>
+  }
 
   <tch-async-view
     [resource]="sellerTerminal"
@@ -62,12 +89,7 @@
               icon="tune"
               [facts]="controlFacts()"
               [compact]="true"
-            >
-              <a actions mat-stroked-button [routerLink]="['/app/admin/seller-terminals', t.id.value, 'overrides']">
-                <mat-icon>tune</mat-icon>
-                {{ 'admin.sellerTerminals.detail.action.overrides' | translate }}
-              </a>
-            </tch-seller-terminal-detail-facts-card>
+            />
           </div>
 
           <div aside class="seller-terminal-detail__aside">

@@ -1279,7 +1279,9 @@
         },
         "notice": {
           "created": "The seller was created successfully.",
-          "blocked": "The seller has been blocked."
+          "blocked": "The seller has been blocked.",
+          "unblocked": "The seller has been unblocked.",
+          "pinReset": "The seller PIN has been reset."
         },
         "dialog": {
           "block": {
@@ -1428,7 +1430,11 @@
           "sellTickets": "Sell tickets",
           "overrides": "Edit settings",
           "openPos": "Open POS",
-          "tickets": "Tickets"
+          "tickets": "View tickets",
+          "report": "Seller report",
+          "resetPin": "Reset PIN",
+          "block": "Block",
+          "unblock": "Unblock"
         },
         "summary": {
           "eyebrow": "Seller"
@@ -2100,6 +2106,20 @@
       },
       "readiness": {
         "title": "Readiness"
+      }
+    },
+    "admin": {
+      "quick_actions": {
+        "title": "Quick actions",
+        "today_draws": "Today's draws",
+        "today_report": "Today's report",
+        "machines": "Machines",
+        "sales_by_terminal": "Sales by terminal",
+        "sales_by_draw": "Sales by draw",
+        "block_number": "Block number",
+        "block_machine": "Block machine",
+        "reset_machine_pin": "Reset machine PIN",
+        "draw_results": "Borlette results"
       }
     },
     "superadmin": {

@@ -1226,8 +1226,8 @@
       }
     },
     "sellerTerminals": {
-      "title": "Machann & machin",
-      "description": "Jere machann yo ak machin POS yo",
+      "title": "Machann yo",
+      "description": "Jere machann yo ak aksè lavant yo.",
       "list": {
         "title": "Lis machann yo",
         "description": "Jere aksè lavant, komisyon ak machann ki gen dwa vann tikè.",
@@ -1252,7 +1252,7 @@
         },
         "filter": {
           "search": "Rechèch",
-          "searchPlaceholder": "Chèche yon machann oswa yon machin POS...",
+          "searchPlaceholder": "Chèche yon machann...",
           "status": "Estati",
           "allStatuses": "Tout estati",
           "reset": "Reyinisyalize"
@@ -1279,7 +1279,9 @@
         },
         "notice": {
           "created": "Machann nan kreye avèk siksè.",
-          "blocked": "Machann nan bloke."
+          "blocked": "Machann nan bloke.",
+          "unblocked": "Machann nan debloke.",
+          "pinReset": "PIN machann nan re-inisyalize."
         },
         "dialog": {
           "block": {
@@ -1322,7 +1324,7 @@
       },
       "new": {
         "title": "Kreye yon machann",
-        "description": "Anrejistre yon nouvo machann ak machin POS li sou rezo a.",
+        "description": "Anrejistre yon nouvo machann sou rezo a.",
         "section": {
           "terminal": "Tèminal",
           "terminalDesc": "Kòd ak non ki parèt pou machin POS machann nan.",
@@ -1428,7 +1430,11 @@
           "sellTickets": "Vann tikè",
           "overrides": "Modifye paramèt",
           "openPos": "Louvri POS",
-          "tickets": "Tikè"
+          "tickets": "Gade tikè",
+          "report": "Rapò machann",
+          "resetPin": "Re-inisyalize PIN",
+          "block": "Bloke",
+          "unblock": "Debloke"
         },
         "summary": {
           "eyebrow": "Machann"
@@ -2100,6 +2106,20 @@
       },
       "readiness": {
         "title": "Eta pòs la"
+      }
+    },
+    "admin": {
+      "quick_actions": {
+        "title": "Aksyon rapid",
+        "today_draws": "Tiraj jodi a",
+        "today_report": "Rapò jodi a",
+        "machines": "Machin yo",
+        "sales_by_terminal": "Vant pa tèminal",
+        "sales_by_draw": "Vant pa tiraj",
+        "block_number": "Bloke nimewo",
+        "block_machine": "Bloke yon machin",
+        "reset_machine_pin": "Reyinisyalize PIN yon machin",
+        "draw_results": "Rezilta bòlèt yo"
       }
     },
     "superadmin": {
