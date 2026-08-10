@@ -1708,7 +1708,9 @@
         },
         "notice": {
           "created": "Le vendeur a été créé avec succès.",
-          "blocked": "Le vendeur a été bloqué."
+          "blocked": "Le vendeur a été bloqué.",
+          "unblocked": "Le vendeur a été débloqué.",
+          "pinReset": "Le PIN du vendeur a été réinitialisé."
         },
         "dialog": {
           "block": {
@@ -1856,7 +1858,11 @@
           "sellTickets": "Vendre des tickets",
           "overrides": "Modifier les paramètres",
           "openPos": "Ouvrir POS",
-          "tickets": "Tickets"
+          "tickets": "Voir les tickets",
+          "report": "Rapport vendeur",
+          "resetPin": "Réinitialiser PIN",
+          "block": "Bloquer",
+          "unblock": "Débloquer"
         },
         "summary": {
           "eyebrow": "Vendeur"
@@ -2076,6 +2082,17 @@
       },
       "readiness": {
         "title": "État du poste"
+      }
+    },
+    "admin": {
+      "quick_actions": {
+        "title": "Actions rapides",
+        "block_number": "Bloquer un numéro",
+        "draws": "Tirages",
+        "sellers": "Vendeurs",
+        "sell_ticket": "Vendre un ticket",
+        "verify_ticket": "Vérifier un ticket",
+        "reports": "Rapports"
       }
     },
     "superadmin": {

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -15,16 +16,22 @@ import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '
 
 import {
   SellerTerminalApi,
+  SellerTerminalView,
 } from '../../data-access/seller-terminal-api.service';
 import {
   AdminFinancialsApi,
   SellerTerminalDailyFinancialRow,
 } from '../../../reports/data-access/admin-financials-api.service';
+import { TchNotice } from '@tch/ui/components';
 import {
   SellerTerminalDetailFact,
   SellerTerminalDetailFactsCardComponent,
 } from '../../components/seller-terminal-detail-facts-card/seller-terminal-detail-facts-card.component';
 import { SellerTerminalTodayStatsCardComponent } from '../../components/seller-terminal-today-stats-card/seller-terminal-today-stats-card.component';
+import { BlockSellerTerminalDialog } from '../list/dialogs/block-seller-terminal.dialog';
+import { ConfirmUnblockDialog } from '../list/dialogs/confirm-unblock.dialog';
+import { ResetPinDialog } from '../list/dialogs/reset-pin.dialog';
+import { SellerTerminalDialogResult } from '../list/dialogs/seller-terminal-dialog-result';
 
 @Component({
   selector: 'tch-admin-seller-terminal-detail-page',
@@ -39,6 +46,7 @@ import { SellerTerminalTodayStatsCardComponent } from '../../components/seller-t
     SellerTerminalTodayStatsCardComponent,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
+    TchNotice,
     TranslatePipe,
     MatButtonModule,
     MatIconModule,
@@ -51,6 +59,9 @@ export class AdminSellerTerminalDetailPage {
   private readonly api = inject(SellerTerminalApi);
   private readonly financialsApi = inject(AdminFinancialsApi);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
+
+  readonly actionSuccess = signal<string | null>(null);
 
   readonly sellerTerminalId = this.route.snapshot.paramMap.get('sellerTerminalId');
   readonly sellerTerminal = this.api.getResource(
@@ -199,6 +210,40 @@ export class AdminSellerTerminalDetailPage {
 
   reloadTodayStats(): void {
     this.todayFinancials.reload();
+  }
+
+  openBlock(terminal: SellerTerminalView): void {
+    this.actionSuccess.set(null);
+    const ref = this.dialog.open(BlockSellerTerminalDialog, { data: terminal, width: '480px' });
+    ref.afterClosed().subscribe((result?: SellerTerminalDialogResult) => {
+      if (!result?.reload) return;
+      this.actionSuccess.set(result.noticeKey);
+      this.reload();
+    });
+  }
+
+  unblock(terminal: SellerTerminalView): void {
+    this.actionSuccess.set(null);
+    const ref = this.dialog.open(ConfirmUnblockDialog, { data: terminal, width: '400px' });
+    ref.afterClosed().subscribe((unblocked?: boolean) => {
+      if (!unblocked) return;
+      this.actionSuccess.set('admin.sellerTerminals.list.notice.unblocked');
+      this.reload();
+    });
+  }
+
+  openResetPin(terminal: SellerTerminalView): void {
+    this.actionSuccess.set(null);
+    const ref = this.dialog.open(ResetPinDialog, {
+      data: terminal,
+      width: '480px',
+      disableClose: true,
+    });
+    ref.afterClosed().subscribe((result?: { reload: boolean }) => {
+      if (!result?.reload) return;
+      this.actionSuccess.set('admin.sellerTerminals.list.notice.pinReset');
+      this.reload();
+    });
   }
 
 }

@@ -16,6 +16,7 @@ drawer served by the backend.
 - Mirror the same order in the backend runtime drawer and the Angular static fallback.
 - Make critical seller actions visible on the seller list mobile cards: tickets, block/unblock, and
   PIN reset.
+- Add mobile-first dashboard quick actions for common admin operations.
 
 ## Out Of Scope
 
@@ -23,3 +24,4 @@ drawer served by the backend.
 - Reworking report page internals.
 - Changing seller terminal backend concepts or API names.
 - Reworking seller detail mutation flows.
+- Building a dedicated simplified number-block dialog on the dashboard.

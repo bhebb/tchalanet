@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PageModelApi, PageModelComponent, PageRuntimeResponse } from '@tch/page-model';
 import {
@@ -16,6 +16,14 @@ interface DashboardQuery {
   readonly performancePage?: number;
 }
 
+interface DashboardQuickAction {
+  readonly id: string;
+  readonly labelKey: string;
+  readonly icon: string;
+  readonly route: string;
+  readonly queryParams?: Record<string, string>;
+}
+
 type DashboardState =
   | { readonly status: 'loading' }
   | { readonly status: 'error' }
@@ -23,7 +31,7 @@ type DashboardState =
 
 @Component({
   selector: 'tch-admin-dashboard-page',
-  imports: [PageModelComponent, TchErrorPanel, TchLoading, TranslatePipe],
+  imports: [RouterLink, PageModelComponent, TchErrorPanel, TchLoading, TranslatePipe],
   templateUrl: './admin-dashboard.page.html',
   styleUrl: './admin-dashboard.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +41,46 @@ export class AdminDashboardPage {
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
   private readonly route = inject(ActivatedRoute);
   private readonly reloads = new Subject<void>();
+
+  protected readonly quickActions: readonly DashboardQuickAction[] = [
+    {
+      id: 'block-number',
+      labelKey: 'dashboard.admin.quick_actions.block_number',
+      icon: 'pin',
+      route: '/app/admin/limits/number',
+    },
+    {
+      id: 'draws',
+      labelKey: 'dashboard.admin.quick_actions.draws',
+      icon: 'event',
+      route: '/app/admin/draws',
+      queryParams: { status: 'OPEN' },
+    },
+    {
+      id: 'sellers',
+      labelKey: 'dashboard.admin.quick_actions.sellers',
+      icon: 'groups',
+      route: '/app/admin/seller-terminals',
+    },
+    {
+      id: 'sell-ticket',
+      labelKey: 'dashboard.admin.quick_actions.sell_ticket',
+      icon: 'point_of_sale',
+      route: '/app/admin/tickets/sell',
+    },
+    {
+      id: 'verify-ticket',
+      labelKey: 'dashboard.admin.quick_actions.verify_ticket',
+      icon: 'fact_check',
+      route: '/app/admin/tickets/verify',
+    },
+    {
+      id: 'reports',
+      labelKey: 'dashboard.admin.quick_actions.reports',
+      icon: 'analytics',
+      route: '/app/admin/reports/daily',
+    },
+  ];
 
   protected readonly state = toSignal(
     combineLatest([

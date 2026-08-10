@@ -1279,7 +1279,9 @@
         },
         "notice": {
           "created": "Machann nan kreye avèk siksè.",
-          "blocked": "Machann nan bloke."
+          "blocked": "Machann nan bloke.",
+          "unblocked": "Machann nan debloke.",
+          "pinReset": "PIN machann nan re-inisyalize."
         },
         "dialog": {
           "block": {
@@ -1427,7 +1429,11 @@
           "sellTickets": "Vann tikè",
           "overrides": "Modifye paramèt",
           "openPos": "Louvri POS",
-          "tickets": "Tikè"
+          "tickets": "Gade tikè",
+          "report": "Rapò machann",
+          "resetPin": "Re-inisyalize PIN",
+          "block": "Bloke",
+          "unblock": "Debloke"
         },
         "summary": {
           "eyebrow": "Machann"
@@ -2076,6 +2082,17 @@
       },
       "readiness": {
         "title": "Eta pòs la"
+      }
+    },
+    "admin": {
+      "quick_actions": {
+        "title": "Aksyon rapid",
+        "block_number": "Bloke nimewo",
+        "draws": "Tiraj yo",
+        "sellers": "Machann yo",
+        "sell_ticket": "Vann tikè",
+        "verify_ticket": "Tcheke tikè",
+        "reports": "Rapò"
       }
     },
     "superadmin": {
