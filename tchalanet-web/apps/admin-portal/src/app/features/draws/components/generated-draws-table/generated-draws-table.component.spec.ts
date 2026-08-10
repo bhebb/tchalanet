@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { describe, expect, it } from 'vitest';
+import { TranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { GeneratedDrawsTableComponent } from './generated-draws-table.component';
 import { GeneratedDrawGroup, GeneratedDrawView } from '../../data-access/admin-generated-draws.models';
@@ -38,6 +39,24 @@ function withGroup(fixture: ReturnType<typeof createComponent>, drawView: Genera
 }
 
 describe('GeneratedDrawsTableComponent — resultActionHint', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: TranslateService,
+          useValue: {
+            currentLang: 'fr',
+            instant: (key: string) =>
+              ({
+                'admin.generatedDraws.hint.resultToEnter': 'Résultat à saisir',
+                'admin.generatedDraws.hint.resultMissing': 'Résultat manquant',
+              })[key] ?? key,
+          },
+        },
+      ],
+    });
+  });
+
   it('reads "Résultat à saisir" when manual entry is currently allowed', () => {
     const fixture = createComponent(true);
     // Scheduled well over 30 minutes ago and no result yet ⇒ canEnterManualResult() is true.
@@ -82,6 +101,6 @@ describe('GeneratedDrawsTableComponent — resultActionHint', () => {
 
     const [row] = fixture.componentInstance.drawRows();
     expect(row.resultActionHint).toBeUndefined();
-    expect(row.resultLabel).toBe('Confirmé');
+    expect(row.resultLabel).toBe('domain.draw.resultStatus.CONFIRMED');
   });
 });

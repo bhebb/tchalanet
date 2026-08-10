@@ -1,9 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { describe, expect, it } from 'vitest';
+import { provideTranslateService } from '@ngx-translate/core';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { GeneratedDrawsSummaryComponent } from './generated-draws-summary.component';
 
 describe('GeneratedDrawsSummaryComponent', () => {
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideTranslateService()] });
+  });
+
   it('renders the exact backend summary values', () => {
     const fixture = TestBed.createComponent(GeneratedDrawsSummaryComponent);
 
