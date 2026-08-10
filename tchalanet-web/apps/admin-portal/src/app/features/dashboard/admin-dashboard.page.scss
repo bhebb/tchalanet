@@ -1,3 +1,5 @@
+@use '../../../../../../libs/ui/styles/src/lib/index' as ui;
+
 .admin-dashboard {
   display: grid;
   gap: 1rem;
@@ -63,7 +65,7 @@
   font-size: 1.375rem;
 }
 
-@media (min-width: 720px) {
+@include ui.up(expanded) {
   .admin-dashboard__quick-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
