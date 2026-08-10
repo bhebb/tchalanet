@@ -154,6 +154,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ticketCode: extra?['ticketCode'] ?? '',
             publicCode: extra?['publicCode'],
             shareableText: extra?['shareableText'],
+            drawId: extra?['drawId'],
           );
         },
       ),

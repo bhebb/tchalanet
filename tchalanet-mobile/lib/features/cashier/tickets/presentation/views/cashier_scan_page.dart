@@ -83,10 +83,9 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(verifyControllerProvider);
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
     final translations = ref.watch(i18nBundleProvider);
     final isLoading = state is VerifyInProgress;
+    final canVerify = _controller.text.trim().isNotEmpty && !isLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -116,78 +115,6 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // QR scan placeholder
-                    GestureDetector(
-                      onTap: () {
-                        // Future: launch camera QR scanner
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              translations.translate(
-                                'pos.ticket.verify.scan_unavailable',
-                              ),
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 160,
-                        decoration: BoxDecoration(
-                          color: scheme.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(TchRadius.lg),
-                          border: Border.all(
-                            color: scheme.outlineVariant,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.qr_code_scanner_rounded,
-                              size: 56,
-                              color: scheme.onSurface.withValues(alpha: 0.3),
-                            ),
-                            const SizedBox(height: TchSpacing.s8),
-                            Text(
-                              translations.translate(
-                                'pos.ticket.verify.scan_prompt',
-                              ),
-                              style: textTheme.bodySmall?.copyWith(
-                                color: scheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: TchSpacing.s20),
-
-                    // Divider
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: scheme.outlineVariant)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: TchSpacing.s12,
-                          ),
-                          child: Text(
-                            translations.translate(
-                              'pos.ticket.verify.or_manual_entry',
-                            ),
-                            style: textTheme.labelSmall?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        Expanded(child: Divider(color: scheme.outlineVariant)),
-                      ],
-                    ),
-
-                    const SizedBox(height: TchSpacing.s20),
-
                     // Manual input
                     TextField(
                       controller: _controller,
@@ -283,7 +210,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                     width: double.infinity,
                     height: state is VerifyResult ? 48 : 56,
                     child: FilledButton.icon(
-                      onPressed: isLoading ? null : _verify,
+                      onPressed: canVerify ? _verify : null,
                       icon: isLoading
                           ? const SizedBox(
                               width: 18,

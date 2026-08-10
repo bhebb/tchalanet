@@ -319,9 +319,21 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
                   .watch(latestTicketProvider)
                   .when(
                     loading: () => const _LastTicketCard.loading(),
-                    error: (_, _) => const SizedBox.shrink(),
+                    error: (_, _) => FeedbackState(
+                      kind: FeedbackStateKind.error,
+                      title: translations.translate(
+                        'pos.dashboard.last_ticket_error',
+                      ),
+                      compact: true,
+                    ),
                     data: (ticket) => ticket == null
-                        ? const SizedBox.shrink()
+                        ? FeedbackState(
+                            kind: FeedbackStateKind.empty,
+                            title: translations.translate(
+                              'pos.dashboard.last_ticket_empty',
+                            ),
+                            compact: true,
+                          )
                         : _LastTicketCard(
                             ticket: ticket,
                             translations: translations,

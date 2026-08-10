@@ -304,7 +304,13 @@ class _StatsBody extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(TchSpacing.s16),
       children: [
-        _SectionLabel(translations.translate('common.cashier_stats.total')),
+        _SectionLabel(
+          translations.translate(
+            drawFilter == null
+                ? 'common.cashier_stats.total'
+                : 'pos.reports.total_day',
+          ),
+        ),
         const SizedBox(height: TchSpacing.s12),
         Row(
           children: [
@@ -658,7 +664,7 @@ String _reportDrawLabel(
     return localizedCashierDrawLabel(matchingDraw, translations);
   }
   if (label.isNotEmpty && !_looksLikeTechnicalId(label)) return label;
-  return translations.translate('pos.reports.draw', fallback: 'Tiraj');
+  return translations.translate('pos.reports.draw');
 }
 
 bool _looksLikeTechnicalId(String value) => RegExp(

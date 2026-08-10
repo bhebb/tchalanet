@@ -40,10 +40,7 @@ class NotificationCenterPage extends ConsumerWidget {
               onPressed: state.loading ? null : viewModel.markAllRead,
               icon: const Icon(Icons.done_all_rounded, size: 18),
               label: Text(
-                translations.translate(
-                  'notifications.center.mark_all_read',
-                  fallback: 'Tout li',
-                ),
+                translations.translate('notifications.center.mark_all_read'),
               ),
             ),
           IconButton(
@@ -307,7 +304,7 @@ class _NotificationCard extends StatelessWidget {
           ),
           const SizedBox(height: TchSpacing.s12),
           Text(
-            _timestamp(item.createdAt),
+            _timestamp(context, item.createdAt),
             style: Theme.of(
               context,
             ).textTheme.labelSmall?.copyWith(color: scheme.outline),
@@ -384,10 +381,14 @@ class _NotificationCard extends StatelessWidget {
     NotificationSeverity.critical => StatusBadgeKind.blocked,
   };
 
-  String _timestamp(DateTime value) {
+  String _timestamp(BuildContext context, DateTime value) {
     final local = value.toLocal();
-    String two(int part) => part.toString().padLeft(2, '0');
-    return '${local.year}-${two(local.month)}-${two(local.day)} '
-        '${two(local.hour)}:${two(local.minute)}';
+    final material = MaterialLocalizations.of(context);
+    final date = material.formatMediumDate(local);
+    final time = material.formatTimeOfDay(
+      TimeOfDay.fromDateTime(local),
+      alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+    );
+    return '$date $time';
   }
 }

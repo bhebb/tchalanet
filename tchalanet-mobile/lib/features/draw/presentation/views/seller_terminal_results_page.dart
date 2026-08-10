@@ -22,7 +22,7 @@ class SellerTerminalResultsPage extends ConsumerStatefulWidget {
 
 class _SellerTerminalResultsPageState
     extends ConsumerState<SellerTerminalResultsPage> {
-  _ResultPeriod? _period;
+  _ResultPeriod? _period = _ResultPeriod.sevenDays;
   String? _provider;
   String? _slotKey;
   DateTime? _drawDate;
