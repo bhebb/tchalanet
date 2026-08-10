@@ -14,14 +14,14 @@ import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
 import '../print_ticket_action.dart';
 
-enum _DateFilter { today, yesterday }
+enum _DateFilter { today, yesterday, custom }
 
 final _historyProvider = FutureProvider.autoDispose
     .family<List<CashierTicketSummaryView>, _TicketHistoryQuery>((ref, query) {
       return ref
           .watch(cashierTicketServiceProvider)
           .listRecent(
-            size: 50,
+            size: query.size,
             query: query.search,
             fromDate: query.fromDate,
             toDate: query.toDate,
@@ -33,21 +33,24 @@ class _TicketHistoryQuery {
     required this.search,
     required this.fromDate,
     required this.toDate,
+    required this.size,
   });
 
   final String search;
   final DateTime fromDate;
   final DateTime toDate;
+  final int size;
 
   @override
   bool operator ==(Object other) =>
       other is _TicketHistoryQuery &&
       other.search == search &&
       other.fromDate == fromDate &&
-      other.toDate == toDate;
+      other.toDate == toDate &&
+      other.size == size;
 
   @override
-  int get hashCode => Object.hash(search, fromDate, toDate);
+  int get hashCode => Object.hash(search, fromDate, toDate, size);
 }
 
 class CashierHistoryPage extends ConsumerStatefulWidget {
@@ -60,6 +63,8 @@ class CashierHistoryPage extends ConsumerStatefulWidget {
 class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
   final _searchController = TextEditingController();
   _DateFilter _filter = _DateFilter.today;
+  DateTime? _customDate;
+  int _historySize = 50;
   String _search = '';
 
   @override
@@ -71,16 +76,53 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
   _TicketHistoryQuery get _query {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final date = _filter == _DateFilter.today
-        ? today
-        : today.subtract(const Duration(days: 1));
-    return _TicketHistoryQuery(search: _search, fromDate: date, toDate: date);
+    final date = switch (_filter) {
+      _DateFilter.today => today,
+      _DateFilter.yesterday => today.subtract(const Duration(days: 1)),
+      _DateFilter.custom => _customDate ?? today,
+    };
+    return _TicketHistoryQuery(
+      search: _search,
+      fromDate: date,
+      toDate: date,
+      size: _historySize,
+    );
   }
 
   void _applySearch(String value) {
     final normalized = value.trim();
     if (normalized == _search) return;
-    setState(() => _search = normalized);
+    setState(() {
+      _search = normalized;
+      _historySize = 50;
+    });
+  }
+
+  Future<void> _selectFilter(
+    _DateFilter filter,
+    I18nBundle translations,
+  ) async {
+    if (filter == _DateFilter.custom) {
+      final initialDate = _customDate ?? DateTime.now();
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+        lastDate: DateTime.now(),
+        helpText: translations.translate('pos.tickets.pick_date'),
+      );
+      if (picked == null) return;
+      setState(() {
+        _filter = _DateFilter.custom;
+        _customDate = DateTime(picked.year, picked.month, picked.day);
+        _historySize = 50;
+      });
+      return;
+    }
+    setState(() {
+      _filter = filter;
+      _historySize = 50;
+    });
   }
 
   Future<void> _refresh(_TicketHistoryQuery query) async {
@@ -110,9 +152,10 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
         children: [
           _HistoryFilters(
             selected: _filter,
+            customDate: _customDate,
             searchController: _searchController,
             translations: translations,
-            onFilterChanged: (filter) => setState(() => _filter = filter),
+            onFilterChanged: (filter) => _selectFilter(filter, translations),
             onSearch: _applySearch,
             onClearSearch: () {
               _searchController.clear();
@@ -134,9 +177,12 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                 if (tickets.isEmpty) {
                   final emptyKey = _search.isNotEmpty
                       ? 'pos.tickets.empty_search'
-                      : _filter == _DateFilter.today
-                      ? 'pos.tickets.empty_today'
-                      : 'pos.tickets.empty_yesterday';
+                      : switch (_filter) {
+                          _DateFilter.today => 'pos.tickets.empty_today',
+                          _DateFilter.yesterday =>
+                            'pos.tickets.empty_yesterday',
+                          _DateFilter.custom => 'pos.tickets.empty_date',
+                        };
                   return RefreshIndicator(
                     onRefresh: () => _refresh(query),
                     child: ListView(
@@ -156,13 +202,21 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
                     ),
                   );
                 }
+                final canLoadMore = tickets.length >= query.size;
                 return RefreshIndicator(
                   onRefresh: () => _refresh(query),
                   child: ListView.separated(
-                    itemCount: tickets.length,
+                    itemCount: tickets.length + (canLoadMore ? 1 : 0),
                     separatorBuilder: (_, _) =>
                         Divider(height: 1, color: scheme.outlineVariant),
                     itemBuilder: (context, index) {
+                      if (canLoadMore && index == tickets.length) {
+                        return _HistoryMoreFooter(
+                          shownCount: tickets.length,
+                          translations: translations,
+                          onLoadMore: () => setState(() => _historySize += 50),
+                        );
+                      }
                       final ticket = tickets[index];
                       return _TicketRow(
                         ticket: ticket,
@@ -187,6 +241,7 @@ class _CashierHistoryPageState extends ConsumerState<CashierHistoryPage> {
 class _HistoryFilters extends StatelessWidget {
   const _HistoryFilters({
     required this.selected,
+    required this.customDate,
     required this.searchController,
     required this.translations,
     required this.onFilterChanged,
@@ -195,6 +250,7 @@ class _HistoryFilters extends StatelessWidget {
   });
 
   final _DateFilter selected;
+  final DateTime? customDate;
   final TextEditingController searchController;
   final I18nBundle translations;
   final ValueChanged<_DateFilter> onFilterChanged;
@@ -222,6 +278,16 @@ class _HistoryFilters extends StatelessWidget {
                 value: _DateFilter.yesterday,
                 label: Text(translations.translate('pos.tickets.yesterday')),
               ),
+              ButtonSegment(
+                value: _DateFilter.custom,
+                label: Text(
+                  customDate == null
+                      ? translations.translate('pos.tickets.other_date')
+                      : MaterialLocalizations.of(
+                          context,
+                        ).formatMediumDate(customDate!),
+                ),
+              ),
             ],
             selected: {selected},
             onSelectionChanged: (value) => onFilterChanged(value.first),
@@ -242,6 +308,45 @@ class _HistoryFilters extends StatelessWidget {
                       onPressed: onClearSearch,
                     ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HistoryMoreFooter extends StatelessWidget {
+  const _HistoryMoreFooter({
+    required this.shownCount,
+    required this.translations,
+    required this.onLoadMore,
+  });
+
+  final int shownCount;
+  final I18nBundle translations;
+  final VoidCallback onLoadMore;
+
+  @override
+  Widget build(BuildContext context) {
+    final message = translations
+        .translate('pos.tickets.showing_first')
+        .replaceAll('{{count}}', shownCount.toString());
+    return Padding(
+      padding: const EdgeInsets.all(TchSpacing.s16),
+      child: Column(
+        children: [
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: TchSpacing.s8),
+          OutlinedButton.icon(
+            onPressed: onLoadMore,
+            icon: const Icon(Icons.expand_more_rounded),
+            label: Text(translations.translate('pos.tickets.show_more')),
           ),
         ],
       ),

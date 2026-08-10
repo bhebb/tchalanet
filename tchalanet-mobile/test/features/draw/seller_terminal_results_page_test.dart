@@ -56,6 +56,12 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Rezilta tiraj'), findsOneWidget);
-    expect(find.byType(DropdownButtonFormField<String?>), findsNWidgets(2));
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget.runtimeType.toString().startsWith('DropdownButtonFormField'),
+      ),
+      findsOneWidget,
+    );
   });
 }

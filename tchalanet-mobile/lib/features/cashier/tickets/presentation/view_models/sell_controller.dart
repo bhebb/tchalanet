@@ -165,8 +165,9 @@ final class SellConfirming extends SellState {
 }
 
 final class SellSuccess extends SellState {
-  const SellSuccess(this.response);
+  const SellSuccess(this.response, {required this.drawId});
   final CashierSellTicketResponse response;
+  final String drawId;
 }
 
 final class SellCatalogError extends SellState {
@@ -393,7 +394,7 @@ class SellController extends Notifier<SellState> {
           .confirm(preview.preparationId!, idempotencyKey: _idempotencyKey);
       final completed = await _hydrateReplayTicketIfNeeded(response);
       if (completed.isSold) {
-        state = SellSuccess(completed);
+        state = SellSuccess(completed, drawId: form.selectedDrawId!);
       } else {
         state = SellReady(
           form,

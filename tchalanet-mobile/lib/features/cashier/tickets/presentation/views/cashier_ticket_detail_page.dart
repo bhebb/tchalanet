@@ -249,7 +249,7 @@ class _ReceiptCard extends StatelessWidget {
                         label: translations.translate('pos.tickets.sale_time'),
                         value: detail.placedAt == null
                             ? '—'
-                            : _fmtDateTime(detail.placedAt!),
+                            : _fmtDateTime(context, detail.placedAt!),
                       ),
                     ),
                     Expanded(
@@ -357,12 +357,15 @@ class _ReceiptCard extends StatelessWidget {
     );
   }
 
-  static String _fmtDateTime(DateTime value) {
+  static String _fmtDateTime(BuildContext context, DateTime value) {
     final local = value.toLocal();
-    return '${local.day.toString().padLeft(2, '0')}/'
-        '${local.month.toString().padLeft(2, '0')}/${local.year} '
-        '${local.hour.toString().padLeft(2, '0')}:'
-        '${local.minute.toString().padLeft(2, '0')}';
+    final material = MaterialLocalizations.of(context);
+    final date = material.formatMediumDate(local);
+    final time = material.formatTimeOfDay(
+      TimeOfDay.fromDateTime(local),
+      alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+    );
+    return '$date $time';
   }
 }
 

@@ -34,7 +34,9 @@
     "forbidden": {
       "title": "Aksè refize",
       "message": "Ou pa gen otorizasyon ki nesesè pou antre sou paj sa a.",
-      "back": "Retounen nan koneksyon"
+      "back": "Retounen nan koneksyon",
+      "contact_admin": "Kontakte admin",
+      "contact_admin_message": "Kontakte administratè santral ou a pou verifye aksè tèminal sa a."
     }
   }
 }

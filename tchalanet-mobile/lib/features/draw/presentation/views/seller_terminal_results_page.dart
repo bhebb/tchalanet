@@ -22,7 +22,7 @@ class SellerTerminalResultsPage extends ConsumerStatefulWidget {
 
 class _SellerTerminalResultsPageState
     extends ConsumerState<SellerTerminalResultsPage> {
-  _ResultPeriod? _period;
+  _ResultPeriod? _period = _ResultPeriod.sevenDays;
   String? _provider;
   String? _slotKey;
   DateTime? _drawDate;
@@ -165,9 +165,20 @@ class _ResultsFilters extends StatelessWidget {
             .toSet()
             .toList()
           ..sort();
-    final providerSlots = provider == null
-        ? const <PublicDrawResultSlot>[]
-        : slots.where((slot) => slot.provider == provider).toList();
+    final selectedProviderCode = providers.contains(provider) ? provider : null;
+    final selectedSlotKey =
+        selectedProviderCode != null &&
+            slots.any(
+              (slot) =>
+                  slot.provider == selectedProviderCode &&
+                  slot.slotKey == slotKey,
+            )
+        ? slotKey
+        : null;
+    final selectedFilter = _ResultFilterSelection(
+      selectedProviderCode,
+      selectedSlotKey,
+    );
 
     return Container(
       width: double.infinity,
@@ -187,77 +198,67 @@ class _ResultsFilters extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SegmentedButton<_ResultPeriod>(
-            segments: [
-              ButtonSegment(
-                value: _ResultPeriod.sevenDays,
-                label: Text(translations.translate('pos.results.last_7_days')),
-              ),
-              ButtonSegment(
-                value: _ResultPeriod.thirtyDays,
-                label: Text(translations.translate('pos.results.last_30_days')),
-              ),
-            ],
-            selected: period == null ? {} : {period!},
-            emptySelectionAllowed: true,
-            onSelectionChanged: (selection) =>
-                onPeriodChanged(selection.isEmpty ? null : selection.first),
-          ),
-          const SizedBox(height: TchSpacing.s12),
-          DropdownButtonFormField<String?>(
-            key: ValueKey('results-provider-filter:${provider ?? 'all'}'),
-            initialValue: provider,
-            decoration: InputDecoration(
-              labelText: translations.translate('pos.results.provider_filter'),
-              prefixIcon: const Icon(Icons.location_on_outlined),
-            ),
-            items: [
-              DropdownMenuItem<String?>(
-                value: null,
-                child: Text(
-                  translations.translate('pos.results.all_providers'),
-                ),
-              ),
-              for (final providerCode in providers)
-                DropdownMenuItem<String?>(
-                  value: providerCode,
-                  child: Text(
-                    _providerLabel(providerCode, translations),
-                    overflow: TextOverflow.ellipsis,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                ChoiceChip(
+                  label: Text(
+                    translations.translate('pos.results.last_7_days'),
                   ),
+                  selected: period == _ResultPeriod.sevenDays,
+                  onSelected: (_) => onPeriodChanged(_ResultPeriod.sevenDays),
                 ),
-            ],
-            onChanged: onProviderChanged,
+                const SizedBox(width: TchSpacing.s8),
+                ChoiceChip(
+                  label: Text(
+                    translations.translate('pos.results.last_30_days'),
+                  ),
+                  selected: period == _ResultPeriod.thirtyDays,
+                  onSelected: (_) => onPeriodChanged(_ResultPeriod.thirtyDays),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: TchSpacing.s12),
-          DropdownButtonFormField<String?>(
-            key: ValueKey('results-slot-filter:${slotKey ?? 'all'}'),
-            initialValue: slotKey,
+          DropdownButtonFormField<_ResultFilterSelection>(
+            key: ValueKey(
+              'results-draw-filter:${provider ?? 'all'}:${slotKey ?? 'all'}',
+            ),
+            initialValue: selectedFilter,
             decoration: InputDecoration(
               labelText: translations.translate('pos.results.draw_filter'),
               prefixIcon: const Icon(Icons.filter_alt_outlined),
             ),
             items: [
-              DropdownMenuItem<String?>(
-                value: null,
-                child: Text(
-                  provider == null
-                      ? translations.translate(
-                          'pos.results.select_provider_first',
-                        )
-                      : translations.translate('pos.results.all_draws'),
-                ),
+              DropdownMenuItem<_ResultFilterSelection>(
+                value: const _ResultFilterSelection(null, null),
+                child: Text(translations.translate('pos.results.all_draws')),
               ),
-              for (final slot in providerSlots)
-                DropdownMenuItem<String?>(
-                  value: slot.slotKey,
+              for (final providerCode in providers)
+                DropdownMenuItem<_ResultFilterSelection>(
+                  value: _ResultFilterSelection(providerCode, null),
                   child: Text(
-                    localizedPublicDrawResultSlotLabel(slot, translations),
+                    _providerLabel(providerCode, translations),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+              for (final providerCode in providers)
+                for (final slot in slots.where(
+                  (slot) => slot.provider == providerCode,
+                ))
+                  DropdownMenuItem<_ResultFilterSelection>(
+                    value: _ResultFilterSelection(providerCode, slot.slotKey),
+                    child: Text(
+                      localizedPublicDrawResultSlotLabel(slot, translations),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
             ],
-            onChanged: provider == null ? null : onSlotChanged,
+            onChanged: (selection) {
+              onProviderChanged(selection?.provider);
+              onSlotChanged(selection?.slotKey);
+            },
           ),
           const SizedBox(height: TchSpacing.s12),
           _DrawDateFilter(
@@ -269,6 +270,22 @@ class _ResultsFilters extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ResultFilterSelection {
+  const _ResultFilterSelection(this.provider, this.slotKey);
+
+  final String? provider;
+  final String? slotKey;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _ResultFilterSelection &&
+      provider == other.provider &&
+      slotKey == other.slotKey;
+
+  @override
+  int get hashCode => Object.hash(provider, slotKey);
 }
 
 String _providerLabel(String providerCode, I18nBundle translations) {

@@ -34,7 +34,9 @@
     "forbidden": {
       "title": "Accès refusé",
       "message": "Vous n'avez pas les droits nécessaires pour accéder à cette page.",
-      "back": "Retour à la connexion"
+      "back": "Retour à la connexion",
+      "contact_admin": "Contacter l'admin",
+      "contact_admin_message": "Contactez l'administrateur de votre santral pour vérifier l'accès de ce terminal."
     }
   }
 }

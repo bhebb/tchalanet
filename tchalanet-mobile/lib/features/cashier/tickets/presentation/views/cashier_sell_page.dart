@@ -138,6 +138,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
             'ticketCode': next.response.ticketCode,
             'publicCode': next.response.publicCode,
             'shareableText': next.response.backup?.shareableText,
+            'drawId': next.drawId,
           },
         );
       }
@@ -1552,52 +1553,75 @@ class _GroupedSelectionInputState extends State<_GroupedSelectionInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: TchSpacing.s8,
-      runSpacing: TchSpacing.s8,
-      children: [
-        for (var segment = 0; segment < widget.shape.segments; segment++) ...[
-          if (segment > 0)
-            Text(
-              '|',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          SizedBox(
-            width: widget.shape.segments == 1 ? 152 : 112,
-            child: TextField(
-              controller: _controllers[segment],
-              focusNode: _focusNodes[segment],
-              enabled: widget.enabled,
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.number,
-              maxLength: widget.shape.digits,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(widget.shape.digits),
-              ],
-              onChanged: (value) => _changed(segment, value),
-              decoration: InputDecoration(
-                counterText: '',
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: TchSpacing.s16,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxFieldWidth = _fieldWidth(constraints.maxWidth);
+        return Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: TchSpacing.s8,
+          runSpacing: TchSpacing.s8,
+          children: [
+            for (
+              var segment = 0;
+              segment < widget.shape.segments;
+              segment++
+            ) ...[
+              if (segment > 0)
+                Text(
+                  '|',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(TchRadius.md),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: 80,
+                  maxWidth: maxFieldWidth,
+                ),
+                child: TextField(
+                  controller: _controllers[segment],
+                  focusNode: _focusNodes[segment],
+                  enabled: widget.enabled,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  maxLength: widget.shape.digits,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(widget.shape.digits),
+                  ],
+                  onChanged: (value) => _changed(segment, value),
+                  decoration: InputDecoration(
+                    counterText: '',
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: TchSpacing.s16,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(TchRadius.md),
+                    ),
+                  ),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ],
+            ],
+          ],
+        );
+      },
     );
+  }
+
+  double _fieldWidth(double availableWidth) {
+    final preferred = widget.shape.segments == 1 ? 152.0 : 112.0;
+    if (!availableWidth.isFinite || availableWidth <= 0) return preferred;
+    final separatorWidth = widget.shape.segments > 1 ? 16.0 : 0.0;
+    final spacingWidth = (widget.shape.segments - 1) * TchSpacing.s8;
+    final availableForFields =
+        (availableWidth - separatorWidth - spacingWidth) /
+        widget.shape.segments;
+    return availableForFields.clamp(80.0, preferred);
   }
 }
 
@@ -1617,36 +1641,40 @@ class _Chip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        constraints: const BoxConstraints(minHeight: 48),
-        // No `alignment` here on purpose: a Container with an alignment and no
-        // width expands to the incoming max constraint, so inside the Wrap each
-        // chip took the full row. Five games cost 316 dp instead of ~120.
-        //
-        // s12 rather than s16 horizontally: at 360 dp it is the difference
-        // between two and three chips per row, so five games take two rows
-        // instead of three. The 48 dp minimum touch height is untouched.
-        padding: const EdgeInsets.symmetric(
-          horizontal: TchSpacing.s12,
-          vertical: TchSpacing.s12,
-        ),
-        decoration: BoxDecoration(
-          color: selected
-              ? scheme.primaryContainer
-              : scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(TchRadius.pill),
-          border: Border.all(
-            color: selected ? scheme.primary : scheme.outlineVariant,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: enabled ? onTap : null,
+        borderRadius: BorderRadius.circular(TchRadius.pill),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          constraints: const BoxConstraints(minHeight: 48),
+          // No `alignment` here on purpose: a Container with an alignment and no
+          // width expands to the incoming max constraint, so inside the Wrap each
+          // chip took the full row. Five games cost 316 dp instead of ~120.
+          //
+          // s12 rather than s16 horizontally: at 360 dp it is the difference
+          // between two and three chips per row, so five games take two rows
+          // instead of three. The 48 dp minimum touch height is untouched.
+          padding: const EdgeInsets.symmetric(
+            horizontal: TchSpacing.s12,
+            vertical: TchSpacing.s12,
           ),
-        ),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
-            fontWeight: FontWeight.w600,
+          decoration: BoxDecoration(
+            color: selected
+                ? scheme.primaryContainer
+                : scheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(TchRadius.pill),
+            border: Border.all(
+              color: selected ? scheme.primary : scheme.outlineVariant,
+            ),
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: selected ? scheme.onPrimaryContainer : scheme.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),

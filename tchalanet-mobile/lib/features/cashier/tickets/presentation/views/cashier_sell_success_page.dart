@@ -18,6 +18,7 @@ class CashierSellSuccessPage extends ConsumerStatefulWidget {
     required this.ticketCode,
     this.publicCode,
     this.shareableText,
+    this.drawId,
     this.autoPrint = true,
   });
 
@@ -25,6 +26,7 @@ class CashierSellSuccessPage extends ConsumerStatefulWidget {
   final String ticketCode;
   final String? publicCode;
   final String? shareableText;
+  final String? drawId;
   final bool autoPrint;
 
   @override
@@ -193,7 +195,9 @@ class _CashierSellSuccessPageState
                       children: [
                         _ActionTile(
                           icon: Icons.content_copy_rounded,
-                          label: 'Copier code',
+                          label: translations.translate(
+                            'pos.sale_completion.copy_code',
+                          ),
                           onTap: () {
                             Clipboard.setData(ClipboardData(text: displayCode));
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -244,7 +248,7 @@ class _CashierSellSuccessPageState
                     ref.invalidate(terminalDailyStatsProvider);
                     ref.invalidate(terminalStatsByDateProvider);
                     ref.invalidate(latestTicketProvider);
-                    context.go('/pos');
+                    context.go('/sell', extra: {'drawId': widget.drawId});
                   },
                   icon: const Icon(Icons.add_rounded),
                   label: Text(
