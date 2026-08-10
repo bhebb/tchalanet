@@ -2,8 +2,8 @@
   <tch-admin-metric-card
     icon="calendar_today"
     tone="info"
-    label="Tirages aujourd'hui"
-    actionLabel="Filtrer sur les tirages d'aujourd'hui"
+    [label]="'admin.generatedDraws.summary.today' | translate"
+    [actionLabel]="'admin.generatedDraws.summaryAction.today' | translate"
     [value]="todayValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('today')"
@@ -12,8 +12,8 @@
   <tch-admin-metric-card
     icon="shopping_cart"
     tone="positive"
-    label="Ouverts à la vente"
-    actionLabel="Filtrer sur les tirages ouverts à la vente"
+    [label]="'admin.generatedDraws.summary.salesOpen' | translate"
+    [actionLabel]="'admin.generatedDraws.summaryAction.salesOpen' | translate"
     [value]="salesOpenValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('salesOpen')"
@@ -22,8 +22,8 @@
   <tch-admin-metric-card
     icon="hourglass_empty"
     tone="warning"
-    label="Résultats attendus"
-    actionLabel="Filtrer sur les résultats attendus"
+    [label]="'admin.generatedDraws.summary.resultsExpected' | translate"
+    [actionLabel]="'admin.generatedDraws.summaryAction.resultsExpected' | translate"
     [value]="expectedValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('expected')"
@@ -32,8 +32,8 @@
   <tch-admin-metric-card
     icon="verified"
     tone="positive"
-    label="Résultats confirmés"
-    actionLabel="Filtrer sur les résultats confirmés"
+    [label]="'admin.generatedDraws.summary.confirmed' | translate"
+    [actionLabel]="'admin.generatedDraws.summaryAction.confirmed' | translate"
     [value]="confirmedValue()"
     [interactive]="true"
     (action)="kpiSelected.emit('confirmed')"

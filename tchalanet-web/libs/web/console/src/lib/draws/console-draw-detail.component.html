@@ -18,11 +18,11 @@
           <div class="console-draw-detail__section-head">
             <div>
               <p class="console-draw-detail__eyebrow">État</p>
-              <h2>{{ result.statusLabel }}</h2>
+              <h2>{{ result.statusLabel | translate }}</h2>
             </div>
             @if (result.publicationLabel) {
               <tch-admin-status-pill
-                [label]="result.publicationLabel"
+                [label]="(result.publicationLabel | translate)"
                 [tone]="result.publicationTone ?? 'neutral'"
               />
             }
@@ -61,7 +61,7 @@
           <tch-console-draw-slot-identity [identity]="draw.identity" />
           @if (draw.statusLabel) {
             <tch-admin-status-pill
-              [label]="draw.statusLabel"
+              [label]="(draw.statusLabel | translate)"
               [tone]="draw.statusTone ?? 'neutral'"
             />
           }
@@ -110,7 +110,7 @@
                   @if (item.icon) {
                     <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
                   }
-                  {{ item.label }}
+                  {{ item.label | translate }}
                 </button>
               }
             </div>
@@ -128,7 +128,7 @@
           [eyebrow]="aside.eyebrow ?? 'SUIVI DU TIRAGE'"
           [title]="aside.title"
           [code]="aside.code ?? ''"
-          [status]="draw.statusLabel ?? ''"
+          [status]="((draw.statusLabel ?? '') | translate)"
           [statusTone]="draw.statusTone ?? 'neutral'"
           icon="event"
           [meta]="asideMeta(draw)"

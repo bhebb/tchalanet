@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchLoading } from '@tch/ui/components';
 import { AdminMetricCardComponent } from '@tch/ui/console';
 
@@ -36,12 +37,13 @@ export interface DrawDetailActivityView {
   selector: 'tch-draw-detail-activity',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, AdminMetricCardComponent, TchLoading],
+  imports: [DecimalPipe, AdminMetricCardComponent, TchLoading, TranslatePipe],
   templateUrl: './draw-detail-activity.component.html',
   styleUrl: './draw-detail-activity.component.scss',
 })
 export class DrawDetailActivityComponent {
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly view = input.required<DrawDetailActivityView>();
 
@@ -50,11 +52,17 @@ export class DrawDetailActivityComponent {
   }
 
   topSelectionsEyebrow(): string {
-    return this.view().salesOpen ? 'Sélections chaudes' : 'Exposition du tirage';
+    const key = this.view().salesOpen
+      ? 'admin.drawActivity.hotSelectionsOpen'
+      : 'admin.drawActivity.hotSelectionsClosed';
+    return this.translate.instant(key);
   }
 
   topSelectionsTitle(): string {
-    return this.view().salesOpen ? 'Top 5 à surveiller' : 'Top 5 des sélections vendues';
+    const key = this.view().salesOpen
+      ? 'admin.drawActivity.top5Open'
+      : 'admin.drawActivity.top5Closed';
+    return this.translate.instant(key);
   }
 
   openSellersReport(): void {

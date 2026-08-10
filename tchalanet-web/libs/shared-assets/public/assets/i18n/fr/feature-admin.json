@@ -657,7 +657,57 @@
         "archive": "archivé",
         "updatedMany": "{{count}} tirages mis à jour avec succès.",
         "updatedOne": "Tirage {{action}} avec succès."
+      },
+      "bulk": {
+        "selected_one": "{{count}} tirage sélectionné",
+        "selected_other": "{{count}} tirages sélectionnés",
+        "availableActions": "Actions disponibles pour toute la sélection.",
+        "noCommon": "Aucune action commune"
+      },
+      "countdown": {
+        "expired": "Vente expirée",
+        "remaining": "Fin ventes dans {{time}}"
+      },
+      "groupDate": {
+        "today": "AUJOURD'HUI",
+        "tomorrow": "DEMAIN"
+      },
+      "hint": {
+        "resultToEnter": "Résultat à saisir",
+        "resultMissing": "Résultat manquant",
+        "fetched": "Récupéré {{time}}",
+        "enterResult": "Saisir résultat",
+        "viewDetails": "Voir détails",
+        "viewResult": "Voir résultat",
+        "verify": "Vérifier"
+      },
+      "summaryAction": {
+        "today": "Filtrer sur les tirages d'aujourd'hui",
+        "salesOpen": "Filtrer sur les tirages ouverts à la vente",
+        "resultsExpected": "Filtrer sur les résultats attendus",
+        "confirmed": "Filtrer sur les résultats confirmés"
       }
+    },
+    "drawActivity": {
+      "salesEnd": "Fin des ventes",
+      "statusOpen": "En cours",
+      "loading": "Chargement de l'activité...",
+      "loadError": "Impossible de charger les indicateurs de vente du tirage.",
+      "kpiLabel": "Indicateurs du tirage",
+      "ticketsSold": "Tickets vendus",
+      "grossSales": "Montant vendu",
+      "activeSellers": "Vendeurs actifs",
+      "viewSellersReport": "Voir les vendeurs du tirage",
+      "estimatedCommission": "Commission estimée",
+      "estimatedNet": "Net estimé",
+      "promoBase": "Promo base",
+      "hotSelectionsOpen": "Sélections chaudes",
+      "hotSelectionsClosed": "Exposition du tirage",
+      "top5Open": "Top 5 à surveiller",
+      "top5Closed": "Top 5 des sélections vendues",
+      "loadingShort": "Chargement...",
+      "loadSelectionsError": "Impossible de charger les sélections les plus jouées.",
+      "noSelections": "Aucune sélection vendue sur ce tirage pour le moment."
     },
     "pos": {
       "title": "Vente ticket",
@@ -2108,20 +2158,7 @@
         "title": "État du poste"
       }
     },
-    "admin": {
-      "quick_actions": {
-        "title": "Actions rapides",
-        "today_draws": "Tirages du jour",
-        "today_report": "Rapport du jour",
-        "machines": "Machines",
-        "sales_by_terminal": "Ventes par terminal",
-        "sales_by_draw": "Ventes par tirage",
-        "block_number": "Bloquer un numéro",
-        "block_machine": "Bloquer une machine",
-        "reset_machine_pin": "Réinitialiser PIN machine",
-        "draw_results": "Résultats bòlèt"
-      }
-    },
+    "admin": {},
     "superadmin": {
       "alerts": {
         "empty": "Aucune alerte",

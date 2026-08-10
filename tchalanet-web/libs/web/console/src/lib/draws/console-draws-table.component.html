@@ -12,7 +12,7 @@
               <mat-checkbox
                 class="console-draws-table__card-select"
                 [checked]="isSelected(row)"
-                [attr.aria-label]="'Sélectionner ' + row.title"
+                [attr.aria-label]="('console.drawsTable.select' | translate:{ title: row.title })"
                 (change)="emitSelection(row, $event.checked)"
               />
             }
@@ -22,7 +22,7 @@
                 <button
                   mat-icon-button
                   type="button"
-                  [attr.aria-label]="'Autres actions pour ' + row.title"
+                  [attr.aria-label]="('console.drawsTable.otherActions' | translate:{ title: row.title })"
                   [matMenuTriggerFor]="cardMenu"
                   [matMenuTriggerData]="{ row: row }"
                 >
@@ -33,7 +33,7 @@
           </header>
 
           <div class="console-draws-table__card-state">
-            <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
+            <tch-admin-status-pill [label]="(row.statusLabel | translate)" [tone]="row.statusTone" />
             @if (row.countdownLabel) {
               <span
                 class="console-draws-table__countdown"
@@ -53,7 +53,7 @@
             <div class="console-draws-table__result">
               @if (row.resultLabel) {
                 <tch-admin-status-pill
-                  [label]="row.resultLabel"
+                  [label]="(row.resultLabel | translate)"
                   [tone]="row.resultTone || 'neutral'"
                 />
               }
@@ -73,7 +73,7 @@
           @if (row.pending) {
             <span
               class="material-symbols-outlined console-draws-table__spinner"
-              aria-label="Action en cours"
+              [attr.aria-label]="'console.drawsTable.actionInProgress' | translate"
               >progress_activity</span
             >
           } @else if (primaryAction(row); as primary) {
@@ -89,7 +89,7 @@
               @if (primary.icon) {
                 <span class="material-symbols-outlined">{{ primary.icon }}</span>
               }
-              {{ primary.label }}
+              {{ primary.label | translate }}
             </button>
           }
         </article>
@@ -100,25 +100,25 @@
       <table mat-table [dataSource]="group.rows">
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row" data-label="Sélection">
+          <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawsTable.selection' | translate">
             <mat-checkbox
               [checked]="isSelected(row)"
-              [attr.aria-label]="'Sélectionner ' + row.title"
+              [attr.aria-label]="('console.drawsTable.select' | translate:{ title: row.title })"
               (change)="emitSelection(row, $event.checked)"
             />
           </td>
         </ng-container>
 
         <ng-container matColumnDef="draw">
-          <th mat-header-cell *matHeaderCellDef>Tirage</th>
-          <td mat-cell *matCellDef="let row" data-label="Tirage">
+          <th mat-header-cell *matHeaderCellDef>{{ 'console.drawsTable.column.draw' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawsTable.column.draw' | translate">
             <tch-console-draw-slot-identity [identity]="row.identity" />
           </td>
         </ng-container>
 
         <ng-container matColumnDef="scheduledAt">
-          <th mat-header-cell *matHeaderCellDef>Date &amp; heure</th>
-          <td mat-cell *matCellDef="let row" data-label="Date">
+          <th mat-header-cell *matHeaderCellDef>{{ 'console.drawsTable.column.scheduledAt' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawsTable.column.scheduledAt' | translate">
             <p class="console-draws-table__date">{{ row.scheduledDateLabel || '—' }}</p>
             <p class="console-draws-table__time">{{ row.scheduledTimeLabel || '—' }}</p>
             @if (row.countdownLabel) {
@@ -133,19 +133,19 @@
         </ng-container>
 
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Statut</th>
-          <td mat-cell *matCellDef="let row" data-label="Statut">
-            <tch-admin-status-pill [label]="row.statusLabel" [tone]="row.statusTone" />
+          <th mat-header-cell *matHeaderCellDef>{{ 'console.drawsTable.column.status' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawsTable.column.status' | translate">
+            <tch-admin-status-pill [label]="(row.statusLabel | translate)" [tone]="row.statusTone" />
           </td>
         </ng-container>
 
         <ng-container matColumnDef="result">
-          <th mat-header-cell *matHeaderCellDef>Résultat</th>
-          <td mat-cell *matCellDef="let row" data-label="Résultat">
+          <th mat-header-cell *matHeaderCellDef>{{ 'console.drawsTable.column.result' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawsTable.column.result' | translate">
             <div class="console-draws-table__result">
               @if (row.resultLabel) {
                 <tch-admin-status-pill
-                  [label]="row.resultLabel"
+                  [label]="(row.resultLabel | translate)"
                   [tone]="row.resultTone || 'neutral'"
                 />
               }
@@ -167,18 +167,18 @@
         </ng-container>
 
         <ng-container matColumnDef="mode">
-          <th mat-header-cell *matHeaderCellDef>Mode</th>
-          <td mat-cell *matCellDef="let row" data-label="Mode">
+          <th mat-header-cell *matHeaderCellDef>{{ 'console.drawsTable.column.mode' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawsTable.column.mode' | translate">
             <span class="console-draws-table__chip">{{ row.modeLabel || '—' }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="publication">
-          <th mat-header-cell *matHeaderCellDef>Publication</th>
-          <td mat-cell *matCellDef="let row" data-label="Publication">
+          <th mat-header-cell *matHeaderCellDef>{{ 'console.drawsTable.column.publication' | translate }}</th>
+          <td mat-cell *matCellDef="let row" [attr.data-label]="'console.drawsTable.column.publication' | translate">
             @if (row.publicationLabel) {
               <tch-admin-status-pill
-                [label]="row.publicationLabel"
+                [label]="(row.publicationLabel | translate)"
                 [tone]="row.publicationTone || 'neutral'"
               />
             } @else {
@@ -194,7 +194,7 @@
               @if (row.pending) {
                 <span
                   class="material-symbols-outlined console-draws-table__spinner"
-                  aria-label="Action en cours"
+                  [attr.aria-label]="'console.drawsTable.actionInProgress' | translate"
                   >progress_activity</span
                 >
               } @else {
@@ -203,7 +203,7 @@
                     <button
                       mat-icon-button
                       type="button"
-                      [title]="action.label"
+                      [title]="action.label | translate"
                       [disabled]="action.disabled"
                       [class.console-draws-table__action--danger]="action.tone === 'danger'"
                       (click)="emitAction(row, action)"
@@ -224,7 +224,7 @@
                       @if (action.icon) {
                         <span class="material-symbols-outlined">{{ action.icon }}</span>
                       }
-                      {{ action.label }}
+                      {{ action.label | translate }}
                     </button>
                   }
                 }
@@ -242,9 +242,7 @@
   @if (showFooter()) {
     <div class="console-draws-table__footer">
       <p class="console-draws-table__count">
-        Affichage de {{ rangeStart() }}–{{ rangeEnd() }} sur {{ totalElements() }} tirage{{
-          totalElements() === 1 ? '' : 's'
-        }}
+        {{ 'console.drawsTable.pagination' | translate:{ start: rangeStart(), end: rangeEnd(), total: totalElements() } }}
       </p>
       <div class="console-draws-table__pagination">
         <button
@@ -252,7 +250,7 @@
           type="button"
           [disabled]="!hasPrevious()"
           (click)="previousPage.emit()"
-          aria-label="Page précédente"
+          [attr.aria-label]="'console.drawsTable.previousPage' | translate"
         >
           <span class="material-symbols-outlined">chevron_left</span>
         </button>
@@ -261,7 +259,7 @@
           type="button"
           [disabled]="!hasNext()"
           (click)="nextPage.emit()"
-          aria-label="Page suivante"
+          [attr.aria-label]="'console.drawsTable.nextPage' | translate"
         >
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
@@ -281,7 +279,7 @@
         (click)="emitAction(row, action)"
       >
         <span class="material-symbols-outlined">{{ action.icon || 'more_horiz' }}</span>
-        {{ action.label }}
+        {{ action.label | translate }}
       </button>
     }
   </ng-template>

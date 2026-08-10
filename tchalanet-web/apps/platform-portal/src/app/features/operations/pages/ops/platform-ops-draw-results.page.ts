@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { AccessService } from '@tch/core/auth';
@@ -85,6 +85,7 @@ const RESULT_QUALITY_OPTIONS: { value: OpsDrawResultQuality | ''; label: string 
     MatInputModule,
     MatPaginatorModule,
     MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './platform-ops-draw-results.page.html',
   styleUrls: ['./platform-ops-draw-results.page.scss'],

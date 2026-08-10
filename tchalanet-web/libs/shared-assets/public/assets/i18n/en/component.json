@@ -3,6 +3,44 @@
     "noIssues": "No issues"
   },
   "console": {
+    "drawsTable": {
+      "column": {
+        "draw": "Draw",
+        "scheduledAt": "Date & time",
+        "status": "Status",
+        "result": "Result",
+        "mode": "Mode",
+        "publication": "Publication"
+      },
+      "select": "Select {{title}}",
+      "otherActions": "More actions for {{title}}",
+      "actionInProgress": "Action in progress",
+      "pagination": "{{start}}–{{end}} of {{total}} draws",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "selection": "Selection"
+    },
+    "drawResultsTable": {
+      "column": {
+        "draw": "Draw",
+        "numbers": "Numbers",
+        "status": "Status",
+        "quality": "Quality",
+        "dateTime": "Date & time",
+        "fetchedAt": "Fetched",
+        "appliedAt": "Applied at"
+      },
+      "toggle": {
+        "hide": "Hide",
+        "details": "Details"
+      },
+      "time": {
+        "official": "Official",
+        "local": "Local"
+      },
+      "notApplied": "Not applied",
+      "showSource": "Show source"
+    },
     "gamesTable": {
       "title": "Games",
       "column": {
@@ -159,8 +197,13 @@
     "admin": {
       "daily_report": "Today's report",
       "todays_draws": "Today's draws",
-      "sales_by_terminal": "Sales by terminal",
+      "seller_terminals": "Sellers",
+      "sales_by_terminal": "Sales by seller",
+      "sales_by_draw": "Sales by draw",
       "block_number": "Block a number",
+      "block_seller": "Block a seller",
+      "reset_seller_pin": "Reset seller PIN",
+      "draw_results": "Draw results",
       "draws_pending_results": "Draws pending results",
       "manage_limits": "Manage limits",
       "manage_odds": "Manage odds",

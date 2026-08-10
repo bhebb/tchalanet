@@ -290,14 +290,28 @@ class TenantAdminDashboardPayloadAssemblerTest {
 
     assertThat(actions)
         .extracting(ActionItem::id)
-        .containsExactly("TODAYS_DRAWS", "SALES_BY_TERMINAL", "DAILY_REPORT", "BLOCK_NUMBER");
+        .containsExactly(
+            "TODAYS_DRAWS",
+            "DAILY_REPORT",
+            "SELLER_TERMINALS",
+            "SALES_BY_TERMINAL",
+            "SALES_BY_DRAW",
+            "BLOCK_NUMBER",
+            "BLOCK_SELLER",
+            "RESET_SELLER_PIN",
+            "DRAW_RESULTS");
     assertThat(actions)
         .extracting(action -> action.destination().value())
         .containsExactly(
             "/app/admin/draws?date=TODAY",
-            "/app/admin/reports/sellers",
             "/app/admin/reports/daily",
-            "/app/admin/limits/number");
+            "/app/admin/seller-terminals",
+            "/app/admin/reports/sellers",
+            "/app/admin/reports/draws",
+            "/app/admin/limits/number",
+            "/app/admin/seller-terminals",
+            "/app/admin/seller-terminals",
+            "/app/admin/draws/results");
   }
 
   @Test

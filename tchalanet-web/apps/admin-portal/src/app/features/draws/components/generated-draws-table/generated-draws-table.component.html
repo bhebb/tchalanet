@@ -3,12 +3,12 @@
   @if (hasSelection()) {
     <div class="gdt__bulkbar">
       <div>
-        <p class="gdt__bulk-title">{{ selectedCount() }} tirage{{ selectedCount() > 1 ? 's' : '' }} sélectionné{{ selectedCount() > 1 ? 's' : '' }}</p>
-        <p class="gdt__bulk-sub">Actions disponibles pour toute la sélection.</p>
+        <p class="gdt__bulk-title">{{ 'admin.generatedDraws.bulk.selected' | translate:{ count: selectedCount() } }}</p>
+        <p class="gdt__bulk-sub">{{ 'admin.generatedDraws.bulk.availableActions' | translate }}</p>
       </div>
       <div class="gdt__bulk-actions">
         @if (commonLifecycleActions().length === 0) {
-          <span class="gdt__bulk-empty">Aucune action commune</span>
+          <span class="gdt__bulk-empty">{{ 'admin.generatedDraws.bulk.noCommon' | translate }}</span>
         } @else {
           @for (action of commonLifecycleActions(); track action) {
             <button
@@ -18,7 +18,7 @@
               (click)="onBulkLifecycleAction(action)"
             >
               <mat-icon>{{ lifecycleIcon(action) }}</mat-icon>
-              {{ lifecycleLabel(action) }}
+              {{ lifecycleLabel(action) | translate }}
             </button>
           }
         }

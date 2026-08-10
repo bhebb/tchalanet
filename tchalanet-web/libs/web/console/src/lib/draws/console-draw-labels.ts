@@ -12,18 +12,8 @@ import {
 export function consoleDrawStatusLabel(status: ConsoleDrawStatus | string | null | undefined): string {
   if (!status) return '—';
   switch (status) {
-    case 'SCHEDULED': return 'Planifié';
-    case 'OPEN': return 'Ouvert';
-    case 'LOCKED': return 'Verrouillé';
-    case 'CLOSED': return 'Fermé';
-    case 'PENDING_RESULTS': return 'Résultats attendus';
-    case 'RESULTED': return 'Résultat appliqué';
-    case 'RESULTS_APPLIED': return 'Résultat appliqué';
-    case 'SETTLED': return 'Réglé';
-    case 'CANCELED':
-    case 'CANCELLED': return 'Annulé';
-    case 'ARCHIVED': return 'Archivé';
-    default: return status;
+    case 'CANCELED': return 'domain.draw.status.CANCELLED';
+    default: return `domain.draw.status.${status}`;
   }
 }
 
@@ -45,14 +35,7 @@ export function consoleDrawStatusTone(status: ConsoleDrawStatus | string | null 
 
 export function consoleDrawSalesStatusLabel(status: ConsoleDrawSalesStatus | string | null | undefined): string {
   if (!status) return '—';
-  switch (status) {
-    case 'OPEN': return 'Ouvert';
-    case 'CLOSED': return 'Fermé';
-    case 'LOCKED': return 'Verrouillé';
-    case 'CANCELLED': return 'Annulé';
-    case 'UPCOMING': return 'À venir';
-    default: return status;
-  }
+  return `domain.draw.salesStatus.${status}`;
 }
 
 export function consoleDrawSalesStatusTone(status: ConsoleDrawSalesStatus | string | null | undefined): AdminStatusTone {
@@ -66,23 +49,7 @@ export function consoleDrawSalesStatusTone(status: ConsoleDrawSalesStatus | stri
 
 export function consoleDrawResultStatusLabel(status: ConsoleDrawResultStatus | string | null | undefined): string {
   if (!status) return '—';
-  switch (status) {
-    case 'CONFIRMED': return 'Confirmé';
-    case 'PROVISIONAL': return 'Provisoire';
-    case 'OVERRIDDEN': return 'Remplacé';
-    case 'ERROR': return 'Erreur';
-    case 'APPLIED': return 'Appliqué';
-    case 'CORRECTED': return 'Corrigé';
-    case 'VOIDED': return 'Annulé';
-    case 'PENDING': return 'En attente';
-    case 'EXPECTED': return 'Attendu';
-    case 'MISSING': return 'Manquant';
-    case 'SOURCE_ERROR': return 'Erreur source';
-    case 'MANUAL': return 'Manuel';
-    case 'REJECTED': return 'Rejeté';
-    case 'NOT_DUE': return 'Attendu après fermeture';
-    default: return status;
-  }
+  return `domain.draw.resultStatus.${status}`;
 }
 
 export function consoleDrawResultStatusTone(status: ConsoleDrawResultStatus | string | null | undefined): AdminStatusTone {
@@ -104,16 +71,7 @@ export function consoleDrawResultStatusTone(status: ConsoleDrawResultStatus | st
 
 export function consoleDrawResultQualityLabel(quality: ConsoleDrawResultQuality | string | null | undefined): string {
   if (!quality) return '—';
-  switch (quality) {
-    case 'COMPLETE': return 'Complet';
-    case 'SUSPECT': return 'À vérifier';
-    case 'INVALID': return 'Invalide';
-    case 'OFFICIAL': return 'Officiel';
-    case 'MANUAL': return 'Manuel';
-    case 'ESTIMATED': return 'Estimé';
-    case 'UNKNOWN': return 'Inconnu';
-    default: return quality;
-  }
+  return `domain.draw.resultQuality.${quality}`;
 }
 
 export function consoleDrawResultQualityTone(quality: ConsoleDrawResultQuality | string | null | undefined): AdminStatusTone {
@@ -129,12 +87,8 @@ export function consoleDrawResultQualityTone(quality: ConsoleDrawResultQuality |
 }
 
 export function consoleDrawPublicationStatusLabel(status: ConsoleDrawPublicationStatus | string | null | undefined): string {
-  if (!status || status === 'NOT_PUBLISHED') return 'Non publié';
-  switch (status) {
-    case 'PUBLISHED': return 'Publié';
-    case 'PROVISIONAL': return 'Provisoire';
-    default: return status;
-  }
+  if (!status || status === 'NOT_PUBLISHED') return 'domain.draw.publicationStatus.NOT_PUBLISHED';
+  return `domain.draw.publicationStatus.${status}`;
 }
 
 export function consoleDrawPublicationStatusTone(status: ConsoleDrawPublicationStatus | string | null | undefined): AdminStatusTone {
@@ -146,24 +100,12 @@ export function consoleDrawPublicationStatusTone(status: ConsoleDrawPublicationS
 }
 
 export function consoleDrawLifecycleActionLabel(action: ConsoleDrawLifecycleDisplayAction): string {
-  switch (action) {
-    case 'open': return 'Ouvrir la vente';
-    case 'close': return 'Fermer la vente';
-    case 'lock': return 'Verrouiller';
-    case 'unlock': return 'Déverrouiller';
-    case 'cancel': return 'Annuler';
-    case 'settle': return 'Régler';
-    case 'archive': return 'Archiver';
-    case 'reschedule': return 'Reprogrammer';
-    case 'correct': return 'Corriger résultat';
-  }
+  return `domain.draw.lifecycleAction.${action}`;
 }
 
 export function consoleDrawLifecycleActionIcon(action: ConsoleDrawLifecycleDisplayAction): string {
   switch (action) {
     case 'open': return 'play_arrow';
-    // 'stop' rendered as a small square in the menu — visually indistinguishable from the
-    // adjacent selection checkbox. 'pause_circle' is unambiguous and already in the icon subset.
     case 'close': return 'pause_circle';
     case 'lock': return 'lock';
     case 'unlock': return 'lock_open';

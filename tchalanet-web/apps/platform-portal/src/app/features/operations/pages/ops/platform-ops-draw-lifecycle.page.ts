@@ -12,7 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
@@ -98,6 +98,7 @@ const STATUS_OPTIONS = [
     MatSelectModule,
     MatTableModule,
     ConsoleDrawSlotIdentityComponent,
+    TranslatePipe,
   ],
   templateUrl: './platform-ops-draw-lifecycle.page.html',
   styleUrls: ['./platform-ops-draw-lifecycle.page.scss'],
@@ -209,7 +210,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
     if (this.dryRun()) {
       this.actionFeedback.set({
         title: 'Dry-run',
-        message: `Dry-run: ${this.actionLabel(action)} serait exécuté sur ${this.drawDisplayLabel(draw)}.`,
+        message: `Dry-run: ${this.translate.instant(this.actionLabel(action))} serait exécuté sur ${this.drawDisplayLabel(draw)}.`,
         severity: 'info',
       });
       return;
@@ -274,7 +275,7 @@ export class PlatformOpsDrawLifecyclePage implements OnInit {
       next: () => {
         this.busy.set(false);
         this.actionFeedback.set({
-          title: `${this.actionLabel(action)} exécuté`,
+          title: `${this.translate.instant(this.actionLabel(action))} exécuté`,
           message: `${this.drawDisplayLabel(draw)} a été mis à jour.`,
           severity: 'info',
         });

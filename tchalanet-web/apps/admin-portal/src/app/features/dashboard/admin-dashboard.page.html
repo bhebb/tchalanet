@@ -1,26 +1,6 @@
 @let vm = state();
 
 <section class="admin-dashboard">
-  <nav class="admin-dashboard__quick-actions" [attr.aria-label]="'dashboard.admin.quick_actions.title' | translate">
-    <header class="admin-dashboard__quick-header">
-      <h2>{{ 'dashboard.admin.quick_actions.title' | translate }}</h2>
-    </header>
-    <div class="admin-dashboard__quick-grid">
-      @for (action of quickActions; track action.id) {
-        <a
-          class="admin-dashboard__quick-link"
-          [routerLink]="action.route"
-          [queryParams]="action.queryParams ?? null"
-        >
-          <span class="material-symbols-outlined admin-dashboard__quick-icon" aria-hidden="true">
-            {{ action.icon }}
-          </span>
-          <span>{{ action.labelKey | translate }}</span>
-        </a>
-      }
-    </div>
-  </nav>
-
   @switch (vm.status) {
     @case ('loading') {
       <tch-loading [label]="'common.loading' | translate" />

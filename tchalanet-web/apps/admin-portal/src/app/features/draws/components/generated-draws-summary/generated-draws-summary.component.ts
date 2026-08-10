@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AdminMetricCardComponent } from '@tch/ui/console';
 import { GeneratedDrawsSummary } from '../../data-access/admin-generated-draws.models';
 
@@ -8,7 +9,7 @@ export type GeneratedDrawsSummaryKpi = 'today' | 'salesOpen' | 'expected' | 'con
   selector: 'tch-generated-draws-summary',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AdminMetricCardComponent],
+  imports: [AdminMetricCardComponent, TranslatePipe],
   styles: [':host { display: block; margin-block-end: 1.5rem; }'],
   templateUrl: './generated-draws-summary.component.html',
 })

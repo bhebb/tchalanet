@@ -158,6 +158,66 @@
         "provider": "Province / state",
         "slotType": "Draw type",
         "localTime": "Local time"
+      },
+      "status": {
+        "SCHEDULED": "Scheduled",
+        "OPEN": "Open",
+        "LOCKED": "Locked",
+        "CLOSED": "Closed",
+        "PENDING_RESULTS": "Pending results",
+        "RESULTED": "Result applied",
+        "RESULTS_APPLIED": "Result applied",
+        "SETTLED": "Settled",
+        "CANCELLED": "Cancelled",
+        "ARCHIVED": "Archived"
+      },
+      "salesStatus": {
+        "UPCOMING": "Upcoming",
+        "OPEN": "Open",
+        "CLOSED": "Closed",
+        "LOCKED": "Locked",
+        "CANCELLED": "Cancelled"
+      },
+      "resultStatus": {
+        "CONFIRMED": "Confirmed",
+        "PROVISIONAL": "Provisional",
+        "OVERRIDDEN": "Overridden",
+        "ERROR": "Error",
+        "APPLIED": "Applied",
+        "CORRECTED": "Corrected",
+        "VOIDED": "Voided",
+        "PENDING": "Pending",
+        "EXPECTED": "Expected",
+        "MISSING": "Missing",
+        "SOURCE_ERROR": "Source error",
+        "MANUAL": "Manual",
+        "REJECTED": "Rejected",
+        "NOT_DUE": "Expected after close"
+      },
+      "resultQuality": {
+        "COMPLETE": "Complete",
+        "SUSPECT": "Needs review",
+        "INVALID": "Invalid",
+        "OFFICIAL": "Official",
+        "MANUAL": "Manual",
+        "ESTIMATED": "Estimated",
+        "UNKNOWN": "Unknown"
+      },
+      "publicationStatus": {
+        "NOT_PUBLISHED": "Not published",
+        "PUBLISHED": "Published",
+        "PROVISIONAL": "Provisional"
+      },
+      "lifecycleAction": {
+        "open": "Open sales",
+        "close": "Close sales",
+        "lock": "Lock",
+        "unlock": "Unlock",
+        "cancel": "Cancel",
+        "settle": "Settle",
+        "archive": "Archive",
+        "reschedule": "Reschedule",
+        "correct": "Correct result"
       }
     },
     "tchala": {

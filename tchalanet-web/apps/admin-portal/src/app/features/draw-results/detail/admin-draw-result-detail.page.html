@@ -41,7 +41,7 @@
         [eyebrow]="'admin.drawResults.detail.summary' | translate"
         [title]="title()"
         [code]="providerCode(result)"
-        [status]="statusLabel(result.status)"
+        [status]="(statusLabel(result.status) | translate)"
         [statusTone]="statusTone(result.status)"
         [meta]="identityMeta()"
         icon="fact_check"

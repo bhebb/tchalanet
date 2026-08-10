@@ -66,7 +66,7 @@
           <mat-label>Statut</mat-label>
           <mat-select [value]="statusFilter()" (valueChange)="onStatusChange($event)">
             @for (opt of statusOptions; track opt.value) {
-              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              <mat-option [value]="opt.value">{{ opt.label | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -99,7 +99,7 @@
             @for (action of commonBulkActions(); track action) {
               <button mat-stroked-button type="button" (click)="openBulkAction(action)">
                 <span class="material-symbols-outlined">{{ actionIcon(action) }}</span>
-                {{ actionLabel(action) }}
+                {{ actionLabel(action) | translate }}
               </button>
             }
           }

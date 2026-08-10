@@ -39,7 +39,7 @@
           <mat-label>Statut</mat-label>
           <mat-select [value]="statusFilter()" (valueChange)="onStatusChange($event)">
             @for (opt of statusOptions; track opt.value) {
-              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              <mat-option [value]="opt.value">{{ opt.label | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -47,7 +47,7 @@
           <mat-label>Qualité</mat-label>
           <mat-select [value]="qualityFilter()" (valueChange)="onQualityChange($event)">
             @for (opt of qualityOptions; track opt.value) {
-              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              <mat-option [value]="opt.value">{{ opt.label | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>

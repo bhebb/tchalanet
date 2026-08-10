@@ -1789,7 +1789,57 @@
         "archive": "achive",
         "updatedMany": "{{count}} tiraj modifye avèk siksè.",
         "updatedOne": "Tiraj la {{action}} avèk siksè."
+      },
+      "bulk": {
+        "selected_one": "{{count}} tiraj chwazi",
+        "selected_other": "{{count}} tiraj chwazi",
+        "availableActions": "Aksyon ki disponib pou tout seleksyon an.",
+        "noCommon": "Pa gen aksyon an komen"
+      },
+      "countdown": {
+        "expired": "Vant ekspire",
+        "remaining": "Fen vant nan {{time}}"
+      },
+      "groupDate": {
+        "today": "JODI A",
+        "tomorrow": "DEMEN"
+      },
+      "hint": {
+        "resultToEnter": "Rezilta pou antre",
+        "resultMissing": "Rezilta manke",
+        "fetched": "Jwenn {{time}}",
+        "enterResult": "Antre rezilta",
+        "viewDetails": "Gade detay",
+        "viewResult": "Gade rezilta",
+        "verify": "Verifye"
+      },
+      "summaryAction": {
+        "today": "Filtre sou tiraj jodi a",
+        "salesOpen": "Filtre sou tiraj ki ouvè pou vant",
+        "resultsExpected": "Filtre sou rezilta espere yo",
+        "confirmed": "Filtre sou rezilta konfime yo"
       }
+    },
+    "drawActivity": {
+      "salesEnd": "Fen vant",
+      "statusOpen": "Ap fèt",
+      "loading": "Ap chaje aktivite...",
+      "loadError": "Enposib chaje endikate vant tiraj la.",
+      "kpiLabel": "Endikate tiraj la",
+      "ticketsSold": "Tikè vann",
+      "grossSales": "Montan vann",
+      "activeSellers": "Machann aktif",
+      "viewSellersReport": "Gade machann nan tiraj la",
+      "estimatedCommission": "Komisyon estime",
+      "estimatedNet": "Nèt estime",
+      "promoBase": "Baz pwomo",
+      "hotSelectionsOpen": "Seleksyon cho",
+      "hotSelectionsClosed": "Ekspozisyon tiraj la",
+      "top5Open": "Top 5 pou siveye",
+      "top5Closed": "Top 5 seleksyon vann",
+      "loadingShort": "Ap chaje...",
+      "loadSelectionsError": "Enposib chaje seleksyon ki pi jwe yo.",
+      "noSelections": "Okenn seleksyon vann sou tiraj sa a pou kounya."
     },
     "pos": {
       "title": "Vann tikè",
@@ -2108,20 +2158,7 @@
         "title": "Eta pòs la"
       }
     },
-    "admin": {
-      "quick_actions": {
-        "title": "Aksyon rapid",
-        "today_draws": "Tiraj jodi a",
-        "today_report": "Rapò jodi a",
-        "machines": "Machin yo",
-        "sales_by_terminal": "Vant pa tèminal",
-        "sales_by_draw": "Vant pa tiraj",
-        "block_number": "Bloke nimewo",
-        "block_machine": "Bloke yon machin",
-        "reset_machine_pin": "Reyinisyalize PIN yon machin",
-        "draw_results": "Rezilta bòlèt yo"
-      }
-    },
+    "admin": {},
     "superadmin": {
       "alerts": {
         "empty": "Pa gen alèt",

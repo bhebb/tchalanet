@@ -158,6 +158,66 @@
         "provider": "Pwovens / eta",
         "slotType": "Kalite tiraj",
         "localTime": "Lè tiraj"
+      },
+      "status": {
+        "SCHEDULED": "Planifye",
+        "OPEN": "Ouvè",
+        "LOCKED": "Bloke",
+        "CLOSED": "Fèmen",
+        "PENDING_RESULTS": "Rezilta espere",
+        "RESULTED": "Rezilta aplike",
+        "RESULTS_APPLIED": "Rezilta aplike",
+        "SETTLED": "Regle",
+        "CANCELLED": "Anile",
+        "ARCHIVED": "Achive"
+      },
+      "salesStatus": {
+        "UPCOMING": "Ap vini",
+        "OPEN": "Vant ouvè",
+        "CLOSED": "Vant fèmen",
+        "LOCKED": "Bloke",
+        "CANCELLED": "Anile"
+      },
+      "resultStatus": {
+        "CONFIRMED": "Konfime",
+        "PROVISIONAL": "Pwovizwa",
+        "OVERRIDDEN": "Ranplase",
+        "ERROR": "Erè",
+        "APPLIED": "Aplike",
+        "CORRECTED": "Korije",
+        "VOIDED": "Anile",
+        "PENDING": "An atant",
+        "EXPECTED": "Espere",
+        "MISSING": "Manke",
+        "SOURCE_ERROR": "Erè sous",
+        "MANUAL": "Manyèl",
+        "REJECTED": "Rejte",
+        "NOT_DUE": "Poko espere"
+      },
+      "resultQuality": {
+        "COMPLETE": "Konplè",
+        "SUSPECT": "Pou verifye",
+        "INVALID": "Pa valab",
+        "OFFICIAL": "Ofisyèl",
+        "MANUAL": "Manyèl",
+        "ESTIMATED": "Estime",
+        "UNKNOWN": "Enkoni"
+      },
+      "publicationStatus": {
+        "NOT_PUBLISHED": "Pa pibliye",
+        "PUBLISHED": "Pibliye",
+        "PROVISIONAL": "Pwovizwa"
+      },
+      "lifecycleAction": {
+        "open": "Louvri vant la",
+        "close": "Fèmen vant la",
+        "lock": "Bloke",
+        "unlock": "Debloke",
+        "cancel": "Anile",
+        "settle": "Regle",
+        "archive": "Achive",
+        "reschedule": "Repwograme",
+        "correct": "Korije rezilta"
       }
     },
     "tchala": {

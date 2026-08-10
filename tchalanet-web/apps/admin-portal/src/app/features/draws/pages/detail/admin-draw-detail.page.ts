@@ -161,7 +161,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
           {
             label: 'Fin des ventes',
             value: this.countdownLabel(draw),
-            hint: this.salesStatusLabel(draw.salesStatus),
+            hint: this.translate.instant(this.salesStatusLabel(draw.salesStatus)),
           },
           {
             label: 'Ventes',

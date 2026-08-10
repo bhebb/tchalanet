@@ -425,7 +425,8 @@ export class AdminDrawResultsPage implements OnInit {
   }
 
   private optionLabel(option: { label?: string; labelKey?: string }): string {
-    return option.labelKey ? this.translate.instant(option.labelKey) : option.label ?? '';
+    const key = option.labelKey ?? option.label ?? '';
+    return this.translate.instant(key);
   }
 }
 

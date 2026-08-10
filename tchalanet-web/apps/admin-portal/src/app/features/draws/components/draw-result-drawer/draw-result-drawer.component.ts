@@ -13,6 +13,7 @@ import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import {
   DrawResultSaveMode,
@@ -43,6 +44,7 @@ const TZ_ABBREV: Record<string, string> = {
     MatButtonModule,
     MatIconModule,
     GeneratedDrawStatusBadgeComponent,
+    TranslatePipe,
   ],
   templateUrl: './draw-result-drawer.component.html',
   styleUrls: ['./draw-result-drawer.component.scss'],

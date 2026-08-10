@@ -3,6 +3,44 @@
     "noIssues": "Aucun problème"
   },
   "console": {
+    "drawsTable": {
+      "column": {
+        "draw": "Tirage",
+        "scheduledAt": "Date & heure",
+        "status": "Statut",
+        "result": "Résultat",
+        "mode": "Mode",
+        "publication": "Publication"
+      },
+      "select": "Sélectionner {{title}}",
+      "otherActions": "Autres actions pour {{title}}",
+      "actionInProgress": "Action en cours",
+      "pagination": "{{start}}–{{end}} sur {{total}} tirages",
+      "previousPage": "Page précédente",
+      "nextPage": "Page suivante",
+      "selection": "Sélection"
+    },
+    "drawResultsTable": {
+      "column": {
+        "draw": "Tirage",
+        "numbers": "Numéros",
+        "status": "Statut",
+        "quality": "Qualité",
+        "dateTime": "Date & heure",
+        "fetchedAt": "Récupéré",
+        "appliedAt": "Appliqué le"
+      },
+      "toggle": {
+        "hide": "Masquer",
+        "details": "Détails"
+      },
+      "time": {
+        "official": "Officiel",
+        "local": "Local"
+      },
+      "notApplied": "Non appliqué",
+      "showSource": "Afficher source"
+    },
     "gamesTable": {
       "title": "Jeux",
       "column": {
@@ -159,8 +197,13 @@
     "admin": {
       "daily_report": "Rapport du jour",
       "todays_draws": "Tirages du jour",
-      "sales_by_terminal": "Ventes par terminal",
+      "seller_terminals": "Vendeurs",
+      "sales_by_terminal": "Ventes par vendeur",
+      "sales_by_draw": "Ventes par tirage",
       "block_number": "Bloquer un numéro",
+      "block_seller": "Bloquer un vendeur",
+      "reset_seller_pin": "Réinitialiser PIN vendeur",
+      "draw_results": "Résultats des tirages",
       "draws_pending_results": "Tirages en attente de résultat",
       "manage_limits": "Gérer limites",
       "manage_odds": "Gérer odds",
