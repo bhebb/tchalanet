@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   mapHttpErrorToProblemDetail,
   webAppErrorFromProblemDetail,
@@ -44,6 +44,7 @@ import { SellerTerminalDialogResult } from './seller-terminal-dialog-result';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './create-seller-terminal.dialog.html',
   styleUrls: ['./create-seller-terminal.dialog.scss'],

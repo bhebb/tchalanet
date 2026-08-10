@@ -46,7 +46,10 @@ nav:
       - Qu'est-ce que Tchalanet ?: 00-overview/what-is-tchalanet.md
       - Glossaire: 00-overview/glossary.md
       - Opérateur / admin:
+          - Glosè kliyan ak konsèp: 02-functional/guides/client-glossary-concepts.md
           - Parcours opérateur: 02-functional/guides/operator-admin-guide.md
+          - Konfigirasyon admin: 02-functional/guides/admin-configuration-concepts.md
+          - Operasyon admin ak machann: 02-functional/guides/admin-seller-operations-concepts.md
           - Configuration jeux et barèmes: 02-functional/guides/admin-game-configuration.md
           - Onboarding tenant: 02-functional/flows/tenant-onboarding.md
           - Onboarding vendeur: 02-functional/flows/seller-onboarding.md

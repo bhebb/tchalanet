@@ -1394,6 +1394,7 @@
         },
         "action": {
           "backToList": "Back to list",
+          "cancel": "Cancel",
           "regenerateCode": "Generate a new code",
           "showPin": "Show PIN",
           "hidePin": "Hide PIN",
@@ -1466,6 +1467,29 @@
           "commissionRate": "Commission",
           "addressId": "Address",
           "tenantId": "Operator"
+        }
+      },
+      "overrides": {
+        "title": "Seller special rules",
+        "description": "Seller-specific payout rules. Future sales use the active special rule; already sold tickets keep their snapshot.",
+        "action": {
+          "backToSeller": "Back to seller",
+          "save": "Save",
+          "revertToTenant": "Revert to client workspace"
+        },
+        "loading": "Loading special rules...",
+        "error": {
+          "title": "Special rules unavailable",
+          "message": "Unable to load payout rules and special rules for this seller."
+        },
+        "empty": {
+          "title": "No client workspace payout rules",
+          "message": "Configure global payout rules before creating a seller special rule."
+        },
+        "field": {
+          "tenant": "Client workspace",
+          "overrideActive": "Special rule active",
+          "inheritsTenant": "Inherits client workspace"
         }
       },
       "status": {

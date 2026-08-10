@@ -1,22 +1,22 @@
 <tch-admin-page-shell
-  title="Overrides vendeur"
-  description="Barèmes spécifiques appliqués à ce seller-terminal. Les ventes futures utilisent l'override actif; les tickets déjà vendus gardent leur snapshot."
+  [title]="'admin.sellerTerminals.overrides.title' | translate"
+  [description]="'admin.sellerTerminals.overrides.description' | translate"
 >
   <div actions>
     <a mat-stroked-button [routerLink]="['/app/admin/seller-terminals', sellerTerminalId]">
       <mat-icon>arrow_back</mat-icon>
-      Retour vendeur
+      {{ 'admin.sellerTerminals.overrides.action.backToSeller' | translate }}
     </a>
   </div>
 
   @switch (state()) {
     @case ('loading') {
-      <tch-loading label="Chargement des overrides..." />
+      <tch-loading [label]="'admin.sellerTerminals.overrides.loading' | translate" />
     }
     @case ('error') {
       <tch-error-panel
-        title="Overrides indisponibles"
-        message="Impossible de charger les barèmes et overrides de ce vendeur."
+        [title]="'admin.sellerTerminals.overrides.error.title' | translate"
+        [message]="'admin.sellerTerminals.overrides.error.message' | translate"
         [showRetry]="true"
         retryLabel="Réessayer"
         (retry)="load()"
@@ -26,8 +26,8 @@
       @if (groups().length === 0) {
         <tch-empty-state
           icon="percent"
-          title="Aucun barème tenant"
-          message="Configurez d'abord les barèmes globaux avant de créer un override vendeur."
+          [title]="'admin.sellerTerminals.overrides.empty.title' | translate"
+          [message]="'admin.sellerTerminals.overrides.empty.message' | translate"
         />
       } @else {
         <div class="seller-overrides">
@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="seller-overrides__fact">
-                      <span>Tenant</span>
+                      <span>{{ 'admin.sellerTerminals.overrides.field.tenant' | translate }}</span>
                       <strong>
                         @if (tenantValue(row) === null) {
                           -
@@ -70,9 +70,13 @@
 
                     <div class="seller-overrides__status">
                       @if (hasOverride(row)) {
-                        <span class="seller-overrides__badge seller-overrides__badge--override">Override actif</span>
+                        <span class="seller-overrides__badge seller-overrides__badge--override">
+                          {{ 'admin.sellerTerminals.overrides.field.overrideActive' | translate }}
+                        </span>
                       } @else {
-                        <span class="seller-overrides__badge">Hérite du tenant</span>
+                        <span class="seller-overrides__badge">
+                          {{ 'admin.sellerTerminals.overrides.field.inheritsTenant' | translate }}
+                        </span>
                       }
                       @if (errorFor(row); as err) {
                         <span class="seller-overrides__error">{{ err }}</span>
@@ -88,7 +92,7 @@
                         (click)="save(row)"
                       >
                         <mat-icon>save</mat-icon>
-                        Enregistrer
+                        {{ 'admin.sellerTerminals.overrides.action.save' | translate }}
                       </button>
                       @if (hasOverride(row)) {
                         <button
@@ -98,7 +102,7 @@
                           (click)="remove(row)"
                         >
                           <mat-icon>undo</mat-icon>
-                          Revenir tenant
+                          {{ 'admin.sellerTerminals.overrides.action.revertToTenant' | translate }}
                         </button>
                       }
                     </div>
