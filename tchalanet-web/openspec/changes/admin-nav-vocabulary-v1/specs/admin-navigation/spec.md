@@ -54,3 +54,14 @@ content so mobile admins can act without opening the sidenav.
 - **THEN** the quick-action area includes today's draws, today's report, machines, sales by
   terminal, sales by draw, block number, block machine, reset machine PIN, and borlette results
 - **AND** each action routes to the existing admin operation page.
+
+### Requirement: Dashboard widgets preserve mobile viewport width
+
+Tenant admin dashboard widgets SHALL keep the page itself within the mobile viewport and expose
+horizontal scrolling only inside widgets that need a wider operational table.
+
+#### Scenario: Admin opens the dashboard on a phone
+
+- **WHEN** the dashboard renders terminal performance or other wide operational widgets
+- **THEN** the browser page does not shift horizontally beyond the viewport
+- **AND** the wide widget content remains reachable through widget-level horizontal scrolling.

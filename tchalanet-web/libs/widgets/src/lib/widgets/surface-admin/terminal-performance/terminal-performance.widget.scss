@@ -1,5 +1,6 @@
 :host {
   display: block;
+  min-width: 0;
 }
 
 .terminal-performance {
@@ -36,11 +37,15 @@
 
 .terminal-performance__table {
   display: grid;
-  min-width: 44rem;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 
 .terminal-performance__row {
   grid-template-columns: minmax(12rem, 2fr) repeat(3, minmax(8rem, 1fr));
+  min-width: 44rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--tch-color-outline-variant, var(--mat-sys-outline-variant));
   font-variant-numeric: tabular-nums;
