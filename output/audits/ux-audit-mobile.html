@@ -1,0 +1,605 @@
+<title>Audit UX — Tchalanet Mobile (POS Machann)</title>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #4a4a5e;
+    --ink-muted: #7a7a8e;
+    --surface: #faf9f7;
+    --surface-card: #ffffff;
+    --surface-raised: #f0eeeb;
+    --accent: #1A1B4B;
+    --accent-light: #E1E0FF;
+    --accent-soft: #2E3192;
+    --gold: #FECB00;
+    --gold-light: #FFF8D6;
+    --warn: #BA1A1A;
+    --warn-light: #FFDAD6;
+    --warn-soft: #e65c32;
+    --improve: #1a6b8a;
+    --improve-light: #e6f3f8;
+    --good: #006C49;
+    --good-light: #DDFBEA;
+    --border: #ddd9d3;
+    --border-light: #eae7e2;
+    --shadow: rgba(26, 26, 46, 0.06);
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8e6e1; --ink-soft: #b8b6b1; --ink-muted: #8a8884;
+      --surface: #141418; --surface-card: #1e1e24; --surface-raised: #28282f;
+      --accent: #C1C1FC; --accent-light: #1a1a3d; --accent-soft: #9595e8;
+      --gold: #FFE08B; --gold-light: #2d2a10;
+      --warn: #FFB4AB; --warn-light: #2d1a12; --warn-soft: #f09070;
+      --improve: #5cb8d6; --improve-light: #132a33;
+      --good: #7fd8b0; --good-light: #0d2d1e;
+      --border: #35353d; --border-light: #2a2a32; --shadow: rgba(0,0,0,0.2);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e8e6e1; --ink-soft: #b8b6b1; --ink-muted: #8a8884;
+    --surface: #141418; --surface-card: #1e1e24; --surface-raised: #28282f;
+    --accent: #C1C1FC; --accent-light: #1a1a3d; --accent-soft: #9595e8;
+    --gold: #FFE08B; --gold-light: #2d2a10;
+    --warn: #FFB4AB; --warn-light: #2d1a12; --warn-soft: #f09070;
+    --improve: #5cb8d6; --improve-light: #132a33;
+    --good: #7fd8b0; --good-light: #0d2d1e;
+    --border: #35353d; --border-light: #2a2a32; --shadow: rgba(0,0,0,0.2);
+  }
+  :root[data-theme="light"] {
+    --ink: #1a1a2e; --ink-soft: #4a4a5e; --ink-muted: #7a7a8e;
+    --surface: #faf9f7; --surface-card: #ffffff; --surface-raised: #f0eeeb;
+    --accent: #1A1B4B; --accent-light: #E1E0FF; --accent-soft: #2E3192;
+    --gold: #FECB00; --gold-light: #FFF8D6;
+    --warn: #BA1A1A; --warn-light: #FFDAD6; --warn-soft: #e65c32;
+    --improve: #1a6b8a; --improve-light: #e6f3f8;
+    --good: #006C49; --good-light: #DDFBEA;
+    --border: #ddd9d3; --border-light: #eae7e2; --shadow: rgba(26,26,46,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  .page { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; font-family: var(--font-body); color: var(--ink); line-height: 1.6; }
+
+  .hero { text-align: center; padding: 3rem 1rem 2.5rem; border-bottom: 1px solid var(--border-light); margin-bottom: 2rem; }
+  .hero-eyebrow { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+  .hero h1 { font-size: 1.85rem; font-weight: 800; color: var(--ink); text-wrap: balance; line-height: 1.25; margin-bottom: 0.6rem; }
+  .hero p { color: var(--ink-soft); font-size: 0.95rem; max-width: 560px; margin: 0 auto; }
+  .hero-stats { display: flex; justify-content: center; gap: 2rem; margin-top: 1.2rem; flex-wrap: wrap; }
+  .hero-stat { text-align: center; }
+  .hero-stat .val { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .hero-stat .val.v-good { color: var(--good); }
+  .hero-stat .val.v-warn { color: var(--warn); }
+  .hero-stat .val.v-improve { color: var(--improve); }
+  .hero-stat .label { font-size: 0.65rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* Flow map */
+  .flow-map { background: var(--surface-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1.5rem; overflow-x: auto; }
+  .flow-map-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); font-weight: 600; margin-bottom: 0.6rem; }
+  .flow-nodes { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; min-width: max-content; }
+  .flow-node { padding: 0.4rem 0.7rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 500; white-space: nowrap; border: 1px solid var(--border-light); background: var(--surface-raised); color: var(--ink-soft); }
+  .flow-node.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+  .flow-node.pain { background: var(--warn-light); color: var(--warn); border-color: var(--warn); border-style: dashed; }
+  .flow-node.good { background: var(--good-light); color: var(--good); border-color: var(--good); }
+  .flow-arrow { color: var(--ink-muted); font-size: 1rem; padding: 0 0.25rem; flex-shrink: 0; }
+
+  /* Nav grid */
+  .nav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.6rem; margin-bottom: 2.5rem; }
+  .nav-grid a { display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.7rem 0.9rem; background: var(--surface-card); border: 1px solid var(--border-light); border-radius: var(--radius); text-decoration: none; color: var(--ink); font-size: 0.82rem; transition: border-color 0.15s, box-shadow 0.15s; }
+  .nav-grid a:hover { border-color: var(--accent); box-shadow: 0 2px 8px var(--shadow); }
+  .nav-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+  .nav-dot.f { background: var(--warn); }
+  .nav-dot.i { background: var(--improve); }
+  .nav-dot.g { background: var(--good); }
+  .nav-title { font-weight: 600; }
+  .nav-sub { font-size: 0.72rem; color: var(--ink-muted); }
+
+  /* Sections */
+  section { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+  section h2 { font-size: 1.25rem; font-weight: 800; color: var(--ink); margin-bottom: 0.2rem; text-wrap: balance; }
+  .section-sub { color: var(--ink-muted); font-size: 0.82rem; margin-bottom: 1rem; }
+
+  .divider { border: none; border-top: 1px solid var(--border-light); margin: 2rem 0; }
+
+  /* Findings */
+  .finding { background: var(--surface-card); border: 1px solid var(--border-light); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.75rem; border-left: 3px solid var(--border); }
+  .finding.friction { border-left-color: var(--warn); }
+  .finding.improve { border-left-color: var(--improve); }
+  .finding.good { border-left-color: var(--good); }
+  .finding-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; }
+  .finding-tag { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.12rem 0.4rem; border-radius: 4px; }
+  .finding-tag.friction { background: var(--warn-light); color: var(--warn); }
+  .finding-tag.improve { background: var(--improve-light); color: var(--improve); }
+  .finding-tag.good { background: var(--good-light); color: var(--good); }
+  .finding h3 { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+  .finding p { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; }
+  .finding p + p { margin-top: 0.35rem; }
+  .code-ref { font-family: 'SF Mono', 'Cascadia Code', monospace; font-size: 0.72rem; color: var(--ink-muted); background: var(--surface-raised); padding: 0.08rem 0.3rem; border-radius: 3px; }
+
+  .recommendation { margin-top: 0.6rem; padding: 0.6rem 0.85rem; background: var(--surface-raised); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--ink-soft); }
+  .recommendation strong { color: var(--ink); font-weight: 500; }
+
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+  @media (max-width: 600px) { .comparison { grid-template-columns: 1fr; } }
+  .comparison-col { padding: 0.8rem; border-radius: var(--radius-sm); font-size: 0.8rem; }
+  .comparison-col.before { background: var(--warn-light); color: var(--warn); }
+  .comparison-col.after { background: var(--good-light); color: var(--good); }
+  .comp-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .comparison-col ol, .comparison-col ul { padding-left: 1rem; line-height: 1.55; }
+
+  /* Priority table */
+  .table-wrap { overflow-x: auto; }
+  .priority-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; margin-top: 0.75rem; }
+  .priority-table th { text-align: left; font-weight: 500; color: var(--ink-muted); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .priority-table td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border-light); color: var(--ink-soft); vertical-align: top; }
+  .priority-table tr:last-child td { border-bottom: none; }
+  .pb { display: inline-block; font-size: 0.6rem; font-weight: 600; padding: 0.08rem 0.35rem; border-radius: 3px; letter-spacing: 0.04em; white-space: nowrap; }
+  .pb.p1 { background: var(--warn-light); color: var(--warn); }
+  .pb.p2 { background: var(--improve-light); color: var(--improve); }
+  .pb.p3 { background: var(--good-light); color: var(--good); }
+
+  .summary-box { background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 1.5rem; }
+  .summary-box h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.6rem; }
+  .summary-box ul { padding-left: 1.2rem; font-size: 0.85rem; color: var(--ink-soft); line-height: 1.65; }
+</style>
+
+<div class="page">
+
+<header class="hero">
+  <div class="hero-eyebrow">Audit UX complet — Tchalanet Mobile</div>
+  <h1>L'app POS du machann, ecran par ecran</h1>
+  <p>14 ecrans Flutter analyses : parcours de vente, resultats, tickets, profil. Pour le vendeur de borlette sur le terrain avec un telephone.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="val v-good">14</div><div class="label">Ecrans</div></div>
+    <div class="hero-stat"><div class="val v-warn">8</div><div class="label">Frictions</div></div>
+    <div class="hero-stat"><div class="val v-improve">10</div><div class="label">Ameliorations</div></div>
+    <div class="hero-stat"><div class="val v-good">9</div><div class="label">Points forts</div></div>
+  </div>
+</header>
+
+<!-- NAV FLOW -->
+<div class="flow-map">
+  <div class="flow-map-label">Architecture de navigation — 4 onglets + flux vente</div>
+  <div class="flow-nodes">
+    <span class="flow-node active">Login</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node active">Akèy (Home)</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node">Istorik tikè</span><span class="flow-arrow">|</span>
+    <span class="flow-node">Rezilta</span><span class="flow-arrow">|</span>
+    <span class="flow-node">Rapò</span>
+  </div>
+</div>
+<div class="flow-map">
+  <div class="flow-map-label">Flux de vente — le parcours critique</div>
+  <div class="flow-nodes">
+    <span class="flow-node active">Akèy</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node good">Chwazi tiraj</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node good">Chwazi jwèt</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node">Nimewo + miz</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node pain">Verifye</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node pain">Konfime</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node good">Siksè!</span>
+  </div>
+</div>
+
+<!-- NAV GRID -->
+<nav class="nav-grid" aria-label="Sommaire des ecrans">
+  <a href="#login"><span class="nav-dot i"></span><span><span class="nav-title">Login</span><br><span class="nav-sub">PIN sans toggle visibilite</span></span></a>
+  <a href="#home"><span class="nav-dot g"></span><span><span class="nav-title">Akèy (Dashboard)</span><br><span class="nav-sub">KPIs, tirages, dernier tikè</span></span></a>
+  <a href="#sell"><span class="nav-dot f"></span><span><span class="nav-title">Vann yon tikè</span><br><span class="nav-sub">Flux principal, chips sans feedback</span></span></a>
+  <a href="#sell-success"><span class="nav-dot f"></span><span><span class="nav-title">Siksè vant</span><br><span class="nav-sub">String FR hardcodee, retour indirect</span></span></a>
+  <a href="#history"><span class="nav-dot i"></span><span><span class="nav-title">Istorik tikè</span><br><span class="nav-sub">Limite 50, pas de recherche live</span></span></a>
+  <a href="#scan"><span class="nav-dot f"></span><span><span class="nav-title">Tcheke tikè (Scan)</span><br><span class="nav-sub">QR placeholder trompeur</span></span></a>
+  <a href="#ticket-detail"><span class="nav-dot g"></span><span><span class="nav-title">Detay tikè</span><br><span class="nav-sub">Receipt card, reprint</span></span></a>
+  <a href="#results"><span class="nav-dot i"></span><span><span class="nav-title">Rezilta tiraj</span><br><span class="nav-sub">4 filtres empiles, dense</span></span></a>
+  <a href="#reports"><span class="nav-dot i"></span><span><span class="nav-title">Rapò</span><br><span class="nav-sub">Pas d'export, 50 tickets max</span></span></a>
+  <a href="#profile"><span class="nav-dot i"></span><span><span class="nav-title">Pwofil & Settings</span><br><span class="nav-sub">Read-only, pas de feedback save</span></span></a>
+  <a href="#transversal"><span class="nav-dot g"></span><span><span class="nav-title">Observations transverses</span><br><span class="nav-sub">i18n, design system, performance</span></span></a>
+</nav>
+
+<!-- ============================== -->
+<!-- 1. LOGIN                       -->
+<!-- ============================== -->
+<section id="login">
+<h2>1. Login</h2>
+<p class="section-sub">Code terminal + PIN 6 chiffres — point d'entree unique</p>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Double layout mobile / POS terminal</h3></div>
+  <p>Le login detecte le contexte (<span class="code-ref">context.isPosTerminal</span>) et affiche un layout centre pour telephone ou un split gauche/droite pour terminal POS avec bloc securite. Le bouton principal fait 56dp minimum — conforme Material 3.</p>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>PIN sans toggle de visibilite</h3></div>
+  <p>Le champ PIN est toujours masque (<span class="code-ref">obscureText: true</span>) sans possibilite de devoiler. Pour un code numerique de 6 chiffres tape debout dans une boutique, les erreurs de saisie sont frequentes. Le machann doit retaper sans savoir quel chiffre etait faux.</p>
+  <div class="recommendation"><strong>Ajouter</strong> un suffixIcon toggle oeil ouvert/ferme sur le champ PIN.</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Erreur de login toujours generique</h3></div>
+  <p>Le <span class="code-ref">AuthController</span> retourne toujours la meme cle <span class="code-ref">auth.login.error</span> quel que soit le probleme (mauvais PIN, compte bloque, reseau). Le machann ne sait pas si son PIN est mauvais ou si le serveur est injoignable.</p>
+  <div class="recommendation"><strong>Distinguer</strong> au minimum 3 cas : mauvais identifiants, compte bloque (avec lien vers le dialog info), erreur reseau.</div>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>100% i18n</h3></div>
+  <p>Toutes les strings passent par <span class="code-ref">translations.translate()</span>. Le login est proprement traduit en creole, francais et anglais.</p>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 2. HOME                        -->
+<!-- ============================== -->
+<section id="home">
+<h2>2. Akèy — Dashboard machann</h2>
+<p class="section-sub">Le tableau de bord quotidien : KPIs, tirages disponibles, dernier ticket</p>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Resume quotidien en 3 cartes stat</h3></div>
+  <p>Ventes, tickets, commission du jour en haut — le machann voit son activite d'un coup d'oeil. Le badge online/offline pulse en vert/gris avec label texte. L'avatar en haut a droite ouvre le menu compte.</p>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Tirages avec countdown et bouton "Vann"</h3></div>
+  <p>Chaque tirage disponible a une carte avec logo provider, nom localise, countdown avec code couleur (vert → orange → rouge selon urgence), et un bouton "Vann" direct. Le filtre par provider est masquable. Pull-to-refresh partout.</p>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Timer 1 seconde reconstruit tout le sous-arbre</h3></div>
+  <p>Un <span class="code-ref">Timer.periodic</span> de 1 seconde met a jour <span class="code-ref">_now</span> avec <span class="code-ref">setState</span>, ce qui reconstruit toutes les cartes tirage, les stats, et le dernier ticket. Sur un Sunmi V2 ou un telephone d'entree de gamme, c'est un probleme de performance.</p>
+  <div class="recommendation"><strong>Isoler</strong> le countdown dans un widget <span class="code-ref">StreamBuilder</span> separe pour que seuls les labels de temps soient reconstruits, pas l'arbre entier.</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Section "dernier ticket" silencieuse en erreur</h3></div>
+  <p>Si le dernier ticket ne charge pas ou n'existe pas, la section affiche un <span class="code-ref">SizedBox.shrink()</span> — rien du tout. Le machann voit le titre "Dernier ticket" avec du vide en dessous, sans message "Pa gen tikè jodi a".</p>
+  <div class="recommendation"><strong>Afficher</strong> un etat vide explicite : "Pa gen tikè vann jodi a" avec une icone ticket.</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Avatar profil trop petit pour POS</h3></div>
+  <p>L'avatar en haut a droite fait 52dp de large avec un label <span class="code-ref">labelSmall</span> en dessous. Sur un terminal POS ou le machann est debout, c'est difficile a toucher precisement. Le chevron a cote du bouton "Vann" fait 18dp — trop petit meme si c'est le fond de carte qui capte le tap.</p>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 3. SELL                        -->
+<!-- ============================== -->
+<section id="sell">
+<h2>3. Vann yon tikè — le flux critique</h2>
+<p class="section-sub">Selection tirage → jwèt → nimewo → miz → verifye → konfime — l'ecran ou le machann passe 80% de son temps</p>
+
+<div class="flow-map">
+  <div class="flow-map-label">Etapes du parcours de vente</div>
+  <div class="flow-nodes">
+    <span class="flow-node good">Tiraj pre-selectionne</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node good">Chips jwèt</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node">Nimewo (segments)</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node">Miz (montan)</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node">Ajoute &rarr; repete</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node pain">Verifye (API)</span><span class="flow-arrow">&rarr;</span>
+    <span class="flow-node pain">Konfime (API)</span>
+  </div>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Tirage pre-selectionne et auto-advance des segments</h3></div>
+  <p>Si le machann arrive depuis le dashboard, le tirage est deja selectionne. Le champ de selection numerique avance automatiquement le focus au segment suivant quand il est rempli (2 chiffres → focus segment 2). Bon pattern pour la saisie rapide.</p>
+</div>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>Chips de jeu sans feedback tactile</h3></div>
+  <p>Les chips de selection de jeu (Bolèt, Maryaj, Loto) et les options de pari utilisent <span class="code-ref">GestureDetector</span> au lieu de <span class="code-ref">InkWell</span>. Pas de ripple, pas de retour haptique. Le machann tape un chip et ne sait pas si c'est pris — il doit attendre le changement de couleur de fond (qui depend du setState).</p>
+  <div class="recommendation"><strong>Remplacer</strong> <span class="code-ref">GestureDetector</span> par <span class="code-ref">InkWell</span> sur tous les chips interactifs pour avoir le ripple Material et le retour semantique screen reader.</div>
+</div>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>Double confirmation Verifye → Konfime</h3></div>
+  <p>La vente requiert 2 appels API distincts : <span class="code-ref">prepare()</span> (verification) puis <span class="code-ref">confirmSell()</span> (confirmation). C'est un choix de securite (eviter les ventes accidentelles), mais pour un machann qui vend 200+ tickets/jour, chaque tap supplementaire compte. Le bouton change de label entre les etapes, ce qui peut surprendre.</p>
+  <div class="recommendation"><strong>Option :</strong> un mode "vente rapide" dans les settings qui fusionne verifye+konfime en un seul geste pour les machann experimentes, avec un toggle dans les parametres.</div>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Undo inline pour les lignes supprimees</h3></div>
+  <p>Quand le machann supprime une ligne du ticket, une barre undo inline apparait pendant 8 secondes (pas un SnackBar Material). C'est un excellent pattern — visible, non-intrusif, reversible.</p>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Preview ticket en temps reel</h3></div>
+  <p>La carte preview en bas montre le total, les promotions (maryaj gratis), et les alertes en temps reel. Code couleur vert (accepte) / rouge (rejete) avec icone + texte. Le bouton "Copy diagnostic" en cas d'erreur est un bon pattern support.</p>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Largeur selection fixe, risque de clip</h3></div>
+  <p>Le champ de saisie numerique a une largeur fixe de <span class="code-ref">112px</span> ou <span class="code-ref">152px</span> selon le nombre de segments. Avec une taille de police grande (accessibilite) ou un ecran etroit (Sunmi 360dp), le contenu peut deborder.</p>
+  <div class="recommendation"><strong>Utiliser</strong> <span class="code-ref">Flexible</span> ou <span class="code-ref">LayoutBuilder</span> au lieu de largeurs fixes pour les champs de saisie.</div>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 4. SELL SUCCESS                 -->
+<!-- ============================== -->
+<section id="sell-success">
+<h2>4. Siksè vant — confirmation</h2>
+<p class="section-sub">Code ticket en grand, copie, impression, nouveau ticket</p>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>String francaise hardcodee : "Copier code"</h3></div>
+  <p>A la ligne 197 de <span class="code-ref">cashier_sell_success_page.dart</span>, le label du bouton "Copy code" est hardcode en francais <span class="code-ref">'Copier code'</span> au lieu de passer par le systeme i18n. Seul bug de localisation trouve dans toute l'app.</p>
+  <div class="recommendation"><strong>Remplacer</strong> par <span class="code-ref">translations.translate('pos.sale.copy_code')</span> et ajouter la cle dans les 3 locales.</div>
+</div>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>"Nouveau ticket" renvoie a l'accueil, pas a la vente</h3></div>
+  <p>Le bouton "Nouveau ticket" navigue vers <span class="code-ref">/pos</span> (dashboard) et non vers <span class="code-ref">/sell</span>. Le machann doit donc re-cliquer sur un tirage pour vendre a nouveau. Pour un vendeur en rush, c'est un tap de trop a chaque vente.</p>
+  <div class="recommendation"><strong>Naviguer</strong> vers <span class="code-ref">/sell</span> avec le meme tirage pre-selectionne (ou le dernier utilise).</div>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Code ticket en displayMedium w900 + auto-print</h3></div>
+  <p>Le code est affiche en enorme (displayMedium, poids 900), tappable pour copier, avec impression automatique si le setting est actif. Le machann n'a qu'a donner le code au client — tout se fait automatiquement.</p>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 5. HISTORY                     -->
+<!-- ============================== -->
+<section id="history">
+<h2>5. Istorik tikè — historique des ventes</h2>
+<p class="section-sub">Liste tickets aujourd'hui/hier avec recherche et reprint</p>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Limite a aujourd'hui/hier, max 50 tickets</h3></div>
+  <p>Le filtre date ne propose que "Jodi a" et "Yè". Un machann qui veut retrouver un ticket de la semaine derniere ne peut pas. La limite de 50 tickets (<span class="code-ref">size: 50</span>) tronque silencieusement les jours charges sans pagination.</p>
+  <div class="recommendation"><strong>Ajouter</strong> un date picker "Lòt dat" comme sur la page Rapports, et une pagination infinie (load more) au dela de 50.</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Recherche par soumission clavier, pas live</h3></div>
+  <p>Le champ recherche attend que le machann appuie sur le bouton "rechercher" du clavier (<span class="code-ref">onSubmitted</span>). Pas de filtrage en temps reel. Pour un code ticket de 6-8 caracteres, le filtrage live avec debounce serait plus naturel.</p>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Bouton reprint par ticket avec dialog raison</h3></div>
+  <p>Chaque ligne a un bouton impression avec tooltip. Le clic ouvre un dialog de raison de reimpression. Bon pattern d'audit — on sait pourquoi un ticket a ete reimprime.</p>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 6. SCAN / VERIFY               -->
+<!-- ============================== -->
+<section id="scan">
+<h2>6. Tcheke tikè — verification</h2>
+<p class="section-sub">Scanner ou saisir un code pour verifier si un ticket est gagnant</p>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>Placeholder QR trompeur</h3></div>
+  <p>Un grand placeholder avec icone QR (160dp) invite le machann a scanner. Quand il tape dessus, un snackbar dit "Scan pa disponib". C'est trompeur — l'affordance visuelle promet une fonctionnalite qui n'existe pas. Le machann perd confiance.</p>
+  <div class="comparison">
+    <div class="comparison-col before"><div class="comp-label">Aujourd'hui</div><ul><li>Icone QR 56dp, opacite 30%</li><li>Texte invite au scan</li><li>Tap → snackbar "pa disponib"</li></ul></div>
+    <div class="comparison-col after"><div class="comp-label">Propose</div><ul><li>Retirer le placeholder QR</li><li>Garder uniquement le champ texte</li><li>Ajouter label "Tape kòd tikè a"</li><li>Quand scan sera pret : ajouter le bouton</li></ul></div>
+  </div>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Resultat code couleur avec severite</h3></div>
+  <p>Le resultat de verification est une carte coloree : vert (gagnant/SUCCESS), orange (WARNING), rouge (ERROR). Avec icone, titre et message traduits depuis les cles serveur avec interpolation de parametres. Le bouton "Voir details" lie directement au ticket.</p>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Bouton "Verifye" toujours actif meme si le champ est vide</h3></div>
+  <p>Le bouton "Verifye" ne se desactive pas quand le champ de code est vide. Le machann peut taper "Verifye" sur un champ vide — le controlleur verifie en interne et ne fait rien, mais visuellement le bouton dit "je suis pret" quand il ne l'est pas.</p>
+  <div class="recommendation"><strong>Desactiver</strong> le bouton quand le champ est vide (<span class="code-ref">onPressed: code.isEmpty ? null : verify</span>).</div>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 7. TICKET DETAIL               -->
+<!-- ============================== -->
+<section id="ticket-detail">
+<h2>7. Detay tikè</h2>
+<p class="section-sub">Receipt card avec lignes de jeu, montants, statut, reprint</p>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Format receipt familier</h3></div>
+  <p>La carte imite un ticket de caisse : header avec code public (tappable pour copier), badge statut, heure, tirage, lignes de jeu avec selection preview, sous-total et total. Le machann retrouve visuellement le meme format que le ticket imprime.</p>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Format date non localise</h3></div>
+  <p>La date est formattee en dur <span class="code-ref">DD/MM/YYYY HH:MM</span> dans une methode <span class="code-ref">_fmtDateTime</span>. Ce format europeen est correct pour Haiti, mais pas adaptable si d'autres locales sont ajoutees. Le meme probleme existe sur la page notifications.</p>
+  <div class="recommendation"><strong>Utiliser</strong> <span class="code-ref">MaterialLocalizations.formatMediumDate</span> pour le formatage localise.</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Pas d'action d'annulation</h3></div>
+  <p>La page detail affiche le statut (y compris CANCELLED, VOIDED) mais ne propose aucune action d'annulation. Si c'est par design (annulation admin-only), le machann devrait voir un message "Pou anile tikè sa a, kontakte admin ou" au lieu de rien.</p>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 8. RESULTS                     -->
+<!-- ============================== -->
+<section id="results">
+<h2>8. Rezilta tiraj — resultats des tirages</h2>
+<p class="section-sub">Lots gagnants avec filtres provider, slot et date</p>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>4 filtres empiles mangent l'ecran</h3></div>
+  <p>Segmented button (7j/30j) + dropdown provider + dropdown slot + date picker = environ 300dp de filtres avant le premier resultat. Sur un ecran 720dp (Sunmi V2), il reste 420dp pour les resultats, moins la bottom nav (80dp) = 340dp. C'est serre.</p>
+  <div class="comparison">
+    <div class="comparison-col before"><div class="comp-label">Aujourd'hui — 4 controles empiles</div><ol><li>SegmentedButton 7j / 30j</li><li>Dropdown provider</li><li>Dropdown slot (disabled si pas de provider)</li><li>Date picker</li></ol></div>
+    <div class="comparison-col after"><div class="comp-label">Propose — filtres condensables</div><ol><li>Chips horizontaux scrollables (7j, 30j, date custom)</li><li>Un seul dropdown cascading provider → slot</li><li>Ou : bouton "Filtre" qui ouvre un bottom sheet</li></ol></div>
+  </div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Range par defaut invisible (2 jours)</h3></div>
+  <p>Quand aucun filtre de periode n'est selectionne, les resultats montrent les 2 derniers jours. Mais cette plage par defaut n'est pas communiquee — le machann ne sait pas ce qu'il regarde. Ni "7j" ni "30j" n'est selectionne dans le segmented button.</p>
+  <div class="recommendation"><strong>Selectionner</strong> un preset par defaut (ex: 7j) au lieu de laisser rien selectionne. Ou afficher un label "2 dènye jou yo" quand aucun filtre n'est actif.</div>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Lots affiches en chips colores</h3></div>
+  <p>Les numeros gagnants sont affiches en chips : couleur primaire pour les lots disponibles, couleur neutre avec "x" pour les lots manquants. Double signal couleur + texte pour l'accessibilite.</p>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 9. REPORTS                     -->
+<!-- ============================== -->
+<section id="reports">
+<h2>9. Rapò — statistiques vendeur</h2>
+<p class="section-sub">Ventes, tickets, commission par jour et par tirage</p>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Max 50 tickets sans pagination</h3></div>
+  <p>La section tickets du rapport charge au maximum 50 tickets (<span class="code-ref">size: 50</span>). Pas de bouton "load more", pas de message "50+ tikè — montre premye 50 yo". Un machann actif qui vend 200 tickets/jour voit un rapport tronque sans le savoir.</p>
+  <div class="recommendation"><strong>Ajouter</strong> un compteur total du serveur + pagination infinie, ou au minimum un message "Montre 50 sou {{total}} tikè".</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Filtrer par tirage ne met pas a jour les totaux</h3></div>
+  <p>Quand le machann filtre les rapports par tirage via les chips, les totaux en haut (ventes, tickets, commission) ne changent pas — ils montrent toujours le total de la journee. Le machann pourrait croire que le total correspond au filtre actif.</p>
+  <div class="recommendation"><strong>Soit</strong> recalculer les totaux selon le filtre, <strong>soit</strong> afficher clairement "Total jounen an" avec un separateur visuel avant la section filtree.</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Pas d'export ni de partage</h3></div>
+  <p>Le machann ne peut pas exporter ses statistiques en PDF, les envoyer par WhatsApp, ou les imprimer. Pour un machann qui doit rendre des comptes a son proprietaire de bank bolet, c'est un manque.</p>
+  <div class="recommendation"><strong>Ajouter</strong> un bouton "Pataje rapò" qui genere un resume texte partageable via le share sheet natif (WhatsApp, SMS).</div>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- 10. PROFILE                    -->
+<!-- ============================== -->
+<section id="profile">
+<h2>10. Pwofil & Paramèt</h2>
+<p class="section-sub">Informations terminal, locale, impressions, notifications, PIN</p>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Page profil read-only sans actions</h3></div>
+  <p>La page profil montre terminal, compte et infos commerciales en lecture seule. La seule action est "Aller aux parametres". C'est un ecran informatif qui pourrait etre fusionne avec les settings pour eviter un ecran de plus.</p>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Settings sauvegardent immediatement sans feedback</h3></div>
+  <p>Chaque toggle (auto-print, notifications, copies) appelle le serveur immediatement via <span class="code-ref">_updateSettings</span>. Pas de spinner pendant l'appel, pas de confirmation de succes, pas de message d'erreur visible. Le machann toggle et espere.</p>
+  <div class="recommendation"><strong>Ajouter</strong> un bref feedback : spinner sur le toggle pendant l'appel, et snackbar "Anregistre!" en succes ou "Echwe — eseye ankò" en erreur.</div>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Selecteur de langue intuitif</h3></div>
+  <p>Le <span class="code-ref">SegmentedButton</span> affiche les langues dans leur propre nom : "Kreyol", "Francais", "English". Le machann n'a pas besoin de lire une autre langue pour trouver la sienne. C'est le bon pattern.</p>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- TRANSVERSAL                    -->
+<!-- ============================== -->
+<section id="transversal">
+<h2>Observations transverses</h2>
+<p class="section-sub">Patterns communs a toute l'app</p>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>Design system solide et coherent</h3></div>
+  <p>Tokens de spacing (s4 a s64), radius (xs a pill), couleurs semantiques (success, warning, error, blocked, online). Boutons avec taille minimum 48dp mobile / 56dp POS. Components: PosActionButton, SemanticActionButton, StatCard, StatusBadge, SurfaceCard, OnlineBadge. Tout est uniforme.</p>
+</div>
+
+<div class="finding good">
+  <div class="finding-header"><span class="finding-tag good">Point fort</span><h3>i18n quasi parfaite</h3></div>
+  <p>Sur 14 ecrans, un seul string hardcode en francais (<span class="code-ref">"Copier code"</span>), un fallback creole (<span class="code-ref">"Tout li"</span>), et un fallback (<span class="code-ref">"Tiraj"</span>). Le reste est 100% traduit via le systeme i18n. Les termes metier (Bolèt, Maryaj, Machann, Tiraj, Rezilta) sont corrects.</p>
+</div>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>Pas de mode sombre</h3></div>
+  <p>L'app n'a qu'un theme clair (<span class="code-ref">TchTheme.light()</span>). Les machann qui travaillent en soiree/nuit avec un ecran lumineux dans un espace sombre fatiguent les yeux. C'est aussi un probleme d'autonomie batterie sur les ecrans OLED.</p>
+  <div class="recommendation"><strong>Ajouter</strong> un <span class="code-ref">TchTheme.dark()</span> avec inversion des tokens surface/ink, et un toggle dans les settings ou le suivi automatique du systeme.</div>
+</div>
+
+<div class="finding friction">
+  <div class="finding-header"><span class="finding-tag friction">Friction</span><h3>Dialog de logout duplique 3 fois</h3></div>
+  <p>Le meme dialog de confirmation de deconnexion est copie-colle dans <span class="code-ref">change_pin_page</span>, <span class="code-ref">cashier_home_page</span> et <span class="code-ref">seller_terminal_profile_page</span>. Si le message ou le comportement change, il faut le modifier en 3 endroits.</p>
+  <div class="recommendation"><strong>Extraire</strong> un <span class="code-ref">showLogoutConfirmation()</span> partage.</div>
+</div>
+
+<div class="finding improve">
+  <div class="finding-header"><span class="finding-tag improve">Amelioration</span><h3>Page Forbidden sans raison ni contact</h3></div>
+  <p>Quand le machann est bloque, il voit un message generique sans explication (compte desactive ? region non autorisee ? abonnement expire ?). La seule action est se deconnecter. Pas de numero de telephone, pas de lien WhatsApp du gestionnaire.</p>
+  <div class="recommendation"><strong>Afficher</strong> la raison du blocage depuis l'API, et un lien de contact "Rele admin ou" avec le numero du gestionnaire configure dans le tenant.</div>
+</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================== -->
+<!-- ROADMAP                        -->
+<!-- ============================== -->
+<section id="roadmap">
+<h2>Roadmap prioritaire</h2>
+<p class="section-sub">18 ameliorations classees par impact sur le travail quotidien du machann</p>
+
+<div class="table-wrap">
+<table class="priority-table">
+<thead><tr><th></th><th>Action</th><th>Impact</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td><span class="pb p1">P1</span></td><td>InkWell sur les chips de jeu (ripple + semantics)</td><td>Feedback tactile sur l'ecran le plus utilise</td><td>Faible</td></tr>
+<tr><td><span class="pb p1">P1</span></td><td>Fix string "Copier code" → i18n</td><td>Bug localisation, correction triviale</td><td>Faible</td></tr>
+<tr><td><span class="pb p1">P1</span></td><td>"Nouveau ticket" → /sell (pas /pos)</td><td>-1 tap par vente, x200/jour</td><td>Faible</td></tr>
+<tr><td><span class="pb p1">P1</span></td><td>Retirer placeholder QR trompeur</td><td>Confiance machann, pas de fausse promesse</td><td>Faible</td></tr>
+<tr><td><span class="pb p1">P1</span></td><td>Dernier ticket : etat vide explicite</td><td>Plus de section vide sans message</td><td>Faible</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Toggle visibilite PIN (login + change PIN)</td><td>Moins d'erreurs de saisie</td><td>Faible</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Erreurs login differenciees (PIN/bloque/reseau)</td><td>Le machann sait quoi faire</td><td>Moyen</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Isoler le timer countdown (perf)</td><td>Performance sur telephones bas de gamme</td><td>Moyen</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Desactiver bouton Verifye si champ vide</td><td>Affordance correcte</td><td>Faible</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Pagination tickets historique (> 50)</td><td>Rapports complets pour jours charges</td><td>Moyen</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Filtres resultats en bottom sheet ou chips</td><td>+200dp de contenu visible</td><td>Moyen</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Feedback save settings (spinner + confirmation)</td><td>Le machann sait si ca a marche</td><td>Faible</td></tr>
+<tr><td><span class="pb p2">P2</span></td><td>Totaux filtres dans rapports (ou label "total jounen")</td><td>Pas de confusion filtre vs total</td><td>Faible</td></tr>
+<tr><td><span class="pb p3">P3</span></td><td>Mode sombre</td><td>Confort soiree/nuit, batterie OLED</td><td>Moyen</td></tr>
+<tr><td><span class="pb p3">P3</span></td><td>Export/partage rapports (WhatsApp, SMS)</td><td>Rendre des comptes au gestionnaire</td><td>Moyen</td></tr>
+<tr><td><span class="pb p3">P3</span></td><td>Page Forbidden : raison + contact admin</td><td>Le machann ne reste pas coince</td><td>Faible</td></tr>
+<tr><td><span class="pb p3">P3</span></td><td>Extraire dialog logout partage</td><td>Maintenance, 3 copies → 1</td><td>Faible</td></tr>
+<tr><td><span class="pb p3">P3</span></td><td>Date picker sur historique tickets (pas juste jodi/yè)</td><td>Retrouver un ticket plus ancien</td><td>Faible</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="summary-box">
+<h3>Synthese</h3>
+<ul>
+<li><strong>L'app mobile est bien construite.</strong> Le design system est solide, l'i18n est quasi parfaite, les tokens POS (56dp touch targets, posScale 1.15x) montrent une vraie reflexion sur le contexte terrain.</li>
+<li><strong>5 actions P1</strong> (corrections immediates) — le plus impactant est "Nouveau ticket → /sell" qui economise 1 tap x 200 ventes/jour = 200 taps inutiles par machann.</li>
+<li><strong>8 actions P2</strong> — surtout la performance du timer, les filtres resultats, et le feedback des actions.</li>
+<li><strong>5 actions P3</strong> — mode sombre, export rapports, maintenance.</li>
+<li><strong>Le vocabulaire metier est correct :</strong> Bolèt, Maryaj, Tiraj, Machann, Rezilta, Komisyon. Pas de renommage necessaire cote mobile (contrairement a l'admin ou "Limit", "Konfig kanal" etc. doivent changer).</li>
+<li><strong>Le flux de vente</strong> est globalement bon (pre-selection tirage, auto-advance, undo, preview) mais les chips sans feedback tactile et la double confirmation penalisent la rapidite des machann experimentes.</li>
+</ul>
+</div>
+</section>
+
+</div>
