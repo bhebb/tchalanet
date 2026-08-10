@@ -136,7 +136,20 @@ public class PosProfileService {
                 : request.receiptAutoPrint(),
             request.receiptCopyCount() == null
                 ? current.receipt().copyCount()
-                : request.receiptCopyCount());
+                : request.receiptCopyCount(),
+            request.receiptQuickSale() == null
+                ? current.receipt().quickSale()
+                : request.receiptQuickSale(),
+            request.receiptPrinterMode() == null
+                ? current.receipt().printerMode()
+                : request.receiptPrinterMode(),
+            request.receiptPaperSize() == null
+                ? current.receipt().paperSize()
+                : request.receiptPaperSize(),
+            request.receiptAdapterPreference() == null
+                ? current.receipt().adapterPreference()
+                : request.receiptAdapterPreference());
+    validateReceiptSettings(receipt);
     var notifications =
         new PosProfileNotificationSettings(
             request.notificationsEnabled() == null
@@ -150,13 +163,18 @@ public class PosProfileService {
         """
         INSERT INTO seller_terminal_settings (
           tenant_id, seller_terminal_id, receipt_auto_print, receipt_copy_count,
+          quick_sale, receipt_printer_mode, receipt_paper_size, receipt_adapter_preference,
           notifications_enabled, notifications_critical_only, created_by, updated_by
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT (tenant_id, seller_terminal_id)
         DO UPDATE SET
           receipt_auto_print = EXCLUDED.receipt_auto_print,
           receipt_copy_count = EXCLUDED.receipt_copy_count,
+          quick_sale = EXCLUDED.quick_sale,
+          receipt_printer_mode = EXCLUDED.receipt_printer_mode,
+          receipt_paper_size = EXCLUDED.receipt_paper_size,
+          receipt_adapter_preference = EXCLUDED.receipt_adapter_preference,
           notifications_enabled = EXCLUDED.notifications_enabled,
           notifications_critical_only = EXCLUDED.notifications_critical_only,
           updated_at = now(),
@@ -167,6 +185,10 @@ public class PosProfileService {
         terminalId,
         receipt.autoPrint(),
         receipt.copyCount(),
+        receipt.quickSale(),
+        receipt.printerMode(),
+        receipt.paperSize(),
+        receipt.adapterPreference(),
         notifications.enabled(),
         notifications.criticalOnly(),
         ctx.userUuid(),
@@ -178,7 +200,8 @@ public class PosProfileService {
     try {
       return jdbc.queryForObject(
           """
-          SELECT receipt_auto_print, receipt_copy_count,
+          SELECT receipt_auto_print, receipt_copy_count, quick_sale,
+                 receipt_printer_mode, receipt_paper_size, receipt_adapter_preference,
                  notifications_enabled, notifications_critical_only
             FROM seller_terminal_settings
            WHERE tenant_id = ? AND seller_terminal_id = ? AND deleted_at IS NULL
@@ -186,7 +209,12 @@ public class PosProfileService {
           (rs, rowNum) ->
               new PosSettings(
                   new PosProfileReceiptSettings(
-                      rs.getBoolean("receipt_auto_print"), rs.getInt("receipt_copy_count")),
+                      rs.getBoolean("receipt_auto_print"),
+                      rs.getInt("receipt_copy_count"),
+                      rs.getBoolean("quick_sale"),
+                      rs.getString("receipt_printer_mode"),
+                      rs.getString("receipt_paper_size"),
+                      rs.getString("receipt_adapter_preference")),
                   new PosProfileNotificationSettings(
                       rs.getBoolean("notifications_enabled"),
                       rs.getBoolean("notifications_critical_only"))),
@@ -200,6 +228,15 @@ public class PosProfileService {
 
   private record PosSettings(
       PosProfileReceiptSettings receipt, PosProfileNotificationSettings notifications) {}
+
+  private static void validateReceiptSettings(PosProfileReceiptSettings receipt) {
+    if (!List.of("AUTO", "POS_DIRECT", "SYSTEM_PDF").contains(receipt.printerMode())) {
+      throw new IllegalArgumentException("Unsupported receipt printer mode");
+    }
+    if (!List.of("RECEIPT_58MM", "RECEIPT_80MM").contains(receipt.paperSize())) {
+      throw new IllegalArgumentException("Unsupported receipt paper size");
+    }
+  }
 
   private static String sellerDisplayName(String firstName, String lastName, String fallback) {
     var fullName =

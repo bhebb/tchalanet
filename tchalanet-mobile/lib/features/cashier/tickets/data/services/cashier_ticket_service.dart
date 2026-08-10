@@ -70,6 +70,8 @@ class CashierTicketService {
     String ticketId, {
     bool recordPrint = true,
     String? reprintReason,
+    String outputFormat = 'PDF',
+    String paperSize = 'A4',
   }) async {
     final normalizedReason = reprintReason?.trim();
     try {
@@ -81,6 +83,10 @@ class CashierTicketService {
           if (normalizedReason != null && normalizedReason.isNotEmpty)
             'reprintReason': normalizedReason,
           'deliveryOptions': ['RETURN_FILE'],
+          'printOptionsRequest': {
+            'outputFormat': outputFormat,
+            'paperSize': paperSize,
+          },
         },
         options: Options(responseType: ResponseType.bytes),
       );

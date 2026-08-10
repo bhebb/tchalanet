@@ -60,12 +60,20 @@ class PosProfileService {
   Future<PosProfileResponse> updateSettings({
     bool? receiptAutoPrint,
     int? receiptCopyCount,
+    bool? receiptQuickSale,
+    String? receiptPrinterMode,
+    String? receiptPaperSize,
+    String? receiptAdapterPreference,
     bool? notificationsEnabled,
     bool? notificationsCriticalOnly,
   }) async {
     return _patchProfile('/tenant/cashier/profile/settings', {
       'receiptAutoPrint': receiptAutoPrint,
       'receiptCopyCount': receiptCopyCount,
+      'receiptQuickSale': receiptQuickSale,
+      'receiptPrinterMode': receiptPrinterMode,
+      'receiptPaperSize': receiptPaperSize,
+      'receiptAdapterPreference': receiptAdapterPreference,
       'notificationsEnabled': notificationsEnabled,
       'notificationsCriticalOnly': notificationsCriticalOnly,
     });

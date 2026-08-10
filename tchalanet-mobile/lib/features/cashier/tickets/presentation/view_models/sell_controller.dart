@@ -164,6 +164,15 @@ final class SellConfirming extends SellState {
   final CashierTicketPreviewResponse preview;
 }
 
+/// The confirm request was sent, but the client cannot prove whether the
+/// server committed the ticket. Retrying must reuse the same preparation and
+/// idempotency key; calling prepare again could regenerate Maryaj gratis.
+final class SellConfirmUnknown extends SellState {
+  const SellConfirmUnknown(this.form, this.preview);
+  final SellFormData form;
+  final CashierTicketPreviewResponse preview;
+}
+
 final class SellSuccess extends SellState {
   const SellSuccess(this.response, {required this.drawId});
   final CashierSellTicketResponse response;
@@ -378,11 +387,38 @@ class SellController extends Notifier<SellState> {
     }
   }
 
+  /// Collapses the seller-visible verify/confirm steps while retaining the
+  /// persisted preparation boundary. Maryaj gratis lines, notices, or any
+  /// future review signal keep the seller on the preview instead.
+  Future<void> quickSell() async {
+    final current = state;
+    if (current is! SellReady || !current.form.canPreview) return;
+    await prepare();
+    final prepared = state;
+    if (prepared is! SellReady) return;
+    final preview = prepared.previewResult;
+    if (preview == null ||
+        !preview.isAccepted ||
+        preview.promotionLines.isNotEmpty ||
+        preview.notices.isNotEmpty) {
+      return;
+    }
+    await confirmSell();
+  }
+
   Future<void> confirmSell() async {
     final current = state;
-    if (current is! SellReady) return;
-    final form = current.form;
-    final preview = current.previewResult;
+    final form = switch (current) {
+      SellReady(:final form) => form,
+      SellConfirmUnknown(:final form) => form,
+      _ => null,
+    };
+    final preview = switch (current) {
+      SellReady(:final previewResult) => previewResult,
+      SellConfirmUnknown(:final preview) => preview,
+      _ => null,
+    };
+    if (form == null) return;
     if (preview == null || !preview.isAccepted) return;
     final lines = form.allLines;
     if (lines.isEmpty) return;
@@ -403,12 +439,31 @@ class SellController extends Notifier<SellState> {
         );
       }
     } catch (e) {
+      if (_isUnknownConfirmOutcome(e)) {
+        state = SellConfirmUnknown(form, preview);
+        return;
+      }
       state = SellReady(
         form,
         previewResult: preview,
         errorKeys: userErrorTranslationKeys(e),
       );
     }
+  }
+
+  /// Retries confirmation only. The preparation and key are intentionally
+  /// retained from the current sale intent.
+  Future<void> retryConfirm() => confirmSell();
+
+  bool _isUnknownConfirmOutcome(Object error) {
+    if (error is! ApiException) return true;
+    final status = error.statusCode;
+    return error.retryable ||
+        status == null ||
+        status == 408 ||
+        status == 429 ||
+        status >= 500 ||
+        error.code?.startsWith('client.network.') == true;
   }
 
   Future<CashierSellTicketResponse> _hydrateReplayTicketIfNeeded(

@@ -1,12 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:printing/printing.dart';
 
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../core/network/api_exception.dart';
-import '../data/services/cashier_ticket_service.dart';
+import '../printing/printer_service.dart';
 
 const _sellerRequestedReprintReason = 'SELLER_REQUESTED_REPRINT';
 const _reprintReasonPresets = [
@@ -17,43 +14,64 @@ const _reprintReasonPresets = [
 ];
 const _reprintReasonRequiredCode = 'ticket.reprint.reason_required';
 
-/// Opens the native PDF print preview for an already rendered ticket receipt.
-/// The initial print is reason-free. Seller-initiated reprints include the
-/// stable default reason. The seller can choose another preset or edit it.
+/// Prints an already rendered ticket through the configured printer service.
+/// The system PDF surface is available only when the caller explicitly opts
+/// into the manual fallback.
 Future<void> printTicket(
   BuildContext context,
   WidgetRef ref,
   String ticketId, {
   String? reprintReason,
+  bool manualPdfFallback = true,
+  bool automatic = false,
 }) async {
   final messenger = ScaffoldMessenger.of(context);
   final translations = ref.read(i18nBundleProvider);
   try {
-    final service = ref.read(cashierTicketServiceProvider);
-    Uint8List bytes;
     try {
-      bytes = await service.print(ticketId, reprintReason: reprintReason);
+      final result = await ref
+          .read(printerServiceProvider)
+          .printTicket(
+            ticketId,
+            reprintReason: reprintReason,
+            allowManualPdfFallback: manualPdfFallback && !automatic,
+          );
+      if (result.outcome == PrintOutcome.unavailable) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              translations.translate('pos.settings.printer_unavailable'),
+            ),
+          ),
+        );
+        return;
+      }
+      if (!result.isPrinted) {
+        if (result.error case final ApiException error) throw error;
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(translations.translate('common.error.unknown')),
+          ),
+        );
+        return;
+      }
     } on ApiException catch (error) {
       if (error.code != _reprintReasonRequiredCode ||
           reprintReason?.trim().isNotEmpty == true) {
         rethrow;
       }
-      bytes = await service.print(
-        ticketId,
-        reprintReason: _sellerRequestedReprintReason,
-      );
+      final result = await ref
+          .read(printerServiceProvider)
+          .printTicket(
+            ticketId,
+            reprintReason: _sellerRequestedReprintReason,
+            allowManualPdfFallback: manualPdfFallback && !automatic,
+          );
+      if (!result.isPrinted) {
+        if (result.error case final ApiException error) throw error;
+        return;
+      }
     }
-
-    if (bytes.isEmpty) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(translations.translate('pos.tickets.receipt_empty')),
-        ),
-      );
-      return;
-    }
-
-    await Printing.layoutPdf(onLayout: (_) async => bytes);
   } on ApiException catch (error) {
     messenger.showSnackBar(
       SnackBar(content: Text(localizedUserError(translations, error))),
@@ -169,7 +187,13 @@ Future<void> requestTicketReprint(
       },
     );
     if (reason != null && context.mounted) {
-      await printTicket(context, ref, ticketId, reprintReason: reason);
+      await printTicket(
+        context,
+        ref,
+        ticketId,
+        reprintReason: reason,
+        manualPdfFallback: true,
+      );
     }
   } finally {
     controller.dispose();

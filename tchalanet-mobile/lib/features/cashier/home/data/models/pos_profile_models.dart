@@ -129,15 +129,27 @@ class PosProfileReceiptSettings {
   const PosProfileReceiptSettings({
     required this.autoPrint,
     required this.copyCount,
+    required this.quickSale,
+    required this.printerMode,
+    required this.paperSize,
+    this.adapterPreference,
   });
 
   final bool autoPrint;
   final int copyCount;
+  final bool quickSale;
+  final String printerMode;
+  final String paperSize;
+  final String? adapterPreference;
 
   factory PosProfileReceiptSettings.fromJson(Map<String, dynamic> json) =>
       PosProfileReceiptSettings(
         autoPrint: json['autoPrint'] as bool? ?? true,
         copyCount: (json['copyCount'] as num?)?.toInt() ?? 1,
+        quickSale: json['quickSale'] as bool? ?? false,
+        printerMode: json['printerMode'] as String? ?? 'AUTO',
+        paperSize: json['paperSize'] as String? ?? 'RECEIPT_80MM',
+        adapterPreference: json['adapterPreference'] as String?,
       );
 }
 
