@@ -20,9 +20,12 @@
       <span class="slot-row__time slot-row__time--missing">—</span>
     }
 
-    <tch-status-badge
-      [status]="slotStatus(s)"
-      [label]="slotStatusLabelKey(s) | translate"
+    <mat-slide-toggle
+      class="slot-row__toggle"
+      [checked]="s.enabled"
+      [disabled]="saving()"
+      [attr.aria-label]="(s.enabled ? 'admin.drawChannels.slots.toggle.disable' : 'admin.drawChannels.slots.toggle.enable') | translate"
+      (change)="toggleEnabled.emit($event.checked)"
     />
 
     <button
@@ -31,7 +34,7 @@
       (click)="configure.emit(s)"
       [attr.aria-label]="'admin.drawChannels.actions.configure' | translate"
     >
-      <span class="material-symbols-outlined">edit</span>
+      <span class="material-symbols-outlined">settings</span>
     </button>
   </div>
 

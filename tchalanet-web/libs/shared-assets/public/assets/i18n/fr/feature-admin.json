@@ -458,6 +458,10 @@
           "active": "Actif",
           "needsConfig": "À configurer",
           "disabled": "Inactif"
+        },
+        "toggle": {
+          "enable": "Activer ce créneau",
+          "disable": "Désactiver ce créneau"
         }
       },
       "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",

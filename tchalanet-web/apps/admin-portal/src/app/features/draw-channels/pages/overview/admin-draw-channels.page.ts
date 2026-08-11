@@ -72,6 +72,7 @@ export class AdminDrawChannelsPage implements OnInit {
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
   readonly allProviders = signal<DrawChannelProviderView[]>([]);
+  readonly savingSlot = signal<{ providerCode: string; slotKey: string } | null>(null);
   readonly activeFilter = signal<ActiveFilter>('all');
   readonly searchQuery = signal<string>('');
 
@@ -138,6 +139,40 @@ export class AdminDrawChannelsPage implements OnInit {
 
   onConfigureSlot(provider: DrawChannelProviderView, slot: DrawChannelSlotConfigView): void {
     this.openConfigDialog(provider, slot);
+  }
+
+  onToggleSlotEnabled(
+    provider: DrawChannelProviderView,
+    slot: DrawChannelSlotConfigView,
+    enabled: boolean,
+  ): void {
+    this.savingSlot.set({ providerCode: provider.providerCode, slotKey: slot.slotKey });
+    this.actionNotice.set(null);
+    const request = {
+      enabled: provider.tenantStatus === 'ACTIVE' || provider.tenantStatus === 'NEEDS_CONFIG',
+      resultAcquisitionMode: provider.resultAcquisition.mode,
+      defaultSalesCutoffMinutes: provider.defaultSalesCutoffMinutes,
+      slots: provider.slots.map(s =>
+        s.slotKey === slot.slotKey
+          ? { slotKey: s.slotKey, enabled, drawTime: s.drawTime, salesCutoffMinutes: s.salesCutoffMinutes }
+          : { slotKey: s.slotKey, enabled: s.enabled, drawTime: s.drawTime, salesCutoffMinutes: s.salesCutoffMinutes },
+      ),
+    };
+    this.api.updateDrawChannelProviderConfig(provider.providerCode, request, { suppressShellFeedback: true }).subscribe({
+      next: updated => {
+        this.savingSlot.set(null);
+        this.allProviders.update(current =>
+          current.map(item => item.providerCode === updated.providerCode ? updated : item),
+        );
+        this.actionNotice.set(
+          this.translate.instant('admin.drawChannels.notice.saved', { provider: updated.providerLabel }),
+        );
+      },
+      error: (err: unknown) => {
+        this.savingSlot.set(null);
+        this.pageError.set(this.errorViewModel(err));
+      },
+    });
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {

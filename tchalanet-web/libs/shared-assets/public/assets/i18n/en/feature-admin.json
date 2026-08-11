@@ -1590,6 +1590,10 @@
           "active": "Active",
           "needsConfig": "Needs setup",
           "disabled": "Inactive"
+        },
+        "toggle": {
+          "enable": "Enable this slot",
+          "disable": "Disable this slot"
         }
       },
       "salesCutoff": "Sales close: {{minutes}} min before draw",

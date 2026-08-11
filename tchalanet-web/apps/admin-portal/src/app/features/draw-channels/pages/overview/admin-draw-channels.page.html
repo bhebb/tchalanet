@@ -92,8 +92,10 @@
         @for (provider of filteredProviders(); track provider.providerCode) {
           <tch-draw-channel-provider-card
             [provider]="provider"
+            [savingSlotKey]="savingSlot()?.providerCode === provider.providerCode ? (savingSlot()?.slotKey ?? null) : null"
             (configure)="onConfigure($event)"
             (toggleSlot)="onConfigureSlot(provider, $event)"
+            (toggleSlotEnabled)="onToggleSlotEnabled(provider, $event.slot, $event.enabled)"
           />
         }
       </div>
