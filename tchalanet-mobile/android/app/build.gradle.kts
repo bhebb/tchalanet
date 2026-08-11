@@ -2,9 +2,6 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    // START: FlutterFire Configuration
-    id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -51,6 +48,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Keep local IDE/debug installs separate from distributed builds. Android
+            // refuses updates when the same package is installed with another signing key.
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
+
         release {
             // Use the real release keystore when key.properties is present
             // (CI / signed staging builds); fall back to debug keys otherwise.

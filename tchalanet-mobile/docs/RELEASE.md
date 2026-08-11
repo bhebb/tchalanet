@@ -8,13 +8,19 @@ et les appareils Android personnels.
 
 | Usage | Fichier | Installation | Signature |
 | --- | --- | --- | --- |
-| Test local ou recette interne | APK debug | Installation directe sur l'appareil | Clé debug Android |
+| Test local ou recette interne | APK debug | Installation directe sur l'appareil | Clé debug Android, package `com.tchalanet.mobile.dev` |
 | Staging/pilote | APK release | Firebase App Distribution | Clé de release Tchalanet |
 | Production | AAB release | Google Play / Managed Google Play | Play App Signing + upload key Tchalanet |
 
 Ne distribuez jamais un APK debug en dehors d'un environnement de test
 contrôlé. Il est identifié comme une version de développement et sa signature
 ne peut pas devenir la signature de production.
+
+Le package Android local/debug est volontairement séparé
+(`com.tchalanet.mobile.dev`). Les builds distribués gardent le package final
+`com.tchalanet.mobile`. Cela évite qu'un téléphone utilisé en développement
+bloque ensuite une installation Firebase/Play avec l'erreur Android
+"application non mise à jour".
 
 ## Préparer une version de test installable
 
@@ -48,6 +54,13 @@ pointer vers une URL de développement sur un appareil remis à un vendeur.
 Android impose un `versionCode` croissant pour chaque nouvelle version installée
 ou publiée sous le même `applicationId` (`com.tchalanet.mobile`). Le workflow ne
 doit donc pas demander à l'opérateur de se rappeler le dernier build.
+
+Android impose aussi une signature identique pour mettre à jour un même
+`applicationId`. Un APK local/debug signé avec la clé debug ne peut pas être
+mis à jour par un APK release signé avec la clé Tchalanet, même si le
+`versionCode` est correct. Pour un appareil qui avait déjà installé une ancienne
+build debug sous `com.tchalanet.mobile`, une désinstallation unique est
+inévitable; après séparation du package debug, ce conflit ne doit plus revenir.
 
 État actuel :
 
