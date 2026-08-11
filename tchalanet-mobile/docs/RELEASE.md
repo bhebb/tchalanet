@@ -54,7 +54,8 @@ doit donc pas demander à l'opérateur de se rappeler le dernier build.
 - `pubspec.yaml` porte `version: 1.0.0+1`.
 - Le workflow staging calcule `--build-name` depuis `pubspec.yaml` avec un
   suffixe `-stg.<build>`.
-- `--build-number` est alimenté automatiquement par le workflow.
+- `--build-number` est alimenté automatiquement par un timestamp UTC, donc il
+  augmente naturellement entre deux distributions.
 - L'opérateur ne saisit pas de numéro de version au lancement du workflow.
 
 Cible avant MEP :
@@ -235,12 +236,17 @@ Garde minimale obligatoire :
    - `versionCode` positif et `versionName` présent ;
    - activité launcher présente ;
    - refus des URLs locales (`localhost`, `127.*`, `10.0.2.2`) pour une build distribuée.
-3. Installation smoke test sur émulateur Android avec `adb install`.
+3. `versionCode` automatique et monotone via timestamp UTC.
 4. Distribution seulement si ces étapes passent.
 
 Ces contrôles doivent rester avant l'étape Firebase App Distribution ou Google
-Play. Si `adb install` échoue, l'artefact est considéré non distribuable même si
-le build Flutter a réussi.
+Play.
+
+Un smoke test `adb install` sur émulateur peut être activé manuellement avec
+`run_emulator_install_smoke`, mais il ne doit pas être le garde bloquant par
+défaut : le boot d'un émulateur GitHub Actions est trop lent/flaky, et un
+émulateur propre ne détecte pas les conflits réels d'un appareil qui avait déjà
+une app signée différemment.
 
 ## Outils externes prod
 
