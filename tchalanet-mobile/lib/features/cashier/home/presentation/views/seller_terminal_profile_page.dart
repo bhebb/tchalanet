@@ -24,7 +24,14 @@ class SellerTerminalProfilePage extends ConsumerWidget {
     final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(translations.translate('pos.profile.title'))),
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () => context.go('/pos'),
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(translations.translate('pos.profile.title')),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -180,7 +187,14 @@ class SellerTerminalSettingsPage extends ConsumerWidget {
     final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(translations.translate('pos.settings.title'))),
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () => context.go('/pos'),
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(translations.translate('pos.settings.title')),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
