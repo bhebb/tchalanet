@@ -140,6 +140,35 @@ class TicketReceiptPrintFormatterTest {
   }
 
   @Test
+  void compactHaitianReceiptAvoidsDuplicateBrandingAndPublicCode() {
+    var formatter = formatter(emptyCatalog());
+    var profile = DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_58MM);
+
+    var content =
+        formatter.format(
+            receiptWithBranding(
+                Locale.forLanguageTag("ht"),
+                "tchalanet",
+                "tchalanet\nAdrès prensipal",
+                List.of(section("HT_LOTO4", paidLine(1, "HT_LOTO4", "LOTTO4_4D", "1236", "18")))),
+            profile);
+
+    var headerText = text(content.headerLines());
+    var sectionText =
+        content.sections().stream()
+            .map(section -> section.title() == null ? "" : section.title())
+            .reduce("", (left, right) -> left + "\n" + right);
+
+    assertThat(countOccurrences(headerText, "tchalanet")).isEqualTo(1);
+    assertThat(headerText)
+        .contains("Adrès prensipal")
+        .contains("Tèminal: TCH-G2PYN7")
+        .doesNotContain("Kòd piblik");
+    assertThat(sectionText).contains("Loto 4 chif").doesNotContain("Loto 4 chiffres");
+    assertThat(text(content.footerLines())).contains("Verifikasyon: HE1E-EQYJ");
+  }
+
+  @Test
   void totalsPrintOnlyTotalAmount() {
     var formatter = formatter();
     var profile = DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_58MM);
@@ -270,6 +299,44 @@ class TicketReceiptPrintFormatterTest {
         money("6"));
   }
 
+  private TicketReceiptView receiptWithBranding(
+      Locale locale,
+      String tenantDisplayName,
+      String tenantReceiptHeader,
+      List<TicketReceiptGameSectionView> gameSections) {
+    return new TicketReceiptView(
+        TicketId.of(UUID.fromString("40000000-0000-0000-0000-000000000001")),
+        receiptTenant(),
+        "TCK-0004",
+        "HE1E-EQYJ",
+        "HE1E-EQYJ",
+        "111222",
+        TicketSaleStatus.APPROVED,
+        TicketResultStatus.NOT_RESULTED,
+        TicketSettlementStatus.NOT_SETTLED,
+        tenantDisplayName,
+        tenantReceiptHeader,
+        "GA",
+        "EVE",
+        "GA",
+        "America/Port-au-Prince",
+        "Aswè",
+        "Jòji",
+        Instant.parse("2026-07-09T22:59:00Z"),
+        "TCH-G2PYN7",
+        "Seller",
+        Instant.parse("2026-07-09T21:22:00Z"),
+        locale,
+        ZoneId.of("America/Port-au-Prince"),
+        gameSections,
+        money("18"),
+        money("18"),
+        null,
+        "https://tickets.test/HE1E-EQYJ",
+        TicketPrintStateStatus.NOT_PRINTED,
+        false);
+  }
+
   private TicketReceiptView receipt(
       TicketPrintStateStatus printStateStatus,
       Locale locale,
@@ -339,6 +406,16 @@ class TicketReceiptPrintFormatterTest {
     return lines.stream()
         .map(com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine::text)
         .reduce("", (left, right) -> left + "\n" + right);
+  }
+
+  private int countOccurrences(String text, String needle) {
+    var count = 0;
+    var index = 0;
+    while ((index = text.indexOf(needle, index)) >= 0) {
+      count++;
+      index += needle.length();
+    }
+    return count;
   }
 
   private Money money(String amount) {
