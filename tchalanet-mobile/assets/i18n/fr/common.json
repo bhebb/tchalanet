@@ -41,6 +41,8 @@
       "free": "GRATUIT",
       "auto_selection": "choix automatique",
       "seller_selection": "choix du vendeur",
+      "regenerate": "Régénérer",
+      "regenerating": "Régénération",
       "promotion_applied": "La promotion est appliquée à ce ticket.",
       "terminal_override_applied": "La règle promotionnelle spéciale du terminal est appliquée.",
       "approval_required": "Cette vente doit être approuvée avant confirmation.",

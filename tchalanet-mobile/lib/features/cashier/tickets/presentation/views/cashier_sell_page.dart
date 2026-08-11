@@ -222,6 +222,9 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                   onRestoreLine: (i, line) => ref
                       .read(sellControllerProvider.notifier)
                       .restoreLine(i, line),
+                  onRegeneratePromotionLine: (lineRef) => ref
+                      .read(sellControllerProvider.notifier)
+                      .regeneratePromotionLine(lineRef),
                   onPreview: () {
                     if (opCtx?.sellerTerminalId == null) return;
                     final quickSale = profileAsync.when(
@@ -260,9 +263,40 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
                 onRestoreLine: (_, _) {},
+                onRegeneratePromotionLine: (_) {},
                 onPreview: () {},
                 onConfirm: () {},
               ),
+              SellRegeneratingPromotionLine(
+                :final form,
+                :final preview,
+                :final lineRef,
+              ) =>
+                _SellBody(
+                  form: form,
+                  previewResult: preview,
+                  isPreviewing: false,
+                  isConfirming: true,
+                  regeneratingPromotionLineRef: lineRef,
+                  keyboardInset: keyboardInset,
+                  error: null,
+                  opCtx: opCtx,
+                  stakeController: _stakeController,
+                  stakeFocusNode: _stakeFocusNode,
+                  onSelectDraw: (_) {},
+                  onSelectGame: (_) {},
+                  onSelectBetOption: (_) {},
+                  onSelectionChanged: (_) {},
+                  onStakeChanged: (_) {},
+                  onAddLine: () {},
+                  onCancelEntry: () {},
+                  onEditPreparedTicket: () {},
+                  onRemoveLine: (_) {},
+                  onRestoreLine: (_, _) {},
+                  onRegeneratePromotionLine: (_) {},
+                  onPreview: () {},
+                  onConfirm: () {},
+                ),
               SellConfirming(:final form, :final preview) => _SellBody(
                 form: form,
                 previewResult: preview,
@@ -283,6 +317,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
                 onRestoreLine: (_, _) {},
+                onRegeneratePromotionLine: (_) {},
                 onPreview: () {},
                 onConfirm: () {
                   if (opCtx?.sellerTerminalId == null) return;
@@ -309,6 +344,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                 onEditPreparedTicket: () {},
                 onRemoveLine: (_) {},
                 onRestoreLine: (_, _) {},
+                onRegeneratePromotionLine: (_) {},
                 onPreview: () {},
                 onConfirm: () =>
                     ref.read(sellControllerProvider.notifier).retryConfirm(),
@@ -348,7 +384,9 @@ class _SellBody extends ConsumerStatefulWidget {
     required this.onEditPreparedTicket,
     required this.onRemoveLine,
     required this.onRestoreLine,
+    required this.onRegeneratePromotionLine,
     this.previewResult,
+    this.regeneratingPromotionLineRef,
     this.error,
     this.diagnostic,
     this.opCtx,
@@ -356,6 +394,7 @@ class _SellBody extends ConsumerStatefulWidget {
 
   final SellFormData form;
   final CashierTicketPreviewResponse? previewResult;
+  final String? regeneratingPromotionLineRef;
   final bool isPreviewing;
   final bool isConfirming;
   final double keyboardInset;
@@ -376,6 +415,7 @@ class _SellBody extends ConsumerStatefulWidget {
   final VoidCallback onEditPreparedTicket;
   final ValueChanged<int> onRemoveLine;
   final void Function(int index, SellLine line) onRestoreLine;
+  final ValueChanged<String> onRegeneratePromotionLine;
 
   @override
   ConsumerState<_SellBody> createState() => _SellBodyState();
@@ -669,7 +709,11 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                 ),
 
               if (!isCompactEntry && widget.previewResult != null) ...[
-                _PreviewCard(result: widget.previewResult!),
+                _PreviewCard(
+                  result: widget.previewResult!,
+                  regeneratingLineRef: widget.regeneratingPromotionLineRef,
+                  onRegeneratePromotionLine: widget.onRegeneratePromotionLine,
+                ),
               ],
 
               if (widget.error != null) ...[
@@ -918,9 +962,15 @@ class _LastTicketLine extends StatelessWidget {
 // ─── Preparation feedback ────────────────────────────────────────────────────
 
 class _PreviewCard extends ConsumerWidget {
-  const _PreviewCard({required this.result});
+  const _PreviewCard({
+    required this.result,
+    required this.onRegeneratePromotionLine,
+    this.regeneratingLineRef,
+  });
 
   final CashierTicketPreviewResponse result;
+  final ValueChanged<String> onRegeneratePromotionLine;
+  final String? regeneratingLineRef;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -976,7 +1026,12 @@ class _PreviewCard extends ConsumerWidget {
           if (result.promotionLines.isNotEmpty) ...[
             const SizedBox(height: TchSpacing.s12),
             for (final line in result.promotionLines)
-              _PromotionLine(line: line, color: fgColor),
+              _PromotionLine(
+                line: line,
+                color: fgColor,
+                onRegenerate: onRegeneratePromotionLine,
+                regenerating: regeneratingLineRef == line.lineRef,
+              ),
           ],
           if (result.notices.isNotEmpty) ...[
             const SizedBox(height: TchSpacing.s12),
@@ -1005,10 +1060,17 @@ String _noticeLabel(I18nBundle translations, CashierPreparationNotice notice) =>
     '• ${translations.translate(notice.translationKey)}';
 
 class _PromotionLine extends ConsumerWidget {
-  const _PromotionLine({required this.line, required this.color});
+  const _PromotionLine({
+    required this.line,
+    required this.color,
+    required this.onRegenerate,
+    required this.regenerating,
+  });
 
   final CashierPreparationPromotionLine line;
   final Color color;
+  final ValueChanged<String> onRegenerate;
+  final bool regenerating;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1019,11 +1081,47 @@ class _PromotionLine extends ConsumerWidget {
     final source = line.isGenerated
         ? translations.translate(CashierPreparationCopy.autoSelectionKey)
         : translations.translate(CashierPreparationCopy.sellerSelectionKey);
+    final canRegenerate =
+        line.regenerable && line.regenerationsRemaining > 0 && !regenerating;
     return Padding(
       padding: const EdgeInsets.only(bottom: TchSpacing.s4),
-      child: Text(
-        _promotionLabel(translations, line, label, source),
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Text(
+              _promotionLabel(translations, line, label, source),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: color),
+            ),
+          ),
+          if (line.regenerable && line.regenerationsRemaining > 0) ...[
+            const SizedBox(width: TchSpacing.s8),
+            TextButton.icon(
+              onPressed: canRegenerate
+                  ? () => onRegenerate(line.lineRef)
+                  : null,
+              icon: regenerating
+                  ? const SizedBox.square(
+                      dimension: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh_rounded, size: 18),
+              label: Text(
+                translations.translate(
+                  regenerating
+                      ? CashierPreparationCopy.regeneratingKey
+                      : CashierPreparationCopy.regenerateKey,
+                ),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: color,
+                visualDensity: VisualDensity.compact,
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

@@ -158,6 +158,67 @@ void main() {
     },
   );
 
+  test('regenerate promotion line calls the preparation endpoint', () async {
+    final adapter = _CaptureJsonAdapter({
+      'data': {
+        'status': 'DRAFT',
+        'preparationId': 'prep-1',
+        'currency': 'HTG',
+        'totalAmount': 10,
+        'promotionLines': [
+          {
+            'lineRef': 'promo-1',
+            'gameCode': 'HT_MARYAJ_GRATIS',
+            'betType': 'MARRIAGE_2D2D',
+            'selection': '56-78',
+            'selectionSource': 'PROMOTION_GENERATED',
+            'choiceMode': 'AUTO_GENERATE',
+            'promotionRuleKey': 'DEFAULT_MARYAJ_GRATIS',
+            'promotionEffectType': 'FREE_GAME_LINE',
+            'regenerable': true,
+            'regenerationsRemaining': 2,
+          },
+        ],
+      },
+    });
+    final service = CashierTicketService(Dio()..httpClientAdapter = adapter);
+
+    final result = await service.regeneratePromotionLine('prep-1', 'promo-1');
+
+    expect(
+      adapter.capturedPath,
+      '/tenant/sales/preparations/prep-1/promotion-lines/promo-1/regenerate',
+    );
+    expect(result.preparationId, 'prep-1');
+    expect(result.promotionLines.single.selection, '56-78');
+  });
+
+  test(
+    'regenerate maps shared validation fixture to stable ApiException fields',
+    () async {
+      final adapter = _ProblemDetailAdapter(
+        _contractFixture('problem-details/validation-failed.json'),
+        statusCode: 400,
+      );
+      final service = CashierTicketService(Dio()..httpClientAdapter = adapter);
+
+      await expectLater(
+        () => service.regeneratePromotionLine('prep-1', 'promo-1'),
+        throwsA(
+          isA<ApiException>().having(
+            (e) => e.code,
+            'code',
+            'validation.failed',
+          ),
+        ),
+      );
+      expect(
+        adapter.capturedPath,
+        '/tenant/sales/preparations/prep-1/promotion-lines/promo-1/regenerate',
+      );
+    },
+  );
+
   test(
     'print decodes shared ProblemDetail even when success responseType is bytes',
     () async {
@@ -203,8 +264,10 @@ class _CapturePrintAdapter implements HttpClientAdapter {
         requestBytes.addAll(chunk);
       }
     }
-    capturedData =
-        jsonDecode(utf8.decode(requestBytes)) as Map<String, dynamic>;
+    if (requestBytes.isNotEmpty) {
+      capturedData =
+          jsonDecode(utf8.decode(requestBytes)) as Map<String, dynamic>;
+    }
     return ResponseBody.fromBytes(
       [1, 2, 3],
       200,
@@ -238,8 +301,10 @@ class _CaptureJsonAdapter implements HttpClientAdapter {
         requestBytes.addAll(chunk);
       }
     }
-    capturedData =
-        jsonDecode(utf8.decode(requestBytes)) as Map<String, dynamic>;
+    if (requestBytes.isNotEmpty) {
+      capturedData =
+          jsonDecode(utf8.decode(requestBytes)) as Map<String, dynamic>;
+    }
     return ResponseBody.fromString(
       jsonEncode(response),
       200,
