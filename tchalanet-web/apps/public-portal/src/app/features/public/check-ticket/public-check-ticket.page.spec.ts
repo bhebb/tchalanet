@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 
 import { ProblemDetail } from '@tch/api';
 
-import { mapPublicTicketProblemStatus } from './public-ticket.service';
+import { extractPublicCodeFromQr, mapPublicTicketProblemStatus } from './public-ticket.service';
 import { formatPublicCode, verificationCopy } from './public-check-ticket.utils';
 
 describe('PublicCheckTicketPage helpers', () => {
@@ -36,6 +36,16 @@ describe('PublicCheckTicketPage helpers', () => {
     expect(mapPublicTicketProblemStatus(validation)).toBe('NOT_FOUND');
     expect(mapPublicTicketProblemStatus(denied)).toBe('SERVICE_UNAVAILABLE');
     expect(mapPublicTicketProblemStatus(unexpected)).toBe('SERVICE_UNAVAILABLE');
+  });
+
+  it('extracts public codes from QR URL payloads', () => {
+    expect(extractPublicCodeFromQr('https://tickets.test/public/check-ticket?code=75nr-hpd8')).toBe(
+      '75NR-HPD8',
+    );
+    expect(extractPublicCodeFromQr('https://tickets.test/public/ticket/75NR-HPD8')).toBe(
+      '75NR-HPD8',
+    );
+    expect(extractPublicCodeFromQr('75nr-hpd8')).toBe('75NR-HPD8');
   });
 });
 

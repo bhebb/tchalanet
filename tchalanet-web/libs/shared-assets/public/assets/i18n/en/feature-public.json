@@ -323,7 +323,12 @@
       "description": "Enter your public code to consult your ticket status.",
       "eyebrow": "Public ticket verification",
       "placeholder": "AB12-CD34",
+      "scan_failed": "Could not read that image. Try again or enter the code.",
+      "scan_invalid": "The QR code does not contain a valid ticket code.",
+      "scan_loading": "Reading QR…",
+      "scan_no_code": "No readable QR code was found in the image.",
       "scan_qr": "Scan QR",
+      "scan_unsupported": "QR scanning is not available in this browser. Enter the printed code.",
       "title": "Verify a ticket"
     },
     "markdown": {
