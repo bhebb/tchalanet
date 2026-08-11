@@ -18,7 +18,7 @@ const firebaseAuthEmulatorPort = int.fromEnvironment(
 );
 const useFirebaseAuthEmulator = bool.fromEnvironment(
   'FIREBASE_AUTH_EMULATOR',
-  defaultValue: true,
+  defaultValue: false,
 );
 
 Future<void> initializeFirebaseAuth() async {

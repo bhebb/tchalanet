@@ -1,5 +1,6 @@
 # Design
 
+The pre-go-live `V100__create_core_tables.sql` definition of
 `seller_terminal_settings` receives:
 
 - `quick_sale`, default `true`;
