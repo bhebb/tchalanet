@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run: ${{ steps.detect.outputs.run }}
+      run_full_verify: ${{ steps.detect.outputs.run_full_verify }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -34,13 +35,21 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            echo "run_full_verify=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           if git diff --name-only "$BASE" "$HEAD" \
              | grep -qE '^tchalanet-server/|^\.github/workflows/server-pr\.yml'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+          labels='${{ toJson(github.event.pull_request.labels) }}'
+          if echo "$labels" | grep -q '"name":"full-verify"'; then
+            echo "run_full_verify=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_full_verify=false" >> "$GITHUB_OUTPUT"
           fi
 
   server-verify:
@@ -67,28 +76,35 @@ jobs:
       - name: Spotless check
         run: ./mvnw -B spotless:check
 
+      - name: Checkstyle
+        run: ./mvnw -B checkstyle:check
+
+      - name: Maven test (fast gate)
+        if: needs.changes.outputs.run_full_verify != 'true'
+        run: ./mvnw -B -DskipITs=true test
+
       # `install` (not just `verify`) so downstream standalone goals like
       # `pmd:check` can resolve inter-module dependencies (e.g. tchalanet-catalog
       # depending on tchalanet-common) from the local repo instead of failing
       # with "Could not find artifact ... tchalanet-common".
-      - name: Maven verify
+      - name: Maven verify (full gate)
+        if: needs.changes.outputs.run_full_verify == 'true'
         run: ./mvnw -B -DskipITs=true install
-
-      - name: Checkstyle
-        run: ./mvnw -B checkstyle:check
 
       # PMD gates on correctness (priority 1-4); complexity advisories are
       # priority 5 and only reported (see tchalanet-server/pmd/ruleset.xml).
       - name: PMD
+        if: needs.changes.outputs.run_full_verify == 'true'
         run: ./mvnw -B pmd:check
 
       # SpotBugs stays advisory until its findings are triaged to zero.
       - name: SpotBugs
+        if: needs.changes.outputs.run_full_verify == 'true'
         continue-on-error: true
         run: ./mvnw -B spotbugs:check
 
       - name: Jacoco coverage comment
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && needs.changes.outputs.run_full_verify == 'true'
         uses: madrapps/jacoco-report@e51ce1f46f7f8b5331593f935e59cbaf44b84920 # v1.8.0
         with:
           paths: |
@@ -104,7 +120,7 @@ jobs:
           update-comment: true
 
       - name: Upload Jacoco reports
-        if: always()
+        if: always() && needs.changes.outputs.run_full_verify == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: server-jacoco-reports

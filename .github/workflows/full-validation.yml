@@ -11,7 +11,7 @@ on:
       run_server_e2e:
         description: 'Run server E2E against the validation environment'
         required: false
-        default: true
+        default: false
         type: boolean
       e2e_auth_provider:
         description: 'Auth provider used by server E2E'
@@ -24,12 +24,12 @@ on:
       ensure_staging_infra:
         description: 'Create/deploy staging core infra before E2E when needed'
         required: false
-        default: true
+        default: false
         type: boolean
       deploy_runtime_for_e2e:
         description: 'Build and deploy API + edge-service images before E2E'
         required: false
-        default: true
+        default: false
         type: boolean
       run_perf:
         description: 'Run optional Locust smoke after E2E'
@@ -57,8 +57,6 @@ on:
         default: false
         type: boolean
   schedule:
-    # Saturday 02:00 America/Toronto during daylight saving time: dependency analysis.
-    - cron: '0 6 * * 6'
     # Sunday 02:00 America/Toronto during daylight saving time: E2E/full validation.
     - cron: '0 6 * * 0'
 

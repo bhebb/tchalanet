@@ -75,7 +75,7 @@ jobs:
       - name: Lint web apps
         env:
           NX_DAEMON: 'false'
-        run: pnpm exec nx run-many -t lint -p public-portal,admin-portal,platform-portal --parallel=1
+        run: pnpm exec nx run-many -t lint -p public-portal,admin-portal,platform-portal --parallel=3
 
       - name: Check responsive breakpoint contract
         run: pnpm run breakpoints:contract
