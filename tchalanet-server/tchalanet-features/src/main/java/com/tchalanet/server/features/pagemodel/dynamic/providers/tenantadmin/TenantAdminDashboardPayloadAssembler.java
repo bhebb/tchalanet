@@ -774,6 +774,11 @@ public class TenantAdminDashboardPayloadAssembler {
                 "point_of_sale",
                 "/app/admin/seller-terminals"),
             new ActionItem(
+                "CREATE_SELLER_TERMINAL",
+                "quickaction.admin.seller_terminal_add",
+                "person_add",
+                "/app/admin/seller-terminals/new"),
+            new ActionItem(
                 "SALES_BY_TERMINAL",
                 "quickaction.admin.sales_by_terminal",
                 "receipt_long",

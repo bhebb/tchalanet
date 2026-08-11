@@ -294,6 +294,7 @@ class TenantAdminDashboardPayloadAssemblerTest {
             "TODAYS_DRAWS",
             "DAILY_REPORT",
             "SELLER_TERMINALS",
+            "CREATE_SELLER_TERMINAL",
             "SALES_BY_TERMINAL",
             "SALES_BY_DRAW",
             "BLOCK_NUMBER",
@@ -306,12 +307,17 @@ class TenantAdminDashboardPayloadAssemblerTest {
             "/app/admin/draws?date=TODAY",
             "/app/admin/reports/daily",
             "/app/admin/seller-terminals",
+            "/app/admin/seller-terminals/new",
             "/app/admin/reports/sellers",
             "/app/admin/reports/draws",
             "/app/admin/limits/number",
             "/app/admin/seller-terminals",
             "/app/admin/seller-terminals",
             "/app/admin/draws/results");
+    assertThat(actions)
+        .extracting(ActionItem::labelKey)
+        .containsSubsequence(
+            "quickaction.admin.seller_terminals", "quickaction.admin.seller_terminal_add");
   }
 
   @Test
