@@ -178,6 +178,13 @@ final class SellConfirming extends SellState {
   final CashierTicketPreviewResponse preview;
 }
 
+final class SellRegeneratingPromotionLine extends SellState {
+  const SellRegeneratingPromotionLine(this.form, this.preview, this.lineRef);
+  final SellFormData form;
+  final CashierTicketPreviewResponse preview;
+  final String lineRef;
+}
+
 /// The confirm request was sent, but the client cannot prove whether the
 /// server committed the ticket. Retrying must reuse the same preparation and
 /// idempotency key; calling prepare again could regenerate Maryaj gratis.
@@ -418,6 +425,37 @@ class SellController extends Notifier<SellState> {
       return;
     }
     await confirmSell();
+  }
+
+  Future<void> regeneratePromotionLine(String lineRef) async {
+    final current = state;
+    if (current is! SellReady) return;
+    final preview = current.previewResult;
+    if (preview == null ||
+        !preview.isAccepted ||
+        preview.preparationId == null) {
+      return;
+    }
+    final line = preview.promotionLines
+        .where((candidate) => candidate.lineRef == lineRef)
+        .firstOrNull;
+    if (line == null || !line.regenerable || line.regenerationsRemaining <= 0) {
+      return;
+    }
+
+    state = SellRegeneratingPromotionLine(current.form, preview, lineRef);
+    try {
+      final result = await ref
+          .read(cashierTicketServiceProvider)
+          .regeneratePromotionLine(preview.preparationId!, lineRef);
+      state = SellReady(current.form, previewResult: result);
+    } catch (e) {
+      state = SellReady(
+        current.form,
+        previewResult: preview,
+        errorKeys: userErrorTranslationKeys(e),
+      );
+    }
   }
 
   Future<void> confirmSell() async {

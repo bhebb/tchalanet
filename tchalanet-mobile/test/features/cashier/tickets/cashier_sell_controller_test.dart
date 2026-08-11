@@ -162,6 +162,78 @@ void main() {
   );
 
   test(
+    'regenerates a prepared promotion line and keeps the sale in preview',
+    () async {
+      final container = _containerWith(
+        ticketService: _FakeTicketService(
+          preview: _acceptedPreviewWithPromotion('12-34'),
+          regeneratedPreview: _acceptedPreviewWithPromotion('56-78'),
+        ),
+      );
+      addTearDown(container.dispose);
+
+      final controller = container.read(sellControllerProvider.notifier);
+      await _loadReadySale(controller);
+      await controller.prepare();
+
+      await controller.regeneratePromotionLine('promo-1');
+
+      final state = container.read(sellControllerProvider);
+      expect(state, isA<SellReady>());
+      final ready = state as SellReady;
+      expect(ready.previewResult?.preparationId, 'prep-1');
+      expect(ready.previewResult?.promotionLines.single.selection, '56-78');
+    },
+  );
+
+  test(
+    'quick sell stops on generated promotion lines so the seller can regenerate',
+    () async {
+      final container = _containerWith(
+        ticketService: _FakeTicketService(
+          preview: _acceptedPreviewWithPromotion('12-34'),
+        ),
+      );
+      addTearDown(container.dispose);
+
+      final controller = container.read(sellControllerProvider.notifier);
+      await _loadReadySale(controller);
+      await controller.quickSell();
+
+      final state = container.read(sellControllerProvider);
+      expect(state, isA<SellReady>());
+      final ready = state as SellReady;
+      expect(ready.previewResult?.promotionLines.single.regenerable, isTrue);
+    },
+  );
+
+  test('regenerate errors keep the original prepared promotion line', () async {
+    final container = _containerWith(
+      ticketService: _FakeTicketService(
+        preview: _acceptedPreviewWithPromotion('12-34'),
+        regenerateError: _apiExceptionFromFixture(
+          'problem-details/validation-failed.json',
+        ),
+      ),
+    );
+    addTearDown(container.dispose);
+
+    final controller = container.read(sellControllerProvider.notifier);
+    await _loadReadySale(controller);
+    await controller.prepare();
+    await controller.regeneratePromotionLine('promo-1');
+
+    final state = container.read(sellControllerProvider);
+    expect(state, isA<SellReady>());
+    final ready = state as SellReady;
+    expect(ready.previewResult?.promotionLines.single.selection, '12-34');
+    expect(
+      ready.errorKeys.first,
+      'common.errors.codes.validation.failed.message',
+    );
+  });
+
+  test(
     'unknown confirm outcome keeps the prepared intent unresolved',
     () async {
       final container = _containerWith(
@@ -215,6 +287,29 @@ CashierTicketPreviewResponse _acceptedPreview() {
   );
 }
 
+CashierTicketPreviewResponse _acceptedPreviewWithPromotion(String selection) {
+  return CashierTicketPreviewResponse(
+    status: 'DRAFT',
+    preparationId: 'prep-1',
+    currency: 'HTG',
+    totalAmount: 10,
+    promotionLines: [
+      CashierPreparationPromotionLine(
+        lineRef: 'promo-1',
+        gameCode: 'HT_MARYAJ_GRATIS',
+        betType: 'MARRIAGE_2D2D',
+        selection: selection,
+        selectionSource: 'PROMOTION_GENERATED',
+        choiceMode: 'AUTO_GENERATE',
+        promotionRuleKey: 'DEFAULT_MARYAJ_GRATIS',
+        promotionEffectType: 'FREE_GAME_LINE',
+        regenerable: true,
+        regenerationsRemaining: 2,
+      ),
+    ],
+  );
+}
+
 class _FakeCatalogService extends CashierSellCatalogService {
   _FakeCatalogService() : super(Dio());
 
@@ -235,15 +330,19 @@ class _FakeTicketService extends CashierTicketService {
     this.preview,
     this.prepareError,
     this.confirmError,
+    this.regenerateError,
     this.confirmResponse,
     this.details,
+    this.regeneratedPreview,
   }) : super(Dio());
 
   final CashierTicketPreviewResponse? preview;
   final ApiException? prepareError;
   final ApiException? confirmError;
+  final ApiException? regenerateError;
   final CashierSellTicketResponse? confirmResponse;
   final CashierTicketDetailsView? details;
+  final CashierTicketPreviewResponse? regeneratedPreview;
   CashierTicketPreviewRequest? lastPrepareRequest;
 
   @override
@@ -269,6 +368,15 @@ class _FakeTicketService extends CashierTicketService {
           ticketId: 'ticket-1',
           ticketCode: 'TCK-1',
         );
+  }
+
+  @override
+  Future<CashierTicketPreviewResponse> regeneratePromotionLine(
+    String preparationId,
+    String lineRef,
+  ) async {
+    if (regenerateError != null) throw regenerateError!;
+    return regeneratedPreview ?? preview ?? _acceptedPreview();
   }
 
   @override
