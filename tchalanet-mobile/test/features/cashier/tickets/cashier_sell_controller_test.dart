@@ -122,6 +122,46 @@ void main() {
       expect(success.response.publicCode, 'PUB-1');
     },
   );
+
+  test(
+    'quick sell confirms an accepted preparation in one seller action',
+    () async {
+      final container = _containerWith(
+        ticketService: _FakeTicketService(preview: _acceptedPreview()),
+      );
+      addTearDown(container.dispose);
+
+      final controller = container.read(sellControllerProvider.notifier);
+      await _loadReadySale(controller);
+      await controller.quickSell();
+
+      expect(container.read(sellControllerProvider), isA<SellSuccess>());
+    },
+  );
+
+  test(
+    'unknown confirm outcome keeps the prepared intent unresolved',
+    () async {
+      final container = _containerWith(
+        ticketService: _FakeTicketService(
+          preview: _acceptedPreview(),
+          confirmError: ApiException(
+            message: 'timeout',
+            statusCode: 503,
+            retryable: true,
+          ),
+        ),
+      );
+      addTearDown(container.dispose);
+
+      final controller = container.read(sellControllerProvider.notifier);
+      await _loadReadySale(controller);
+      await controller.prepare();
+      await controller.confirmSell();
+
+      expect(container.read(sellControllerProvider), isA<SellConfirmUnknown>());
+    },
+  );
 }
 
 ProviderContainer _containerWith({

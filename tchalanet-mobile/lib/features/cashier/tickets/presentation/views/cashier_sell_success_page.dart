@@ -58,7 +58,13 @@ class _CashierSellSuccessPageState
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
         for (var i = 0; i < copyCount; i++) {
-          await printTicket(context, ref, widget.ticketId);
+          await printTicket(
+            context,
+            ref,
+            widget.ticketId,
+            automatic: true,
+            manualPdfFallback: false,
+          );
         }
       });
     }
@@ -220,7 +226,12 @@ class _CashierSellSuccessPageState
                           ),
                           onTap: () async {
                             for (var i = 0; i < copyCount; i++) {
-                              await printTicket(context, ref, widget.ticketId);
+                              await printTicket(
+                                context,
+                                ref,
+                                widget.ticketId,
+                                manualPdfFallback: true,
+                              );
                             }
                           },
                         ),

@@ -111,6 +111,7 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
     final state = ref.watch(sellControllerProvider);
     final translations = ref.watch(i18nBundleProvider);
     final homeAsync = ref.watch(cashierHomeProvider);
+    final profileAsync = ref.watch(posProfileProvider);
     final lastDiagnostic = ref.watch(diagnosticRepositoryProvider).last;
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     final opCtx = homeAsync.when(
@@ -223,7 +224,16 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                       .restoreLine(i, line),
                   onPreview: () {
                     if (opCtx?.sellerTerminalId == null) return;
-                    ref.read(sellControllerProvider.notifier).prepare();
+                    final quickSale = profileAsync.when(
+                      data: (profile) => profile.settings.receipt.quickSale,
+                      loading: () => false,
+                      error: (_, _) => false,
+                    );
+                    if (quickSale) {
+                      ref.read(sellControllerProvider.notifier).quickSell();
+                    } else {
+                      ref.read(sellControllerProvider.notifier).prepare();
+                    }
                   },
                   onConfirm: () {
                     if (opCtx?.sellerTerminalId == null) return;
@@ -278,6 +288,30 @@ class _CashierSellPageState extends ConsumerState<CashierSellPage> {
                   if (opCtx?.sellerTerminalId == null) return;
                   ref.read(sellControllerProvider.notifier).confirmSell();
                 },
+              ),
+              SellConfirmUnknown(:final form, :final preview) => _SellBody(
+                form: form,
+                previewResult: preview,
+                isPreviewing: false,
+                isConfirming: false,
+                keyboardInset: keyboardInset,
+                error: translations.translate('common.error.network'),
+                opCtx: opCtx,
+                stakeController: _stakeController,
+                stakeFocusNode: _stakeFocusNode,
+                onSelectDraw: (_) {},
+                onSelectGame: (_) {},
+                onSelectBetOption: (_) {},
+                onSelectionChanged: (_) {},
+                onStakeChanged: (_) {},
+                onAddLine: () {},
+                onCancelEntry: () {},
+                onEditPreparedTicket: () {},
+                onRemoveLine: (_) {},
+                onRestoreLine: (_, _) {},
+                onPreview: () {},
+                onConfirm: () =>
+                    ref.read(sellControllerProvider.notifier).retryConfirm(),
               ),
             },
     );

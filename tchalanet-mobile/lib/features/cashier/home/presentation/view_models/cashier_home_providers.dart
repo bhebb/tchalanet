@@ -41,6 +41,10 @@ class PosProfileSettingsUpdater {
   Future<void> update({
     bool? receiptAutoPrint,
     int? receiptCopyCount,
+    bool? receiptQuickSale,
+    String? receiptPrinterMode,
+    String? receiptPaperSize,
+    String? receiptAdapterPreference,
     bool? notificationsEnabled,
     bool? notificationsCriticalOnly,
   }) async {
@@ -49,6 +53,10 @@ class PosProfileSettingsUpdater {
         .updateSettings(
           receiptAutoPrint: receiptAutoPrint,
           receiptCopyCount: receiptCopyCount,
+          receiptQuickSale: receiptQuickSale,
+          receiptPrinterMode: receiptPrinterMode,
+          receiptPaperSize: receiptPaperSize,
+          receiptAdapterPreference: receiptAdapterPreference,
           notificationsEnabled: notificationsEnabled,
           notificationsCriticalOnly: notificationsCriticalOnly,
         );

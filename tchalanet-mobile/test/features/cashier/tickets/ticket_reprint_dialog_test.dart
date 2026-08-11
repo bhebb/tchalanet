@@ -116,6 +116,8 @@ class _ThrowingPrintTicketService extends CashierTicketService {
     String ticketId, {
     bool recordPrint = true,
     String? reprintReason,
+    String outputFormat = 'PDF',
+    String paperSize = 'A4',
   }) async {
     throw ApiException(
       message: 'Raw server validation detail',
