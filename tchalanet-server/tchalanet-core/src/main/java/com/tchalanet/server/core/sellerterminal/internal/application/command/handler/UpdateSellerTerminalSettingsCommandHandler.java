@@ -22,6 +22,7 @@ public class UpdateSellerTerminalSettingsCommandHandler
   @TchTx
   public Void handle(UpdateSellerTerminalSettingsCommand command) {
     validate(command);
+    var actorUserId = command.actorUserId() == null ? null : command.actorUserId().value();
     jdbc.update(
         """
         INSERT INTO seller_terminal_settings (
@@ -54,8 +55,8 @@ public class UpdateSellerTerminalSettingsCommandHandler
         command.receipt().adapterPreference(),
         command.notifications().enabled(),
         command.notifications().criticalOnly(),
-        command.actorUserId().value(),
-        command.actorUserId().value());
+        actorUserId,
+        actorUserId);
     return null;
   }
 
