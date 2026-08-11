@@ -36,8 +36,8 @@ Future<void> printTicket(
           .printTicket(
             ticketId,
             paperSize: _configuredPaperSize(ref),
-            locale: ref.read(localeProvider),
             reprintReason: reprintReason,
+            buyerLocale: translations.locale,
             allowManualPdfFallback: manualPdfFallback && !automatic,
           );
       if (result.outcome == PrintOutcome.unavailable) {
@@ -69,8 +69,8 @@ Future<void> printTicket(
           .printTicket(
             ticketId,
             paperSize: _configuredPaperSize(ref),
-            locale: ref.read(localeProvider),
             reprintReason: _sellerRequestedReprintReason,
+            buyerLocale: translations.locale,
             allowManualPdfFallback: manualPdfFallback && !automatic,
           );
       if (!result.isPrinted) {

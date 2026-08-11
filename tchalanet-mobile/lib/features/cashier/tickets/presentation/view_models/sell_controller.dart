@@ -87,26 +87,40 @@ class SellFormData {
   bool get canAddLine =>
       selectedGameCode != null && selection.trim().isNotEmpty && stake > 0;
 
+  bool get hasEntryInProgress => selection.trim().isNotEmpty || stake > 0;
+
   /// True when there is at least one line ready to preview (committed or current).
   bool get canPreview =>
-      selectedDrawId != null && (committedLines.isNotEmpty || canAddLine);
+      selectedDrawId != null &&
+      linesForSale.isNotEmpty &&
+      (committedLines.isEmpty || !hasEntryInProgress);
 
-  /// All lines to send: committed ones plus the current entry if valid.
-  List<SellLine> get allLines {
-    if (!canAddLine) return committedLines;
+  double get saleTotal =>
+      linesForSale.fold<double>(0, (total, line) => total + line.stake);
+
+  /// Lines to send. A single current line can be sold directly, but once the
+  /// seller has added lines, any new entry must be explicitly added or cleared.
+  List<SellLine> get linesForSale {
+    if (committedLines.isNotEmpty) return committedLines;
+    final current = currentLine;
+    return current == null ? const [] : [current];
+  }
+
+  // Backwards-compatible alias for older tests/widgets.
+  List<SellLine> get allLines => linesForSale;
+
+  SellLine? get currentLine {
+    if (!canAddLine) return null;
     final game = selectedGame;
-    return [
-      ...committedLines,
-      SellLine(
-        gameCode: selectedGameCode!,
-        gameLabel: game?.gameLabel ?? selectedGameCode!,
-        betType: selectedBetType!,
-        betTypeLabel: game?.betTypeLabel ?? '',
-        betOption: selectedBetOption,
-        selection: selection.trim(),
-        stake: stake,
-      ),
-    ];
+    return SellLine(
+      gameCode: selectedGameCode!,
+      gameLabel: game?.gameLabel ?? selectedGameCode!,
+      betType: selectedBetType!,
+      betTypeLabel: game?.betTypeLabel ?? '',
+      betOption: selectedBetOption,
+      selection: selection.trim(),
+      stake: stake,
+    );
   }
 
   SellFormData copyWith({
@@ -365,7 +379,7 @@ class SellController extends Notifier<SellState> {
     final current = state;
     if (current is! SellReady || !current.form.canPreview) return;
     final form = current.form;
-    final lines = form.allLines;
+    final lines = form.linesForSale;
     final drawChannelId = form.selectedDraw?.drawChannelId;
     if (lines.isEmpty) return;
     if (drawChannelId == null || drawChannelId.isEmpty) {
@@ -458,7 +472,7 @@ class SellController extends Notifier<SellState> {
     };
     if (form == null) return;
     if (preview == null || !preview.isAccepted) return;
-    final lines = form.allLines;
+    final lines = form.linesForSale;
     if (lines.isEmpty) return;
 
     state = SellConfirming(form, preview);

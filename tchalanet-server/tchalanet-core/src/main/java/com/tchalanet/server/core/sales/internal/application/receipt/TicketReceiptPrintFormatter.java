@@ -91,6 +91,14 @@ public class TicketReceiptPrintFormatter {
     var totals = new ArrayList<TicketReceiptTextLine>();
     // separator before money summary
     add(totals, layout.separator(layoutProfile));
+    if (shouldPrintStakeSubtotal(receipt)) {
+      addLabel(
+          totals,
+          translations.text(TicketReceiptI18nKeys.TOTAL_STAKE),
+          receipt.stakeTotal(),
+          false,
+          layoutProfile);
+    }
     addLabel(
         totals,
         translations.text(TicketReceiptI18nKeys.TOTAL_AMOUNT),
@@ -187,6 +195,12 @@ public class TicketReceiptPrintFormatter {
         lines.add(bold ? TicketReceiptTextLine.bold(text) : TicketReceiptTextLine.normal(text));
       }
     }
+  }
+
+  private boolean shouldPrintStakeSubtotal(TicketReceiptView receipt) {
+    return receipt.stakeTotal() != null
+        && receipt.totalAmount() != null
+        && receipt.stakeTotal().amount().compareTo(receipt.totalAmount().amount()) != 0;
   }
 
   private void addLabel(

@@ -88,9 +88,10 @@ class CashierTicketService {
     String? reprintReason,
     String outputFormat = 'PDF',
     String paperSize = 'A4',
-    String? locale,
+    String? buyerLocale,
   }) async {
     final normalizedReason = reprintReason?.trim();
+    final normalizedLocale = buyerLocale?.trim();
     try {
       final response = await _dio.post<List<int>>(
         '/tenant/cashier/tickets/$ticketId/print',
@@ -99,12 +100,13 @@ class CashierTicketService {
           'recordPrint': recordPrint,
           if (normalizedReason != null && normalizedReason.isNotEmpty)
             'reprintReason': normalizedReason,
+          if (normalizedLocale != null && normalizedLocale.isNotEmpty)
+            'buyerLocale': normalizedLocale,
           'deliveryOptions': ['RETURN_FILE'],
           'printOptionsRequest': {
             'outputFormat': outputFormat,
             'paperSize': paperSize,
           },
-          if (locale != null && locale.isNotEmpty) 'buyerLocale': locale,
         },
         options: Options(responseType: ResponseType.bytes),
       );

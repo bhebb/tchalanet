@@ -140,6 +140,28 @@ void main() {
   );
 
   test(
+    'prepare blocks an unadded current entry when committed lines exist',
+    () async {
+      final ticketService = _FakeTicketService(preview: _acceptedPreview());
+      final container = _containerWith(ticketService: ticketService);
+      addTearDown(container.dispose);
+
+      final controller = container.read(sellControllerProvider.notifier);
+      await _loadReadySale(controller);
+      controller.addLine();
+      controller.updateSelection('10');
+      controller.updateStake(1);
+
+      final ready = container.read(sellControllerProvider) as SellReady;
+      expect(ready.form.canPreview, isFalse);
+
+      await controller.prepare();
+
+      expect(ticketService.lastPrepareRequest, isNull);
+    },
+  );
+
+  test(
     'regenerates a prepared promotion line and keeps the sale in preview',
     () async {
       final container = _containerWith(
@@ -321,11 +343,13 @@ class _FakeTicketService extends CashierTicketService {
   final CashierSellTicketResponse? confirmResponse;
   final CashierTicketDetailsView? details;
   final CashierTicketPreviewResponse? regeneratedPreview;
+  CashierTicketPreviewRequest? lastPrepareRequest;
 
   @override
   Future<CashierTicketPreviewResponse> prepare(
     CashierTicketPreviewRequest request,
   ) async {
+    lastPrepareRequest = request;
     if (prepareError != null) throw prepareError!;
     return preview ?? _acceptedPreview();
   }

@@ -10,6 +10,59 @@ import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_ti
 import 'package:tchalanet_mobile/features/cashier/tickets/data/services/cashier_ticket_service.dart';
 
 void main() {
+  test(
+    'verify sends a manually entered public code to the POS endpoint',
+    () async {
+      final adapter = _CaptureJsonAdapter({
+        'data': {
+          'status': 'NOT_PAYABLE_PENDING_DRAW',
+          'severity': 'INFO',
+          'ticketId': 'ticket-1',
+          'titleKey': 'pos.ticket.verify.not_payable_pending_draw.title',
+          'messageKey': 'pos.ticket.verify.not_payable_pending_draw.message',
+          'params': {'displayCode': '75NR-HPD8'},
+          'availableActions': <Object>[],
+        },
+      });
+      final service = CashierTicketService(Dio()..httpClientAdapter = adapter);
+
+      final response = await service.verify(
+        const CashierVerifyTicketRequest(scannedValue: '75NR-HPD8'),
+      );
+
+      expect(adapter.capturedPath, '/tenant/cashier/tickets/verify');
+      expect(adapter.capturedData?['scannedValue'], '75NR-HPD8');
+      expect(response.status, 'NOT_PAYABLE_PENDING_DRAW');
+      expect(response.params?['displayCode'], '75NR-HPD8');
+    },
+  );
+
+  test('verify sends a QR URL payload unchanged to the POS endpoint', () async {
+    final adapter = _CaptureJsonAdapter({
+      'data': {
+        'status': 'PAYABLE',
+        'severity': 'SUCCESS',
+        'ticketId': 'ticket-2',
+        'titleKey': 'pos.ticket.verify.payable.title',
+        'messageKey': 'pos.ticket.verify.payable.message',
+        'params': {'displayCode': '75NR-HPD8'},
+        'availableActions': <Object>[],
+      },
+    });
+    final service = CashierTicketService(Dio()..httpClientAdapter = adapter);
+    const scannedValue =
+        'https://tickets.test/public/check-ticket?code=75NR-HPD8';
+
+    final response = await service.verify(
+      const CashierVerifyTicketRequest(scannedValue: scannedValue),
+    );
+
+    expect(adapter.capturedPath, '/tenant/cashier/tickets/verify');
+    expect(adapter.capturedData?['scannedValue'], scannedValue);
+    expect(response.status, 'PAYABLE');
+    expect(response.severity, 'SUCCESS');
+  });
+
   test('print sends a non-empty reprint reason to the server', () async {
     final adapter = _CapturePrintAdapter();
     final service = CashierTicketService(Dio()..httpClientAdapter = adapter);
@@ -17,12 +70,14 @@ void main() {
     final bytes = await service.print(
       'ticket-1',
       reprintReason: ' SELLER_REQUESTED_REPRINT ',
+      buyerLocale: ' ht ',
     );
 
     expect(bytes, Uint8List.fromList([1, 2, 3]));
     expect(adapter.capturedPath, '/tenant/cashier/tickets/ticket-1/print');
     expect(adapter.capturedData?['recordPrint'], isTrue);
     expect(adapter.capturedData?['reprintReason'], 'SELLER_REQUESTED_REPRINT');
+    expect(adapter.capturedData?['buyerLocale'], 'ht');
     expect(adapter.capturedData?['deliveryOptions'], ['RETURN_FILE']);
   });
 
@@ -104,7 +159,7 @@ void main() {
   );
 
   test('regenerate promotion line calls the preparation endpoint', () async {
-    final adapter = _PreparationResponseAdapter({
+    final adapter = _CaptureJsonAdapter({
       'data': {
         'status': 'DRAFT',
         'preparationId': 'prep-1',
@@ -209,8 +264,10 @@ class _CapturePrintAdapter implements HttpClientAdapter {
         requestBytes.addAll(chunk);
       }
     }
-    capturedData =
-        jsonDecode(utf8.decode(requestBytes)) as Map<String, dynamic>;
+    if (requestBytes.isNotEmpty) {
+      capturedData =
+          jsonDecode(utf8.decode(requestBytes)) as Map<String, dynamic>;
+    }
     return ResponseBody.fromBytes(
       [1, 2, 3],
       200,
@@ -224,11 +281,12 @@ class _CapturePrintAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-class _PreparationResponseAdapter implements HttpClientAdapter {
-  _PreparationResponseAdapter(this.response);
+class _CaptureJsonAdapter implements HttpClientAdapter {
+  _CaptureJsonAdapter(this.response);
 
   final Map<String, dynamic> response;
   String? capturedPath;
+  Map<String, dynamic>? capturedData;
 
   @override
   Future<ResponseBody> fetch(
@@ -237,6 +295,16 @@ class _PreparationResponseAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     capturedPath = options.path;
+    final requestBytes = <int>[];
+    if (requestStream != null) {
+      await for (final chunk in requestStream) {
+        requestBytes.addAll(chunk);
+      }
+    }
+    if (requestBytes.isNotEmpty) {
+      capturedData =
+          jsonDecode(utf8.decode(requestBytes)) as Map<String, dynamic>;
+    }
     return ResponseBody.fromString(
       jsonEncode(response),
       200,

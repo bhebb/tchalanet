@@ -49,7 +49,7 @@ class PrinterService {
     bool allowManualPdfFallback = false,
     bool recordPrint = true,
     String? reprintReason,
-    String? locale,
+    String? buyerLocale,
   }) async {
     final direct = _selectDirectAdapter(paperSize);
     if (mode != PrinterMode.systemPdf && direct != null) {
@@ -58,9 +58,9 @@ class PrinterService {
           ticketId,
           recordPrint: recordPrint,
           reprintReason: reprintReason,
+          buyerLocale: buyerLocale,
           outputFormat: 'ESC_POS',
           paperSize: _paperSizeCode(paperSize),
-          locale: locale,
         );
         if (bytes.isEmpty) {
           return const PrintResult(
@@ -87,11 +87,11 @@ class PrinterService {
           ticketId,
           recordPrint: recordPrint,
           reprintReason: reprintReason,
+          buyerLocale: buyerLocale,
           outputFormat: 'PDF',
           paperSize: paperSize == ReceiptPaperSize.a4
               ? 'A4'
               : _paperSizeCode(paperSize),
-          locale: locale,
         );
         if (bytes.isEmpty) {
           return const PrintResult(

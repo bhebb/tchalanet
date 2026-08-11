@@ -323,7 +323,12 @@
       "description": "Antre kòd piblik ou pou konsilte estati tikè ou.",
       "eyebrow": "Verifikasyon piblik tikè",
       "placeholder": "AB12-CD34",
+      "scan_failed": "Nou pa ka li imaj sa a. Eseye ankò oswa antre kòd la.",
+      "scan_invalid": "QR la pa gen yon kòd tikè valid.",
+      "scan_loading": "Ap li QR la…",
+      "scan_no_code": "Pa gen QR code ki lizib nan imaj la.",
       "scan_qr": "Eskane QR",
+      "scan_unsupported": "Eskanè QR pa disponib sou navigatè sa a. Antre kòd ki enprime a.",
       "title": "Verifye yon tikè"
     },
     "markdown": {

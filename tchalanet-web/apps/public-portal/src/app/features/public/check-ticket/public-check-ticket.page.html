@@ -26,6 +26,14 @@
         </label>
         <div class="check-page__input-wrap">
           <input
+            #qrInput
+            class="check-page__scan-input"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            (change)="scanQrImage($event)"
+          />
+          <input
             id="public-ticket-code"
             class="check-page__code-input"
             name="code"
@@ -39,14 +47,22 @@
           <button
             class="check-page__scan-button"
             type="button"
+            [disabled]="scanBusy()"
             [attr.aria-label]="'public.check.scan_qr' | translate"
+            (click)="openQrScanner(qrInput)"
           >
             <span class="material-symbols-outlined" aria-hidden="true">qr_code_scanner</span>
             <span class="check-page__scan-label" aria-hidden="true">
-              {{ 'public.check.scan_qr' | translate }}
+              {{ (scanBusy() ? 'public.check.scan_loading' : 'public.check.scan_qr') | translate }}
             </span>
           </button>
         </div>
+        @if (scanErrorKey(); as errorKey) {
+        <p class="check-page__scan-error" role="status">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          <span>{{ errorKey | translate }}</span>
+        </p>
+        }
         <p class="check-page__hint">
           <span class="material-symbols-outlined" aria-hidden="true">info</span>
           <span>{{ 'public.check.code_hint' | translate }}</span>

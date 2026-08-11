@@ -102,10 +102,12 @@ Note: `com.fasterxml.jackson.core:jackson-databind` forcé à `2.22.1` via `<dep
 | Package                | Version |
 | ---------------------- | ------- |
 | cupertino_icons        | ^1.0.9  |
+| app_links              | ^7.2.1  |
 | flutter_riverpod       | ^3.3.1  |
 | go_router              | ^17.3.0 |
 | dio                    | ^5.9.2  |
 | flutter_secure_storage | ^10.3.1 |
+| mobile_scanner         | ^7.4.0  |
 | firebase_core          | ^4.10.0 |
 | firebase_auth          | ^6.5.2  |
 | flutter_lints          | ^6.0.0  |

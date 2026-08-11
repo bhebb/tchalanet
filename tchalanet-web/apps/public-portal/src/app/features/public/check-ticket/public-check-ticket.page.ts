@@ -41,6 +41,8 @@ export class PublicCheckTicketPage {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly code = signal('');
+  readonly scanBusy = signal(false);
+  readonly scanErrorKey = signal<string | null>(null);
   readonly state = signal<CheckState>({ kind: 'default' });
   readonly previewImage = TCH_PUBLIC_ASSETS.checkTicketPreview;
 
@@ -106,6 +108,7 @@ export class PublicCheckTicketPage {
   updateCode(event: Event): void {
     const input = event.target as HTMLInputElement;
     const formatted = formatPublicCode(input.value);
+    this.scanErrorKey.set(null);
     this.code.set(formatted);
     input.value = formatted;
   }
@@ -120,6 +123,61 @@ export class PublicCheckTicketPage {
     this.doVerify(normalized);
   }
 
+  openQrScanner(input: HTMLInputElement): void {
+    this.scanErrorKey.set(null);
+    if (!nativeBarcodeDetector()) {
+      this.scanErrorKey.set('public.check.scan_unsupported');
+      return;
+    }
+    input.value = '';
+    input.click();
+  }
+
+  async scanQrImage(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.item(0);
+    if (!file) {
+      return;
+    }
+
+    const BarcodeDetector = nativeBarcodeDetector();
+    if (!BarcodeDetector) {
+      this.scanErrorKey.set('public.check.scan_unsupported');
+      return;
+    }
+
+    this.scanBusy.set(true);
+    this.scanErrorKey.set(null);
+    try {
+      const detector = new BarcodeDetector({ formats: ['qr_code'] });
+      const bitmap = await createImageBitmap(file);
+      try {
+        const barcodes = await detector.detect(bitmap);
+        const rawValue = barcodes.find(barcode => barcode.rawValue)?.rawValue;
+        if (!rawValue) {
+          this.scanErrorKey.set('public.check.scan_no_code');
+          return;
+        }
+
+        const normalized = extractPublicCodeFromQr(rawValue);
+        const formatted = formatPublicCode(normalized);
+        this.code.set(formatted);
+        if (!CODE_PATTERN.test(formatted)) {
+          this.scanErrorKey.set('public.check.scan_invalid');
+          return;
+        }
+        this.doVerify(normalized);
+      } finally {
+        bitmap.close();
+      }
+    } catch {
+      this.scanErrorKey.set('public.check.scan_failed');
+    } finally {
+      this.scanBusy.set(false);
+      input.value = '';
+    }
+  }
+
   /** Internal: call the API and update state. Called from constructor (auto-submit) or submit(). */
   private doVerify(normalizedCode: string): void {
     this.state.set({ kind: 'loading' });
@@ -131,6 +189,27 @@ export class PublicCheckTicketPage {
 
   reset(): void {
     this.code.set('');
+    this.scanErrorKey.set(null);
     this.state.set({ kind: 'default' });
   }
+}
+
+interface NativeBarcode {
+  readonly rawValue?: string;
+}
+
+interface NativeBarcodeDetector {
+  detect(source: ImageBitmapSource): Promise<readonly NativeBarcode[]>;
+}
+
+interface NativeBarcodeDetectorConstructor {
+  new (options?: { readonly formats?: readonly string[] }): NativeBarcodeDetector;
+}
+
+function nativeBarcodeDetector(): NativeBarcodeDetectorConstructor | null {
+  return (
+    globalThis as typeof globalThis & {
+      readonly BarcodeDetector?: NativeBarcodeDetectorConstructor;
+    }
+  ).BarcodeDetector ?? null;
 }
