@@ -38,14 +38,20 @@ describe('PublicCheckTicketPage helpers', () => {
     expect(mapPublicTicketProblemStatus(unexpected)).toBe('SERVICE_UNAVAILABLE');
   });
 
-  it('extracts public codes from QR URL payloads', () => {
+  it('extracts manually entered public codes', () => {
+    expect(extractPublicCodeFromQr('75nr-hpd8')).toBe('75NR-HPD8');
+  });
+
+  it('extracts public codes from check-ticket QR URL payloads', () => {
     expect(extractPublicCodeFromQr('https://tickets.test/public/check-ticket?code=75nr-hpd8')).toBe(
       '75NR-HPD8',
     );
+  });
+
+  it('extracts public codes from path-style QR URL payloads', () => {
     expect(extractPublicCodeFromQr('https://tickets.test/public/ticket/75NR-HPD8')).toBe(
       '75NR-HPD8',
     );
-    expect(extractPublicCodeFromQr('75nr-hpd8')).toBe('75NR-HPD8');
   });
 });
 
