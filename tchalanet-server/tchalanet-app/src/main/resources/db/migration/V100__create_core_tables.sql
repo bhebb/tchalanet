@@ -1043,6 +1043,10 @@ CREATE TABLE seller_terminal_settings (
   seller_terminal_id uuid NOT NULL REFERENCES seller_terminal(id),
   receipt_auto_print boolean NOT NULL DEFAULT true,
   receipt_copy_count integer NOT NULL DEFAULT 1,
+  quick_sale boolean NOT NULL DEFAULT false,
+  receipt_printer_mode varchar(32) NOT NULL DEFAULT 'AUTO',
+  receipt_paper_size varchar(32) NOT NULL DEFAULT 'RECEIPT_80MM',
+  receipt_adapter_preference varchar(64),
   notifications_enabled boolean NOT NULL DEFAULT true,
   notifications_critical_only boolean NOT NULL DEFAULT false,
   created_at timestamptz DEFAULT now(),
@@ -1056,7 +1060,11 @@ CREATE TABLE seller_terminal_settings (
   CONSTRAINT fk_seller_terminal_settings__tenant_terminal
     FOREIGN KEY (tenant_id, seller_terminal_id) REFERENCES seller_terminal (tenant_id, id),
   CONSTRAINT chk_seller_terminal_settings_receipt_copy_count
-    CHECK (receipt_copy_count BETWEEN 1 AND 3)
+    CHECK (receipt_copy_count BETWEEN 1 AND 3),
+  CONSTRAINT chk_seller_terminal_settings_printer_mode
+    CHECK (receipt_printer_mode IN ('AUTO', 'POS_DIRECT', 'SYSTEM_PDF')),
+  CONSTRAINT chk_seller_terminal_settings_paper_size
+    CHECK (receipt_paper_size IN ('RECEIPT_58MM', 'RECEIPT_80MM'))
 );
 
 -- =========================================================
