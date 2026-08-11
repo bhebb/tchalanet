@@ -224,7 +224,9 @@ Le workflow prod doit refuser une publication si :
 ## Garde-fous installabilité
 
 Avant toute distribution Firebase ou Play, le workflow doit valider
-l'artefact Android produit, puis prouver qu'Android peut l'installer.
+l'artefact Android produit avec des contrôles déterministes. L'installation
+réelle reste vérifiée pendant la recette QA sur appareil physique via Firebase
+App Distribution ou Play.
 
 Garde minimale obligatoire :
 
@@ -240,13 +242,9 @@ Garde minimale obligatoire :
 4. Distribution seulement si ces étapes passent.
 
 Ces contrôles doivent rester avant l'étape Firebase App Distribution ou Google
-Play.
-
-Un smoke test `adb install` sur émulateur peut être activé manuellement avec
-`run_emulator_install_smoke`, mais il ne doit pas être le garde bloquant par
-défaut : le boot d'un émulateur GitHub Actions est trop lent/flaky, et un
-émulateur propre ne détecte pas les conflits réels d'un appareil qui avait déjà
-une app signée différemment.
+Play. Ne pas utiliser un émulateur GitHub Actions comme garde bloquant de
+distribution : son boot est trop flaky, et un émulateur propre ne détecte pas
+les conflits réels d'un appareil qui avait déjà une app signée différemment.
 
 ## Outils externes prod
 
