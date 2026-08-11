@@ -13,6 +13,7 @@ import '../features/cashier/home/presentation/views/cashier_home_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_draw_report_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_profile_page.dart';
 import '../features/cashier/home/presentation/views/seller_terminal_stats_page.dart';
+import '../features/cashier/tickets/data/models/cashier_ticket_models.dart';
 import '../features/cashier/tickets/presentation/views/cashier_history_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_scan_page.dart';
 import '../features/cashier/tickets/presentation/views/cashier_sell_page.dart';
@@ -168,9 +169,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/pos/tickets/:ticketId',
-        builder: (context, state) => CashierTicketDetailPage(
-          ticketId: state.pathParameters['ticketId']!,
-        ),
+        builder: (context, state) {
+          final extra = state.extra;
+          return CashierTicketDetailPage(
+            ticketId: state.pathParameters['ticketId']!,
+            verification: extra is CashierTicketVerificationResponse
+                ? extra
+                : null,
+          );
+        },
       ),
       GoRoute(
         path: '/forbidden',
