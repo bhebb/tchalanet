@@ -170,6 +170,12 @@
                 "destination": { "kind": "route", "value": "/app/admin/seller-terminals" }
               },
               {
+                "id": "createSellerTerminal",
+                "labelKey": "quickaction.admin.seller_terminal_add",
+                "icon": "person_add",
+                "destination": { "kind": "route", "value": "/app/admin/seller-terminals/new" }
+              },
+              {
                 "id": "salesByTerminal",
                 "labelKey": "quickaction.admin.sales_by_terminal",
                 "icon": "receipt_long",
