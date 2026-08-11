@@ -88,6 +88,12 @@ public class TicketReceiptI18nResolver {
     fr.put(TicketReceiptI18nKeys.REF, "Réf.");
     fr.put(TicketReceiptI18nKeys.SCAN_TO_VERIFY, "Scannez pour vérifier");
     fr.put(TicketReceiptI18nKeys.CURRENCY_NOTE, "Montants en {code}");
+    fr.put("receipt.game.HT_BOLET", "Borlette");
+    fr.put("receipt.game.HT_MARYAJ", "Maryaj");
+    fr.put("receipt.game.HT_MARYAJ_GRATIS", "Maryaj gratis");
+    fr.put("receipt.game.HT_LOTO3", "Loto 3 chiffres");
+    fr.put("receipt.game.HT_LOTO4", "Loto 4 chiffres");
+    fr.put("receipt.game.HT_LOTO5", "Loto 5 chiffres");
 
     var en = new LinkedHashMap<String, String>();
     en.put(TicketReceiptI18nKeys.COPY_ORIGINAL, "Original");
@@ -110,6 +116,12 @@ public class TicketReceiptI18nResolver {
     en.put(TicketReceiptI18nKeys.REF, "Ref");
     en.put(TicketReceiptI18nKeys.SCAN_TO_VERIFY, "Scan to verify");
     en.put(TicketReceiptI18nKeys.CURRENCY_NOTE, "Amounts in {code}");
+    en.put("receipt.game.HT_BOLET", "Bolet");
+    en.put("receipt.game.HT_MARYAJ", "Maryaj");
+    en.put("receipt.game.HT_MARYAJ_GRATIS", "Maryaj gratis");
+    en.put("receipt.game.HT_LOTO3", "Loto 3");
+    en.put("receipt.game.HT_LOTO4", "Loto 4");
+    en.put("receipt.game.HT_LOTO5", "Loto 5");
 
     var ht = new LinkedHashMap<String, String>();
     ht.put(TicketReceiptI18nKeys.COPY_ORIGINAL, "Orijinal");
@@ -118,7 +130,7 @@ public class TicketReceiptI18nResolver {
     ht.put(TicketReceiptI18nKeys.TICKET, "Tikè");
     ht.put(TicketReceiptI18nKeys.PUBLIC_CODE, "Kòd piblik");
     ht.put(TicketReceiptI18nKeys.SALE_TIMESTAMP, "Vant");
-    ht.put(TicketReceiptI18nKeys.TERMINAL, "Terminal");
+    ht.put(TicketReceiptI18nKeys.TERMINAL, "Tèminal");
     ht.put(TicketReceiptI18nKeys.SELLER, "Vandè");
     ht.put(TicketReceiptI18nKeys.DRAW_SECTION, "Tiraj");
     ht.put(TicketReceiptI18nKeys.DRAW_FULL_PREFIX, "Tiraj pou");
@@ -132,6 +144,12 @@ public class TicketReceiptI18nResolver {
     ht.put(TicketReceiptI18nKeys.REF, "Ref");
     ht.put(TicketReceiptI18nKeys.SCAN_TO_VERIFY, "Eskane pou verifye");
     ht.put(TicketReceiptI18nKeys.CURRENCY_NOTE, "Montan an {code}");
+    ht.put("receipt.game.HT_BOLET", "Bòlèt");
+    ht.put("receipt.game.HT_MARYAJ", "Maryaj");
+    ht.put("receipt.game.HT_MARYAJ_GRATIS", "Maryaj gratis");
+    ht.put("receipt.game.HT_LOTO3", "Loto 3 chif");
+    ht.put("receipt.game.HT_LOTO4", "Loto 4 chif");
+    ht.put("receipt.game.HT_LOTO5", "Loto 5 chif");
 
     return Map.of("fr", Map.copyOf(fr), "en", Map.copyOf(en), "ht", Map.copyOf(ht));
   }

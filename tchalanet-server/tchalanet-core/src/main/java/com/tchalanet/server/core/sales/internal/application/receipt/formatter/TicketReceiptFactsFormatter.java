@@ -30,13 +30,6 @@ public class TicketReceiptFactsFormatter {
       // Thermal receipt: show compact reference instead of full internal ticket code
       var compactRef = compactReference(receipt.ticketCode());
       addLabel(lines, translations.text(TicketReceiptI18nKeys.REF), compactRef, true, profile);
-      // keep public display code visible
-      addLabel(
-          lines,
-          translations.text(TicketReceiptI18nKeys.PUBLIC_CODE),
-          receipt.displayCode(),
-          true,
-          profile);
     } else {
       // A4 / full print: show full ticket code and public code
       addLabel(

@@ -5,6 +5,7 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptGameSectio
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptLineView;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver.TicketReceiptTranslations;
 import com.tchalanet.server.platform.tenantgame.api.model.SelectionPolicy;
+import java.util.Locale;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,7 +21,18 @@ public class TicketReceiptLabelResolver {
     }
 
     try {
-      return switch (GameCode.valueOf(code)) {
+      var gameCode = GameCode.valueOf(code);
+      if (isHaitianCreole(translations)) {
+        return switch (gameCode) {
+          case HT_BOLET -> "Bòlèt";
+          case HT_MARYAJ -> "Maryaj";
+          case HT_MARYAJ_GRATIS -> "Maryaj gratis";
+          case HT_LOTO3 -> "Loto 3 chif";
+          case HT_LOTO4 -> "Loto 4 chif";
+          case HT_LOTO5 -> "Loto 5 chif";
+        };
+      }
+      return switch (gameCode) {
         case HT_BOLET -> "Borlette";
         case HT_MARYAJ -> "Maryaj";
         case HT_MARYAJ_GRATIS -> "Maryaj gratis";
@@ -31,6 +43,13 @@ public class TicketReceiptLabelResolver {
     } catch (IllegalArgumentException ex) {
       return code;
     }
+  }
+
+  private boolean isHaitianCreole(TicketReceiptTranslations translations) {
+    if (translations == null || translations.localeTag() == null) {
+      return false;
+    }
+    return "ht".equals(Locale.forLanguageTag(translations.localeTag()).getLanguage());
   }
 
   public String lineOptionLabel(

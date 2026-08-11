@@ -5,6 +5,7 @@ import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptTextLine;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -92,13 +93,26 @@ public class TicketReceiptBrandingFormatter {
       case HEADER_ONLY -> addMultiline(lines, header, false);
       case NAME_AND_HEADER -> {
         add(lines, name, true);
-        addMultiline(lines, header, false);
+        addMultilineExcept(lines, header, false, name);
       }
       case AUTO -> {
         add(lines, name, true);
         if (header != null && !header.isBlank()) {
-          addMultiline(lines, header, false);
+          addMultilineExcept(lines, header, false, name);
         }
+      }
+    }
+  }
+
+  private void addMultilineExcept(
+      List<TicketReceiptTextLine> lines, String value, boolean bold, String excluded) {
+    if (value == null || value.isBlank()) {
+      return;
+    }
+    var excludedText = normalizedText(excluded);
+    for (var line : value.split("\\R")) {
+      if (!normalizedText(line).equals(excludedText)) {
+        add(lines, line, bold);
       }
     }
   }
@@ -114,5 +128,12 @@ public class TicketReceiptBrandingFormatter {
 
   private String firstNonBlank(String preferred, String fallback) {
     return preferred == null || preferred.isBlank() ? fallback : preferred;
+  }
+
+  private String normalizedText(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
   }
 }
