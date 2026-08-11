@@ -72,6 +72,7 @@ class CashierTicketService {
     String? reprintReason,
     String outputFormat = 'PDF',
     String paperSize = 'A4',
+    String? locale,
   }) async {
     final normalizedReason = reprintReason?.trim();
     try {
@@ -87,6 +88,7 @@ class CashierTicketService {
             'outputFormat': outputFormat,
             'paperSize': paperSize,
           },
+          if (locale != null && locale.isNotEmpty) 'buyerLocale': locale,
         },
         options: Options(responseType: ResponseType.bytes),
       );

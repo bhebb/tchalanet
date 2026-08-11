@@ -24,7 +24,14 @@ class SellerTerminalProfilePage extends ConsumerWidget {
     final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(translations.translate('pos.profile.title'))),
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () => context.go('/pos'),
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(translations.translate('pos.profile.title')),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -180,7 +187,14 @@ class SellerTerminalSettingsPage extends ConsumerWidget {
     final translations = ref.watch(i18nBundleProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(translations.translate('pos.settings.title'))),
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          onPressed: () => context.go('/pos'),
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(translations.translate('pos.settings.title')),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -327,10 +341,27 @@ class _SettingsBodyState extends ConsumerState<_SettingsBody> {
                 subtitle: Text(settings?.receipt.printerMode ?? 'POS_DIRECT'),
                 trailing: DropdownButton<String>(
                   value: settings?.receipt.printerMode ?? 'POS_DIRECT',
-                  items: const [
-                    DropdownMenuItem(value: 'AUTO', child: Text('Auto')),
-                    DropdownMenuItem(value: 'POS_DIRECT', child: Text('POS')),
-                    DropdownMenuItem(value: 'SYSTEM_PDF', child: Text('PDF')),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'AUTO',
+                      child: Text(
+                        translations.translate(
+                          'pos.settings.printer_mode_auto',
+                        ),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'POS_DIRECT',
+                      child: Text(
+                        translations.translate('pos.settings.printer_mode_pos'),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'SYSTEM_PDF',
+                      child: Text(
+                        translations.translate('pos.settings.printer_mode_pdf'),
+                      ),
+                    ),
                   ],
                   onChanged: _savingKey == null && settings != null
                       ? (value) {
@@ -372,14 +403,18 @@ class _SettingsBodyState extends ConsumerState<_SettingsBody> {
                 subtitle: Text(settings?.receipt.paperSize ?? 'RECEIPT_58MM'),
                 trailing: DropdownButton<String>(
                   value: settings?.receipt.paperSize ?? 'RECEIPT_58MM',
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: 'RECEIPT_58MM',
-                      child: Text('58 mm'),
+                      child: Text(
+                        translations.translate('pos.settings.paper_58mm'),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'RECEIPT_80MM',
-                      child: Text('80 mm'),
+                      child: Text(
+                        translations.translate('pos.settings.paper_80mm'),
+                      ),
                     ),
                   ],
                   onChanged: _savingKey == null && settings != null
