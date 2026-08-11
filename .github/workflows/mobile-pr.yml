@@ -57,6 +57,14 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 scripts/i18n-audit.py --project mobile --strict
 
+      - name: Cache Flutter pub packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: flutter-pub-${{ runner.os }}-${{ hashFiles('tchalanet-mobile/pubspec.lock') }}
+          restore-keys: |
+            flutter-pub-${{ runner.os }}-
+
       - name: Set up Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
