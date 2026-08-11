@@ -248,6 +248,17 @@ class _SellerTerminalHomeState extends ConsumerState<_SellerTerminalHome> {
               const _ReadinessBanner(),
               const Divider(height: 1),
               const SizedBox(height: TchSpacing.s16),
+              SizedBox(
+                height: 48,
+                child: FilledButton.icon(
+                  onPressed: () => context.push('/pos/scan'),
+                  icon: const Icon(Icons.qr_code_scanner_rounded),
+                  label: Text(
+                    translations.translate('pos.dashboard.verify_ticket'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: TchSpacing.s16),
               // The summary is a fixed-height glance; the draw list is the long
               // scroller. On a 720 dp POS terminal, keeping the summary below
               // the list put it out of reach behind up to 20 draw cards.

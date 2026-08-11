@@ -327,10 +327,27 @@ class _SettingsBodyState extends ConsumerState<_SettingsBody> {
                 subtitle: Text(settings?.receipt.printerMode ?? 'POS_DIRECT'),
                 trailing: DropdownButton<String>(
                   value: settings?.receipt.printerMode ?? 'POS_DIRECT',
-                  items: const [
-                    DropdownMenuItem(value: 'AUTO', child: Text('Auto')),
-                    DropdownMenuItem(value: 'POS_DIRECT', child: Text('POS')),
-                    DropdownMenuItem(value: 'SYSTEM_PDF', child: Text('PDF')),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'AUTO',
+                      child: Text(
+                        translations.translate(
+                          'pos.settings.printer_mode_auto',
+                        ),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'POS_DIRECT',
+                      child: Text(
+                        translations.translate('pos.settings.printer_mode_pos'),
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'SYSTEM_PDF',
+                      child: Text(
+                        translations.translate('pos.settings.printer_mode_pdf'),
+                      ),
+                    ),
                   ],
                   onChanged: _savingKey == null && settings != null
                       ? (value) {
@@ -372,14 +389,18 @@ class _SettingsBodyState extends ConsumerState<_SettingsBody> {
                 subtitle: Text(settings?.receipt.paperSize ?? 'RECEIPT_58MM'),
                 trailing: DropdownButton<String>(
                   value: settings?.receipt.paperSize ?? 'RECEIPT_58MM',
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: 'RECEIPT_58MM',
-                      child: Text('58 mm'),
+                      child: Text(
+                        translations.translate('pos.settings.paper_58mm'),
+                      ),
                     ),
                     DropdownMenuItem(
                       value: 'RECEIPT_80MM',
-                      child: Text('80 mm'),
+                      child: Text(
+                        translations.translate('pos.settings.paper_80mm'),
+                      ),
                     ),
                   ],
                   onChanged: _savingKey == null && settings != null
