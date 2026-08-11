@@ -28,12 +28,22 @@ public class TicketVerificationUrlBuilder {
     String base = props.baseUrl().replaceAll("/+$", "");
     String encodedCode = URLEncoder.encode(code, StandardCharsets.UTF_8);
 
-    String path = props.ticketPathTemplate().replace("{code}", encodedCode);
+    String path =
+        props.ticketPathTemplate().contains("{code}")
+            ? props.ticketPathTemplate().replace("{code}", encodedCode)
+            : withCodeQueryParam(props.ticketPathTemplate(), encodedCode);
     if (!path.startsWith("/")) {
       path = "/" + path;
     }
 
     return base + path;
+  }
+
+  private String withCodeQueryParam(String pathTemplate, String encodedCode) {
+    var path =
+        pathTemplate == null || pathTemplate.isBlank() ? "/public/check-ticket" : pathTemplate;
+    var separator = path.contains("?") ? "&" : "?";
+    return path + separator + "code=" + encodedCode;
   }
 
   private String normalizeCode(String code) {

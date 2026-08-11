@@ -122,7 +122,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                       textCapitalization: TextCapitalization.characters,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
-                          RegExp(r'[A-Za-z0-9\-]'),
+                          RegExp(r'[A-Za-z0-9\-:/?&=._%+#]'),
                         ),
                         UpperCaseTextFormatter(),
                       ],

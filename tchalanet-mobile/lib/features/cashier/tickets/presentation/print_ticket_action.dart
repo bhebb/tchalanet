@@ -34,6 +34,7 @@ Future<void> printTicket(
           .printTicket(
             ticketId,
             reprintReason: reprintReason,
+            buyerLocale: translations.locale,
             allowManualPdfFallback: manualPdfFallback && !automatic,
           );
       if (result.outcome == PrintOutcome.unavailable) {
@@ -65,6 +66,7 @@ Future<void> printTicket(
           .printTicket(
             ticketId,
             reprintReason: _sellerRequestedReprintReason,
+            buyerLocale: translations.locale,
             allowManualPdfFallback: manualPdfFallback && !automatic,
           );
       if (!result.isPrinted) {

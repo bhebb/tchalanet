@@ -27,12 +27,13 @@ public class TicketReceiptGameLinesFormatter {
     var complimentaryMaryajOnly =
         !safeReceiptLines.isEmpty()
             && safeReceiptLines.stream().allMatch(this::isComplimentaryMaryaj);
+    var cols = computeColumnWidths(safeReceiptLines, translations, profile);
     if (!complimentaryMaryajOnly) {
-      add(lines, header(translations, profile), false);
+      add(lines, header(translations, profile, cols), false);
     }
     var hasComplimentaryMaryaj = false;
     for (var line : safeReceiptLines) {
-      add(lines, lineRow(line, translations, profile), false);
+      add(lines, lineRow(line, translations, profile, cols), false);
       if (line.promotional() && !isComplimentaryMaryaj(line)) {
         var promo =
             translations.text(TicketReceiptI18nKeys.PROMOTION)
@@ -61,10 +62,9 @@ public class TicketReceiptGameLinesFormatter {
   }
 
   private String header(
-      TicketReceiptTranslations translations, TicketReceiptLayoutProfile profile) {
+      TicketReceiptTranslations translations, TicketReceiptLayoutProfile profile, int[] cols) {
     // Realized gains are shown after settlement through verification,
     // not as sale-time payout estimates.
-    var cols = computeColumnWidths(profile);
     int choiceW = cols[0];
     int stakeW = cols[1];
 
@@ -79,20 +79,13 @@ public class TicketReceiptGameLinesFormatter {
   private String lineRow(
       TicketReceiptLineView line,
       TicketReceiptTranslations translations,
-      TicketReceiptLayoutProfile profile) {
-    var cols = computeColumnWidths(profile);
+      TicketReceiptLayoutProfile profile,
+      int[] cols) {
     int choiceW = cols[0];
     int stakeW = cols[1];
 
-    var choice = selectionDisplay(line);
-    var optionLabel = labelResolver.lineOptionLabel(line, null);
-    if (optionLabel != null && !optionLabel.isBlank()) {
-      choice = choice + "  " + optionLabel;
-    }
+    var choice = choiceDisplay(line);
     var stake = stakeDisplay(line, translations, profile);
-    if (choice.length() + stake.length() + 2 <= profile.charsPerLine()) {
-      return layout.leftRight(choice, stake, profile);
-    }
     var choicePart = layout.rightPad(choice, choiceW);
     var stakePart = layout.leftPad(stake, stakeW);
 
@@ -127,6 +120,15 @@ public class TicketReceiptGameLinesFormatter {
       return "* " + selection;
     }
     return selection;
+  }
+
+  private String choiceDisplay(TicketReceiptLineView line) {
+    var choice = selectionDisplay(line);
+    var optionLabel = labelResolver.lineOptionLabel(line, null);
+    if (optionLabel != null && !optionLabel.isBlank()) {
+      choice = choice + "  " + optionLabel;
+    }
+    return choice;
   }
 
   private String maryajSelection(String selection) {
@@ -164,27 +166,26 @@ public class TicketReceiptGameLinesFormatter {
         && line.stake().amount().compareTo(BigDecimal.ZERO) == 0;
   }
 
-  private int[] computeColumnWidths(TicketReceiptLayoutProfile profile) {
+  private int[] computeColumnWidths(
+      List<TicketReceiptLineView> lines,
+      TicketReceiptTranslations translations,
+      TicketReceiptLayoutProfile profile) {
     int chars = profile.charsPerLine();
 
-    // Heuristic: allocate fixed width for stake and rest to choice column.
-    // Assumes reasonable receipt widths (>= ~15). For very small widths the truncate
-    // logic will still ensure lines fit, but such profiles are out of scope for V1.
-    int stakeW = 10;
-    int used = stakeW + 1; // one space between columns
-    int choiceW = chars - used;
-
-    // ensure minimal widths
-    if (choiceW < 6) {
-      int deficit = 6 - choiceW;
-      int reduceStake = Math.min(Math.max(0, stakeW - 6), deficit);
-      stakeW -= reduceStake;
-      used = stakeW + 1;
-      choiceW = chars - used;
+    int stakeW = translations.text(TicketReceiptI18nKeys.LINE_HEADER_STAKE).length();
+    int choiceW = translations.text(TicketReceiptI18nKeys.LINE_HEADER_NO).length();
+    for (var line : lines) {
+      stakeW = Math.max(stakeW, stakeDisplay(line, translations, profile).length());
+      choiceW = Math.max(choiceW, choiceDisplay(line).length());
     }
 
-    if (choiceW < 1) {
-      choiceW = 1;
+    int maxStakeW = Math.max(6, Math.min(10, chars / 2));
+    stakeW = Math.min(stakeW, maxStakeW);
+    int maxChoiceW = Math.max(1, chars - stakeW - 1);
+    choiceW = Math.min(choiceW, maxChoiceW);
+
+    if (choiceW + stakeW + 1 > chars) {
+      choiceW = Math.max(1, chars - stakeW - 1);
     }
 
     return new int[] {choiceW, stakeW};

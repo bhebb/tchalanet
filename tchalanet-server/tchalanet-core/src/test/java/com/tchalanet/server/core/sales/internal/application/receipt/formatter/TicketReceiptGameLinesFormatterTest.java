@@ -54,6 +54,31 @@ class TicketReceiptGameLinesFormatterTest {
   }
 
   @Test
+  void keepsThermalColumnsCompactForShortSelections() {
+    var lines =
+        formatter.format(
+            List.of(
+                new TicketReceiptLineView(
+                    1,
+                    "HT_BOLET",
+                    "MATCH_1_2D",
+                    null,
+                    null,
+                    "BORLETTE",
+                    "10",
+                    money("10"),
+                    SelectionPolicy.IMPLICIT_BEST_MATCH,
+                    false,
+                    null,
+                    null)),
+            translations(),
+            THERMAL_58);
+
+    assertThat(lines).extracting(line -> line.text()).contains("No  Mise", "10 10.00");
+    assertThat(lines).extracting(line -> line.text()).doesNotContain("No", "Mise");
+  }
+
+  @Test
   void printsExplicitOptionAndComplimentaryMaryajWithSingleNote() {
     var lines =
         formatter.format(

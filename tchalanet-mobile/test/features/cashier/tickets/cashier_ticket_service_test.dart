@@ -17,12 +17,14 @@ void main() {
     final bytes = await service.print(
       'ticket-1',
       reprintReason: ' SELLER_REQUESTED_REPRINT ',
+      buyerLocale: ' ht ',
     );
 
     expect(bytes, Uint8List.fromList([1, 2, 3]));
     expect(adapter.capturedPath, '/tenant/cashier/tickets/ticket-1/print');
     expect(adapter.capturedData?['recordPrint'], isTrue);
     expect(adapter.capturedData?['reprintReason'], 'SELLER_REQUESTED_REPRINT');
+    expect(adapter.capturedData?['buyerLocale'], 'ht');
     expect(adapter.capturedData?['deliveryOptions'], ['RETURN_FILE']);
   });
 

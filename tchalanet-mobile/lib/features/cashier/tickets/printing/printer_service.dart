@@ -98,6 +98,7 @@ class PrinterService {
     bool allowManualPdfFallback = false,
     bool recordPrint = true,
     String? reprintReason,
+    String? buyerLocale,
   }) async {
     final direct = _selectDirectAdapter(paperSize);
     if (mode != PrinterMode.systemPdf && direct != null) {
@@ -106,6 +107,7 @@ class PrinterService {
           ticketId,
           recordPrint: recordPrint,
           reprintReason: reprintReason,
+          buyerLocale: buyerLocale,
           outputFormat: 'ESC_POS',
           paperSize: _paperSizeCode(paperSize),
         );
@@ -134,6 +136,7 @@ class PrinterService {
           ticketId,
           recordPrint: recordPrint,
           reprintReason: reprintReason,
+          buyerLocale: buyerLocale,
           outputFormat: 'PDF',
           paperSize: paperSize == ReceiptPaperSize.a4
               ? 'A4'

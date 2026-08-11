@@ -484,10 +484,7 @@ class _SellBodyState extends ConsumerState<_SellBody> {
     final textTheme = Theme.of(context).textTheme;
     final translations = ref.watch(i18nBundleProvider);
     final isCompactEntry = widget.keyboardInset > 0 && !_isTicketLocked;
-    final committedTotal = widget.form.committedLines.fold<double>(
-      0,
-      (total, line) => total + line.stake,
-    );
+    final saleTotal = widget.form.saleTotal;
 
     return Column(
       children: [
@@ -723,7 +720,7 @@ class _SellBodyState extends ConsumerState<_SellBody> {
           previewResult: widget.previewResult,
           isPreviewing: widget.isPreviewing,
           isConfirming: widget.isConfirming,
-          total: widget.previewResult?.totalAmount ?? committedTotal,
+          total: widget.previewResult?.totalAmount ?? saleTotal,
           translations: translations,
           canAddLine: widget.form.canAddLine,
           compactEntryMode: isCompactEntry,
@@ -1078,11 +1075,7 @@ class _BottomActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canPrepare =
-        form.committedLines.isNotEmpty &&
-        !hasEntryInProgress &&
-        !isPreviewing &&
-        !isConfirming;
+    final canPrepare = form.canPreview && !isPreviewing && !isConfirming;
     final canConfirm = previewResult?.isAccepted == true && !isConfirming;
     final showConfirm = previewResult?.isAccepted == true;
     final verticalPadding = compactEntryMode ? TchSpacing.s8 : TchSpacing.s16;
