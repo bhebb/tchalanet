@@ -8,7 +8,6 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalReceiptS
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSettingsView;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalSettingsReaderPort;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalSettingsWriterPort;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;

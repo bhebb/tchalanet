@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../core/network/api_exception.dart';
+import '../printing/printer_contracts.dart';
 import '../printing/printer_service.dart';
 
 const _sellerRequestedReprintReason = 'SELLER_REQUESTED_REPRINT';
