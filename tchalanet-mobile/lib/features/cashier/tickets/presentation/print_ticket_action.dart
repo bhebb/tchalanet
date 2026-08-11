@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/i18n_repository.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../home/presentation/view_models/cashier_home_providers.dart';
 import '../printing/printer_contracts.dart';
 import '../printing/printer_service.dart';
 
@@ -34,6 +35,8 @@ Future<void> printTicket(
           .read(printerServiceProvider)
           .printTicket(
             ticketId,
+            paperSize: _configuredPaperSize(ref),
+            locale: ref.read(localeProvider),
             reprintReason: reprintReason,
             allowManualPdfFallback: manualPdfFallback && !automatic,
           );
@@ -65,6 +68,8 @@ Future<void> printTicket(
           .read(printerServiceProvider)
           .printTicket(
             ticketId,
+            paperSize: _configuredPaperSize(ref),
+            locale: ref.read(localeProvider),
             reprintReason: _sellerRequestedReprintReason,
             allowManualPdfFallback: manualPdfFallback && !automatic,
           );
@@ -200,6 +205,21 @@ Future<void> requestTicketReprint(
     controller.dispose();
     _reprintInFlight.remove(ticketId);
   }
+}
+
+ReceiptPaperSize _configuredPaperSize(WidgetRef ref) {
+  final configured = ref
+      .read(posProfileProvider)
+      .asData
+      ?.value
+      .settings
+      .receipt
+      .paperSize;
+  return switch (configured) {
+    'RECEIPT_58MM' => ReceiptPaperSize.receipt58mm,
+    'RECEIPT_80MM' => ReceiptPaperSize.receipt80mm,
+    _ => ReceiptPaperSize.receipt58mm,
+  };
 }
 
 String _presetLabelKey(String preset) => switch (preset) {

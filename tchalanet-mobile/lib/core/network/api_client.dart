@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/firebase_auth_token_client.dart';
 import '../config/app_config.dart';
+import '../i18n/i18n_repository.dart';
 import '../notifications/app_notification_controller.dart';
 import '../observability/diagnostic_repository.dart';
 import '../storage/secure_token_storage.dart';
@@ -63,6 +64,14 @@ final apiClientProvider = Provider<Dio>((ref) {
 
   // RequestIdInterceptor must run first so the request ID is set before auth.
   dio.interceptors.add(RequestIdInterceptor(diagnostics));
+  dio.interceptors.add(
+    InterceptorsWrapper(
+      onRequest: (options, handler) {
+        options.headers['Accept-Language'] = ref.read(localeProvider);
+        handler.next(options);
+      },
+    ),
+  );
   dio.interceptors.add(
     AuthInterceptor(
       dio,
