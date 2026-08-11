@@ -233,12 +233,12 @@ The backend SHALL resolve terminal-scoped settings from the authenticated
 seller-terminal context. A mobile request SHALL NOT select or impersonate a
 seller terminal by supplying an arbitrary `sellerTerminalId`.
 
-#### Scenario: Tenant default initializes terminal paper size
+#### Scenario: Terminal default initializes receipt paper size
 
-- **GIVEN** tenant receipt config defaults to `RECEIPT_80MM`
+- **GIVEN** terminal receipt config defaults to `RECEIPT_58MM`
 - **AND** the terminal has no explicit paper-size override
 - **WHEN** mobile resolves print options
-- **THEN** it uses `RECEIPT_80MM` unless the selected adapter reports only a
+- **THEN** it uses `RECEIPT_58MM` unless the selected adapter reports only a
   different supported receipt width.
 
 #### Scenario: Terminal override does not change tenant policy

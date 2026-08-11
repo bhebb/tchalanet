@@ -3,11 +3,11 @@
 ## ADDED Requirements
 
 ### Requirement: Terminal receipt policy is persisted
-The system SHALL persist quick-sale and printer policy per `(tenant_id, seller_terminal_id)` with defaults of quick sale disabled, printer mode `AUTO`, and paper size `RECEIPT_80MM`.
+The system SHALL persist quick-sale and printer policy per `(tenant_id, seller_terminal_id)` with defaults of quick sale enabled, printer mode `POS_DIRECT`, and paper size `RECEIPT_58MM`.
 
 #### Scenario: Existing terminal settings receive safe defaults
 - **WHEN** the migration is applied to an existing `seller_terminal_settings` row
-- **THEN** `quick_sale` is `false`, `receipt_printer_mode` is `AUTO`, and `receipt_paper_size` is `RECEIPT_80MM`
+- **THEN** `quick_sale` is `true`, `receipt_printer_mode` is `POS_DIRECT`, and `receipt_paper_size` is `RECEIPT_58MM`
 
 ### Requirement: POS profile exposes and updates printer policy
 The POS profile settings contract SHALL expose and partially update `quickSale`, `printerMode`, `paperSize`, and `adapterPreference` under `settings.receipt`.

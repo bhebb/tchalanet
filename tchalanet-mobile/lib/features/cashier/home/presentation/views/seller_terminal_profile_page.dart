@@ -310,7 +310,7 @@ class _SettingsBodyState extends ConsumerState<_SettingsBody> {
                 subtitle: Text(
                   translations.translate('pos.settings.quick_sale_help'),
                 ),
-                value: settings?.receipt.quickSale ?? false,
+                value: settings?.receipt.quickSale ?? true,
                 onChanged: _savingKey == null
                     ? (value) =>
                           _save('receiptQuickSale', receiptQuickSale: value)
@@ -324,9 +324,9 @@ class _SettingsBodyState extends ConsumerState<_SettingsBody> {
                 title: Text(
                   translations.translate('pos.settings.printer_mode'),
                 ),
-                subtitle: Text(settings?.receipt.printerMode ?? 'AUTO'),
+                subtitle: Text(settings?.receipt.printerMode ?? 'POS_DIRECT'),
                 trailing: DropdownButton<String>(
-                  value: settings?.receipt.printerMode ?? 'AUTO',
+                  value: settings?.receipt.printerMode ?? 'POS_DIRECT',
                   items: const [
                     DropdownMenuItem(value: 'AUTO', child: Text('Auto')),
                     DropdownMenuItem(value: 'POS_DIRECT', child: Text('POS')),
@@ -369,9 +369,9 @@ class _SettingsBodyState extends ConsumerState<_SettingsBody> {
               ListTile(
                 leading: const Icon(Icons.receipt_long_rounded),
                 title: Text(translations.translate('pos.settings.paper_size')),
-                subtitle: Text(settings?.receipt.paperSize ?? 'RECEIPT_80MM'),
+                subtitle: Text(settings?.receipt.paperSize ?? 'RECEIPT_58MM'),
                 trailing: DropdownButton<String>(
-                  value: settings?.receipt.paperSize ?? 'RECEIPT_80MM',
+                  value: settings?.receipt.paperSize ?? 'RECEIPT_58MM',
                   items: const [
                     DropdownMenuItem(
                       value: 'RECEIPT_58MM',

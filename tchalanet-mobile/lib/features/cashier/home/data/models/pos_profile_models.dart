@@ -146,9 +146,9 @@ class PosProfileReceiptSettings {
       PosProfileReceiptSettings(
         autoPrint: json['autoPrint'] as bool? ?? true,
         copyCount: (json['copyCount'] as num?)?.toInt() ?? 1,
-        quickSale: json['quickSale'] as bool? ?? false,
-        printerMode: json['printerMode'] as String? ?? 'AUTO',
-        paperSize: json['paperSize'] as String? ?? 'RECEIPT_80MM',
+        quickSale: json['quickSale'] as bool? ?? true,
+        printerMode: json['printerMode'] as String? ?? 'POS_DIRECT',
+        paperSize: json['paperSize'] as String? ?? 'RECEIPT_58MM',
         adapterPreference: json['adapterPreference'] as String?,
       );
 }

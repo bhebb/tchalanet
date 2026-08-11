@@ -100,7 +100,7 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final (bgColor, fgColor, key) = switch (status) {
-      'PLACED' => (
+      'APPROVED' || 'PLACED' => (
         TchColors.successContainer,
         TchColors.success,
         'pos.tickets.status_placed',
