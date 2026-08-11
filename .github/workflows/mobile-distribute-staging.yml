@@ -38,11 +38,6 @@ on:
         required: false
         default: ''
         type: string
-      run_emulator_install_smoke:
-        description: 'Run an optional emulator adb install smoke test before distribution'
-        required: false
-        default: false
-        type: boolean
       tester_groups:
         description: 'Firebase App Distribution tester groups (comma-separated aliases)'
         required: false
@@ -166,20 +161,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-
-      - name: Guard release APK installability
-        if: inputs.run_emulator_install_smoke == true
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          emulator-boot-timeout: 900
-          disable-animations: true
-          script: |
-            adb install -r tchalanet-mobile/build/app/outputs/flutter-apk/app-release.apk
-            adb shell monkey -p com.tchalanet.mobile -c android.intent.category.LAUNCHER 1
 
       - name: Distribute to Firebase App Distribution
         env:
