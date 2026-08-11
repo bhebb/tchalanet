@@ -2,7 +2,6 @@ package com.tchalanet.server.features.pos.profile.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,9 +17,11 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalCommercialCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalContactCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalLabelCommand;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSettingsView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
+import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalSettingsQuery;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileCommercialRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
@@ -34,16 +35,12 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 class PosProfileServiceTest {
 
   private final CommandBus commandBus = mock(CommandBus.class);
   private final QueryBus queryBus = mock(QueryBus.class);
-  private final JdbcTemplate jdbc = mock(JdbcTemplate.class);
-  private final PosProfileService service = new PosProfileService(commandBus, queryBus, jdbc);
+  private final PosProfileService service = new PosProfileService(commandBus, queryBus);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
   private final UserId userId = UserId.of(UUID.randomUUID());
@@ -52,8 +49,8 @@ class PosProfileServiceTest {
   @BeforeEach
   void setUp() {
     when(queryBus.ask(any(GetSellerTerminalQuery.class))).thenReturn(sellerTerminal());
-    when(jdbc.queryForObject(anyString(), any(RowMapper.class), any(), any()))
-        .thenThrow(new EmptyResultDataAccessException(1));
+    when(queryBus.ask(any(GetSellerTerminalSettingsQuery.class)))
+        .thenReturn(SellerTerminalSettingsView.defaults());
   }
 
   @Test
