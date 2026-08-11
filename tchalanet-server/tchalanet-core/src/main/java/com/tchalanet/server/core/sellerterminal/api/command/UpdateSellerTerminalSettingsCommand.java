@@ -4,17 +4,13 @@ import com.tchalanet.server.common.bus.Command;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.id.UserId;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalNotificationSettingsView;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalReceiptSettingsView;
 
 public record UpdateSellerTerminalSettingsCommand(
     TenantId tenantId,
     SellerTerminalId sellerTerminalId,
-    Boolean receiptAutoPrint,
-    Integer receiptCopyCount,
-    Boolean receiptQuickSale,
-    String receiptPrinterMode,
-    String receiptPaperSize,
-    String receiptAdapterPreference,
-    Boolean notificationsEnabled,
-    Boolean notificationsCriticalOnly,
+    SellerTerminalReceiptSettingsView receipt,
+    SellerTerminalNotificationSettingsView notifications,
     UserId actorUserId)
     implements Command<Void> {}

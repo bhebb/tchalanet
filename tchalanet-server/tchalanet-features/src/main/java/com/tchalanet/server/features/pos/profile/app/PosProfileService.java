@@ -3,12 +3,13 @@ package com.tchalanet.server.features.pos.profile.app;
 import com.tchalanet.server.common.bus.CommandBus;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalSettingsCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalCommercialCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalContactCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalLabelCommand;
+import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalSettingsCommand;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalNotificationSettingsView;
+import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalReceiptSettingsView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
-import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSettingsView;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalSettingsQuery;
 import com.tchalanet.server.features.pos.profile.model.PosProfileCommercialInfo;
@@ -51,8 +52,7 @@ public class PosProfileService {
             ? terminal.terminalCode()
             : terminal.displayName();
     var ready = terminal.status() == SellerTerminalStatus.ACTIVE && !terminal.mustChangePin();
-    var settings =
-        queryBus.ask(new GetSellerTerminalSettingsQuery(tenantId, sellerTerminalId));
+    var settings = queryBus.ask(new GetSellerTerminalSettingsQuery(tenantId, sellerTerminalId));
 
     return new PosProfileResponse(
         VERSION,
@@ -83,8 +83,8 @@ public class PosProfileService {
             zone == null ? null : zone.getId(),
             currencyCode(currency),
             SUPPORTED_LOCALES,
-            toReceiptSettings(settings),
-            toNotificationSettings(settings)));
+            toReceiptSettings(settings.receipt()),
+            toNotificationSettings(settings.notifications())));
   }
 
   public PosProfileResponse updateTerminal(
@@ -126,37 +126,58 @@ public class PosProfileService {
 
   public PosProfileResponse updateSettings(
       TchRequestContext ctx, UpdatePosProfileSettingsRequest request) {
+    var tenantId = ctx.tenantIdRequired();
+    var terminalId = ctx.sellerTerminalIdRequired();
+    var current = queryBus.ask(new GetSellerTerminalSettingsQuery(tenantId, terminalId));
+    var receipt =
+        new SellerTerminalReceiptSettingsView(
+            request.receiptAutoPrint() == null
+                ? current.receipt().autoPrint()
+                : request.receiptAutoPrint(),
+            request.receiptCopyCount() == null
+                ? current.receipt().copyCount()
+                : request.receiptCopyCount(),
+            request.receiptQuickSale() == null
+                ? current.receipt().quickSale()
+                : request.receiptQuickSale(),
+            request.receiptPrinterMode() == null
+                ? current.receipt().printerMode()
+                : request.receiptPrinterMode(),
+            request.receiptPaperSize() == null
+                ? current.receipt().paperSize()
+                : request.receiptPaperSize(),
+            request.receiptAdapterPreference() == null
+                ? current.receipt().adapterPreference()
+                : request.receiptAdapterPreference());
+    var notifications =
+        new SellerTerminalNotificationSettingsView(
+            request.notificationsEnabled() == null
+                ? current.notifications().enabled()
+                : request.notificationsEnabled(),
+            request.notificationsCriticalOnly() == null
+                ? current.notifications().criticalOnly()
+                : request.notificationsCriticalOnly());
+
     commandBus.execute(
         new UpdateSellerTerminalSettingsCommand(
-            ctx.tenantIdRequired(),
-            ctx.sellerTerminalIdRequired(),
-            request.receiptAutoPrint(),
-            request.receiptCopyCount(),
-            request.receiptQuickSale(),
-            request.receiptPrinterMode(),
-            request.receiptPaperSize(),
-            request.receiptAdapterPreference(),
-            request.notificationsEnabled(),
-            request.notificationsCriticalOnly(),
-            ctx.userId()));
+            tenantId, terminalId, receipt, notifications, ctx.userId()));
     return profile(ctx);
   }
 
-  private static PosProfileReceiptSettings toReceiptSettings(SellerTerminalSettingsView settings) {
-    var receipt = settings.receipt();
+  private static PosProfileReceiptSettings toReceiptSettings(
+      SellerTerminalReceiptSettingsView settings) {
     return new PosProfileReceiptSettings(
-        receipt.autoPrint(),
-        receipt.copyCount(),
-        receipt.quickSale(),
-        receipt.printerMode(),
-        receipt.paperSize(),
-        receipt.adapterPreference());
+        settings.autoPrint(),
+        settings.copyCount(),
+        settings.quickSale(),
+        settings.printerMode(),
+        settings.paperSize(),
+        settings.adapterPreference());
   }
 
   private static PosProfileNotificationSettings toNotificationSettings(
-      SellerTerminalSettingsView settings) {
-    var notifications = settings.notifications();
-    return new PosProfileNotificationSettings(notifications.enabled(), notifications.criticalOnly());
+      SellerTerminalNotificationSettingsView settings) {
+    return new PosProfileNotificationSettings(settings.enabled(), settings.criticalOnly());
   }
 
   private static String sellerDisplayName(String firstName, String lastName, String fallback) {

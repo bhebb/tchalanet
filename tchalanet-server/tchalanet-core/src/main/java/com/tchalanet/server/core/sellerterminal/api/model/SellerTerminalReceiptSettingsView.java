@@ -6,4 +6,8 @@ public record SellerTerminalReceiptSettingsView(
     boolean quickSale,
     String printerMode,
     String paperSize,
-    String adapterPreference) {}
+    String adapterPreference) {
+  public static SellerTerminalReceiptSettingsView defaults() {
+    return new SellerTerminalReceiptSettingsView(true, 1, true, "POS_DIRECT", "RECEIPT_58MM", null);
+  }
+}

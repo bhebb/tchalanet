@@ -8,6 +8,6 @@ public record PosProfileReceiptSettings(
     String paperSize,
     String adapterPreference) {
   public static PosProfileReceiptSettings defaults() {
-    return new PosProfileReceiptSettings(true, 1, false, "AUTO", "RECEIPT_80MM", null);
+    return new PosProfileReceiptSettings(true, 1, true, "POS_DIRECT", "RECEIPT_58MM", null);
   }
 }

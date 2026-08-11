@@ -382,7 +382,7 @@ class CashierTicketSummaryView {
   final String id;
   final String ticketCode;
   final String? publicCode;
-  final String status; // PLACED | CANCELLED | VOIDED
+  final String status; // APPROVED | PLACED | CANCELLED | VOIDED
   final int totalAmountCents;
   final String currency;
   final String? drawId;

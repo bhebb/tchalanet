@@ -4,64 +4,66 @@ import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalSettingsCommand;
-import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalNotificationSettingsView;
-import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalReceiptSettingsView;
-import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSettingsView;
-import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalSettingsReaderPort;
-import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalSettingsWriterPort;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @UseCase
 @RequiredArgsConstructor
 public class UpdateSellerTerminalSettingsCommandHandler
     implements CommandHandler<UpdateSellerTerminalSettingsCommand, Void> {
 
-  private final SellerTerminalSettingsReaderPort reader;
-  private final SellerTerminalSettingsWriterPort writer;
+  private static final List<String> PRINTER_MODES = List.of("AUTO", "POS_DIRECT", "SYSTEM_PDF");
+  private static final List<String> PAPER_SIZES = List.of("RECEIPT_58MM", "RECEIPT_80MM");
+
+  private final JdbcTemplate jdbc;
 
   @Override
   @TchTx
   public Void handle(UpdateSellerTerminalSettingsCommand command) {
-    var current = reader.get(command.tenantId(), command.sellerTerminalId());
-    var currentReceipt = current.receipt();
-    var currentNotifications = current.notifications();
-    var receipt =
-        new SellerTerminalReceiptSettingsView(
-            valueOr(command.receiptAutoPrint(), currentReceipt.autoPrint()),
-            valueOr(command.receiptCopyCount(), currentReceipt.copyCount()),
-            valueOr(command.receiptQuickSale(), currentReceipt.quickSale()),
-            valueOr(command.receiptPrinterMode(), currentReceipt.printerMode()),
-            valueOr(command.receiptPaperSize(), currentReceipt.paperSize()),
-            command.receiptAdapterPreference() == null
-                ? currentReceipt.adapterPreference()
-                : command.receiptAdapterPreference());
-    validate(receipt);
-    var notifications =
-        new SellerTerminalNotificationSettingsView(
-            valueOr(command.notificationsEnabled(), currentNotifications.enabled()),
-            valueOr(
-                command.notificationsCriticalOnly(), currentNotifications.criticalOnly()));
-    writer.save(
-        command.tenantId(),
-        command.sellerTerminalId(),
-        new SellerTerminalSettingsView(receipt, notifications),
-        command.actorUserId());
+    validate(command);
+    jdbc.update(
+        """
+        INSERT INTO seller_terminal_settings (
+          tenant_id, seller_terminal_id, receipt_auto_print, receipt_copy_count,
+          quick_sale, receipt_printer_mode, receipt_paper_size, receipt_adapter_preference,
+          notifications_enabled, notifications_critical_only, created_by, updated_by
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (tenant_id, seller_terminal_id)
+        DO UPDATE SET
+          receipt_auto_print = EXCLUDED.receipt_auto_print,
+          receipt_copy_count = EXCLUDED.receipt_copy_count,
+          quick_sale = EXCLUDED.quick_sale,
+          receipt_printer_mode = EXCLUDED.receipt_printer_mode,
+          receipt_paper_size = EXCLUDED.receipt_paper_size,
+          receipt_adapter_preference = EXCLUDED.receipt_adapter_preference,
+          notifications_enabled = EXCLUDED.notifications_enabled,
+          notifications_critical_only = EXCLUDED.notifications_critical_only,
+          updated_at = now(),
+          updated_by = EXCLUDED.updated_by,
+          version = seller_terminal_settings.version + 1
+        """,
+        command.tenantId().value(),
+        command.sellerTerminalId().value(),
+        command.receipt().autoPrint(),
+        command.receipt().copyCount(),
+        command.receipt().quickSale(),
+        command.receipt().printerMode(),
+        command.receipt().paperSize(),
+        command.receipt().adapterPreference(),
+        command.notifications().enabled(),
+        command.notifications().criticalOnly(),
+        command.actorUserId().value(),
+        command.actorUserId().value());
     return null;
   }
 
-  private static <T> T valueOr(T value, T fallback) {
-    return value == null ? fallback : value;
-  }
-
-  private static void validate(SellerTerminalReceiptSettingsView receipt) {
-    if (receipt.copyCount() < 1 || receipt.copyCount() > 3) {
-      throw new IllegalArgumentException("Receipt copy count must be between 1 and 3");
-    }
-    if (!List.of("AUTO", "POS_DIRECT", "SYSTEM_PDF").contains(receipt.printerMode())) {
+  private static void validate(UpdateSellerTerminalSettingsCommand command) {
+    if (!PRINTER_MODES.contains(command.receipt().printerMode())) {
       throw new IllegalArgumentException("Unsupported receipt printer mode");
     }
-    if (!List.of("RECEIPT_58MM", "RECEIPT_80MM").contains(receipt.paperSize())) {
+    if (!PAPER_SIZES.contains(command.receipt().paperSize())) {
       throw new IllegalArgumentException("Unsupported receipt paper size");
     }
   }

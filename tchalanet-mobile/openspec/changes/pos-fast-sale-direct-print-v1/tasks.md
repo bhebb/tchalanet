@@ -9,7 +9,7 @@
 
 ## 1 — Mobile Sale UX
 
-- [x] Add quick-sale setting model and default it OFF.
+- [x] Add quick-sale setting model and default POS terminals ON.
 - [x] Add controller method for one-tap quick sale: prepare, classify preview, confirm when eligible.
 - [x] Implement one-tap chaining as `prepare once -> confirm existing preparation`; do not model it as a client-side transaction or retry prepare after confirm uncertainty.
 - [x] Preserve explicit `Verifye -> Konfime` mode and existing edit-prepared-ticket path.
@@ -80,7 +80,7 @@ duplicate the ticket.
 
 | ID | Context | Setup | Action | Expected result |
 |---|---|---|---|---|
-| TEL-01 | Regular phone, no printer | `printerMode=AUTO`, no paired device | Sell a valid ticket | Ticket is created; no PDF or system print screen opens; seller can use manual PDF. |
+| TEL-01 | Regular phone, no printer | Default `printerMode=POS_DIRECT`, no paired device | Sell a valid ticket | Ticket is created; no PDF or system print screen opens; seller can use manual PDF. |
 | TEL-02 | Regular phone + NETUM classic SPP | Pair NETUM in Android settings; select it in POS settings | Send test print | Test receipt prints; selected device is saved locally. |
 | TEL-03 | Regular phone + NETUM BLE | Select the BLE advertisement in POS settings | Send test print and sell | ESC/POS bytes print without leaving Tchalanet. |
 | TEL-04 | Admin opens seller terminal | Admin uses seller-terminal list > `Ouvrir POS` | Configure/print from the admin phone | Server terminal context remains the seller terminal; printer pairing remains on the admin phone only. |

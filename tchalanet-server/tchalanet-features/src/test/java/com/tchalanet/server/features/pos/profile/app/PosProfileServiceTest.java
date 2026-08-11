@@ -17,8 +17,6 @@ import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalCommercialCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalContactCommand;
 import com.tchalanet.server.core.sellerterminal.api.command.UpdateSellerTerminalLabelCommand;
-import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalNotificationSettingsView;
-import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalReceiptSettingsView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSettingsView;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalView;
@@ -51,7 +49,8 @@ class PosProfileServiceTest {
   @BeforeEach
   void setUp() {
     when(queryBus.ask(any(GetSellerTerminalQuery.class))).thenReturn(sellerTerminal());
-    when(queryBus.ask(any(GetSellerTerminalSettingsQuery.class))).thenReturn(settings());
+    when(queryBus.ask(any(GetSellerTerminalSettingsQuery.class)))
+        .thenReturn(SellerTerminalSettingsView.defaults());
   }
 
   @Test
@@ -132,12 +131,6 @@ class PosProfileServiceTest {
         null,
         false,
         null);
-  }
-
-  private SellerTerminalSettingsView settings() {
-    return new SellerTerminalSettingsView(
-        new SellerTerminalReceiptSettingsView(true, 1, false, "AUTO", "RECEIPT_80MM", null),
-        new SellerTerminalNotificationSettingsView(true, false));
   }
 
   private TchRequestContext context() {

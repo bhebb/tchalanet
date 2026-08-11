@@ -226,7 +226,7 @@ Phone/system fallback:
 {
   "printOptionsRequest": {
     "outputFormat": "PDF",
-    "paperSize": "RECEIPT_80MM"
+    "paperSize": "RECEIPT_58MM"
   },
   "recordPrint": true,
   "deliveryOptions": ["RETURN_FILE"],
@@ -350,9 +350,9 @@ tenant receipt defaults
 
 Examples:
 
-- Tenant says default paper is `RECEIPT_80MM`, Sunmi probe reports a 58mm
+- Terminal default paper is `RECEIPT_58MM`, Sunmi probe reports a 58mm
   printer: use 58mm for POS direct unless the terminal setting says otherwise.
-- Tenant says default paper is `RECEIPT_80MM`, the selected NETUM printer is a
+- Terminal default paper is `RECEIPT_58MM`, the selected NETUM printer is a
   58mm Bluetooth printer: use `ESC_POS + RECEIPT_58MM` for that terminal.
 - Tenant allows PDF and ESC/POS, phone has no POS adapter: use PDF fallback.
 - Terminal A is normally used on a Sunmi, but an admin opens terminal A from a
@@ -360,8 +360,8 @@ Examples:
   locally paired printer if one is available, otherwise offer manual PDF. A
   remote/network printer bridge would be a separate adapter and deployment
   capability.
-- Tenant default is 80mm, but a specific terminal has a 58mm built-in printer:
-  terminal setting wins for that terminal only.
+- Terminal A is configured for 80mm, but terminal B has a 58mm built-in printer:
+  the terminal setting wins for that terminal only.
 
 ## Testing
 
