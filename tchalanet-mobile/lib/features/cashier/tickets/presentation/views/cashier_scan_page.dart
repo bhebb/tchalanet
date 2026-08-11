@@ -65,7 +65,9 @@ final verifyControllerProvider =
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 class CashierScanPage extends ConsumerStatefulWidget {
-  const CashierScanPage({super.key});
+  const CashierScanPage({super.key, this.initialCode});
+
+  final String? initialCode;
 
   @override
   ConsumerState<CashierScanPage> createState() => _CashierScanPageState();
@@ -73,6 +75,20 @@ class CashierScanPage extends ConsumerStatefulWidget {
 
 class _CashierScanPageState extends ConsumerState<CashierScanPage> {
   final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _applyInitialCode(widget.initialCode);
+  }
+
+  @override
+  void didUpdateWidget(CashierScanPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialCode != widget.initialCode) {
+      _applyInitialCode(widget.initialCode);
+    }
+  }
 
   @override
   void dispose() {
@@ -252,6 +268,16 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     final value = _controller.text.trim();
     if (value.isEmpty) return;
     ref.read(verifyControllerProvider.notifier).verify(value);
+  }
+
+  void _applyInitialCode(String? value) {
+    final code = value?.trim();
+    if (code == null || code.isEmpty) return;
+    _controller.text = code.toUpperCase();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(verifyControllerProvider.notifier).verify(_controller.text);
+    });
   }
 }
 

@@ -8,6 +8,7 @@ import '../design_system/layout/screen_size.dart';
 import '../design_system/theme/tch_theme.dart';
 import 'app_notification_host.dart';
 import 'app_router.dart';
+import 'deep_link_host.dart';
 import 'runtime_polling_host.dart';
 
 /// Surface context provider — change to [SurfaceContext.posTerminal] when the
@@ -43,8 +44,10 @@ class App extends ConsumerWidget {
           HaitianCupertinoLocalizationsDelegate(),
           ...GlobalMaterialLocalizations.delegates,
         ],
-        builder: (context, child) => RuntimePollingHost(
-          child: AppNotificationHost(child: child ?? const SizedBox.shrink()),
+        builder: (context, child) => DeepLinkHost(
+          child: RuntimePollingHost(
+            child: AppNotificationHost(child: child ?? const SizedBox.shrink()),
+          ),
         ),
         routerConfig: router,
         debugShowCheckedModeBanner: false,

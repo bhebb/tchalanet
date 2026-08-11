@@ -20,6 +20,7 @@ import '../features/cashier/tickets/presentation/views/cashier_sell_success_page
 import '../features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart';
 import '../features/draw/presentation/views/seller_terminal_results_page.dart';
 import '../features/notifications/presentation/views/notification_center_page.dart';
+import 'deep_link_host.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -79,7 +80,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (isAuthenticated && isRuntimeBlocked && !isOnForbidden) {
         return '/forbidden';
       }
-      if (isAuthenticated && isOnLogin) return '/pos';
+      if (isAuthenticated && isOnLogin) {
+        final pendingCode = ref.read(pendingTicketVerificationCodeProvider);
+        if (pendingCode != null && pendingCode.trim().isNotEmpty) {
+          return '/pos/scan?code=${Uri.encodeQueryComponent(pendingCode)}';
+        }
+        return '/pos';
+      }
       return null;
     },
     routes: [
@@ -96,7 +103,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/pos/scan',
-        builder: (context, _) => const CashierScanPage(),
+        builder: (context, state) =>
+            CashierScanPage(initialCode: state.uri.queryParameters['code']),
       ),
       GoRoute(
         path: '/pos/profile',
