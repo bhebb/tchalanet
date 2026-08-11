@@ -52,8 +52,10 @@ doit donc pas demander à l'opérateur de se rappeler le dernier build.
 État actuel :
 
 - `pubspec.yaml` porte `version: 1.0.0+1`.
-- Le workflow staging surcharge `--build-name` et `--build-number`.
-- `--build-number` utilise actuellement `github.run_number`.
+- Le workflow staging calcule `--build-name` depuis `pubspec.yaml` avec un
+  suffixe `-stg.<build>`.
+- `--build-number` est alimenté automatiquement par le workflow.
+- L'opérateur ne saisit pas de numéro de version au lancement du workflow.
 
 Cible avant MEP :
 
@@ -217,6 +219,28 @@ Le workflow prod doit refuser une publication si :
 - `TERMINAL_EMAIL_DOMAIN` n'est pas le domaine terminal prod ;
 - `FIREBASE_AUTH_EMULATOR` n'est pas `false` ;
 - le `versionCode` n'est pas strictement supérieur au dernier build mobile.
+
+## Garde-fous installabilité
+
+Avant toute distribution Firebase ou Play, le workflow doit valider
+l'artefact Android produit, puis prouver qu'Android peut l'installer.
+
+Garde minimale obligatoire :
+
+1. `flutter build apk --release` ou `flutter build appbundle --release`.
+2. Validation de l'artefact avec `scripts/validate_android_artifact.sh` :
+   - fichier présent et zip lisible ;
+   - signature APK vérifiée par `apksigner` ;
+   - `applicationId` attendu `com.tchalanet.mobile` ;
+   - `versionCode` positif et `versionName` présent ;
+   - activité launcher présente ;
+   - refus des URLs locales (`localhost`, `127.*`, `10.0.2.2`) pour une build distribuée.
+3. Installation smoke test sur émulateur Android avec `adb install`.
+4. Distribution seulement si ces étapes passent.
+
+Ces contrôles doivent rester avant l'étape Firebase App Distribution ou Google
+Play. Si `adb install` échoue, l'artefact est considéré non distribuable même si
+le build Flutter a réussi.
 
 ## Outils externes prod
 
