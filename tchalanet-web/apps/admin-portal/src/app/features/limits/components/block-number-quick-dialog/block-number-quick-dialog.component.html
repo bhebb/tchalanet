@@ -1,0 +1,96 @@
+<tch-admin-dialog-shell
+  [title]="'admin.limits.blockNumber.title' | translate"
+  [description]="'admin.limits.blockNumber.description' | translate"
+  icon="block"
+>
+  @if (errorMessage(); as msg) {
+    <tch-section-error
+      [title]="'admin.limits.blockNumber.errorTitle' | translate"
+      [message]="msg"
+    />
+  }
+
+  <div class="bnq-dialog__body">
+
+    <!-- Draw selector -->
+    @if (loadingDraws()) {
+      <div class="bnq-dialog__loading">
+        <mat-spinner diameter="20" />
+        <span>{{ 'admin.limits.blockNumber.loadingDraws' | translate }}</span>
+      </div>
+    } @else if (openDraws().length === 0) {
+      <p class="bnq-dialog__no-draws">{{ 'admin.limits.blockNumber.noOpenDraws' | translate }}</p>
+    } @else {
+      <mat-form-field appearance="outline" class="bnq-dialog__field">
+        <mat-label>{{ 'admin.limits.blockNumber.drawLabel' | translate }}</mat-label>
+        <mat-select
+          [value]="selectedDrawId()"
+          (selectionChange)="selectedDrawId.set($event.value)"
+        >
+          @for (draw of openDraws(); track draw.id) {
+            <mat-option [value]="draw.id">{{ drawLabel(draw) }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <!-- Number chips -->
+    <mat-form-field appearance="outline" class="bnq-dialog__field">
+      <mat-label>{{ 'admin.limits.blockNumber.numbersLabel' | translate }}</mat-label>
+      <mat-chip-grid #chipGrid>
+        @for (n of numbers(); track n) {
+          <mat-chip (removed)="removeNumber(n)">
+            {{ n }}
+            <button matChipRemove [attr.aria-label]="'admin.limits.blockNumber.removeNumber' | translate: { number: n }">
+              <span class="material-symbols-outlined">cancel</span>
+            </button>
+          </mat-chip>
+        }
+        <input
+          [placeholder]="'admin.limits.blockNumber.numberPlaceholder' | translate"
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+          (matChipInputTokenEnd)="addNumber($event)"
+        />
+      </mat-chip-grid>
+      <mat-hint>{{ 'admin.limits.blockNumber.numberHint' | translate }}</mat-hint>
+    </mat-form-field>
+
+    @if (numbers().length === 0) {
+      <p class="bnq-dialog__field-error">{{ 'admin.limits.blockNumber.numberRequired' | translate }}</p>
+    }
+
+    <!-- Duration -->
+    <div class="bnq-dialog__duration">
+      <p class="bnq-dialog__duration-label">{{ 'admin.limits.blockNumber.durationLabel' | translate }}</p>
+      <mat-button-toggle-group
+        [value]="duration()"
+        (change)="duration.set($event.value)"
+        class="bnq-dialog__duration-toggle"
+      >
+        <mat-button-toggle value="today">{{ 'admin.limits.blockNumber.durationToday' | translate }}</mat-button-toggle>
+        <mat-button-toggle value="permanent">{{ 'admin.limits.blockNumber.durationPermanent' | translate }}</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+  </div>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close type="button">
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button
+      mat-flat-button
+      color="warn"
+      type="button"
+      [disabled]="!canSave"
+      (click)="save()"
+    >
+      @if (saving()) {
+        {{ 'admin.limits.blockNumber.saving' | translate }}
+      } @else {
+        {{ 'admin.limits.blockNumber.confirm' | translate }}
+      }
+    </button>
+  </mat-dialog-actions>
+</tch-admin-dialog-shell>

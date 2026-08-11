@@ -912,6 +912,26 @@
       "global": {
         "scopeNote": "Limits applied globally to all operator terminals."
       },
+      "blockNumber": {
+        "title": "Block numbers",
+        "description": "Select an active draw, enter the numbers, and confirm the block.",
+        "quickCta": "Block a number",
+        "loadingDraws": "Loading draws…",
+        "noOpenDraws": "No open draws at this time.",
+        "drawLabel": "Draw (channel)",
+        "numbersLabel": "Numbers to block",
+        "numberPlaceholder": "Enter a number and press Enter",
+        "numberHint": "Enter numbers separated by Enter or comma.",
+        "numberRequired": "Enter at least one number.",
+        "removeNumber": "Remove number {{number}}",
+        "durationLabel": "Block duration",
+        "durationToday": "Today only",
+        "durationPermanent": "Permanent",
+        "confirm": "Block",
+        "saving": "Blocking…",
+        "errorTitle": "Block failed",
+        "cancel": "Cancel"
+      },
       "number": {
         "actionsAria": "Quick actions by number",
         "copy": "For actual winnings, use results and reports; this area mainly blocks numbers and sold stakes.",

@@ -22,6 +22,7 @@ import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
 import type { RuleKey, RuleRow } from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
+import { BlockNumberQuickDialogComponent } from '../../components/block-number-quick-dialog/block-number-quick-dialog.component';
 
 const NUMBER_RULE_KEYS: RuleKey[] = [
   'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
@@ -108,6 +109,21 @@ export class AdminLimitsNumberPage implements OnInit {
         this.pageError.set(this.resolveError(err, 'admin.limits.number', 'page'));
         this.loading.set(false);
       },
+    });
+  }
+
+  openBlockNumberQuick(): void {
+    const spec = this.rowFor('BLOCK_SELECTION_PER_DRAW')?.spec ?? null;
+    const ref = this.dialog.open(BlockNumberQuickDialogComponent, {
+      width: '480px',
+      maxWidth: 'calc(100vw - 2rem)',
+    });
+    ref.componentInstance.spec = spec;
+    ref.afterClosed().subscribe((result: unknown) => {
+      if (result) {
+        this.actionNotice.set('admin.limits.child.noticeSaved');
+        this.reloadAssignments();
+      }
     });
   }
 

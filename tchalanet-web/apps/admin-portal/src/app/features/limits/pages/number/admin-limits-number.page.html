@@ -1,4 +1,12 @@
 <div class="limits-child-page">
+
+  <div class="limits-number__quick-bar">
+    <button mat-flat-button color="warn" type="button" (click)="openBlockNumberQuick()">
+      <span class="material-symbols-outlined">block</span>
+      {{ 'admin.limits.blockNumber.quickCta' | translate }}
+    </button>
+  </div>
+
   <div
     class="limits-number__actions"
     [attr.aria-label]="'admin.limits.number.actionsAria' | translate"
