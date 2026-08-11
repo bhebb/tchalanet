@@ -38,11 +38,11 @@ on:
         required: false
         default: ''
         type: string
-      build_name:
-        description: 'Human-readable version name (versionName)'
+      run_emulator_install_smoke:
+        description: 'Run an optional emulator adb install smoke test before distribution'
         required: false
-        default: '1.0.0-stg'
-        type: string
+        default: false
+        type: boolean
       tester_groups:
         description: 'Firebase App Distribution tester groups (comma-separated aliases)'
         required: false
@@ -126,25 +126,60 @@ jobs:
       - name: Install deps
         run: flutter pub get
 
+      - name: Resolve Android version
+        run: |
+          set -euo pipefail
+          pubspec_version="$(sed -n "s/^version:[[:space:]]*//p" pubspec.yaml | head -n 1)"
+          base_version="${pubspec_version%%+*}"
+          if ! printf '%s' "$base_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Invalid pubspec version: $pubspec_version" >&2
+            exit 1
+          fi
+          build_number="$(date -u +%s)"
+          {
+            printf 'BUILD_NAME=%s-stg.%s\n' "$base_version" "$build_number"
+            printf 'BUILD_NUMBER=%s\n' "$build_number"
+          } >> "$GITHUB_ENV"
+
       - name: Build release APK (real Firebase)
         env:
           TERMINAL_EMAIL_DOMAIN: ${{ inputs.terminal_email_domain }}
           POS_DEVICE_BINDING: ${{ inputs.pos_device_binding }}
-          BUILD_NAME: ${{ inputs.build_name }}
         run: |
           set -euo pipefail
           flutter build apk --release \
             --build-name="$BUILD_NAME" \
-            --build-number="${{ github.run_number }}" \
+            --build-number="$BUILD_NUMBER" \
             --dart-define=API_BASE_URL="$API_BASE_URL" \
             --dart-define=FIREBASE_AUTH_EMULATOR=false \
             --dart-define=TERMINAL_EMAIL_DOMAIN="$TERMINAL_EMAIL_DOMAIN" \
             --dart-define=POS_DEVICE_BINDING="$POS_DEVICE_BINDING"
 
+      - name: Guard release APK metadata and signature
+        run: |
+          ./scripts/validate_android_artifact.sh \
+            --apk build/app/outputs/flutter-apk/app-release.apk \
+            --expected-package com.tchalanet.mobile \
+            --api-base-url "$API_BASE_URL"
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24'
+
+      - name: Guard release APK installability
+        if: inputs.run_emulator_install_smoke == true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-boot-timeout: 900
+          disable-animations: true
+          script: |
+            adb install -r tchalanet-mobile/build/app/outputs/flutter-apk/app-release.apk
+            adb shell monkey -p com.tchalanet.mobile -c android.intent.category.LAUNCHER 1
 
       - name: Distribute to Firebase App Distribution
         env:
