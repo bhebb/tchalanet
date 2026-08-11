@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../core/network/api_exception.dart';
@@ -221,6 +224,24 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                     const SizedBox(height: TchSpacing.s8),
                   ],
 
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: isLoading ? null : _scanWithCamera,
+                      icon: const Icon(Icons.qr_code_scanner_rounded),
+                      label: Text(
+                        translations.translate('pos.ticket.verify.scan_qr'),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(TchRadius.md),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: TchSpacing.s8),
+
                   // Verify button
                   SizedBox(
                     width: double.infinity,
@@ -270,13 +291,28 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     ref.read(verifyControllerProvider.notifier).verify(value);
   }
 
+  Future<void> _scanWithCamera() async {
+    final scannedValue = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => const _TicketQrScannerPage(),
+        fullscreenDialog: true,
+      ),
+    );
+    final value = scannedValue?.trim();
+    if (value == null || value.isEmpty || !mounted) return;
+    setState(() => _controller.text = value.toUpperCase());
+    unawaited(ref.read(verifyControllerProvider.notifier).verify(value));
+  }
+
   void _applyInitialCode(String? value) {
     final code = value?.trim();
     if (code == null || code.isEmpty) return;
     _controller.text = code.toUpperCase();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(verifyControllerProvider.notifier).verify(_controller.text);
+      unawaited(
+        ref.read(verifyControllerProvider.notifier).verify(_controller.text),
+      );
     });
   }
 }
@@ -402,6 +438,104 @@ class _ErrorCard extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _TicketQrScannerPage extends ConsumerStatefulWidget {
+  const _TicketQrScannerPage();
+
+  @override
+  ConsumerState<_TicketQrScannerPage> createState() =>
+      _TicketQrScannerPageState();
+}
+
+class _TicketQrScannerPageState extends ConsumerState<_TicketQrScannerPage> {
+  late final MobileScannerController _scannerController;
+  bool _resolved = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scannerController = MobileScannerController(
+      detectionSpeed: DetectionSpeed.noDuplicates,
+      formats: const [BarcodeFormat.qrCode],
+    );
+  }
+
+  @override
+  void dispose() {
+    _scannerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final translations = ref.watch(i18nBundleProvider);
+    final scheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(translations.translate('pos.ticket.verify.scan_title')),
+        actions: [
+          IconButton(
+            tooltip: translations.translate('pos.ticket.verify.scan_torch'),
+            onPressed: () => unawaited(_scannerController.toggleTorch()),
+            icon: const Icon(Icons.flashlight_on_rounded),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          MobileScanner(
+            controller: _scannerController,
+            onDetect: _handleDetection,
+          ),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: scheme.primary.withValues(alpha: 0.84),
+                    width: 4,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(TchSpacing.s24),
+              color: scheme.surface.withValues(alpha: 0.92),
+              child: Text(
+                translations.translate('pos.ticket.verify.scan_prompt'),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleDetection(BarcodeCapture capture) {
+    if (_resolved) return;
+    String? value;
+    for (final barcode in capture.barcodes) {
+      final candidate = barcode.rawValue?.trim();
+      if (candidate != null && candidate.isNotEmpty) {
+        value = candidate;
+        break;
+      }
+    }
+    if (value == null) return;
+    _resolved = true;
+    Navigator.of(context).pop(value);
   }
 }
 
