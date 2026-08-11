@@ -41,6 +41,8 @@
       "free": "FREE",
       "auto_selection": "automatic selection",
       "seller_selection": "seller selection",
+      "regenerate": "Regenerate",
+      "regenerating": "Regenerating",
       "promotion_applied": "The promotion is applied to this ticket.",
       "terminal_override_applied": "The terminal-specific promotion rule is applied.",
       "approval_required": "This sale requires approval before confirmation.",

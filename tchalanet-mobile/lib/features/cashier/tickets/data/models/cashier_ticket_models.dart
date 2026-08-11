@@ -257,6 +257,8 @@ abstract final class CashierPreparationCopy {
   static const freeKey = 'common.preparation.free';
   static const autoSelectionKey = 'common.preparation.auto_selection';
   static const sellerSelectionKey = 'common.preparation.seller_selection';
+  static const regenerateKey = 'common.preparation.regenerate';
+  static const regeneratingKey = 'common.preparation.regenerating';
   static const genericNoticeKey = 'common.preparation.notice';
 }
 

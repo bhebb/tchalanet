@@ -48,6 +48,22 @@ class CashierTicketService {
     }
   }
 
+  Future<CashierTicketPreviewResponse> regeneratePromotionLine(
+    String preparationId,
+    String lineRef,
+  ) async {
+    try {
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/tenant/sales/preparations/$preparationId/promotion-lines/$lineRef/regenerate',
+      );
+      return CashierTicketPreviewResponse.fromJson(
+        response.data!['data'] as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      throw mapDioException(e);
+    }
+  }
+
   /// Verify a scanned public code or URL for payout readiness.
   Future<CashierTicketVerificationResponse> verify(
     CashierVerifyTicketRequest request,
