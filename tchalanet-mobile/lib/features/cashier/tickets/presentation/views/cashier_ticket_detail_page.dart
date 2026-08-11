@@ -22,9 +22,14 @@ final _ticketDetailProvider =
 
 /// Customer-safe receipt detail shown from the ticket history.
 class CashierTicketDetailPage extends ConsumerWidget {
-  const CashierTicketDetailPage({super.key, required this.ticketId});
+  const CashierTicketDetailPage({
+    super.key,
+    required this.ticketId,
+    this.verification,
+  });
 
   final String ticketId;
+  final CashierTicketVerificationResponse? verification;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,6 +54,7 @@ class CashierTicketDetailPage extends ConsumerWidget {
         data: (detail) => _DetailBody(
           detail: detail,
           ticketId: ticketId,
+          verification: verification,
           translations: translations,
         ),
       ),
@@ -60,11 +66,13 @@ class _DetailBody extends ConsumerWidget {
   const _DetailBody({
     required this.detail,
     required this.ticketId,
+    required this.verification,
     required this.translations,
   });
 
   final CashierTicketDetailsView detail;
   final String ticketId;
+  final CashierTicketVerificationResponse? verification;
   final I18nBundle translations;
 
   @override
@@ -79,6 +87,13 @@ class _DetailBody extends ConsumerWidget {
       children: [
         _ReceiptCard(detail: detail, translations: translations),
         const SizedBox(height: TchSpacing.s16),
+        if (verification != null) ...[
+          _VerificationResultCard(
+            result: verification!,
+            translations: translations,
+          ),
+          const SizedBox(height: TchSpacing.s16),
+        ],
         _ActionButton(
           icon: Icons.print_rounded,
           label: translations.translate('pos.tickets.reprint_confirm'),
@@ -86,6 +101,95 @@ class _DetailBody extends ConsumerWidget {
           onTap: () => requestTicketReprint(context, ref, ticketId),
         ),
       ],
+    );
+  }
+}
+
+class _VerificationResultCard extends StatelessWidget {
+  const _VerificationResultCard({
+    required this.result,
+    required this.translations,
+  });
+
+  final CashierTicketVerificationResponse result;
+  final I18nBundle translations;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    final (bgColor, fgColor, borderColor, icon) = switch (result.severity) {
+      'SUCCESS' => (
+        TchColors.successContainer,
+        TchColors.success,
+        TchColors.successContainer,
+        Icons.check_circle_outline_rounded,
+      ),
+      'WARNING' => (
+        TchColors.warningContainer,
+        TchColors.warning,
+        TchColors.warning,
+        Icons.warning_amber_rounded,
+      ),
+      'ERROR' => (
+        scheme.errorContainer,
+        scheme.onErrorContainer,
+        scheme.error.withValues(alpha: 0.3),
+        Icons.cancel_outlined,
+      ),
+      _ => (
+        scheme.surfaceContainerLow,
+        scheme.onSurface,
+        scheme.outlineVariant,
+        Icons.info_outline_rounded,
+      ),
+    };
+
+    final title = _translateServerKey(
+      translations,
+      result.titleKey,
+      fallback: 'pos.ticket.verify.unknown.title',
+      params: result.params,
+    );
+    final message = _translateServerKey(
+      translations,
+      result.messageKey,
+      fallback: 'pos.ticket.verify.unknown.message',
+      params: result.params,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(TchSpacing.s16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        border: Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(TchRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: fgColor, size: 22),
+              const SizedBox(width: TchSpacing.s8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: textTheme.titleSmall?.copyWith(
+                    color: fgColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (message.isNotEmpty) ...[
+            const SizedBox(height: TchSpacing.s12),
+            Text(message, style: textTheme.bodySmall?.copyWith(color: fgColor)),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -523,4 +627,20 @@ class _ActionButton extends StatelessWidget {
           icon: Icon(icon),
           label: Text(label),
         );
+}
+
+String _translateServerKey(
+  I18nBundle translations,
+  String? key, {
+  required String fallback,
+  Map<String, dynamic>? params,
+}) {
+  final translated = key == null ? fallback : translations.translate(key);
+  final text = translated == key
+      ? translations.translate(fallback)
+      : translated;
+  return (params ?? const {}).entries.fold<String>(
+    text,
+    (current, entry) => current.replaceAll('{${entry.key}}', '${entry.value}'),
+  );
 }

@@ -8,6 +8,7 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalReceiptS
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSettingsView;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalSettingsReaderPort;
 import com.tchalanet.server.core.sellerterminal.internal.application.port.out.SellerTerminalSettingsWriterPort;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -55,9 +56,10 @@ class SellerTerminalSettingsJdbcAdapter
       TenantId tenantId,
       SellerTerminalId sellerTerminalId,
       SellerTerminalSettingsView settings,
-      UserId actorUserId) {
+      @Nullable UserId actorUserId) {
     var receipt = settings.receipt();
     var notifications = settings.notifications();
+    var actorUserValue = actorUserId == null ? null : actorUserId.value();
     jdbc.update(
         """
         INSERT INTO seller_terminal_settings (
@@ -90,8 +92,8 @@ class SellerTerminalSettingsJdbcAdapter
         receipt.adapterPreference(),
         notifications.enabled(),
         notifications.criticalOnly(),
-        actorUserId.value(),
-        actorUserId.value());
+        actorUserValue,
+        actorUserValue);
   }
 
   private static SellerTerminalSettingsView defaults() {

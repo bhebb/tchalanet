@@ -44,8 +44,8 @@ class VerifyController extends Notifier<VerifyState> {
   @override
   VerifyState build() => const VerifyIdle();
 
-  Future<void> verify(String scannedValue) async {
-    if (scannedValue.trim().isEmpty) return;
+  Future<CashierTicketVerificationResponse?> verify(String scannedValue) async {
+    if (scannedValue.trim().isEmpty) return null;
     state = const VerifyInProgress();
     try {
       final result = await ref
@@ -54,8 +54,10 @@ class VerifyController extends Notifier<VerifyState> {
             CashierVerifyTicketRequest(scannedValue: scannedValue.trim()),
           );
       state = VerifyResult(result, scannedValue.trim());
+      return result;
     } catch (e) {
       state = VerifyError(userErrorTranslationKeys(e));
+      return null;
     }
   }
 
@@ -208,6 +210,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
                         onPressed: state.response.ticketId != null
                             ? () => context.push(
                                 '/pos/tickets/${state.response.ticketId}',
+                                extra: state.response,
                               )
                             : null,
                         icon: const Icon(Icons.receipt_long_rounded),
@@ -285,10 +288,16 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     );
   }
 
-  void _verify() {
+  Future<void> _verify() async {
     final value = _controller.text.trim();
     if (value.isEmpty) return;
-    ref.read(verifyControllerProvider.notifier).verify(value);
+    final result = await ref
+        .read(verifyControllerProvider.notifier)
+        .verify(value);
+    if (!mounted) return;
+    final ticketId = result?.ticketId?.trim();
+    if (ticketId == null || ticketId.isEmpty) return;
+    unawaited(context.push('/pos/tickets/$ticketId', extra: result));
   }
 
   Future<void> _scanWithCamera() async {
@@ -301,7 +310,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     final value = scannedValue?.trim();
     if (value == null || value.isEmpty || !mounted) return;
     setState(() => _controller.text = value.toUpperCase());
-    unawaited(ref.read(verifyControllerProvider.notifier).verify(value));
+    unawaited(_verify());
   }
 
   void _applyInitialCode(String? value) {
@@ -310,9 +319,7 @@ class _CashierScanPageState extends ConsumerState<CashierScanPage> {
     _controller.text = code.toUpperCase();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      unawaited(
-        ref.read(verifyControllerProvider.notifier).verify(_controller.text),
-      );
+      unawaited(_verify());
     });
   }
 }
