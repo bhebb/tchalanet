@@ -22,5 +22,8 @@ spring:
     enabled: ${SPRING_FLYWAY_ENABLED:true}
 
 tch:
+  tickets:
+    public:
+      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://test.tchalanet.com}
   us-lottery:
     enabled: ${TCH_US_LOTTERY_ENABLED:false}

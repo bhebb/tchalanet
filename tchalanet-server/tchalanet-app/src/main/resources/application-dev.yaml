@@ -9,7 +9,7 @@ tch:
     public:
       # Base URL for the public ticket verification page (QR target).
       # Override per environment — dev uses the local web app URL.
-      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://api.localtest.me}
+      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://app.localtest.me}
 
 spring:
   main:

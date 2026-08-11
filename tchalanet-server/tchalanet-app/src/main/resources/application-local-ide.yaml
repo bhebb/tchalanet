@@ -30,6 +30,9 @@ spring:
 
 
 tch:
+  tickets:
+    public:
+      base-url: ${TCH_TICKET_PUBLIC_BASE_URL:https://app.localtest.me}
   identity:
     provider: ${TCH_IDENTITY_PROVIDER:firebase}
     firebase:
