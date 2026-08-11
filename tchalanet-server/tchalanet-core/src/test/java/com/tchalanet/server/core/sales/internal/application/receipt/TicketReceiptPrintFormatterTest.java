@@ -149,6 +149,24 @@ class TicketReceiptPrintFormatterTest {
     assertThat(text(content.totals())).contains("TOTAL: 56.00").doesNotContain("Mise:");
   }
 
+  @Test
+  void totalsPrintStakeSubtotalWhenBuyerChargesIncreaseTotal() {
+    var formatter = formatter();
+    var profile = DocumentPrintProfile.of(DocumentFormat.ESC_POS, PaperSize.RECEIPT_58MM);
+
+    var content =
+        formatter.format(
+            receipt(
+                TicketPrintStateStatus.NOT_PRINTED,
+                Locale.FRENCH,
+                List.of(),
+                money("10"),
+                money("11")),
+            profile);
+
+    assertThat(text(content.totals())).contains("Mise: 10.00").contains("TOTAL: 11.00");
+  }
+
   private TicketReceiptPrintFormatter formatter() {
     return formatter(catalog());
   }
