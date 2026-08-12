@@ -3,6 +3,7 @@ package com.tchalanet.server.core.sales.internal.application.receipt.formatter;
 import com.tchalanet.server.core.sales.api.model.receipt.TicketReceiptView;
 import com.tchalanet.server.core.sales.internal.application.receipt.formatter.TicketReceiptI18nResolver.TicketReceiptTranslations;
 import java.util.Locale;
+import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,21 +13,12 @@ public class TicketReceiptDrawIdentityFormatter {
     if (receipt == null) {
       return null;
     }
-    var fullLabel =
-        firstTranslated(
-            translations,
-            key("receipt.draw.identity.", receipt.resultSlotKey()),
-            key("receipt.draw.identity.", receipt.drawChannelCode()));
-    if (fullLabel != null) {
-      return fullLabel;
-    }
-
     var providerCode =
         providerCode(receipt.resultProvider(), receipt.resultSlotKey(), receipt.drawChannelCode());
     var slotCode = slotCode(receipt.resultSlotKey());
     var structured =
         join(
-            firstTranslated(translations, key("receipt.draw.provider.", providerCode)),
+            officialProviderName(providerCode),
             firstTranslated(
                 translations,
                 key("receipt.draw.slot.", receipt.resultSlotKey()),
@@ -72,6 +64,14 @@ public class TicketReceiptDrawIdentityFormatter {
     return parts.length == 0
         ? normalized.toUpperCase(Locale.ROOT)
         : parts[parts.length - 1].toUpperCase(Locale.ROOT);
+  }
+
+  private String officialProviderName(String providerCode) {
+    var code = clean(providerCode);
+    if (code == null) {
+      return null;
+    }
+    return OFFICIAL_PROVIDER_NAMES.getOrDefault(code.toUpperCase(Locale.ROOT), code);
   }
 
   private String join(String left, String right) {
@@ -123,4 +123,22 @@ public class TicketReceiptDrawIdentityFormatter {
     var cleaned = clean(value);
     return cleaned == null ? null : prefix + cleaned.toUpperCase(Locale.ROOT);
   }
+
+  private static final Map<String, String> OFFICIAL_PROVIDER_NAMES =
+      Map.ofEntries(
+          Map.entry("CA", "California"),
+          Map.entry("FL", "Florida"),
+          Map.entry("GA", "Georgia"),
+          Map.entry("IL", "Illinois"),
+          Map.entry("MI", "Michigan"),
+          Map.entry("MN", "Minnesota"),
+          Map.entry("MO", "Missouri"),
+          Map.entry("MS", "Mississippi"),
+          Map.entry("NJ", "New Jersey"),
+          Map.entry("NY", "New York"),
+          Map.entry("OH", "Ohio"),
+          Map.entry("PA", "Pennsylvania"),
+          Map.entry("TN", "Tennessee"),
+          Map.entry("TX", "Texas"),
+          Map.entry("WI", "Wisconsin"));
 }

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
+import '../../../../../core/money/currency_code.dart';
 import '../../../../../core/observability/diagnostic_info.dart';
 import '../../../../../core/observability/diagnostic_repository.dart';
 import '../../../../../design_system/components/components.dart';
@@ -1054,7 +1055,7 @@ String _preparedTotalLabel(
   CashierTicketPreviewResponse result,
 ) =>
     '${translations.translate(CashierPreparationCopy.totalKey)}: '
-    '${result.totalAmount!.toStringAsFixed(2)} ${result.currency ?? ''}';
+    '${result.totalAmount!.toStringAsFixed(2)} ${resolveCurrencyCode(result.currency)}';
 
 String _noticeLabel(I18nBundle translations, CashierPreparationNotice notice) =>
     '• ${translations.translate(notice.translationKey)}';

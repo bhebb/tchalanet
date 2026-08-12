@@ -13,6 +13,7 @@ import '../../../../cashier/home/presentation/views/seller_terminal_nav_bar.dart
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
 import '../print_ticket_action.dart';
+import '../ticket_verification_copy.dart';
 
 final _ticketDetailProvider =
     FutureProvider.family<CashierTicketDetailsView, String>(
@@ -146,13 +147,13 @@ class _VerificationResultCard extends StatelessWidget {
       ),
     };
 
-    final title = _translateServerKey(
+    final title = translateTicketVerificationCopy(
       translations,
       result.titleKey,
       fallback: 'pos.ticket.verify.unknown.title',
       params: result.params,
     );
-    final message = _translateServerKey(
+    final message = translateTicketVerificationCopy(
       translations,
       result.messageKey,
       fallback: 'pos.ticket.verify.unknown.message',
@@ -627,20 +628,4 @@ class _ActionButton extends StatelessWidget {
           icon: Icon(icon),
           label: Text(label),
         );
-}
-
-String _translateServerKey(
-  I18nBundle translations,
-  String? key, {
-  required String fallback,
-  Map<String, dynamic>? params,
-}) {
-  final translated = key == null ? fallback : translations.translate(key);
-  final text = translated == key
-      ? translations.translate(fallback)
-      : translated;
-  return (params ?? const {}).entries.fold<String>(
-    text,
-    (current, entry) => current.replaceAll('{${entry.key}}', '${entry.value}'),
-  );
 }

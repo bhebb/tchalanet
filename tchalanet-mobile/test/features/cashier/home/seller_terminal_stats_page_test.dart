@@ -12,7 +12,9 @@ import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_ti
 import 'package:tchalanet_mobile/features/cashier/tickets/data/services/cashier_ticket_service.dart';
 
 class _FakeCashierTicketService extends CashierTicketService {
-  _FakeCashierTicketService() : super(Dio());
+  _FakeCashierTicketService([this._tickets = _defaultTickets]) : super(Dio());
+
+  final List<CashierTicketSummaryView> _tickets;
 
   @override
   Future<List<CashierTicketSummaryView>> listRecent({
@@ -21,19 +23,22 @@ class _FakeCashierTicketService extends CashierTicketService {
     DateTime? fromDate,
     DateTime? toDate,
     String? drawId,
-  }) async => const [
-    CashierTicketSummaryView(
-      id: 'ticket-id-1',
-      ticketCode: 'TCK-260721-001000-PTC2F4-9',
-      status: 'APPROVED',
-      totalAmountCents: 11200,
-      currency: 'HTG',
-      resultProvider: 'NY',
-      resultSlotKey: 'NY_EVE',
-      drawChannelName: 'Haïti • New York • Evening',
-    ),
-  ];
+  }) async => _tickets;
 }
+
+const _defaultTickets = [
+  CashierTicketSummaryView(
+    id: 'ticket-id-1',
+    ticketCode: 'TCK-260721-001000-PTC2F4-9',
+    status: 'APPROVED',
+    totalAmountCents: 11200,
+    currency: 'HTG',
+    drawId: 'draw-1',
+    resultProvider: 'NY',
+    resultSlotKey: 'NY_EVE',
+    drawChannelName: 'Haïti • New York • Evening',
+  ),
+];
 
 void main() {
   testWidgets(
@@ -125,13 +130,165 @@ void main() {
       // per-draw breakdown starts lower and has to be scrolled to.
       await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pumpAndSettle();
-      expect(find.text('Nouyòk · Aswè'), findsWidgets);
+      expect(find.text('New York · Aswè'), findsWidgets);
 
       await tester.drag(find.byType(ListView), const Offset(0, -400));
       await tester.pumpAndSettle();
       expect(find.text('TCK-260721-001000-PTC2F4-9'), findsOneWidget);
     },
   );
+
+  testWidgets(
+    'reports use ticket draw identity when stats only expose a generic draw label',
+    (tester) async {
+      const drawId = 'draw-fl';
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            i18nBundleProvider.overrideWithValue(
+              const I18nBundle(
+                locale: 'ht',
+                translations: {
+                  'pos.reports.title': 'Rapò vandè',
+                  'pos.reports.today': 'Jodi a',
+                  'pos.reports.yesterday': 'Yè',
+                  'pos.reports.by_draw': 'Pa tiraj',
+                  'pos.reports.all': 'Tout',
+                  'pos.reports.pick_date': 'Chwazi yon dat',
+                  'pos.reports.other_date': 'Yon lòt dat',
+                  'pos.reports.draw': 'Tiraj',
+                  'pos.dashboard.home': 'Akèy',
+                  'pos.dashboard.history': 'Istorik',
+                  'pos.dashboard.results': 'Rezilta',
+                  'pos.dashboard.reports': 'Rapò',
+                  'common.cashier_stats.total': 'Total',
+                  'common.cashier_stats.sales_today': 'Vant jodi a',
+                  'common.cashier_stats.tickets': 'Tikè',
+                  'common.cashier_stats.commission_today': 'Komisyon jodi a',
+                  'pos.draw.slots.evening': 'Aswè',
+                },
+              ),
+            ),
+            terminalStatsByDateProvider.overrideWith(
+              (ref, date) async => const TerminalDailyStats(
+                available: true,
+                trustState: 'READY',
+                trustReasonCode: 'analytics.trust.ready',
+                ticketCount: 1,
+                salesTotalCents: 2700,
+                sellerCommissionTotalCents: 0,
+                currency: 'HTG',
+                breakdown: [
+                  DrawStatLine(
+                    drawId: drawId,
+                    channelLabel: 'Tiraj',
+                    ticketCount: 1,
+                    totalCents: 2700,
+                  ),
+                ],
+              ),
+            ),
+            availableDrawsProvider.overrideWith(
+              (ref) async => const <CashierAvailableDrawView>[],
+            ),
+            cashierTicketServiceProvider.overrideWithValue(
+              _FakeCashierTicketService(const [
+                CashierTicketSummaryView(
+                  id: 'ticket-fl-1',
+                  ticketCode: 'TCK-FL-1',
+                  status: 'APPROVED',
+                  totalAmountCents: 2700,
+                  currency: 'HTG',
+                  drawId: drawId,
+                  resultProvider: 'FL',
+                  resultSlotKey: 'FL_EVE',
+                  drawChannelName: 'Haïti • Florida • Evening',
+                ),
+              ]),
+            ),
+          ],
+          child: const MaterialApp(home: SellerTerminalStatsPage()),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Florida · Aswè'), findsWidgets);
+    },
+  );
+
+  testWidgets('reports keep a stable code instead of a generic draw label', (
+    tester,
+  ) async {
+    const drawId = 'HT_FL_EVE';
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          i18nBundleProvider.overrideWithValue(
+            const I18nBundle(
+              locale: 'ht',
+              translations: {
+                'pos.reports.title': 'Rapò vandè',
+                'pos.reports.today': 'Jodi a',
+                'pos.reports.yesterday': 'Yè',
+                'pos.reports.by_draw': 'Pa tiraj',
+                'pos.reports.all': 'Tout',
+                'pos.reports.pick_date': 'Chwazi yon dat',
+                'pos.reports.other_date': 'Yon lòt dat',
+                'pos.reports.draw': 'Tiraj',
+                'pos.dashboard.home': 'Akèy',
+                'pos.dashboard.history': 'Istorik',
+                'pos.dashboard.results': 'Rezilta',
+                'pos.dashboard.reports': 'Rapò',
+                'common.cashier_stats.total': 'Total',
+                'common.cashier_stats.sales_today': 'Vant jodi a',
+                'common.cashier_stats.tickets': 'Tikè',
+                'common.cashier_stats.commission_today': 'Komisyon jodi a',
+              },
+            ),
+          ),
+          terminalStatsByDateProvider.overrideWith(
+            (ref, date) async => const TerminalDailyStats(
+              available: true,
+              trustState: 'READY',
+              trustReasonCode: 'analytics.trust.ready',
+              ticketCount: 1,
+              salesTotalCents: 2700,
+              sellerCommissionTotalCents: 0,
+              currency: 'HTG',
+              breakdown: [
+                DrawStatLine(
+                  drawId: drawId,
+                  channelLabel: 'Tiraj',
+                  ticketCount: 1,
+                  totalCents: 2700,
+                ),
+              ],
+            ),
+          ),
+          availableDrawsProvider.overrideWith(
+            (ref) async => const <CashierAvailableDrawView>[],
+          ),
+          cashierTicketServiceProvider.overrideWithValue(
+            _FakeCashierTicketService(const []),
+          ),
+        ],
+        child: const MaterialApp(home: SellerTerminalStatsPage()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(ListView), const Offset(0, -200));
+    await tester.pumpAndSettle();
+
+    expect(find.text(drawId), findsWidgets);
+  });
 
   testWidgets('a report can be opened on a date older than yesterday', (
     tester,

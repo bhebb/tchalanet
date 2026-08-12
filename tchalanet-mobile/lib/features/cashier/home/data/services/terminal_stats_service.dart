@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/money/currency_code.dart';
 import '../../../../../core/network/api_client.dart'
     show apiClientProvider, mapDioException;
 
@@ -76,7 +77,7 @@ class TerminalDailyStats {
         ticketCount: (json['ticketCount'] as num?)?.toInt() ?? 0,
         salesTotalCents: (json['salesTotalCents'] as num?)?.toInt() ?? 0,
         sellerCommissionTotalCents: _sellerCommissionTotalCents(json),
-        currency: json['currency'] as String? ?? 'HTG',
+        currency: resolveCurrencyCode(json['currency'] as String?),
         breakdown:
             (json['breakdown'] as List<dynamic>?)
                 ?.map((e) => DrawStatLine.fromJson(e as Map<String, dynamic>))
@@ -91,7 +92,7 @@ class TerminalDailyStats {
     ticketCount: 0,
     salesTotalCents: 0,
     sellerCommissionTotalCents: 0,
-    currency: currency,
+    currency: resolveCurrencyCode(currency),
   );
 }
 

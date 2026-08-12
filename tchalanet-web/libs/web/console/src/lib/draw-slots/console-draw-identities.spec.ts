@@ -74,6 +74,18 @@ describe('consoleDrawIdentity', () => {
     expect(identity.channelName).toBe('New York · Numbers');
   });
 
+  it('keeps official provider names even when the API sends a localized providerName', () => {
+    const identity = consoleDrawIdentity({
+      providerCode: 'TX',
+      providerName: 'Teksas',
+      slotKey: 'TX_LATE',
+      channelCode: 'TX_LATE',
+    });
+
+    expect(identity.providerName).toBe('Texas');
+    expect(identity.channelName).toBe('Texas · Late');
+  });
+
   it('uses the Wisconsin Lottery provider logo for Wisconsin draws', () => {
     const identity = consoleDrawIdentity({
       providerCode: 'WI',
@@ -158,7 +170,9 @@ describe('consoleDrawIdentity', () => {
 describe('lottery asset helpers', () => {
   it('keeps compatibility helper behavior for provider and slot assets', () => {
     expect(consoleLotteryProviderCodeFromSlot('ny-middaynumbers')).toBe('NY');
-    expect(consoleLotterySlotLogoUrl('ny-middaynumbers')).toContain('/assets/images/lottery/ny_pick3.svg');
+    expect(consoleLotterySlotLogoUrl('ny-middaynumbers')).toContain(
+      '/assets/images/lottery/ny_pick3.svg',
+    );
   });
 });
 

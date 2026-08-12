@@ -299,6 +299,10 @@ class _StatsBody extends StatelessWidget {
     final filtered = drawFilter == null
         ? stats.breakdown
         : stats.breakdown.where((b) => b.drawId == drawFilter).toList();
+    final reportTickets = switch (reportTicketsAsync) {
+      AsyncData(:final value) => value,
+      _ => const <CashierTicketSummaryView>[],
+    };
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -348,6 +352,7 @@ class _StatsBody extends StatelessWidget {
           _DrawFilterChips(
             breakdown: stats.breakdown,
             availableDraws: availableDraws,
+            reportTickets: reportTickets,
             translations: translations,
             selected: drawFilter,
             onSelected: onDrawFilter,
@@ -358,6 +363,7 @@ class _StatsBody extends StatelessWidget {
             _DrawStatRow(
               line: line,
               availableDraws: availableDraws,
+              reportTickets: reportTickets,
               translations: translations,
               currency: stats.currency,
               ticketLabel: translations.translate(
@@ -416,6 +422,7 @@ class _DrawFilterChips extends StatelessWidget {
   const _DrawFilterChips({
     required this.breakdown,
     required this.availableDraws,
+    required this.reportTickets,
     required this.translations,
     required this.selected,
     required this.onSelected,
@@ -424,6 +431,7 @@ class _DrawFilterChips extends StatelessWidget {
 
   final List<DrawStatLine> breakdown;
   final List<CashierAvailableDrawView> availableDraws;
+  final List<CashierTicketSummaryView> reportTickets;
   final I18nBundle translations;
   final String? selected;
   final ValueChanged<String?> onSelected;
@@ -443,7 +451,14 @@ class _DrawFilterChips extends StatelessWidget {
           for (final line in breakdown) ...[
             const SizedBox(width: TchSpacing.s8),
             FilterChip(
-              label: Text(_reportDrawLabel(line, availableDraws, translations)),
+              label: Text(
+                _reportDrawLabel(
+                  line,
+                  availableDraws,
+                  reportTickets,
+                  translations,
+                ),
+              ),
               selected: selected == line.drawId,
               onSelected: (_) =>
                   onSelected(selected == line.drawId ? null : line.drawId),
@@ -459,6 +474,7 @@ class _DrawStatRow extends StatelessWidget {
   const _DrawStatRow({
     required this.line,
     required this.availableDraws,
+    required this.reportTickets,
     required this.translations,
     required this.currency,
     required this.ticketLabel,
@@ -467,6 +483,7 @@ class _DrawStatRow extends StatelessWidget {
 
   final DrawStatLine line;
   final List<CashierAvailableDrawView> availableDraws;
+  final List<CashierTicketSummaryView> reportTickets;
   final I18nBundle translations;
   final String currency;
   final String ticketLabel;
@@ -476,7 +493,12 @@ class _DrawStatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final label = _reportDrawLabel(line, availableDraws, translations);
+    final label = _reportDrawLabel(
+      line,
+      availableDraws,
+      reportTickets,
+      translations,
+    );
     final radius = BorderRadius.circular(TchRadius.md);
 
     return Container(
@@ -650,6 +672,7 @@ class _ReportTicketRow extends StatelessWidget {
 String _reportDrawLabel(
   DrawStatLine line,
   List<CashierAvailableDrawView> availableDraws,
+  List<CashierTicketSummaryView> reportTickets,
   I18nBundle translations,
 ) {
   final label = line.channelLabel.trim();
@@ -663,8 +686,35 @@ String _reportDrawLabel(
   if (matchingDraw != null) {
     return localizedCashierDrawLabel(matchingDraw, translations);
   }
-  if (label.isNotEmpty && !_looksLikeTechnicalId(label)) return label;
-  return translations.translate('pos.reports.draw');
+  final matchingTicket = reportTickets
+      .where((ticket) => ticket.drawId != null && ticket.drawId == line.drawId)
+      .firstOrNull;
+  if (matchingTicket != null) {
+    return localizedDrawIdentityLabel(
+      providerCode: matchingTicket.resultProvider,
+      slotKey: matchingTicket.resultSlotKey,
+      fallback: matchingTicket.drawLabel,
+      translations: translations,
+    );
+  }
+  if (label.isNotEmpty &&
+      !_looksLikeTechnicalId(label) &&
+      !_isGenericDrawLabel(label, translations)) {
+    return label;
+  }
+  return line.drawId.isNotEmpty ? line.drawId : label;
+}
+
+bool _isGenericDrawLabel(String value, I18nBundle translations) {
+  final cleaned = value.trim().toLowerCase();
+  final translated = translations
+      .translate('pos.reports.draw')
+      .trim()
+      .toLowerCase();
+  return cleaned == 'draw' ||
+      cleaned == 'tiraj' ||
+      cleaned == 'tirage' ||
+      (translated.isNotEmpty && cleaned == translated);
 }
 
 bool _looksLikeTechnicalId(String value) => RegExp(

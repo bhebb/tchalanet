@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/i18n_models.dart';
 import '../../../../core/i18n/i18n_repository.dart';
+import '../../../../core/i18n/provider_identity_label.dart';
 import '../../../../design_system/components/components.dart';
 import '../../../../design_system/tokens/tch_spacing.dart';
 import '../../../cashier/home/presentation/views/seller_terminal_nav_bar.dart';
@@ -289,9 +290,8 @@ class _ResultFilterSelection {
 }
 
 String _providerLabel(String providerCode, I18nBundle translations) {
-  final translationKey = 'pos.draw.providers.${providerCode.toLowerCase()}';
-  final providerName = translations.translate(translationKey);
-  return providerName == translationKey
+  final providerName = officialProviderName(providerCode);
+  return providerName == providerCode
       ? providerCode
       : '$providerCode · $providerName';
 }

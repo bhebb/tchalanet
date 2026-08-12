@@ -164,6 +164,7 @@ class TicketReceiptPrintFormatterTest {
         .contains("Adrès prensipal")
         .contains("Tèminal: TCH-G2PYN7")
         .doesNotContain("Kòd piblik");
+    assertThat(String.join("\n", content.bodyLines())).contains("Georgia").doesNotContain("Jòji");
     assertThat(sectionText).contains("Loto 4 chif").doesNotContain("Loto 4 chiffres");
     assertThat(text(content.footerLines())).contains("Verifikasyon: HE1E-EQYJ");
   }

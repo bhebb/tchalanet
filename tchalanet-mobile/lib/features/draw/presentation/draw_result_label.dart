@@ -1,3 +1,4 @@
+import '../../../core/i18n/draw_identity_label.dart';
 import '../../../core/i18n/i18n_models.dart';
 import '../data/models/draw_models.dart';
 
@@ -30,7 +31,8 @@ DrawResultDisplayQuality? drawResultDisplayQuality(String? quality) {
   };
 }
 
-/// Translates stable result slot/provider identifiers for seller-facing views.
+/// Resolves stable result identifiers for seller-facing views. Provider names
+/// stay official while slot labels follow the active locale.
 /// The server label remains a fallback for catalog entries unknown to this client.
 String localizedPublicDrawResultLabel(
   String providerCode,
@@ -38,11 +40,12 @@ String localizedPublicDrawResultLabel(
   String fallback,
   I18nBundle translations,
 ) {
-  final providerKey = 'pos.draw.providers.${providerCode.toLowerCase()}';
-  final provider = translations.translate(providerKey);
-  final slot = _slotLabel(slotKey, translations);
-  if (provider == providerKey || slot == null) return fallback;
-  return '$provider · $slot';
+  return localizedDrawIdentityLabel(
+    providerCode: providerCode,
+    slotKey: slotKey,
+    fallback: fallback,
+    translations: translations,
+  );
 }
 
 String localizedPublicDrawResultRowLabel(
@@ -64,19 +67,3 @@ String localizedPublicDrawResultSlotLabel(
   slot.label,
   translations,
 );
-
-String? _slotLabel(String slotKey, I18nBundle translations) {
-  final normalized = slotKey.toLowerCase();
-  final key = switch (normalized) {
-    final key when key.contains('mid') => 'midday',
-    final key when key.contains('eve') => 'evening',
-    final key when key.contains('morning') => 'morning',
-    final key when key.contains('late') => 'late',
-    final key when key.contains('day') => 'day',
-    _ => null,
-  };
-  if (key == null) return null;
-  final translationKey = 'pos.draw.slots.$key';
-  final label = translations.translate(translationKey);
-  return label == translationKey ? null : label;
-}

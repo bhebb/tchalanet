@@ -1,7 +1,4 @@
-import {
-  TCH_LOTTERY_ASSET_BASE_PATH,
-  TCH_LOTTERY_LOGO_ASSET_BASE_PATH,
-} from '@tch/shared-assets';
+import { TCH_LOTTERY_ASSET_BASE_PATH, TCH_LOTTERY_LOGO_ASSET_BASE_PATH } from '@tch/shared-assets';
 
 import { ConsoleDrawSlotIdentity } from './console-draw-slot-identity.models';
 
@@ -179,11 +176,17 @@ export function consoleDrawIdentity(input: ConsoleDrawIdentityInput): ConsoleDra
     shortName: input.channelShortName,
     slotKey: input.slotKey,
   });
-  const title = firstText(input.channelShortName, channel.shortLabel, input.slotLabel, slot.shortLabel, input.fallbackTitle);
+  const title = firstText(
+    input.channelShortName,
+    channel.shortLabel,
+    input.slotLabel,
+    slot.shortLabel,
+    input.fallbackTitle,
+  );
 
   return {
     providerCode: channel.providerCode ?? slot.providerCode,
-    providerName: firstText(input.providerName, channel.providerLongLabel, slot.providerLongLabel),
+    providerName: firstText(channel.providerLongLabel, slot.providerLongLabel, input.providerName),
     providerShortName: channel.providerShortLabel ?? slot.providerShortLabel,
     providerLogoUrl: channel.providerLogoUrl ?? slot.providerLogoUrl,
     logoText: channel.logoText || slot.logoText,
@@ -201,12 +204,23 @@ export function consoleDrawIdentity(input: ConsoleDrawIdentityInput): ConsoleDra
   };
 }
 
-export function consoleDrawChannelIdentity(input: ConsoleDrawChannelIdentityInput): ConsoleDrawChannelIdentity {
+export function consoleDrawChannelIdentity(
+  input: ConsoleDrawChannelIdentityInput,
+): ConsoleDrawChannelIdentity {
   const providerCode = providerCodeFrom(input.providerCode, input.slotKey, input.code);
   const code = clean(input.code);
-  const shortLabel = firstText(input.shortName, channelLabelFromCode(code), code, input.name, providerCode, 'Tirage') ?? 'Tirage';
+  const shortLabel =
+    firstText(
+      input.shortName,
+      channelLabelFromCode(code),
+      code,
+      input.name,
+      providerCode,
+      'Tirage',
+    ) ?? 'Tirage';
   const providerLongLabel = providerLabel(providerCode, input.providerName);
-  const longLabel = firstText(joinLabels(providerLongLabel, shortLabel), input.name, shortLabel) ?? shortLabel;
+  const longLabel =
+    firstText(joinLabels(providerLongLabel, shortLabel), input.name, shortLabel) ?? shortLabel;
 
   return {
     code,
@@ -221,16 +235,21 @@ export function consoleDrawChannelIdentity(input: ConsoleDrawChannelIdentityInpu
   };
 }
 
-export function consoleResultSlotIdentity(input: ConsoleResultSlotIdentityInput): ConsoleResultSlotIdentity {
+export function consoleResultSlotIdentity(
+  input: ConsoleResultSlotIdentityInput,
+): ConsoleResultSlotIdentity {
   const slotKey = clean(input.slotKey);
   const providerCode = providerCodeFrom(input.providerCode, slotKey);
-  const slotShortLabel = firstText(input.slotLabel, slotLabelFromKey(slotKey), slotKey, providerCode, 'Slot') ?? 'Slot';
+  const slotShortLabel =
+    firstText(input.slotLabel, slotLabelFromKey(slotKey), slotKey, providerCode, 'Slot') ?? 'Slot';
   const providerLongLabel = providerLabel(providerCode, input.providerName);
 
   return {
     slotKey,
     shortLabel: slotShortLabel,
-    longLabel: firstText(input.slotLabel, joinLabels(providerLongLabel, slotShortLabel), slotShortLabel) ?? slotShortLabel,
+    longLabel:
+      firstText(input.slotLabel, joinLabels(providerLongLabel, slotShortLabel), slotShortLabel) ??
+      slotShortLabel,
     providerCode,
     providerShortLabel: providerCode,
     providerLongLabel,
@@ -248,7 +267,9 @@ export function consoleResultSlotIdentity(input: ConsoleResultSlotIdentityInput)
  */
 export function consoleDrawSlotLocalLabel(identity: ConsoleDrawSlotIdentity): string | null {
   const showLocalDate = Boolean(
-    identity.localDateLabel && identity.providerDateLabel && identity.localDateLabel !== identity.providerDateLabel,
+    identity.localDateLabel &&
+      identity.providerDateLabel &&
+      identity.localDateLabel !== identity.providerDateLabel,
   );
   const dateTime = [showLocalDate ? identity.localDateLabel : null, identity.localTimeLabel]
     .filter(Boolean)
@@ -297,9 +318,8 @@ function providerCodeFromStructuredCode(value?: string | null): string | null {
 }
 
 function providerLabel(providerCode?: string | null, explicit?: string | null): string | null {
-  const explicitLabel = clean(explicit);
-  if (explicitLabel && explicitLabel.toUpperCase() !== providerCode) return explicitLabel;
-  return providerCode ? PROVIDER_LABELS[providerCode] ?? providerCode : null;
+  if (providerCode) return PROVIDER_LABELS[providerCode] ?? providerCode;
+  return clean(explicit);
 }
 
 function slotLabelFromKey(slotKey?: string | null): string | null {
@@ -316,8 +336,10 @@ function channelLabelFromCode(code?: string | null): string | null {
   if (!normalized) return null;
   if (normalized.includes('numbers')) return 'Numbers';
   if (normalized.includes('win4')) return 'Win 4';
-  if (normalized.includes('pick3') || normalized.includes('cash3') || normalized.includes('daily3')) return 'Pick 3';
-  if (normalized.includes('pick4') || normalized.includes('cash4') || normalized.includes('daily4')) return 'Pick 4';
+  if (normalized.includes('pick3') || normalized.includes('cash3') || normalized.includes('daily3'))
+    return 'Pick 3';
+  if (normalized.includes('pick4') || normalized.includes('cash4') || normalized.includes('daily4'))
+    return 'Pick 4';
   return slotLabelFromKey(normalized);
 }
 
@@ -343,8 +365,10 @@ function providerLogoUrl(providerCode?: string | null): string | null {
 }
 
 function inferChannelAsset(value: string): string | null {
-  if (value.includes('pick3') || value.includes('cash3') || value.includes('daily3')) return 'pick3-logo.png';
-  if (value.includes('pick4') || value.includes('cash4') || value.includes('daily4')) return 'pick4-logo.png';
+  if (value.includes('pick3') || value.includes('cash3') || value.includes('daily3'))
+    return 'pick3-logo.png';
+  if (value.includes('pick4') || value.includes('cash4') || value.includes('daily4'))
+    return 'pick4-logo.png';
   if (value.includes('numbers')) return 'logo-numbers.png.webp';
   if (value.includes('win4')) return 'logo-win4.png.webp';
   return null;

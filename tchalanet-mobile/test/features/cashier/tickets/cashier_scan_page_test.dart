@@ -7,6 +7,7 @@ import 'package:tchalanet_mobile/core/i18n/i18n_models.dart';
 import 'package:tchalanet_mobile/core/i18n/i18n_repository.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/data/models/cashier_ticket_models.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/data/services/cashier_ticket_service.dart';
+import 'package:tchalanet_mobile/features/cashier/tickets/presentation/ticket_verification_copy.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/presentation/views/cashier_scan_page.dart';
 import 'package:tchalanet_mobile/features/cashier/tickets/presentation/views/cashier_ticket_detail_page.dart';
 
@@ -49,6 +50,55 @@ void main() {
       expect(container.read(verifyControllerProvider), isA<VerifyResult>());
     },
   );
+
+  test('ticket verification copy keeps Haitian labels for server keys', () {
+    const translations = I18nBundle(
+      locale: 'ht',
+      translations: {
+        'pos.ticket.verify.not_payable_lost.title': 'Ticket non gagnant',
+        'pos.ticket.verify.not_payable_lost.message':
+            "Ce ticket n'est pas payable.",
+      },
+    );
+
+    expect(
+      translateTicketVerificationCopy(
+        translations,
+        'pos.ticket.verify.not_payable_lost.title',
+        fallback: 'pos.ticket.verify.unknown.title',
+      ),
+      'Tikè pa genyen',
+    );
+    expect(
+      translateTicketVerificationCopy(
+        translations,
+        'pos.ticket.verify.not_payable_lost.message',
+        fallback: 'pos.ticket.verify.unknown.message',
+      ),
+      'Tikè sa a pa genyen.',
+    );
+  });
+
+  test('ticket verification copy maps legacy French literals to Haitian', () {
+    const translations = I18nBundle(locale: 'ht', translations: {});
+
+    expect(
+      translateTicketVerificationCopy(
+        translations,
+        'Ticket non gagnant',
+        fallback: 'pos.ticket.verify.unknown.title',
+      ),
+      'Tikè pa genyen',
+    );
+    expect(
+      translateTicketVerificationCopy(
+        translations,
+        "Ce ticket n'est pas payable.",
+        fallback: 'pos.ticket.verify.unknown.message',
+      ),
+      'Tikè sa a pa genyen.',
+    );
+  });
 
   testWidgets('ticket detail page shows verification result before actions', (
     tester,

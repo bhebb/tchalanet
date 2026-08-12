@@ -14,6 +14,7 @@ import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../data/models/cashier_ticket_models.dart';
 import '../../data/services/cashier_ticket_service.dart';
+import '../ticket_verification_copy.dart';
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -364,13 +365,13 @@ class _VerifyResultCard extends StatelessWidget {
       ),
     };
 
-    final title = _translateServerKey(
+    final title = translateTicketVerificationCopy(
       translations,
       result.titleKey,
       fallback: 'pos.ticket.verify.unknown.title',
       params: result.params,
     );
-    final message = _translateServerKey(
+    final message = translateTicketVerificationCopy(
       translations,
       result.messageKey,
       fallback: 'pos.ticket.verify.unknown.message',
@@ -552,22 +553,6 @@ String _translateError(I18nBundle translations, List<String> keys) {
     if (translated != key) return translated;
   }
   return translations.translate('common.error.unknown');
-}
-
-String _translateServerKey(
-  I18nBundle translations,
-  String? key, {
-  required String fallback,
-  Map<String, dynamic>? params,
-}) {
-  final translated = key == null ? fallback : translations.translate(key);
-  final text = translated == key
-      ? translations.translate(fallback)
-      : translated;
-  return (params ?? const {}).entries.fold<String>(
-    text,
-    (current, entry) => current.replaceAll('{${entry.key}}', '${entry.value}'),
-  );
 }
 
 // ─── Formatter ────────────────────────────────────────────────────────────────

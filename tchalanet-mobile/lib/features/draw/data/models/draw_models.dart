@@ -122,7 +122,7 @@ class PublicDrawResultSlot {
 }
 
 /// One completed result. Server labels are retained as an accessibility fallback;
-/// seller-facing screens resolve provider and slot codes through local i18n first.
+/// Seller-facing screens keep provider names official and localize slot labels.
 class PublicDrawResultRow {
   const PublicDrawResultRow({
     required this.drawResultId,

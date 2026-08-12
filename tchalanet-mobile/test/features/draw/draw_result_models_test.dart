@@ -79,7 +79,7 @@ void main() {
     expect(drawResultDisplayQuality(null), isNull);
   });
 
-  test('result labels resolve provider and slot in the active locale', () {
+  test('result labels keep official provider names and localize slots', () {
     final label = localizedPublicDrawResultLabel(
       'NY',
       'NY_MID',
@@ -87,10 +87,10 @@ void main() {
       haitianCreole,
     );
 
-    expect(label, 'Nouyòk · Midi');
+    expect(label, 'New York · Midi');
   });
 
-  test('unknown result slots retain the safe server display fallback', () {
+  test('unknown result slots retain stable display codes', () {
     final label = localizedPublicDrawResultLabel(
       'ZZ',
       'ZZ_UNKNOWN',
@@ -98,6 +98,6 @@ void main() {
       haitianCreole,
     );
 
-    expect(label, 'Unknown provider · Unknown slot');
+    expect(label, 'ZZ · UNKNOWN');
   });
 }
