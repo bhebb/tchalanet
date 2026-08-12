@@ -42,6 +42,56 @@ export interface DrawChannelSlotConfigView {
   readonly saleReadyGameCount?: number;
 }
 
+export type DrawChannelSource =
+  | 'SYSTEM'
+  | 'AUTO'
+  | 'EXTERNAL'
+  | 'US_LOTTERY'
+  | 'NY_OPEN_DATA'
+  | 'FL_APIM'
+  | 'MANUAL'
+  | 'ADMIN_OVERRIDE';
+
+export type DrawChannelWeekDay =
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY'
+  | 'SUNDAY';
+
+export interface DrawChannelDetailView {
+  readonly id: string;
+  readonly code: string;
+  readonly name: string;
+  readonly label?: string | null;
+  readonly timezone?: string | null;
+  readonly drawTime?: string | null;
+  readonly cutoffSec?: number | null;
+  readonly daysOfWeek?: readonly DrawChannelWeekDay[] | null;
+  readonly active: boolean;
+  readonly sortOrder?: number | null;
+  readonly period?: string | null;
+  readonly notes?: string | null;
+  readonly resultSlotId?: string | null;
+  readonly defaultSource?: DrawChannelSource | null;
+}
+
+export interface UpdateTenantDrawChannelRequest {
+  readonly name: string;
+  readonly label?: string | null;
+  readonly timezone?: string | null;
+  readonly drawTime?: string | null;
+  readonly cutoffSec?: number | null;
+  readonly daysOfWeek?: readonly DrawChannelWeekDay[] | null;
+  readonly active: boolean;
+  readonly sortOrder?: number | null;
+  readonly period?: string | null;
+  readonly notes?: string | null;
+  readonly defaultSource?: DrawChannelSource | null;
+}
+
 export interface DrawChannelProviderReadinessView {
   readonly status: 'READY' | 'TODO' | 'WARNING' | 'BLOCKED';
   readonly label: string;

@@ -93,6 +93,7 @@
           <tch-draw-channel-provider-card
             [provider]="provider"
             [savingChannelId]="savingChannelId()"
+            (configureChannel)="openChannelConfig($event)"
             (toggleChannelEnabled)="toggleChannelEnabled($event.slot, $event.enabled)"
           />
         }

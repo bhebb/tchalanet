@@ -39,6 +39,7 @@
             [slot]="slot"
             [index]="i"
             [saving]="savingChannelId() === slot.channelId"
+            (configure)="configureChannel.emit($event)"
             (toggleEnabled)="toggleChannelEnabled.emit({ slot, enabled: $event })"
           />
         }

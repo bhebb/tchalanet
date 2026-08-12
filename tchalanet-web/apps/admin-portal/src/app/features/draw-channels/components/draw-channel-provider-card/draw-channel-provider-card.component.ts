@@ -50,6 +50,7 @@ export class DrawChannelProviderCardComponent {
   readonly provider = input.required<DrawChannelProviderView>();
   readonly savingChannelId = input<string | null>(null);
 
+  readonly configureChannel = output<DrawChannelSlotConfigView>();
   readonly toggleChannelEnabled = output<{ slot: DrawChannelSlotConfigView; enabled: boolean }>();
 
   readonly statusTone  = computed<AdminStatusTone>(() => STATUS_TONE[this.provider().tenantStatus]);

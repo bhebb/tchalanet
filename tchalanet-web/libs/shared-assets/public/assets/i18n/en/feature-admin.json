@@ -1592,7 +1592,34 @@
         "saved": "{{provider}} configuration saved."
       },
       "config": {
-        "title": "Configure {{provider}}",
+        "title": "Configure {{name}}",
+        "loading": "Loading channel configuration...",
+        "code": "Channel code",
+        "resultSlot": "Result slot",
+        "name": "Display name",
+        "timezone": "Timezone",
+        "drawTime": "Draw time",
+        "cutoffSec": "Sales close before draw (seconds)",
+        "daysOfWeek": "Open days",
+        "defaultSource": "Default result source",
+        "noSource": "No source configured",
+        "period": "Period",
+        "notes": "Notes",
+        "active": "Channel active for this operator",
+        "error": {
+          "load": "The channel configuration could not be loaded.",
+          "save": "The channel configuration could not be saved."
+        },
+        "source": {
+          "SYSTEM": "System",
+          "AUTO": "Automatic",
+          "EXTERNAL": "External",
+          "US_LOTTERY": "US Lottery",
+          "NY_OPEN_DATA": "NY Open Data",
+          "FL_APIM": "Florida APIM",
+          "MANUAL": "Manual",
+          "ADMIN_OVERRIDE": "Admin override"
+        },
         "description": "Adjust result mode, sales hours, and active draw slots.",
         "section": {
           "provider": "Provider",
@@ -1611,6 +1638,15 @@
           "MANUAL": "Manual entry",
           "UNCONFIGURED": "To define"
         }
+      },
+      "days": {
+        "MONDAY": "Monday",
+        "TUESDAY": "Tuesday",
+        "WEDNESDAY": "Wednesday",
+        "THURSDAY": "Thursday",
+        "FRIDAY": "Friday",
+        "SATURDAY": "Saturday",
+        "SUNDAY": "Sunday"
       },
       "sourceError": {
         "title": "Result source unavailable",

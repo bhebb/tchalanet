@@ -1,0 +1,114 @@
+<h2 mat-dialog-title>{{ 'admin.drawChannels.config.title' | translate: { name: title } }}</h2>
+
+<mat-dialog-content class="dc-config">
+  @if (loading()) {
+    <div class="dc-config__loading">
+      <mat-spinner diameter="32" />
+      <span>{{ 'admin.drawChannels.config.loading' | translate }}</span>
+    </div>
+  } @else if (detail(); as d) {
+    <div class="dc-config__readonly">
+      <span>{{ 'admin.drawChannels.config.code' | translate }}: <strong>{{ d.code }}</strong></span>
+      @if (d.resultSlotId) {
+        <span>{{ 'admin.drawChannels.config.resultSlot' | translate }}: <strong>{{ d.resultSlotId }}</strong></span>
+      }
+    </div>
+
+    @if (errorKey(); as key) {
+      <p class="dc-config__error">{{ key | translate }}</p>
+    }
+
+    <div class="dc-config__grid">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.drawChannels.config.name' | translate }}</mat-label>
+        <input
+          matInput
+          [value]="form().name"
+          (input)="patchForm({ name: $any($event.target).value })"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.drawChannels.config.timezone' | translate }}</mat-label>
+        <input
+          matInput
+          [value]="form().timezone"
+          (input)="patchForm({ timezone: $any($event.target).value })"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.drawChannels.config.drawTime' | translate }}</mat-label>
+        <input
+          matInput
+          type="time"
+          [value]="form().drawTime"
+          (input)="patchForm({ drawTime: $any($event.target).value })"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.drawChannels.config.cutoffSec' | translate }}</mat-label>
+        <input
+          matInput
+          type="number"
+          min="0"
+          step="30"
+          [value]="form().cutoffSec ?? ''"
+          (input)="patchForm({ cutoffSec: parseNumber($any($event.target).value) })"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.drawChannels.config.daysOfWeek' | translate }}</mat-label>
+        <mat-select
+          multiple
+          [value]="form().daysOfWeek"
+          (selectionChange)="patchForm({ daysOfWeek: $event.value })"
+        >
+          @for (day of weekDays; track day) {
+            <mat-option [value]="day">{{ ('admin.drawChannels.days.' + day) | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+    </div>
+
+    <mat-form-field appearance="outline" class="dc-config__full">
+      <mat-label>{{ 'admin.drawChannels.config.period' | translate }}</mat-label>
+      <input
+        matInput
+        [value]="form().period"
+        (input)="patchForm({ period: $any($event.target).value })"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="dc-config__full">
+      <mat-label>{{ 'admin.drawChannels.config.notes' | translate }}</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        [value]="form().notes"
+        (input)="patchForm({ notes: $any($event.target).value })"
+      ></textarea>
+    </mat-form-field>
+
+    <mat-checkbox
+      [checked]="form().active"
+      (change)="patchForm({ active: $event.checked })"
+    >
+      {{ 'admin.drawChannels.config.active' | translate }}
+    </mat-checkbox>
+  } @else if (errorKey(); as key) {
+    <p class="dc-config__error">{{ key | translate }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="saving()">
+    {{ 'common.cancel' | translate }}
+  </button>
+  <button mat-flat-button color="primary" [disabled]="loading() || saving()" (click)="save()">
+    {{ (saving() ? 'common.saving' : 'common.save') | translate }}
+  </button>
+</mat-dialog-actions>

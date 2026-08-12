@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.dc-config {
+  display: grid;
+  gap: 16px;
+  min-width: min(520px, 82vw);
+  padding-top: 4px;
+}
+
+.dc-config__loading {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  min-height: 104px;
+}
+
+.dc-config__readonly {
+  border: 1px solid var(--tch-color-outline-variant, #ddd);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.dc-config__error {
+  color: var(--tch-color-error, #b3261e);
+  font-weight: 600;
+  margin: 0;
+}
+
+.dc-config__grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dc-config__full {
+  width: 100%;
+}
+
+@media (max-width: 520px) {
+  .dc-config {
+    min-width: 0;
+  }
+
+  .dc-config__grid {
+    grid-template-columns: 1fr;
+  }
+}

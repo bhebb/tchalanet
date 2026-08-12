@@ -440,7 +440,34 @@
         "saved": "Configuration de {{provider}} enregistrée."
       },
       "config": {
-        "title": "Configurer {{provider}}",
+        "title": "Configurer {{name}}",
+        "loading": "Chargement de la configuration du canal...",
+        "code": "Code du canal",
+        "resultSlot": "Créneau résultat",
+        "name": "Nom affiché",
+        "timezone": "Fuseau horaire",
+        "drawTime": "Heure du tirage",
+        "cutoffSec": "Fermeture avant tirage (secondes)",
+        "daysOfWeek": "Jours ouverts",
+        "defaultSource": "Source résultat par défaut",
+        "noSource": "Aucune source configurée",
+        "period": "Période",
+        "notes": "Notes",
+        "active": "Canal actif pour cet espace",
+        "error": {
+          "load": "Impossible de charger la configuration du canal.",
+          "save": "Impossible d'enregistrer la configuration du canal."
+        },
+        "source": {
+          "SYSTEM": "Système",
+          "AUTO": "Automatique",
+          "EXTERNAL": "Externe",
+          "US_LOTTERY": "US Lottery",
+          "NY_OPEN_DATA": "NY Open Data",
+          "FL_APIM": "Florida APIM",
+          "MANUAL": "Manuel",
+          "ADMIN_OVERRIDE": "Correction admin"
+        },
         "description": "Réglez le mode résultat, les horaires de vente et les créneaux actifs.",
         "section": {
           "provider": "Provider",
@@ -459,6 +486,15 @@
           "MANUAL": "Saisie manuelle",
           "UNCONFIGURED": "À définir"
         }
+      },
+      "days": {
+        "MONDAY": "Lundi",
+        "TUESDAY": "Mardi",
+        "WEDNESDAY": "Mercredi",
+        "THURSDAY": "Jeudi",
+        "FRIDAY": "Vendredi",
+        "SATURDAY": "Samedi",
+        "SUNDAY": "Dimanche"
       },
       "sourceError": {
         "title": "Source de résultats indisponible",

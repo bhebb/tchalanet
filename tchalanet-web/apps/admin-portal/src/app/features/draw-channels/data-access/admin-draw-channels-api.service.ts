@@ -5,8 +5,10 @@ import { TchBackendClient } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
 import { consoleDrawIdentity } from '@tch/web/console';
 import {
+  DrawChannelDetailView,
   DrawChannelProviderView,
   DrawChannelSlotConfigView,
+  UpdateTenantDrawChannelRequest,
 } from './admin-draw-channels.models';
 
 interface TenantDrawChannelSummary {
@@ -44,6 +46,28 @@ export class AdminDrawChannelsApiService {
     return this.backend.patch<unknown>(
       `/tenant/draw-channels/${channelId}/active`,
       { active },
+      options,
+    );
+  }
+
+  getChannelDetail(
+    channelId: string,
+    options?: TchRequestOptions,
+  ): Observable<DrawChannelDetailView> {
+    return this.backend.get<DrawChannelDetailView>(
+      `/tenant/draw-channels/${channelId}`,
+      options,
+    );
+  }
+
+  updateChannel(
+    channelId: string,
+    request: UpdateTenantDrawChannelRequest,
+    options?: TchRequestOptions,
+  ): Observable<DrawChannelDetailView> {
+    return this.backend.put<DrawChannelDetailView>(
+      `/tenant/draw-channels/${channelId}`,
+      request,
       options,
     );
   }

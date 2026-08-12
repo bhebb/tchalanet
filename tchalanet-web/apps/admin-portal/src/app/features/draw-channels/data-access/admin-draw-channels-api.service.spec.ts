@@ -45,6 +45,82 @@ describe('AdminDrawChannelsApiService', () => {
       cutoffTime: '19:50',
     });
   });
+
+  it('loads a tenant draw channel detail', async () => {
+    const detail = {
+      id: 'channel-active',
+      code: 'HT_EVE',
+      name: 'Haiti · Evening',
+      timezone: 'America/Port-au-Prince',
+      drawTime: '20:00',
+      cutoffSec: 300,
+      daysOfWeek: ['MONDAY'],
+      active: true,
+      sortOrder: 11,
+      period: 'EVENING',
+      notes: null,
+      resultSlotId: 'slot-evening',
+      defaultSource: null,
+    };
+    const backend = { get: vi.fn(() => of(detail)) };
+    TestBed.configureTestingModule({
+      providers: [AdminDrawChannelsApiService, { provide: TchBackendClient, useValue: backend }],
+    });
+
+    const result = await firstValueFrom(
+      TestBed.inject(AdminDrawChannelsApiService).getChannelDetail('channel-active', {
+        suppressShellFeedback: true,
+      }),
+    );
+
+    expect(backend.get).toHaveBeenCalledWith('/tenant/draw-channels/channel-active', {
+      suppressShellFeedback: true,
+    });
+    expect(result).toBe(detail);
+  });
+
+  it('saves a tenant draw channel configuration', async () => {
+    const backend = { put: vi.fn(() => of({ id: 'channel-active' })) };
+    TestBed.configureTestingModule({
+      providers: [AdminDrawChannelsApiService, { provide: TchBackendClient, useValue: backend }],
+    });
+
+    await firstValueFrom(
+      TestBed.inject(AdminDrawChannelsApiService).updateChannel(
+        'channel-active',
+        {
+          name: 'Haiti · Evening',
+          timezone: 'America/Port-au-Prince',
+          drawTime: '20:00',
+          cutoffSec: 300,
+          daysOfWeek: ['MONDAY', 'TUESDAY'],
+          active: true,
+          sortOrder: 11,
+          period: 'EVENING',
+          notes: null,
+          defaultSource: null,
+        },
+        { suppressShellFeedback: true },
+      ),
+    );
+
+    expect(backend.put).toHaveBeenCalledWith(
+      '/tenant/draw-channels/channel-active',
+      {
+        name: 'Haiti · Evening',
+        timezone: 'America/Port-au-Prince',
+        drawTime: '20:00',
+        cutoffSec: 300,
+        daysOfWeek: ['MONDAY', 'TUESDAY'],
+        active: true,
+        sortOrder: 11,
+        period: 'EVENING',
+        notes: null,
+        defaultSource: null,
+      },
+      { suppressShellFeedback: true },
+    );
+  });
 });
 
 function tenantDrawChannels() {

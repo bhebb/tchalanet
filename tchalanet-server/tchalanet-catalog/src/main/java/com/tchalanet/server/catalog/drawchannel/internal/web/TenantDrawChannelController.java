@@ -5,6 +5,8 @@ import com.tchalanet.server.catalog.drawchannel.api.model.ChannelGamesView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelActiveRequest;
+import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelRequest;
+import com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateTenantDrawChannelRequest;
 import com.tchalanet.server.catalog.drawchannel.internal.write.DrawChannelAdminService;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.context.web.CurrentContext;
@@ -19,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,6 +61,37 @@ public class TenantDrawChannelController {
   public ApiResponse<DrawChannelView> setActive(
       @PathVariable DrawChannelId id, @Valid @RequestBody UpdateDrawChannelActiveRequest req) {
     var view = adminService.setChannelActive(id, Boolean.TRUE.equals(req.active()));
+    return ApiResponse.success(view);
+  }
+
+  @Operation(summary = "Update a tenant draw channel configuration")
+  @PutMapping("/{id}")
+  @PreAuthorize("hasPermission(null, 'draw_channel.manage')")
+  public ApiResponse<DrawChannelView> update(
+      @PathVariable DrawChannelId id,
+      @CurrentContext TchRequestContext ctx,
+      @Valid @RequestBody UpdateTenantDrawChannelRequest req) {
+    var existing =
+        catalog
+            .findById(ctx.tenantId(), id)
+            .orElseThrow(() -> new IllegalArgumentException("draw_channel_not_found: " + id));
+    var update =
+        new UpdateDrawChannelRequest(
+            existing.tenantId(),
+            existing.code(),
+            req.name() == null ? existing.name() : req.name(),
+            req.label() == null ? existing.label() : req.label(),
+            req.timezone() == null ? existing.timezone() : req.timezone(),
+            req.drawTime() == null ? existing.drawTime() : req.drawTime(),
+            req.cutoffSec() == null ? existing.cutoffSec() : req.cutoffSec(),
+            req.daysOfWeek() == null ? existing.daysOfWeek() : req.daysOfWeek(),
+            req.active() == null ? existing.active() : req.active(),
+            req.sortOrder() == null ? existing.sortOrder() : req.sortOrder(),
+            req.period() == null ? existing.period() : req.period(),
+            req.notes() == null ? existing.notes() : req.notes(),
+            existing.resultSlotId(),
+            req.defaultSource() == null ? existing.defaultSource() : req.defaultSource());
+    var view = adminService.updateFromRequest(id, update);
     return ApiResponse.success(view);
   }
 

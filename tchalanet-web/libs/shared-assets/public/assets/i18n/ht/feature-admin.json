@@ -1592,7 +1592,34 @@
         "saved": "Konfigirasyon {{provider}} anrejistre."
       },
       "config": {
-        "title": "Konfigire {{provider}}",
+        "title": "Konfigire {{name}}",
+        "loading": "Chajman konfigirasyon kanal la...",
+        "code": "Kòd kanal la",
+        "resultSlot": "Lè rezilta platform",
+        "name": "Non pou afiche",
+        "timezone": "Zòn lè",
+        "drawTime": "Lè tiraj",
+        "cutoffSec": "Fèmti vant anvan tiraj (segonn)",
+        "daysOfWeek": "Jou ouvè",
+        "defaultSource": "Sous rezilta pa defo",
+        "noSource": "Pa gen sous konfigire",
+        "period": "Peryòd",
+        "notes": "Nòt",
+        "active": "Kanal aktif pou santral sa a",
+        "error": {
+          "load": "Nou pa kapab chaje konfigirasyon kanal la.",
+          "save": "Nou pa kapab anrejistre konfigirasyon kanal la."
+        },
+        "source": {
+          "SYSTEM": "Sistèm",
+          "AUTO": "Otomatik",
+          "EXTERNAL": "Ekstèn",
+          "US_LOTTERY": "US Lottery",
+          "NY_OPEN_DATA": "NY Open Data",
+          "FL_APIM": "Florida APIM",
+          "MANUAL": "Manyèl",
+          "ADMIN_OVERRIDE": "Koreksyon admin"
+        },
         "description": "Ajiste mòd rezilta, lè vant, ak lè tiraj aktif yo.",
         "section": {
           "provider": "Founisè",
@@ -1611,6 +1638,15 @@
           "MANUAL": "Antre manyèl",
           "UNCONFIGURED": "Pou defini"
         }
+      },
+      "days": {
+        "MONDAY": "Lendi",
+        "TUESDAY": "Madi",
+        "WEDNESDAY": "Mèkredi",
+        "THURSDAY": "Jedi",
+        "FRIDAY": "Vandredi",
+        "SATURDAY": "Samdi",
+        "SUNDAY": "Dimanch"
       },
       "sourceError": {
         "title": "Sous rezilta pa disponib",

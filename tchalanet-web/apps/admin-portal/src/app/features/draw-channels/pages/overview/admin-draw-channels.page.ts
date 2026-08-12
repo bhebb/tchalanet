@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
@@ -25,6 +26,7 @@ import {
 } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelsSummaryComponent } from '../../components/draw-channels-summary/draw-channels-summary.component';
 import { DrawChannelProviderCardComponent } from '../../components/draw-channel-provider-card/draw-channel-provider-card.component';
+import { DrawChannelConfigDialog } from '../../components/draw-channel-config-dialog/draw-channel-config.dialog';
 
 export function adminDrawChannelsErrorView(
   err: unknown,
@@ -60,6 +62,7 @@ type PageState = 'loading' | 'ready' | 'error';
 })
 export class AdminDrawChannelsPage implements OnInit {
   private readonly api = inject(AdminDrawChannelsApiService);
+  private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
   readonly pageState = signal<PageState>('loading');
@@ -133,6 +136,23 @@ export class AdminDrawChannelsPage implements OnInit {
         this.pageState.set('error');
       },
     });
+  }
+
+  openChannelConfig(slot: DrawChannelSlotConfigView): void {
+    if (!slot.channelId) return;
+    this.dialog
+      .open(DrawChannelConfigDialog, {
+        data: {
+          channelId: slot.channelId,
+          label: slot.label,
+        },
+        maxWidth: '640px',
+        width: 'min(640px, 96vw)',
+      })
+      .afterClosed()
+      .subscribe(saved => {
+        if (saved === true) this.load();
+      });
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {
