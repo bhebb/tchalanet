@@ -1,5 +1,15 @@
 # tasks — limits-contextual-config-v1
 
+## Slice 0 — Backend : archivage draw_exposure
+
+- [ ] Créer `core/limitpolicy/internal/infra/archive/DrawExposureArchiveDatasetProvider`
+  - `key()` → `ArchiveDatasetKey.of("draw_exposure", "Draw Exposure")`
+  - `plan()` → count par `last_event_at` dans la période (ou join sur `draw.scheduled_at`)
+  - `export()` → stream rows + soft-delete (`deleted_at = now()`) après export
+  - `generateLookupRows()` → liste vide (pas de lookup individuel sur l'exposition)
+- [ ] Créer `DrawExposureArchiveJdbcRepository` (countByPeriod, streamByPeriod, softDelete)
+- [ ] Vérifier que les index existants (`WHERE deleted_at IS NULL`) couvrent bien les queries actives après purge
+
 ## Slice 1 — Backend : projection SELLER_TERMINAL + BFF endpoints
 
 - [ ] `ExposureProjectorAdapter.scopesFor()` : ajouter scope SELLER_TERMINAL
