@@ -63,8 +63,8 @@ export class BlockNumberQuickDialogComponent implements OnInit {
   ngOnInit(): void {
     this.drawApi.listDraws({ status: 'OPEN', size: 30 }).subscribe({
       next: page => {
-        this.openDraws.set(page.content ?? []);
-        const first = (page.content ?? [])[0];
+        this.openDraws.set(page.items ?? []);
+        const first = (page.items ?? [])[0];
         if (first) this.selectedDrawId.set(first.id);
         this.loadingDraws.set(false);
       },
