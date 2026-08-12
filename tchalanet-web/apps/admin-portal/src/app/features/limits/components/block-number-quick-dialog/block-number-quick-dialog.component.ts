@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import type { MatChipInputEvent } from '@angular/material/chips';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core';
 
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchSectionError } from '@tch/ui/components';
@@ -53,7 +53,6 @@ type Scope = 'TENANT' | 'DRAW_CHANNEL';
     MatInputModule,
     MatRadioModule,
     TchSectionError,
-    TranslatePipe,
   ],
   template: `
     <tch-admin-dialog-shell

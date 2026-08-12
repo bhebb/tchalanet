@@ -113,12 +113,11 @@ export class AdminLimitsNumberPage implements OnInit {
   }
 
   openBlockNumberQuick(): void {
-    const spec = this.rowFor('BLOCK_SELECTION_PER_DRAW')?.spec ?? null;
     const ref = this.dialog.open(BlockNumberQuickDialogComponent, {
       width: '480px',
       maxWidth: 'calc(100vw - 2rem)',
+      data: {},
     });
-    ref.componentInstance.spec = spec;
     ref.afterClosed().subscribe((result: unknown) => {
       if (result) {
         this.actionNotice.set('admin.limits.child.noticeSaved');
