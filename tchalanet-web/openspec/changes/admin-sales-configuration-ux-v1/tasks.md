@@ -92,12 +92,12 @@
 
 ## 8. Backend Follow-Up Only If Required
 
-- [ ] Start implementation assuming no backend behavior change.
-- [ ] Add backend fields only if the UI cannot derive the required presentation reliably.
+- [x] Start implementation assuming no backend behavior change.
+- [x] Add backend fields only if the UI cannot derive the required presentation reliably.
 - [ ] If backend additions are necessary, add read-only BFF/read-model fields only.
-- [ ] Use `QueryBus.ask(...)` or stable public APIs for multi-domain aggregation.
-- [ ] Do not access repositories, persistence adapters, or another module's internals from `features/*`.
-- [ ] Keep typed IDs outside persistence and keep query handlers read-only.
+- [x] Use `QueryBus.ask(...)` or stable public APIs for multi-domain aggregation.
+- [x] Do not access repositories, persistence adapters, or another module's internals from `features/*`.
+- [x] Keep typed IDs outside persistence and keep query handlers read-only.
 
 ## 9. Validation
 
