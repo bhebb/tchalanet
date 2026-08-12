@@ -16,8 +16,9 @@ class PosDrawDetailService {
         '/tenant/cashier/draws/$drawId/detail',
       );
       final data = response.data?['data'] as Map<String, dynamic>?;
-      if (data == null)
+      if (data == null) {
         throw const FormatException('empty draw detail payload');
+      }
       return PosDrawDetailResponse.fromJson(data);
     } on DioException catch (e) {
       throw mapDioException(e);

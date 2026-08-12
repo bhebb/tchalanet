@@ -57,7 +57,7 @@ class MaxSalesCountPerSelectionPerDrawEvaluatorTest {
     assertThat(breach.outcome()).isEqualTo(BreachOutcome.BLOCK);
     assertThat(breach.limitValue()).isEqualTo(5L);
     assertThat(breach.currentValue()).isEqualTo(5L); // existing count
-    assertThat(breach.deltaValue()).isEqualTo(1L);   // lines in this ticket
+    assertThat(breach.deltaValue()).isEqualTo(1L); // lines in this ticket
   }
 
   @Test
@@ -91,12 +91,19 @@ class MaxSalesCountPerSelectionPerDrawEvaluatorTest {
     assertThat(breaches).isEmpty();
   }
 
-  private List<LimitBreach> evaluate(long maxCount, LimitFactsSnapshot facts, LimitLineContext... lines) {
+  private List<LimitBreach> evaluate(
+      long maxCount, LimitFactsSnapshot facts, LimitLineContext... lines) {
     var params = MAPPER.createObjectNode().put("maxCount", maxCount);
-    var rule = new EffectiveLimitRule(
-        RuleKey.MAX_SALES_COUNT_PER_SELECTION_PER_DRAW, BreachOutcome.BLOCK, SCOPE, null, params);
-    var ctx = new LimitContext(
-        TenantId.of(UUID.randomUUID()), null, null, null, null, Instant.now(), List.of(lines));
+    var rule =
+        new EffectiveLimitRule(
+            RuleKey.MAX_SALES_COUNT_PER_SELECTION_PER_DRAW,
+            BreachOutcome.BLOCK,
+            SCOPE,
+            null,
+            params);
+    var ctx =
+        new LimitContext(
+            TenantId.of(UUID.randomUUID()), null, null, null, null, Instant.now(), List.of(lines));
     return evaluator.evaluate(rule, facts, ctx);
   }
 

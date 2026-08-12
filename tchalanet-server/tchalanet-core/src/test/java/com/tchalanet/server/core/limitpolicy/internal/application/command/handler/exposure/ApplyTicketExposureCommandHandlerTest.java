@@ -47,7 +47,8 @@ class ApplyTicketExposureCommandHandlerTest {
   @Test
   void processes_event_and_delegates_to_projector_first_time() {
     var event = ticketEvent();
-    when(processedEvent.markProcessedIfAbsent(HANDLER_KEY, event.eventId().value())).thenReturn(true);
+    when(processedEvent.markProcessedIfAbsent(HANDLER_KEY, event.eventId().value()))
+        .thenReturn(true);
 
     handler.handle(new ApplyTicketExposureCommand(event));
 
@@ -57,7 +58,8 @@ class ApplyTicketExposureCommandHandlerTest {
   @Test
   void skips_projector_when_event_already_processed() {
     var event = ticketEvent();
-    when(processedEvent.markProcessedIfAbsent(HANDLER_KEY, event.eventId().value())).thenReturn(false);
+    when(processedEvent.markProcessedIfAbsent(HANDLER_KEY, event.eventId().value()))
+        .thenReturn(false);
 
     handler.handle(new ApplyTicketExposureCommand(event));
 
@@ -76,9 +78,7 @@ class ApplyTicketExposureCommandHandlerTest {
         TicketSaleStatus.APPROVED,
         TicketSaleChannel.POS_ONLINE,
         new TicketContextPayload(
-            DrawId.of(UUID.randomUUID()),
-            DrawChannelId.of(UUID.randomUUID()),
-            null, null, null),
+            DrawId.of(UUID.randomUUID()), DrawChannelId.of(UUID.randomUUID()), null, null, null),
         new TicketMoneyPayload(
             currency,
             new Money(new BigDecimal("100.00"), currency),
@@ -86,14 +86,20 @@ class ApplyTicketExposureCommandHandlerTest {
             List.of()),
         List.of(
             new TicketLinePlacedItem(
-                TicketLineId.of(UUID.randomUUID()), 1,
-                GameCode.HT_BOLET, BetType.MATCH_1_2D, "12", "12",
+                TicketLineId.of(UUID.randomUUID()),
+                1,
+                GameCode.HT_BOLET,
+                BetType.MATCH_1_2D,
+                "12",
+                "12",
                 null,
                 new Money(new BigDecimal("100.00"), currency),
                 TicketLineOrigin.CUSTOMER,
                 TicketLinePricingSource.STANDARD,
                 TicketLineSelectionSource.CUSTOMER_SELECTED,
-                null, null, null)),
+                null,
+                null,
+                null)),
         null);
   }
 }

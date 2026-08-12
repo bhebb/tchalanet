@@ -20,10 +20,10 @@ import org.springframework.stereotype.Component;
 /**
  * Archive dataset provider for {@code draw_exposure} rows.
  *
- * <p>Archives by draw lifecycle: rows whose draw has reached ARCHIVED status and whose
- * {@code draw.scheduled_at} falls before the period end are eligible. Runtime limitpolicy queries
- * always filter by a specific {@code draw_id} (active draw) — they never scan archived exposure
- * rows, so hard-delete is safe.
+ * <p>Archives by draw lifecycle: rows whose draw has reached ARCHIVED status and whose {@code
+ * draw.scheduled_at} falls before the period end are eligible. Runtime limitpolicy queries always
+ * filter by a specific {@code draw_id} (active draw) — they never scan archived exposure rows, so
+ * hard-delete is safe.
  */
 @Component
 @RequiredArgsConstructor

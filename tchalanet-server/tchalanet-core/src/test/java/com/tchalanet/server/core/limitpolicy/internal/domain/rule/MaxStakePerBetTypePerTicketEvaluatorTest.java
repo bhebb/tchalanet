@@ -64,20 +64,18 @@ class MaxStakePerBetTypePerTicketEvaluatorTest {
 
   @Test
   void only_offending_bet_type_breaches_when_multiple_types_present() {
-    var breaches = evaluate(
-        1000,
-        line(BetType.MATCH_1_2D, 1200),   // breaches
-        line(BetType.MATCH_2_2D, 500));    // does not breach
+    var breaches =
+        evaluate(
+            1000,
+            line(BetType.MATCH_1_2D, 1200), // breaches
+            line(BetType.MATCH_2_2D, 500)); // does not breach
     assertThat(breaches).hasSize(1);
     assertThat(breaches.get(0).outcome()).isEqualTo(BreachOutcome.BLOCK);
   }
 
   @Test
   void both_bet_types_breach_when_both_exceed_limit() {
-    var breaches = evaluate(
-        500,
-        line(BetType.MATCH_1_2D, 600),
-        line(BetType.MATCH_2_2D, 700));
+    var breaches = evaluate(500, line(BetType.MATCH_1_2D, 600), line(BetType.MATCH_2_2D, 700));
     assertThat(breaches).hasSize(2);
   }
 
@@ -89,10 +87,12 @@ class MaxStakePerBetTypePerTicketEvaluatorTest {
 
   private List<LimitBreach> evaluate(long valueCents, LimitLineContext... lines) {
     var params = MAPPER.createObjectNode().put("valueCents", valueCents);
-    var rule = new EffectiveLimitRule(
-        RuleKey.MAX_STAKE_PER_BET_TYPE_PER_TICKET, BreachOutcome.BLOCK, SCOPE, null, params);
-    var ctx = new LimitContext(
-        TenantId.of(UUID.randomUUID()), null, null, null, null, Instant.now(), List.of(lines));
+    var rule =
+        new EffectiveLimitRule(
+            RuleKey.MAX_STAKE_PER_BET_TYPE_PER_TICKET, BreachOutcome.BLOCK, SCOPE, null, params);
+    var ctx =
+        new LimitContext(
+            TenantId.of(UUID.randomUUID()), null, null, null, null, Instant.now(), List.of(lines));
     return evaluator.evaluate(rule, EMPTY_FACTS, ctx);
   }
 

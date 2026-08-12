@@ -45,9 +45,16 @@ class UpsertLimitAssignmentCommandHandlerTest {
     when(idGenerator.newUuid()).thenReturn(NEW_ID);
 
     var savedId = LimitAssignmentId.of(NEW_ID);
-    var saved = LimitAssignment.createNew(
-        savedId, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK,
-        params(), null, null);
+    var saved =
+        LimitAssignment.createNew(
+            savedId,
+            RuleKey.MAX_STAKE_PER_LINE,
+            SCOPE,
+            true,
+            BreachOutcome.BLOCK,
+            params(),
+            null,
+            null);
     when(writer.save(any())).thenReturn(saved);
 
     var result = handler.handle(validCommand());
@@ -60,9 +67,16 @@ class UpsertLimitAssignmentCommandHandlerTest {
   @Test
   void updates_existing_assignment_when_natural_key_matches() {
     var existingId = LimitAssignmentId.of(UUID.randomUUID());
-    var existing = LimitAssignment.createNew(
-        existingId, RuleKey.MAX_STAKE_PER_LINE, SCOPE, false, BreachOutcome.WARN,
-        params(), null, null);
+    var existing =
+        LimitAssignment.createNew(
+            existingId,
+            RuleKey.MAX_STAKE_PER_LINE,
+            SCOPE,
+            false,
+            BreachOutcome.WARN,
+            params(),
+            null,
+            null);
 
     when(reader.findByNaturalKey(any(), any())).thenReturn(Optional.of(existing));
     when(writer.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -78,8 +92,16 @@ class UpsertLimitAssignmentCommandHandlerTest {
 
   @Test
   void throws_when_tenantId_is_null() {
-    var cmd = new UpsertLimitAssignmentCommand(
-        null, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK, params(), null, null);
+    var cmd =
+        new UpsertLimitAssignmentCommand(
+            null,
+            RuleKey.MAX_STAKE_PER_LINE,
+            SCOPE,
+            true,
+            BreachOutcome.BLOCK,
+            params(),
+            null,
+            null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("tenantId");
@@ -87,8 +109,9 @@ class UpsertLimitAssignmentCommandHandlerTest {
 
   @Test
   void throws_when_ruleKey_is_null() {
-    var cmd = new UpsertLimitAssignmentCommand(
-        TENANT, null, SCOPE, true, BreachOutcome.BLOCK, params(), null, null);
+    var cmd =
+        new UpsertLimitAssignmentCommand(
+            TENANT, null, SCOPE, true, BreachOutcome.BLOCK, params(), null, null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("ruleKey");
@@ -96,8 +119,16 @@ class UpsertLimitAssignmentCommandHandlerTest {
 
   @Test
   void throws_when_target_is_null() {
-    var cmd = new UpsertLimitAssignmentCommand(
-        TENANT, RuleKey.MAX_STAKE_PER_LINE, null, true, BreachOutcome.BLOCK, params(), null, null);
+    var cmd =
+        new UpsertLimitAssignmentCommand(
+            TENANT,
+            RuleKey.MAX_STAKE_PER_LINE,
+            null,
+            true,
+            BreachOutcome.BLOCK,
+            params(),
+            null,
+            null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("limitScopeRef");
@@ -105,8 +136,9 @@ class UpsertLimitAssignmentCommandHandlerTest {
 
   @Test
   void throws_when_onBreach_is_null() {
-    var cmd = new UpsertLimitAssignmentCommand(
-        TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, null, params(), null, null);
+    var cmd =
+        new UpsertLimitAssignmentCommand(
+            TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, null, params(), null, null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("onBreach");
@@ -114,8 +146,9 @@ class UpsertLimitAssignmentCommandHandlerTest {
 
   @Test
   void throws_when_params_is_null() {
-    var cmd = new UpsertLimitAssignmentCommand(
-        TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK, null, null, null);
+    var cmd =
+        new UpsertLimitAssignmentCommand(
+            TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK, null, null, null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("params");
@@ -124,9 +157,16 @@ class UpsertLimitAssignmentCommandHandlerTest {
   @Test
   void throws_when_startsAt_is_not_before_endsAt() {
     var now = Instant.parse("2026-08-12T10:00:00Z");
-    var cmd = new UpsertLimitAssignmentCommand(
-        TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK, params(),
-        now, now); // startsAt == endsAt → invalid
+    var cmd =
+        new UpsertLimitAssignmentCommand(
+            TENANT,
+            RuleKey.MAX_STAKE_PER_LINE,
+            SCOPE,
+            true,
+            BreachOutcome.BLOCK,
+            params(),
+            now,
+            now); // startsAt == endsAt → invalid
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("startsAt must be before endsAt");
@@ -136,13 +176,28 @@ class UpsertLimitAssignmentCommandHandlerTest {
   void accepts_null_start_and_end() {
     when(reader.findByNaturalKey(any(), any())).thenReturn(Optional.empty());
     when(idGenerator.newUuid()).thenReturn(NEW_ID);
-    var saved = LimitAssignment.createNew(
-        LimitAssignmentId.of(NEW_ID), RuleKey.MAX_STAKE_PER_LINE, SCOPE, true,
-        BreachOutcome.BLOCK, params(), null, null);
+    var saved =
+        LimitAssignment.createNew(
+            LimitAssignmentId.of(NEW_ID),
+            RuleKey.MAX_STAKE_PER_LINE,
+            SCOPE,
+            true,
+            BreachOutcome.BLOCK,
+            params(),
+            null,
+            null);
     when(writer.save(any())).thenReturn(saved);
 
-    var cmd = new UpsertLimitAssignmentCommand(
-        TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK, params(), null, null);
+    var cmd =
+        new UpsertLimitAssignmentCommand(
+            TENANT,
+            RuleKey.MAX_STAKE_PER_LINE,
+            SCOPE,
+            true,
+            BreachOutcome.BLOCK,
+            params(),
+            null,
+            null);
 
     assertThat(handler.handle(cmd).id()).isNotNull();
   }

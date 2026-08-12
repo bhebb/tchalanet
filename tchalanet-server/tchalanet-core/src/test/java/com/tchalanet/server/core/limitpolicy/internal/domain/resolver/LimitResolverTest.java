@@ -96,13 +96,7 @@ class LimitResolverTest {
 
   private static LimitContext ctx(boolean withTerminal) {
     return new LimitContext(
-        TENANT,
-        null,
-        withTerminal ? TERMINAL : null,
-        null,
-        CHANNEL,
-        NOW,
-        List.of());
+        TENANT, null, withTerminal ? TERMINAL : null, null, CHANNEL, NOW, List.of());
   }
 
   private static LimitAssignment assignment(LimitScopeRef scope, int unused) {

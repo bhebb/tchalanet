@@ -61,8 +61,8 @@ class BlockSelectionPerDrawEvaluatorTest {
   void only_offending_lines_breach_when_multiple_lines() {
     var ctx =
         context(
-            line(BetType.MATCH_1_2D, "34"),  // blocked
-            line(BetType.MATCH_1_2D, "07"),  // not blocked
+            line(BetType.MATCH_1_2D, "34"), // blocked
+            line(BetType.MATCH_1_2D, "07"), // not blocked
             line(BetType.MATCH_1_2D, "34")); // blocked again
     var breaches = evaluate(null, "34", ctx);
     assertThat(breaches).hasSize(2);
@@ -80,11 +80,13 @@ class BlockSelectionPerDrawEvaluatorTest {
     assertThat(breaches).isEmpty();
   }
 
-  private List<LimitBreach> evaluate(String betTypeName, String blockedSelection, LimitLineContext... lines) {
-    return evaluate(betTypeName, new String[]{blockedSelection}, lines);
+  private List<LimitBreach> evaluate(
+      String betTypeName, String blockedSelection, LimitLineContext... lines) {
+    return evaluate(betTypeName, new String[] {blockedSelection}, lines);
   }
 
-  private List<LimitBreach> evaluate(String betTypeName, String[] selections, LimitLineContext... lines) {
+  private List<LimitBreach> evaluate(
+      String betTypeName, String[] selections, LimitLineContext... lines) {
     var params = MAPPER.createObjectNode();
     if (betTypeName != null) {
       params.put("betType", betTypeName);
@@ -93,17 +95,22 @@ class BlockSelectionPerDrawEvaluatorTest {
     for (var s : selections) {
       arr.add(s);
     }
-    var rule = new EffectiveLimitRule(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK, SCOPE, null, params);
+    var rule =
+        new EffectiveLimitRule(
+            RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK, SCOPE, null, params);
     return evaluator.evaluate(rule, EMPTY_FACTS, context(lines));
   }
 
-  private List<LimitBreach> evaluate(String betTypeName, String blockedSelection, LimitContext ctx) {
+  private List<LimitBreach> evaluate(
+      String betTypeName, String blockedSelection, LimitContext ctx) {
     var params = MAPPER.createObjectNode();
     if (betTypeName != null) {
       params.put("betType", betTypeName);
     }
     params.putArray("selections").add(blockedSelection);
-    var rule = new EffectiveLimitRule(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK, SCOPE, null, params);
+    var rule =
+        new EffectiveLimitRule(
+            RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK, SCOPE, null, params);
     return evaluator.evaluate(rule, EMPTY_FACTS, ctx);
   }
 

@@ -74,9 +74,11 @@ class MaxStakePerSelectionPerTicketEvaluatorTest {
   @Test
   void same_selection_different_bet_type_not_aggregated() {
     // BetType is part of the selection key → separate evaluations
-    var breaches = evaluate(1000,
-        new LimitLineContext(BetType.MATCH_1_2D, "12", 600),
-        new LimitLineContext(BetType.MATCH_2_2D, "12", 600));
+    var breaches =
+        evaluate(
+            1000,
+            new LimitLineContext(BetType.MATCH_1_2D, "12", 600),
+            new LimitLineContext(BetType.MATCH_2_2D, "12", 600));
     // 600 per each (BetType,selection) pair → neither breaches
     assertThat(breaches).isEmpty();
   }
@@ -89,10 +91,12 @@ class MaxStakePerSelectionPerTicketEvaluatorTest {
 
   private List<LimitBreach> evaluate(long valueCents, LimitLineContext... lines) {
     var params = MAPPER.createObjectNode().put("valueCents", valueCents);
-    var rule = new EffectiveLimitRule(
-        RuleKey.MAX_STAKE_PER_SELECTION_PER_TICKET, BreachOutcome.BLOCK, SCOPE, null, params);
-    var ctx = new LimitContext(
-        TenantId.of(UUID.randomUUID()), null, null, null, null, Instant.now(), List.of(lines));
+    var rule =
+        new EffectiveLimitRule(
+            RuleKey.MAX_STAKE_PER_SELECTION_PER_TICKET, BreachOutcome.BLOCK, SCOPE, null, params);
+    var ctx =
+        new LimitContext(
+            TenantId.of(UUID.randomUUID()), null, null, null, null, Instant.now(), List.of(lines));
     return evaluator.evaluate(rule, EMPTY_FACTS, ctx);
   }
 

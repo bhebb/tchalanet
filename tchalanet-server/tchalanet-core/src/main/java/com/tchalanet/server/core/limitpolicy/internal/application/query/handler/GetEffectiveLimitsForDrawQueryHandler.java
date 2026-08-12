@@ -34,16 +34,15 @@ public class GetEffectiveLimitsForDrawQueryHandler
             now,
             List.of());
 
-    var effectiveLimits = resolver.resolve(assignments.listActiveForTargets(ctx.scopes(), now), ctx);
+    var effectiveLimits =
+        resolver.resolve(assignments.listActiveForTargets(ctx.scopes(), now), ctx);
 
     var rules =
         effectiveLimits.rules().entrySet().stream()
             .map(
                 entry ->
                     new EffectiveLimitsForDrawView.ResolvedRule(
-                        entry.getKey().name(),
-                        scopeName(entry.getValue().appliedScope()),
-                        true))
+                        entry.getKey().name(), scopeName(entry.getValue().appliedScope()), true))
             .toList();
 
     return new EffectiveLimitsForDrawView(rules);
@@ -53,10 +52,11 @@ public class GetEffectiveLimitsForDrawQueryHandler
     return switch (scope) {
       case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.TenantScope ignored ->
           "TENANT";
-      case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.DrawChannelScope
-          ignored -> "DRAW_CHANNEL";
+      case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.DrawChannelScope ignored ->
+          "DRAW_CHANNEL";
       case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.SellerTerminalScope
-          ignored -> "SELLER_TERMINAL";
+              ignored ->
+          "SELLER_TERMINAL";
       case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.AgentScope ignored ->
           "AGENT";
     };

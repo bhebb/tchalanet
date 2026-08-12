@@ -27,12 +27,14 @@ class LimitScopeMapperTest {
 
   @Test
   void toType_draw_channel_scope_returns_draw_channel() {
-    assertThat(mapper.toType(LimitScopeRef.drawChannel(DrawChannelId.of(ID)))).isEqualTo(ScopeType.DRAW_CHANNEL);
+    assertThat(mapper.toType(LimitScopeRef.drawChannel(DrawChannelId.of(ID))))
+        .isEqualTo(ScopeType.DRAW_CHANNEL);
   }
 
   @Test
   void toType_seller_terminal_scope_returns_seller_terminal() {
-    assertThat(mapper.toType(LimitScopeRef.sellerTerminal(SellerTerminalId.of(ID)))).isEqualTo(ScopeType.SELLER_TERMINAL);
+    assertThat(mapper.toType(LimitScopeRef.sellerTerminal(SellerTerminalId.of(ID))))
+        .isEqualTo(ScopeType.SELLER_TERMINAL);
   }
 
   @Test
@@ -82,7 +84,8 @@ class LimitScopeMapperTest {
   void toDomain_seller_terminal_produces_seller_terminal_scope() {
     var result = mapper.toDomain(ScopeType.SELLER_TERMINAL, ID);
     assertThat(result).isInstanceOf(LimitScopeRef.SellerTerminalScope.class);
-    assertThat(((LimitScopeRef.SellerTerminalScope) result).sellerTerminalId().value()).isEqualTo(ID);
+    assertThat(((LimitScopeRef.SellerTerminalScope) result).sellerTerminalId().value())
+        .isEqualTo(ID);
   }
 
   @Test

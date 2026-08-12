@@ -152,6 +152,7 @@ class LimitRuleParamsTest {
   }
 
   private static EffectiveLimitRule rule(tools.jackson.databind.JsonNode params) {
-    return new EffectiveLimitRule(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK, SCOPE, null, params);
+    return new EffectiveLimitRule(
+        RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK, SCOPE, null, params);
   }
 }
