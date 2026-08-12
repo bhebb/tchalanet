@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormField, form, submit as submitForm } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BadgeStatus, TchSectionError, TchStatusBadge } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
@@ -62,6 +63,7 @@ interface SaveGameConfigRequest {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    RouterLink,
     TchSectionError,
     TchStatusBadge,
     TranslatePipe,
@@ -77,6 +79,7 @@ export class GameSettingsDialog {
   private readonly api = inject(GamesAdminApiService);
   private readonly pricingApi = inject(AdminGamesPricingApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
 
   readonly model = signal<GameSettingsFormModel>({
     displayName: this.data.game.displayName ?? '',
@@ -210,8 +213,8 @@ export class GameSettingsDialog {
               odds: payoutRuleType === 'FIXED_AMOUNT' ? null : variant.odds,
               fixedAmount: payoutRuleType === 'STAKE_MULTIPLIER' ? null : variant.fixedAmount,
               value: payoutRuleType === 'FIXED_AMOUNT'
-                ? (variant.fixedAmount === null || variant.fixedAmount === undefined ? 'Non configuré' : `${variant.fixedAmount}`)
-                : (variant.odds === null || variant.odds === undefined ? 'Non configuré' : `×${variant.odds}`),
+                ? (variant.fixedAmount === null || variant.fixedAmount === undefined ? this.notConfiguredLabel() : `${variant.fixedAmount}`)
+                : (variant.odds === null || variant.odds === undefined ? this.notConfiguredLabel() : `×${variant.odds}`),
             }
           : variant),
       };
@@ -238,7 +241,7 @@ export class GameSettingsDialog {
       return {
         ...group,
         variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? { ...variant, odds: null, fixedAmount: null, value: 'Non configuré' }
+          ? { ...variant, odds: null, fixedAmount: null, value: this.notConfiguredLabel() }
           : variant),
       };
     }));
@@ -250,7 +253,13 @@ export class GameSettingsDialog {
       return {
         ...group,
         variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? { ...variant, odds, payoutRuleType: 'STAKE_MULTIPLIER', fixedAmount: null, value: odds === null ? 'Non configuré' : `×${odds}` }
+          ? {
+              ...variant,
+              odds,
+              payoutRuleType: 'STAKE_MULTIPLIER',
+              fixedAmount: null,
+              value: odds === null ? this.notConfiguredLabel() : `×${odds}`,
+            }
           : variant),
       };
     }));
@@ -267,7 +276,7 @@ export class GameSettingsDialog {
               odds: null,
               payoutRuleType: 'FIXED_AMOUNT',
               fixedAmount,
-              value: fixedAmount === null ? 'Non configuré' : `${fixedAmount}`,
+              value: fixedAmount === null ? this.notConfiguredLabel() : `${fixedAmount}`,
             }
           : variant),
       };
@@ -402,5 +411,9 @@ export class GameSettingsDialog {
   private isSimpleStakeGame(): boolean {
     const code = this.data.game.gameCode.toUpperCase();
     return code.includes('BOLET') || code.includes('BORLETTE');
+  }
+
+  protected notConfiguredLabel(): string {
+    return this.translate.instant('admin.gamesPricing.card.notConfigured');
   }
 }

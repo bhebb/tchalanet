@@ -735,16 +735,22 @@
         "unavailable": "Ap vini",
         "blockers": "Pou regle",
         "readyChecks": "Kontwòl",
+        "businessSetup": "Konfigirasyon vant",
+        "saleSetup": "Pare pou vann",
         "systemGame": "Jwèt sistèm · {{name}}",
+        "saleActive": "Vann jwèt sa a: aktive",
+        "saleDisabled": "Vann jwèt sa a: dezaktive",
         "posVisible": "Vizib sou POS",
         "posHidden": "Kache sou POS",
         "stakeUnavailable": "Miz pa disponib",
         "stakeConfigured": "Miz konfigire",
+        "stakeRange": "Miz: {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Miz pa konfigire",
         "notConfigured": "Pa konfigire",
         "pricingMissing": "Barèm pa konfigire",
         "pricingOptions": "{{count}} opsyon barèm",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
+        "availabilityReview": "Disponibilite: verifye tiraj yo",
         "standardPricingProfile": "Barèm estanda",
         "action": {
           "configure": "Konfigire",
@@ -1737,6 +1743,21 @@
           "title": "Paramèt ki itilize nan vant",
           "message": "Valè sa yo kontwole afichaj POS la ak miz santral la aksepte. Gany ak barèm global yo rete jere nan katalòg platfòm nan."
         },
+        "sell": {
+          "title": "Vann jwèt sa a",
+          "description": "Kontwole si vandè yo ka itilize jwèt sa a nan POS la.",
+          "visibleInPosHelp": "Montre jwèt sa a kòm yon chwa lè vandè a ap kreye yon tikè."
+        },
+        "stakes": {
+          "title": "Miz",
+          "description": "Mete kantite minimòm ak maksimòm vandè a ka aksepte pou jwèt sa a."
+        },
+        "availability": {
+          "title": "Disponibilite",
+          "description": "Sèvi ak disponiblite pa tiraj pou chwazi kote jwèt sa a ka vann.",
+          "enabledHelp": "Pèmèt jwèt sa a antre nan règ disponiblite pou vann.",
+          "review": "Verifye disponiblite pa tiraj"
+        },
         "field": {
           "displayName": "Non ki parèt nan POS",
           "minStake": "Miz minimòm pa liy",
@@ -1751,6 +1772,13 @@
           "title": "Barèm gain",
           "description": "Rezime barèm santral la ki aplike nan vant lan.",
           "clearPricing": "Efase règ barèm nan"
+        },
+        "payouts": {
+          "title": "Barèm",
+          "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte."
+        },
+        "advanced": {
+          "title": "Opsyon avanse"
         },
         "salesOptions": {
           "title": "Mòd vant avanse",

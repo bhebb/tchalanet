@@ -578,6 +578,21 @@
           "title": "Paramètres utilisés dans la vente",
           "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes globaux restent gérés dans le catalogue plateforme."
         },
+        "sell": {
+          "title": "Vendre ce jeu",
+          "description": "Contrôlez si les vendeurs peuvent utiliser ce jeu dans le POS.",
+          "visibleInPosHelp": "Afficher ce jeu comme choix quand un vendeur crée un ticket."
+        },
+        "stakes": {
+          "title": "Mises",
+          "description": "Définissez le montant minimum et maximum accepté pour ce jeu."
+        },
+        "availability": {
+          "title": "Disponibilité",
+          "description": "Utilisez la disponibilité par tirage pour choisir où ce jeu peut être vendu.",
+          "enabledHelp": "Autoriser ce jeu à participer aux règles de disponibilité de vente.",
+          "review": "Vérifier la disponibilité par tirage"
+        },
         "field": {
           "displayName": "Nom affiché au POS",
           "minStake": "Mise minimum par ligne",
@@ -592,6 +607,13 @@
           "title": "Barème de gains",
           "description": "Résumé du barème du santral appliqué à la vente.",
           "clearPricing": "Supprimer le barème"
+        },
+        "payouts": {
+          "title": "Barèmes",
+          "description": "Configurez le montant que le client peut gagner pour chaque option supportée."
+        },
+        "advanced": {
+          "title": "Options avancées"
         },
         "salesOptions": {
           "title": "Modes de vente avancés",
@@ -1267,16 +1289,22 @@
         "unavailable": "Bientôt disponible",
         "blockers": "À traiter",
         "readyChecks": "Contrôles",
+        "businessSetup": "Configuration de vente",
+        "saleSetup": "Prêt à vendre",
         "systemGame": "Jeu système · {{name}}",
+        "saleActive": "Vente du jeu : active",
+        "saleDisabled": "Vente du jeu : désactivée",
         "posVisible": "Visible sur POS",
         "posHidden": "Masqué POS",
         "stakeUnavailable": "Mise indisponible",
         "stakeConfigured": "Mise configurée",
+        "stakeRange": "Mises : {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Mise non configurée",
         "notConfigured": "Non configuré",
         "pricingMissing": "Barème non configuré",
         "pricingOptions": "{{count}} option(s) de barème",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "availabilityReview": "Disponibilité : vérifier les tirages",
         "standardPricingProfile": "Barème standard",
         "action": {
           "configure": "Configurer",

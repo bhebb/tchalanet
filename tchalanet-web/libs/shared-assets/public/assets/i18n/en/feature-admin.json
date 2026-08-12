@@ -735,16 +735,22 @@
         "unavailable": "Coming soon",
         "blockers": "To resolve",
         "readyChecks": "Checks",
+        "businessSetup": "Sales setup",
+        "saleSetup": "Ready to sell",
         "systemGame": "System game · {{name}}",
+        "saleActive": "Sell this game: active",
+        "saleDisabled": "Sell this game: disabled",
         "posVisible": "Visible on POS",
         "posHidden": "Hidden on POS",
         "stakeUnavailable": "Stake unavailable",
         "stakeConfigured": "Stake configured",
+        "stakeRange": "Stakes: {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Stake not configured",
         "notConfigured": "Not configured",
         "pricingMissing": "Pricing not configured",
         "pricingOptions": "{{count}} pricing option(s)",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "availabilityReview": "Availability: review draws",
         "standardPricingProfile": "Standard pricing",
         "action": {
           "configure": "Configure",
@@ -1737,6 +1743,21 @@
           "title": "Settings used for sales",
           "message": "These values control POS display and accepted stakes for this operator. Global payouts and pricing remain managed in the platform catalog."
         },
+        "sell": {
+          "title": "Sell this game",
+          "description": "Control whether sellers can use this game in POS.",
+          "visibleInPosHelp": "Show this game as a choice when a seller creates a ticket."
+        },
+        "stakes": {
+          "title": "Stakes",
+          "description": "Set the minimum and maximum amount a seller can accept for this game."
+        },
+        "availability": {
+          "title": "Availability",
+          "description": "Use draw availability to decide where this game can be sold.",
+          "enabledHelp": "Allow this game to participate in sales availability rules.",
+          "review": "Review draw availability"
+        },
         "field": {
           "displayName": "POS display name",
           "minStake": "Minimum stake per line",
@@ -1751,6 +1772,13 @@
           "title": "Payout odds",
           "description": "Summary of the operator pricing applied at sale time.",
           "clearPricing": "Clear pricing rule"
+        },
+        "payouts": {
+          "title": "Payouts",
+          "description": "Configure how much the customer can win for each supported option."
+        },
+        "advanced": {
+          "title": "Advanced options"
         },
         "salesOptions": {
           "title": "Advanced sales modes",

@@ -110,7 +110,11 @@ export class TenantGameCardComponent {
   private stakeLabel(game: TenantGamePricingView): string {
     if (game.tenantStatus === 'UNAVAILABLE') return this.t('admin.gamesPricing.card.stakeUnavailable');
     return this.hasStakeConfig(game)
-      ? this.t('admin.gamesPricing.card.stakeConfigured')
+      ? this.t('admin.gamesPricing.card.stakeRange', {
+          min: game.limits.minStake,
+          max: game.limits.maxStake,
+          currency: game.limits.currency,
+        })
       : this.t('admin.gamesPricing.card.stakeMissing');
   }
 
@@ -133,13 +137,19 @@ export class TenantGameCardComponent {
 
   private summaryTitle(game: TenantGamePricingView): string {
     return this.hasBlockingItems(game)
-      ? this.t('admin.gamesPricing.card.blockers')
-      : this.t('admin.gamesPricing.card.readyChecks');
+      ? this.t('admin.gamesPricing.card.businessSetup')
+      : this.t('admin.gamesPricing.card.saleSetup');
   }
 
   private summaryItems(game: TenantGamePricingView): ConsoleGameCardView['summaryItems'] {
     const items: ConsoleGameCardSummaryItem[] = [
-      { icon: 'casino', label: this.t('admin.gamesPricing.card.systemGame', { name: game.gameName }) },
+      {
+        icon: 'sell',
+        label: game.tenantStatus === 'INACTIVE'
+          ? this.t('admin.gamesPricing.card.saleDisabled')
+          : this.t('admin.gamesPricing.card.saleActive'),
+        warning: game.tenantStatus !== 'ACTIVE',
+      },
       {
         icon: 'point_of_sale',
         label: game.visibleInPos
@@ -149,17 +159,18 @@ export class TenantGameCardComponent {
       },
     ];
 
-    if (!this.hasStakeConfig(game)) {
-      items.push({ icon: 'payments', label: this.stakeLabel(game), warning: true });
-    } else if (game.tenantStatus === 'ACTIVE') {
-      items.push({ icon: 'payments', label: this.stakeLabel(game) });
-    }
+    items.push({ icon: 'payments', label: this.stakeLabel(game), warning: !this.hasStakeConfig(game) });
 
     if (!this.hasPricingConfig(game)) {
       items.push({ icon: 'price_change', label: this.pricingLabel(game), warning: true });
     } else {
       items.push({ icon: 'price_change', label: this.pricingLabel(game) });
     }
+
+    items.push({
+      icon: 'event_available',
+      label: this.t('admin.gamesPricing.card.availabilityReview'),
+    });
 
     return items;
   }
