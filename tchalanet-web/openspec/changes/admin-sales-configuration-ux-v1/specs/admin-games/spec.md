@@ -11,9 +11,27 @@ POS visibility, stake readiness, payout/pricing readiness, and availability by d
 
 - **GIVEN** tenant games are loaded
 - **WHEN** the admin opens the games page
-- **THEN** each game shows whether it is sellable, partial, disabled, or incomplete
+- **THEN** each game shows whether it is Ready, Needs attention, or Disabled
 - **AND** the status is derived from supported configuration data rather than raw technical codes
 - **AND** raw game codes are secondary or fallback display only.
+
+#### Scenario: Tenant admin reviews game card groups
+
+- **GIVEN** a game card is rendered
+- **WHEN** the admin scans the card
+- **THEN** activation, POS visibility, stake limits, pricing/payout, and advanced options are distinct configuration groups.
+
+### Requirement: Games overview exposes availability by draw
+
+The games overview SHALL expose where each game can currently be sold without requiring admins to
+infer availability from technical mappings.
+
+#### Scenario: Tenant admin reviews availability
+
+- **GIVEN** tenant games and draw-channel availability data are loaded
+- **WHEN** the games overview renders a game
+- **THEN** the card shows the number of draws or channels where the game can currently be sold
+- **AND** a Review availability action is available.
 
 ### Requirement: Game settings are organized by admin task
 
@@ -37,6 +55,17 @@ Gratis page for detailed configuration.
 
 - **GIVEN** the tenant supports Maryaj Gratis
 - **WHEN** the admin views Maryaj or promotion-related game configuration
-- **THEN** a Maryaj Gratis action is available
+- **THEN** Maryaj Gratis configuration status is visible
+- **AND** a Maryaj Gratis action is available
 - **AND** choosing it routes to the dedicated Maryaj Gratis page.
 
+### Requirement: Games page avoids implementation terminology
+
+The games page SHALL prefer business labels over internal entity or mapping terminology.
+
+#### Scenario: Tenant admin scans game labels
+
+- **GIVEN** a game card or game settings dialog is rendered
+- **WHEN** the admin reads labels and statuses
+- **THEN** labels prefer Available on, Visible on POS, Stake limits, Pricing / payout, and Needs attention
+- **AND** internal mapping/entity terminology is not primary copy.

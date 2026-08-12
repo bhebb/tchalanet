@@ -1,43 +1,63 @@
 # admin-sales-configuration-ux-v1
 
+## Goal
+
+Make tenant sales configuration understandable for non-technical admins without changing the current
+ownership boundaries.
+
+Admins should be able to answer quickly:
+
+1. Can I sell now?
+2. What can I sell, and on which draws?
+3. Where do I fix missing configuration?
+
 ## Why
 
 Tenant admins need to configure selling without thinking in implementation terms. The current admin
 portal already has the right ownership split:
 
-- setup page = readiness/control surface
-- tenant settings = global tenant configuration
-- games = game activation, POS visibility, stake/pricing configuration
-- draw channels = provider/channel/schedule configuration and sale availability
-- seller terminals = device-specific operational overrides
+- setup page = readiness/control surface;
+- tenant settings = global tenant defaults;
+- games = game activation, POS visibility, stake limits, pricing/payout configuration;
+- draw channels = tenant-facing draw/result-source/sale-availability configuration;
+- seller terminals = POS identity and device-specific operational overrides.
 
 The gap is UX clarity. The most important configuration surfaces still feel fragmented and technical
-for a non-technical tenant admin. Admins need to answer three questions quickly:
-
-1. Can this tenant sell now?
-2. Which games can be sold on which draws?
-3. Where do I fix a missing configuration without guessing the right page?
+for a non-technical tenant admin. The work should improve comprehension and corrective routing
+without moving settings between domains.
 
 ## What Changes
 
-- Improve the existing setup page optional area without changing readiness semantics:
-  - keep required/blocking cards focused on sale readiness;
-  - group optional/operational cards visually;
-  - add a POS / printing operational card that links to tenant settings print configuration.
-- Improve the games configuration page:
-  - make game cards show sale configuration status in business terms;
-  - separate activation/POS visibility, stake limits, payout/pricing, and advanced options;
-  - keep Maryaj Gratis visible but route to its dedicated page;
-  - expose a clear action to review game availability by draw.
-- Improve the draw channels page:
-  - use business labels for provider/channel/slot concepts;
-  - show whether each channel is sale-ready, manually operated, automatic, disabled, or incomplete;
-  - make game availability per draw a first-class next action;
-  - surface generated draw coverage when a channel is configured but has nothing sellable yet.
-- Keep tenant settings as the owner for global tenant defaults:
-  - currency, locale/calendar, receipt/PDF/POS defaults, delivery channels, branding/address.
-- Keep seller terminal management as the owner for terminal-specific overrides:
-  - Sunmi / generic ESC/POS / PDF, 58mm/80mm/A4, auto-print, Bluetooth printer, test print.
+- Setup page:
+  - keep existing blocking/readiness semantics unchanged;
+  - visually separate required readiness from operational setup;
+  - add POS & Printing as operational guidance, not a blocker;
+  - ensure every setup problem has one primary corrective destination.
+- Games page:
+  - redesign game cards around business sale configuration;
+  - show Ready / Needs attention / Disabled;
+  - make availability on draws first-class;
+  - keep Maryaj Gratis visible while routing to its dedicated page.
+- Draw channels page:
+  - use business labels such as result source, automatic/manual results, draw time, sales close,
+    available games, upcoming draws;
+  - model sale readiness separately from result-source mode;
+  - detect no upcoming draws and no games available as different needs-attention conditions.
+- Tenant settings:
+  - keep tenant-wide defaults centralized: currency, locale/calendar, receipt, PDF, POS/printing,
+    delivery channels, branding, address;
+  - improve links so admins land directly in the relevant section.
+- Seller terminals:
+  - keep terminal-specific printer/POS configuration on seller terminal management;
+  - make tenant default vs terminal override visible.
+- Shared UX:
+  - one problem maps to one destination;
+  - remove implementation terminology from primary admin copy;
+  - keep responsive admin usability at 360 dp, tablet, and desktop.
+- Web integration:
+  - keep HTTP/API calls in feature stores/services, not presentational components;
+  - use feature-local signal state;
+  - do not introduce a global sales-configuration store.
 
 ## Impact
 
@@ -47,16 +67,18 @@ for a non-technical tenant admin. Admins need to answer three questions quickly:
 - No page-model/public engine change.
 - No mobile or backend changes are required by default.
 - If backend data is insufficient, follow-up server scope must only add BFF/read-model fields; no
-  direct SQL in feature modules.
+  direct SQL, repositories, or persistence adapter access from feature modules.
 
 ## Non-Goals
 
 - Do not move tenant settings into setup.
-- Do not make optional POS/printing, limits, commission, subscription, or Maryaj Gratis settings
-  block tenant readiness.
+- Do not make optional POS/printing, limits, commission, subscription, notifications, or Maryaj
+  Gratis settings block tenant readiness.
 - Do not merge games, draw channels, and terminal pages into one large form.
 - Do not change lottery provider names or draw names for display; use backend/provider display names
   and only fall back to stable codes when labels are missing.
 - Do not redesign operations menus beyond making these configuration pages easier to reach after the
   Operations section.
-
+- Do not combine automatic/manual result source, ready/needs-attention sale status, disabled state,
+  and incomplete configuration into one overloaded enum.
+- Do not add backend behavior changes unless missing read data makes them necessary.
