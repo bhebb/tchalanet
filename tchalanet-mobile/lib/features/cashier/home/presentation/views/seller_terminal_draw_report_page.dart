@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/components.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../tickets/data/models/cashier_ticket_models.dart';
@@ -449,9 +450,9 @@ class _DrawTopSelectionsBlock extends ConsumerWidget {
   final I18nBundle translations;
 
   Color _chipColor(double ratio) {
-    if (ratio >= 0.8) return Colors.red.shade700;
-    if (ratio >= 0.5) return Colors.orange.shade700;
-    return Colors.green.shade700;
+    if (ratio >= 0.8) return TchColors.error;
+    if (ratio >= 0.5) return TchColors.warning;
+    return TchColors.success;
   }
 
   @override
@@ -577,7 +578,11 @@ class _TopSelectionRow extends StatelessWidget {
                 ),
                 const SizedBox(height: TchSpacing.s4),
                 Text(
-                  '${_money(selection.stakeTotalCents)} · ${selection.salesCount}',
+                  // amount · count; neither part is a user-visible key
+                  [
+                    _money(selection.stakeTotalCents),
+                    selection.salesCount.toString(),
+                  ].join(' · '),
                   style: textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
                   ),

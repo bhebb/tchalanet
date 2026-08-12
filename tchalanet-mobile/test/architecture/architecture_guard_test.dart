@@ -20,6 +20,7 @@ const _knownViewModelDataSourceImports = {
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/terminal_stats_service.dart',
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../../tickets/data/services/cashier_sell_catalog_service.dart',
   'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../../tickets/data/services/cashier_ticket_service.dart',
+  'lib/features/cashier/home/presentation/view_models/cashier_home_providers.dart|../../data/services/pos_draw_detail_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_sell_catalog_service.dart',
   'lib/features/cashier/tickets/presentation/view_models/sell_controller.dart|../../data/services/cashier_ticket_service.dart',
   'lib/features/draw/presentation/view_models/draw_providers.dart|../../data/services/draw_result_service.dart',
