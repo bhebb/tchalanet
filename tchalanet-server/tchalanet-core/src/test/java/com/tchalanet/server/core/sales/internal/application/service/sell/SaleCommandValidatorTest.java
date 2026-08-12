@@ -10,11 +10,16 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelGameView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.catalog.game.api.model.GameStatsView;
+import com.tchalanet.server.catalog.game.api.model.GameSummaryView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.common.types.id.DrawChannelGameId;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.types.money.CurrencyCode;
@@ -61,7 +66,8 @@ class SaleCommandValidatorTest {
       new SaleCommandValidator(
           new UnreachableSelectionApi(),
           TenantGameApiStub.explicitOnly(true, true),
-          DrawChannelCatalogStub.enabled());
+          DrawChannelCatalogStub.enabled(),
+          GameCatalogStub.active());
 
   @Test
   @DisplayName("unsupported option code is rejected with bet_option_out_of_range")
@@ -81,7 +87,8 @@ class SaleCommandValidatorTest {
         new SaleCommandValidator(
             new PassingSelectionApi(),
             TenantGameApiStub.explicitOnly(true, true),
-            DrawChannelCatalogStub.enabled());
+            DrawChannelCatalogStub.enabled(),
+            GameCatalogStub.active());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, null, "1234"));
 
     validator.validateCommand(command);
@@ -110,7 +117,8 @@ class SaleCommandValidatorTest {
         new SaleCommandValidator(
             new PassingSelectionApi(),
             TenantGameApiStub.explicitOnly(true, true),
-            DrawChannelCatalogStub.enabled());
+            DrawChannelCatalogStub.enabled(),
+            GameCatalogStub.active());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, (short) 2, "1234"));
 
     assertThat(command.lines()).hasSize(1);
@@ -124,7 +132,8 @@ class SaleCommandValidatorTest {
         new SaleCommandValidator(
             new PassingSelectionApi(),
             TenantGameApiStub.explicitOnly(true, false),
-            DrawChannelCatalogStub.enabled());
+            DrawChannelCatalogStub.enabled(),
+            GameCatalogStub.active());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, (short) 2, "1234"));
 
     validator.validateCommand(command);
@@ -141,7 +150,8 @@ class SaleCommandValidatorTest {
         new SaleCommandValidator(
             new DefaultSelectionApi(),
             TenantGameApiStub.implicitBestMatch(),
-            DrawChannelCatalogStub.enabled());
+            DrawChannelCatalogStub.enabled(),
+            GameCatalogStub.active());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, null, "1234"));
 
     validator.validateCommand(command);
@@ -155,7 +165,8 @@ class SaleCommandValidatorTest {
         new SaleCommandValidator(
             new DefaultSelectionApi(),
             TenantGameApiStub.implicitBestMatch(),
-            DrawChannelCatalogStub.enabled());
+            DrawChannelCatalogStub.enabled(),
+            GameCatalogStub.active());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, null, "12"));
 
     validator.validateCommand(command);
@@ -172,7 +183,8 @@ class SaleCommandValidatorTest {
         new SaleCommandValidator(
             new PassingSelectionApi(),
             TenantGameApiStub.implicitBestMatch(),
-            DrawChannelCatalogStub.enabled());
+            DrawChannelCatalogStub.enabled(),
+            GameCatalogStub.active());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, (short) 2, "1234"));
 
     validator.validateCommand(command);
@@ -189,7 +201,8 @@ class SaleCommandValidatorTest {
         new SaleCommandValidator(
             new PassingSelectionApi(),
             TenantGameApiStub.explicitOnly(true, true),
-            DrawChannelCatalogStub.disabled());
+            DrawChannelCatalogStub.disabled(),
+            GameCatalogStub.active());
     var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, (short) 2, "1234"));
 
     validator.validateCommand(command);
@@ -197,6 +210,24 @@ class SaleCommandValidatorTest {
         .isInstanceOf(ProblemRestException.class)
         .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
         .isEqualTo("sales.game_not_available_on_draw_channel");
+  }
+
+  @Test
+  @DisplayName("inactive platform game is rejected even when tenant game is enabled")
+  void inactivePlatformGameRejected() {
+    var validator =
+        new SaleCommandValidator(
+            new PassingSelectionApi(),
+            TenantGameApiStub.explicitOnly(true, true),
+            DrawChannelCatalogStub.enabled(),
+            GameCatalogStub.inactive());
+    var command = command(line(GameCode.HT_LOTO4, BetType.LOTTO4_PATTERN, (short) 2, "1234"));
+
+    validator.validateCommand(command);
+    assertThatThrownBy(() -> validator.validateTenantConfiguration(command, TENANT_ID))
+        .isInstanceOf(ProblemRestException.class)
+        .extracting(ex -> ((ProblemRestException) ex).getProblem().getProperties().get("code"))
+        .isEqualTo("sales.game_inactive");
   }
 
   private static SellTicketCommand command(SellTicketLineInput line) {
@@ -417,6 +448,62 @@ class SaleCommandValidatorTest {
     @Override
     public TchPage<DrawChannelView> search(
         DrawChannelSearchCriteria criteria, TchPageRequest pageReq) {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  private static final class GameCatalogStub implements GameCatalog {
+
+    private final boolean active;
+
+    private GameCatalogStub(boolean active) {
+      this.active = active;
+    }
+
+    static GameCatalogStub active() {
+      return new GameCatalogStub(true);
+    }
+
+    static GameCatalogStub inactive() {
+      return new GameCatalogStub(false);
+    }
+
+    @Override
+    public List<GameView> listActive() {
+      if (!active) return List.of();
+      return List.of(
+          new GameView(
+              GameId.of(UUID.fromString("73000000-0000-0000-0000-000000000001")),
+              GameCode.HT_LOTO4.name(),
+              "Loto 4",
+              "HAITI",
+              null,
+              4,
+              4,
+              null,
+              true,
+              1,
+              null,
+              null));
+    }
+
+    @Override
+    public Optional<GameView> findByCode(String code) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<GameView> findById(GameId id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GameStatsView stats() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<GameSummaryView> listRecent(int limit) {
       throw new UnsupportedOperationException();
     }
   }

@@ -619,6 +619,10 @@
             "title": "Jeu désactivé",
             "message": "Ce jeu est désactivé pour cet espace."
           },
+          "game_inactive": {
+            "title": "Jeu indisponible",
+            "message": "Ce jeu n’est plus actif pour la vente. Choisissez un autre jeu."
+          },
           "tenant_game_not_visible_in_pos": {
             "title": "Jeu indisponible",
             "message": "Ce jeu n’est pas disponible sur ce terminal."

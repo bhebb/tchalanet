@@ -619,6 +619,10 @@
             "title": "Jwèt dezaktive",
             "message": "Jwèt sa a dezaktive pou espas sa a."
           },
+          "game_inactive": {
+            "title": "Jwèt pa disponib",
+            "message": "Jwèt sa a pa aktif pou vann ankò. Chwazi yon lòt jwèt."
+          },
           "tenant_game_not_visible_in_pos": {
             "title": "Jwèt pa disponib",
             "message": "Jwèt sa a pa disponib sou tèminal sa a."

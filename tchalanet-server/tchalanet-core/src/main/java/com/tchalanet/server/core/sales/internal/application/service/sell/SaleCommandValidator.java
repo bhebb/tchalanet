@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.common.types.id.TenantGameId;
@@ -30,6 +31,7 @@ public class SaleCommandValidator {
   private final SelectionApi selectionApi;
   private final TenantGameApi tenantGameApi;
   private final DrawChannelCatalog drawChannelCatalog;
+  private final GameCatalog gameCatalog;
 
   // -------------------------------------------------------------------------
   // Validation
@@ -61,6 +63,8 @@ public class SaleCommandValidator {
   public void validateTenantConfiguration(SellTicketCommand command, TenantId tenantId) {
     var gamesByCode = new HashMap<String, TenantGameRefView>();
     tenantGameApi.listGames(tenantId).forEach(game -> gamesByCode.put(game.gameCode(), game));
+    var activeCatalogGameCodes = new HashSet<String>();
+    gameCatalog.listActive().forEach(game -> activeCatalogGameCodes.add(game.code().toUpperCase()));
     var gamesAvailableOnChannel = new HashSet<TenantGameId>();
     drawChannelCatalog
         .listGamesByChannel(tenantId, command.drawChannelId())
@@ -80,6 +84,9 @@ public class SaleCommandValidator {
       }
       if (!tenantGame.enabled()) {
         throw ProblemRest.of(SalesErrorCodes.TENANT_GAME_DISABLED);
+      }
+      if (!activeCatalogGameCodes.contains(gameCode)) {
+        throw ProblemRest.of(SalesErrorCodes.GAME_INACTIVE);
       }
       if (!tenantGame.visibleInPos()) {
         throw ProblemRest.of(SalesErrorCodes.TENANT_GAME_NOT_VISIBLE_IN_POS);

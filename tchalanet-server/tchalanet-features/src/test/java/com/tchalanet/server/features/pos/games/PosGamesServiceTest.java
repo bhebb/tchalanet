@@ -2,8 +2,13 @@ package com.tchalanet.server.features.pos.games;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
+import com.tchalanet.server.catalog.game.api.model.GameStatsView;
+import com.tchalanet.server.catalog.game.api.model.GameSummaryView;
+import com.tchalanet.server.catalog.game.api.model.GameView;
+import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
@@ -42,7 +47,8 @@ class PosGamesServiceTest {
                         new TenantBetOptionView((short) 2, "Box", "Box", false, true, 2)))));
     var tenantGameApi = new FakeTenantGameApi(config);
 
-    var result = new PosGamesService(tenantGameApi).listAvailable(tenantId);
+    var result =
+        new PosGamesService(tenantGameApi, GameCatalogStub.active()).listAvailable(tenantId);
 
     assertThat(result)
         .singleElement()
@@ -76,7 +82,8 @@ class PosGamesServiceTest {
                         new TenantBetOptionView((short) 2, "Box", "Box", true, true, 2)))));
     var tenantGameApi = new FakeTenantGameApi(config);
 
-    var result = new PosGamesService(tenantGameApi).listAvailable(tenantId);
+    var result =
+        new PosGamesService(tenantGameApi, GameCatalogStub.active()).listAvailable(tenantId);
 
     assertThat(result)
         .singleElement()
@@ -86,6 +93,26 @@ class PosGamesServiceTest {
               assertThat(game.selectionPolicy()).isEqualTo(SelectionPolicy.IMPLICIT_BEST_MATCH);
               assertThat(game.options()).isEmpty();
             });
+  }
+
+  @Test
+  void availableHidesInactivePlatformGames() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var config =
+        new TenantGameBetOptionConfigView(
+            GameCode.HT_LOTO3.name(),
+            List.of(
+                new TenantBetTypeOptionConfigView(
+                    BetType.LOTTO3_3D,
+                    SelectionPolicy.EXPLICIT_ONLY,
+                    (short) 1,
+                    List.of(new TenantBetOptionView((short) 1, "Exact", "Exact", true, true, 1)))));
+    var tenantGameApi = new FakeTenantGameApi(config);
+
+    var result =
+        new PosGamesService(tenantGameApi, GameCatalogStub.inactive()).listAvailable(tenantId);
+
+    assertThat(result).isEmpty();
   }
 
   private record FakeTenantGameApi(TenantGameBetOptionConfigView config) implements TenantGameApi {
@@ -132,6 +159,62 @@ class PosGamesServiceTest {
       return List.of(
           new TenantGameRefView(
               null, null, GameCode.HT_LOTO3.name(), true, true, null, 1, null, null));
+    }
+  }
+
+  private static final class GameCatalogStub implements GameCatalog {
+
+    private final boolean active;
+
+    private GameCatalogStub(boolean active) {
+      this.active = active;
+    }
+
+    static GameCatalogStub active() {
+      return new GameCatalogStub(true);
+    }
+
+    static GameCatalogStub inactive() {
+      return new GameCatalogStub(false);
+    }
+
+    @Override
+    public List<GameView> listActive() {
+      if (!active) return List.of();
+      return List.of(
+          new GameView(
+              GameId.of(UUID.randomUUID()),
+              GameCode.HT_LOTO3.name(),
+              "Loto 3",
+              "HAITI",
+              null,
+              3,
+              3,
+              null,
+              true,
+              1,
+              null,
+              null));
+    }
+
+    @Override
+    public Optional<GameView> findByCode(String code) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<GameView> findById(GameId id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GameStatsView stats() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<GameSummaryView> listRecent(int limit) {
+      throw new UnsupportedOperationException();
     }
   }
 }

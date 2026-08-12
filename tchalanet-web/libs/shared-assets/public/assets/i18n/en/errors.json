@@ -619,6 +619,10 @@
             "title": "Game disabled",
             "message": "This game is disabled for this workspace."
           },
+          "game_inactive": {
+            "title": "Game unavailable",
+            "message": "This game is no longer active for sale. Choose another game."
+          },
           "tenant_game_not_visible_in_pos": {
             "title": "Game unavailable",
             "message": "This game is not available on this terminal."
