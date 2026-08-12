@@ -55,9 +55,20 @@ Retourne en une seule réponse :
 ### Tirages et jeux
 
 ```http
-GET /tenant/cashier/draws/available   ← filtre status=OPEN pour le panier
-GET /tenant/cashier/games/available   ← libellés vendeur, betTypes, betOptions
+GET /tenant/cashier/draws/available              ← filtre status=OPEN pour le panier
+GET /tenant/cashier/draws/{drawId}/detail        ← topSelections + exposure (SELLER_TERMINAL uniquement)
+GET /tenant/cashier/games/available              ← libellés vendeur, betTypes, betOptions
 ```
+
+**Draw detail** — `GET /tenant/cashier/draws/{drawId}/detail`
+
+Le `sellerTerminalId` est résolu depuis `ctx.sellerTerminalIdRequired()` — il vient du JWT Firebase et n'est jamais passé en query param.
+
+Retourne :
+- **topSelections** : top 5 sélections par mise totale sur ce tirage
+- **exposureAlerts** : sélections avec ratio stakeTotal/limitCents ≥ 0.5 — numéros chauds visibles au vendeur
+
+La résolution LimitPolicy inclut le scope SELLER_TERMINAL grâce à la présence du sellerTerminalId dans le contexte d'authentification. Les limites effectives retournées sont donc celles du terminal, du canal et du tenant (la règle la plus spécifique l'emporte).
 
 `/tenant/cashier/games/available` expose uniquement les jeux actifs et visibles POS du tenant.
 Le flow `POST /tenant/sales/preparations` réapplique la même frontière serveur :

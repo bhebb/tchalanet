@@ -86,6 +86,48 @@ Retourne :
 - `autonomyConfigured` : autonomy configurée ?
 - `autonomyLevel` : niveau configuré
 
+### Draw overview
+
+```http
+GET /admin/draws/{drawId}/overview
+```
+
+Agrège en une seule réponse :
+- **Draw metadata** : drawId, label, status, drawChannelId, cutoff
+- **topSelections** : top 5 sélections par mise totale sur ce tirage
+- **effectiveLimits** : résolution LimitResolver sur scopes TENANT + DRAW_CHANNEL uniquement
+- **exposureAlerts** : lignes draw_exposure avec ratio stakeTotal/limitCents
+
+L'admin BFF ne résout **pas** au niveau SELLER_TERMINAL — la requête admin ne porte pas de sellerTerminalId ; résoudre à ce scope sans terminal identifié n'aurait pas de sens.
+
+`effectiveLimits` représente donc le plancher tenant + canal : la vue la plus large applicable sans contexte terminal.
+
+C'est la source de données pour la section **"Numéros à risque"** du draw detail web (`/app/admin/draws/:drawId`).
+
+### Limits management
+
+Ces endpoints exposent la gestion des règles de limite (première documentation dans FEATURE_TENANTADMIN — les détails du moteur sont dans `DOMAIN_LIMITPOLICY.md` section 32).
+
+```http
+GET    /admin/policies/limits/rules
+GET    /admin/policies/limits/assignments
+PUT    /admin/policies/limits/assignments
+DELETE /admin/policies/limits/assignments/{id}
+GET    /admin/policies/limits/exposure
+```
+
+| Endpoint | Rôle |
+|---|---|
+| `GET /admin/policies/limits/rules` | Catalogue JSON des règles disponibles (RuleKey + metadata UI) |
+| `GET /admin/policies/limits/assignments` | Liste les LimitAssignment actifs du tenant |
+| `PUT /admin/policies/limits/assignments` | Créer ou modifier un LimitAssignment (upsert) |
+| `DELETE /admin/policies/limits/assignments/{id}` | Soft-delete d'un LimitAssignment |
+| `GET /admin/policies/limits/exposure` | Vue paginée brute des lignes draw_exposure |
+
+Portées configurables depuis l'UI : `TENANT`, `DRAW_CHANNEL`, `SELLER_TERMINAL`. `TENANT` est la portée par défaut.
+
+Le controller ne contient pas de logique métier — il construit des commands/queries et repose sur `TchRequestContext` pour le tenantId (jamais fourni par le client).
+
 ---
 
 ## Readiness tenant
