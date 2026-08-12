@@ -13,6 +13,7 @@ from loadtest.basket import random_basket
 from loadtest.bootstrap import new_platform_admin_api, new_seller_terminal_api, run_id
 from loadtest.client import LocustApiClient
 from tch_e2e.archive_ops import ArchiveOpsScenario, ArchiveOpsScenarioConfig
+from tch_e2e.config import SeedIds
 
 
 class CashierUser(User):
@@ -70,6 +71,83 @@ class CashierUser(User):
         # Exercises the cached read path (GET /tenant/cashier/draws/available).
         try:
             self.flow.list_available_draws()
+        except Exception:
+            pass
+
+    @tag("read")
+    @task(1)
+    def read_draw_detail(self) -> None:
+        # Exercises the POS BFF draw-detail endpoint — topSelections + exposure alerts.
+        draw = self._pick_draw()
+        if not draw:
+            return
+        try:
+            self._client.get(f"/tenant/cashier/draws/{draw['drawId']}/detail")
+        except Exception:
+            pass
+
+
+class AdminUser(User):
+    """A tenant admin periodically reading the draw-detail overview — admin BFF perf baseline."""
+
+    weight = 1
+    wait_time = between(1.0, 3.0)
+
+    def on_start(self) -> None:
+        from loadtest.bootstrap import _load_env_best_effort, base_url  # noqa: PLC0415
+        _load_env_best_effort()
+        from loadtest.safety import assert_non_prod  # noqa: PLC0415
+        url = base_url()
+        assert_non_prod(url)
+        seed = SeedIds.from_env()
+        api = new_platform_admin_api()
+        self._client = LocustApiClient(
+            api, self.environment.events.request, run_context={"run_id": run_id()}
+        )
+        self._tenant_id = seed.tenant_id
+        self._draws = self._discover_draws()
+
+    def on_stop(self) -> None:
+        try:
+            self._client.close()
+        except Exception:
+            pass
+
+    def _discover_draws(self) -> list[str]:
+        try:
+            resp = self._client.get(
+                "/admin/draws",
+                params={"status": "OPEN", "page": 0, "size": 20},
+                headers={"X-Tch-Tenant-Override": self._tenant_id,
+                         "X-Tch-Override-Reason": "locust-admin-read"},
+            )
+            if resp.status_code >= 400:
+                return []
+            body = resp.json()
+            data = body.get("data") if isinstance(body, dict) else body
+            items = data if isinstance(data, list) else (data or {}).get("items") or (data or {}).get("content") or []
+            return [
+                str(row.get("drawId") or row.get("id") or "")
+                for row in items if isinstance(row, dict)
+                if row.get("drawId") or row.get("id")
+            ]
+        except Exception:
+            return []
+
+    @tag("admin_read")
+    @task(1)
+    def read_draw_overview(self) -> None:
+        if not self._draws:
+            self._draws = self._discover_draws()
+        if not self._draws:
+            return
+        draw_id = random.choice(self._draws)
+        try:
+            self._client.get(
+                f"/admin/draws/{draw_id}/overview",
+                headers={"X-Tch-Tenant-Override": self._tenant_id,
+                         "X-Tch-Override-Reason": "locust-admin-read"},
+            )
         except Exception:
             pass
 
