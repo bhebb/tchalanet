@@ -77,6 +77,16 @@
 - [ ] Menu limits : garder `overview` (lecture seule audit) + `number` (bloke nimero)
 - [ ] Ajouter lien "Vue avancée →" sur la page overview vers `/limits/draw` pour accès admin
 
+## Slice 10 — Mobile : widget "Nimero cho" dans SellerTerminalDrawReportPage
+
+- [ ] Ajouter appel au BFF `GET /tenant/cashier/draws/{drawId}/detail` dans `PosDrawDetailService`
+  - retourne : draw info + topSelections (SELLER_TERMINAL) + exposureAlerts (SELLER_TERMINAL, si OPEN)
+- [ ] Ajouter provider Riverpod `posDrawDetailProvider(drawId)` dans `cashier_home_providers.dart`
+- [ ] Ajouter widget `_DrawTopSelectionsBlock` dans `seller_terminal_draw_report_page.dart`
+  - visible seulement si tirage OPEN et liste non vide
+  - liste les numéros avec leur stake_total et ratio si MAX_STAKE_EXPOSURE configuré (chip coloré vert→orange→rouge)
+  - titre i18n : `pos.reports.hot_numbers`
+
 ## Slice 9 — i18n
 
 - [ ] Ajouter clés i18n pour `LimitPolicyBlockComponent` (fr/en/ht)

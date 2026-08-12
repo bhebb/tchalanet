@@ -35,6 +35,12 @@ Les règles stateful (`stateless: false`) lisent l'accumulation de ventes réell
 
 **Numéros chauds POS** : le vendeur doit pouvoir voir ses propres top numéros (scope SELLER_TERMINAL). La donnée n'existe pas encore — nécessite d'activer la projection SELLER_TERMINAL dans `ExposureProjectorAdapter`.
 
+**Page de détail draw côté mobile** : `SellerTerminalDrawReportPage` est la page de détail d'un tirage en POS (Flutter). Elle appelle aujourd'hui deux endpoints :
+1. `GET /tenant/cashier/tickets/stats?date=YYYY-MM-DD` → stats journalières avec breakdown par drawId (totalCents, ticketCount, winningsCents, sellerCommissionCents)
+2. `GET /tenant/cashier/tickets?fromDate=...&drawId=...` → liste des tickets vendus sur ce tirage
+
+Elle n'appelle aucun endpoint de top sélections ni d'exposition — le `PosDrawsController` existant (`/tenant/cashier/draws`) n'expose que `GET /available`.
+
 ---
 
 ## Pourquoi
@@ -94,7 +100,7 @@ Retourne `ExposureAlertsOverviewView` — déjà implémenté dans le query hand
 ### Backend
 - **Activer projection SELLER_TERMINAL** dans `ExposureProjectorAdapter.scopesFor()` — ajouter `LimitScopeRef.sellerTerminal(event.context().sellerTerminalId())` si présent. Toutes les ventes futures sont alors tracées par terminal.
 - **BFF admin** : nouveau endpoint `GET /admin/draws/{drawId}/overview` dans `features/tenantadmin/draw` — agrège draw channel info + draw + résultat + top selections (core/sales) + exposure DRAW_CHANNEL (core/limitpolicy). Remplace les deux appels séparés actuels du frontend.
-- **BFF POS** : nouveau endpoint `GET /tenant/cashier/draws/{drawId}/detail` dans `features/pos/draws` — agrège draw info + top selections scope SELLER_TERMINAL + exposure SELLER_TERMINAL. Uniquement si le tirage est OPEN.
+- **BFF POS** : nouveau endpoint `GET /tenant/cashier/draws/{drawId}/detail` dans `features/pos/draws/PosDrawsController` (controller existant, ajouter `@GetMapping("/{drawId}/detail")`) — agrège draw info + top selections scope SELLER_TERMINAL + exposure SELLER_TERMINAL. Uniquement si le tirage est OPEN.
 
 ### Web — admin-portal
 - Nouveau composant `LimitPolicyBlockComponent` (champs par ruleKey, nullable, avec valeur héritée).
@@ -103,6 +109,11 @@ Retourne `ExposureAlertsOverviewView` — déjà implémenté dans le query hand
 - Ajouter bouton "Bloke nimero" sur le détail du tirage (pré-sélection du channel).
 - Nouveau widget "Numéros à risque" sur le détail du tirage (appel exposure-alerts).
 - Nouveau service call `getExposureAlerts(drawId, channelId)` dans `AdminLimitsApi`.
+
+### Mobile — POS Flutter
+- `SellerTerminalDrawReportPage` continue d'appeler `/tenant/cashier/tickets/stats` (stats + breakdown par draw) et `/tenant/cashier/tickets` (liste tickets) — pas touché.
+- Ajouter un appel au nouveau BFF `GET /tenant/cashier/draws/{drawId}/detail` pour obtenir les top sélections SELLER_TERMINAL et l'exposition.
+- Nouveau widget "Nimero cho" dans `SellerTerminalDrawReportPage` : liste des top numéros du terminal pour ce tirage, avec ratio d'exposition si `MAX_STAKE_EXPOSURE` est configuré. Visible seulement si le tirage est OPEN.
 
 ---
 
