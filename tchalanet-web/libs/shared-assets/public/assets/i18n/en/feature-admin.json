@@ -166,10 +166,6 @@
     },
     "setup": {
       "backToSetup": "Back to setup",
-      "progress": {
-        "title": "{{completed}} / {{total}} required steps completed",
-        "subtitle": "Setup readiness"
-      },
       "advancedSettings": {
         "title": "Advanced settings",
         "description": "Configure advanced settings for your operator.",
@@ -181,6 +177,16 @@
       "required": "Required",
       "blocking": "Blocking",
       "blockedBy": "Blocked by:",
+      "requiredSetupTitle": "Required to sell",
+      "requiredSetupDescription": "These items must be ready before sales can start.",
+      "operationalSetupTitle": "Operational setup",
+      "operationalSetupDescription": "These items do not block selling, but they improve control and daily operation.",
+      "operationalStatus": {
+        "configured": "Configured",
+        "notConfigured": "Not configured",
+        "recommended": "Recommended",
+        "notEnabled": "Not enabled"
+      },
       "section": {
         "identity": "Identity",
         "address": "Address",
@@ -213,6 +219,9 @@
         "limits": "Sales limits",
         "limitsDesc": "Sales limits applied to your operator.",
         "limitsCta": "Configure limits",
+        "posPrinting": "POS & printing",
+        "posPrintingDesc": "Configure receipts, PDFs, and default printing settings.",
+        "posPrintingCta": "Configure printing",
         "settings": "Operator settings",
         "settingsDesc": "Customize the language and receipt (display name, messages) for your operator.",
         "settingsCta": "Configure settings",
@@ -228,6 +237,12 @@
         "sellerTerminalReady": "Sellers ready"
       },
       "description": "Follow the steps to configure your operator and make it operational.",
+      "progress": {
+        "title": "{{completed}} / {{total}} required steps completed",
+        "subtitle": "Setup readiness",
+        "readyToSell": "Ready to sell.",
+        "notReadyToSell": "Not ready to sell yet · {{count}} blocking item(s)."
+      },
       "status": {
         "notStarted": "Not started",
         "inProgress": "In progress",

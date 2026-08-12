@@ -8,19 +8,19 @@
 
 ## 1. Setup Page: Readiness vs Operational Setup
 
-- [ ] Keep existing blocking/readiness semantics unchanged.
-- [ ] Keep required cards focused only on configuration required to sell.
-- [ ] Review readiness labels and replace technical wording with business wording.
-- [ ] Ensure the primary setup summary clearly answers ready to sell, not ready to sell, and number of blocking items.
-- [ ] Rename/reframe the optional area as operational setup or equivalent business wording.
-- [ ] Visually separate operational cards from required readiness cards.
-- [ ] Add POS & Printing as an operational setup card.
-- [ ] Show a simple operational status: Configured, Not configured, Recommended, or Not enabled.
-- [ ] Link POS & Printing to the existing tenant settings print configuration.
-- [ ] Keep limits, commission, subscription, notifications, Maryaj Gratis, and similar non-blocking concerns in the operational section.
-- [ ] Ensure every setup problem exposes one primary corrective action.
-- [ ] Avoid multiple competing CTAs for the same problem.
-- [ ] Cover setup card ordering, optional/operational behavior, readiness summary, and corrective destinations with focused tests.
+- [x] Keep existing blocking/readiness semantics unchanged.
+- [x] Keep required cards focused only on configuration required to sell.
+- [x] Review readiness labels and replace technical wording with business wording.
+- [x] Ensure the primary setup summary clearly answers ready to sell, not ready to sell, and number of blocking items.
+- [x] Rename/reframe the optional area as operational setup or equivalent business wording.
+- [x] Visually separate operational cards from required readiness cards.
+- [x] Add POS & Printing as an operational setup card.
+- [x] Show a simple operational status: Configured, Not configured, Recommended, or Not enabled.
+- [x] Link POS & Printing to the existing tenant settings print configuration.
+- [x] Keep limits, commission, subscription, notifications, Maryaj Gratis, and similar non-blocking concerns in the operational section.
+- [x] Ensure every setup problem exposes one primary corrective action.
+- [x] Avoid multiple competing CTAs for the same problem.
+- [x] Cover setup card ordering, optional/operational behavior, readiness summary, and corrective destinations with focused tests.
 
 ## 2. Games Configuration UX
 
@@ -101,8 +101,8 @@
 
 ## 9. Validation
 
-- [ ] Run focused admin portal unit tests for touched setup/games/draw-channel components.
-- [ ] Run focused lint for touched admin portal project/libs.
+- [x] Run focused admin portal unit tests for touched setup/games/draw-channel components.
+- [x] Run focused lint for touched admin portal project/libs.
 - [ ] Run focused admin e2e smoke if runtime is available.
 - [ ] Verify responsive screenshots at 360 dp, tablet, and desktop.
 - [ ] Verify setup ready, setup incomplete, missing printing, operational card secondary presentation.

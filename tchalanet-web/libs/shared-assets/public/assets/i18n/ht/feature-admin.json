@@ -166,10 +166,6 @@
     },
     "setup": {
       "backToSetup": "Retounen nan konfigirasyon",
-      "progress": {
-        "title": "{{completed}} / {{total}} etap obligatwa konplète",
-        "subtitle": "Swivi eta preparasyon an"
-      },
       "advancedSettings": {
         "title": "Paramèt avanse",
         "description": "Konfigire paramèt avanse santral la.",
@@ -181,6 +177,16 @@
       "required": "Obligatwa",
       "blocking": "Bloke",
       "blockedBy": "Bloke pa :",
+      "requiredSetupTitle": "Sa ki nesesè pou vann",
+      "requiredSetupDescription": "Eleman sa yo dwe pare avan vant lan ka kòmanse.",
+      "operationalSetupTitle": "Konfigirasyon operasyonèl",
+      "operationalSetupDescription": "Eleman sa yo pa bloke vant lan, men yo ede kontwòl ak travay chak jou.",
+      "operationalStatus": {
+        "configured": "Konfigire",
+        "notConfigured": "Pa konfigire",
+        "recommended": "Rekòmande",
+        "notEnabled": "Pa aktive"
+      },
       "section": {
         "identity": "Idantite",
         "address": "Adrès",
@@ -213,6 +219,9 @@
         "limits": "Limit vant",
         "limitsDesc": "Limit vant ki aplike sou santral ou an.",
         "limitsCta": "Konfigire limit yo",
+        "posPrinting": "POS ak enpresyon",
+        "posPrintingDesc": "Konfigire resi, PDF ak paramèt enpresyon pa defo.",
+        "posPrintingCta": "Konfigire enpresyon",
         "settings": "Paramèt santral la",
         "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
         "settingsCta": "Konfigire paramèt yo",
@@ -228,6 +237,12 @@
         "sellerTerminalReady": "Machann yo pare"
       },
       "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
+      "progress": {
+        "title": "{{completed}} / {{total}} etap obligatwa konplète",
+        "subtitle": "Swivi eta preparasyon an",
+        "readyToSell": "Pare pou vann.",
+        "notReadyToSell": "Poko pare pou vann · {{count}} eleman ki bloke."
+      },
       "status": {
         "notStarted": "Poko kòmanse",
         "inProgress": "An kou",

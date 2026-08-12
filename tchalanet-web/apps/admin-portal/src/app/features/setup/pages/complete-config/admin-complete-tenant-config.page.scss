@@ -4,13 +4,38 @@
   display: block;
 }
 
+.setup__section {
+  margin-block-end: 1.5rem;
+}
+
+.setup__section-heading {
+  margin-block-end: 0.75rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tch-color-on-surface);
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    max-width: 48rem;
+    font-size: 0.875rem;
+    color: var(--tch-color-on-surface-variant);
+  }
+}
+
+.setup__section--operational {
+  padding-block-start: 1.25rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+}
+
 // Grid — layout of the sibling tch-setup-checklist-card items
 .setup__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
-  margin-block-end: 1rem;
-  margin-bottom: 1rem;
 }
 
 // Advanced settings link box

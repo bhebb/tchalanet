@@ -49,6 +49,7 @@ interface SetupChecklistCardViewModel {
   readonly badgeKind: SetupChecklistBadgeKind;
   readonly body: string;
   readonly bodyVariant: SetupChecklistBodyVariant;
+  readonly statusLabelKey?: string;
   readonly ctaKey: string;
   readonly route: string;
   readonly queryParams?: Record<string, string>;
@@ -115,15 +116,18 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly terminalBlockingSteps = computed<readonly string[]>(() => {
     if (this.canCreateSellerTerminal()) return [];
 
-    const requiredMissing = this.setupCards()
-      .filter(card => card.badgeKind !== 'optional' && card.status === 'MISSING')
+    const requiredMissing = this.requiredSetupCards()
+      .filter(
+        card =>
+          isReadinessCardBlocking(card.badgeKind) && card.status === 'MISSING',
+      )
       .map(card => card.id);
     const backendBlocking = (this.setup()?.blockingSteps ?? []).map(step => step.toLowerCase());
 
     return this.normalizeBlockingSteps([...requiredMissing, ...backendBlocking]);
   });
 
-  readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
+  readonly requiredSetupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
     const h = this.header();
     const identityStatus = this.sectionStatus('identity');
     const addressStatus = this.sectionStatus('address');
@@ -148,7 +152,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
     const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
     const settingsTarget = this.settingsTarget();
-    const subscription = this.subscription();
 
     const cards: SetupChecklistCardViewModel[] = [
       {
@@ -225,6 +228,31 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         sectionErrorTargets: ['admin.setup.generatedDraws'],
       },
     );
+
+    return cards;
+  });
+
+  readonly operationalSetupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
+    const gamesStatus = this.sectionStatus('games_pricing');
+    const subscription = this.subscription();
+    const cards: SetupChecklistCardViewModel[] = [
+      {
+        id: 'pos_printing',
+        icon: 'print',
+        titleKey: 'admin.setup.section.posPrinting',
+        status: this.posPrintingStatus(),
+        badgeKind: 'operational',
+        body: this.translate.instant('admin.setup.section.posPrintingDesc'),
+        bodyVariant: 'default',
+        statusLabelKey: this.posPrintingStatusLabelKey(),
+        ctaKey: 'admin.setup.section.posPrintingCta',
+        route: '/app/admin/company/settings/config',
+        queryParams: { from: 'setup' },
+        fragment: 'print',
+        emphasizeMissing: false,
+        sectionErrorTargets: ['admin.setup.pos_printing'],
+      },
+    ];
 
     if (this.maryajGratisEnabled()) {
       cards.push({
@@ -309,6 +337,11 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     return cards;
   });
 
+  readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => [
+    ...this.requiredSetupCards(),
+    ...this.operationalSetupCards(),
+  ]);
+
   readonly loading = computed(() => this.pageState() === 'loading');
   readonly error = computed(() => (this.pageState() === 'error' ? this.pageError() : null));
 
@@ -391,6 +424,14 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     return { route: '/app/admin/company/settings/config' };
   }
 
+  private posPrintingStatus(): SetupChecklistStatus {
+    return setupPosPrintingStatus(this.sectionMap().get('settings'));
+  }
+
+  private posPrintingStatusLabelKey(): string {
+    return setupPosPrintingStatusLabelKey(this.posPrintingStatus());
+  }
+
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {
     return [
       [addr.line1, addr.line2].filter(Boolean).join(' · '),
@@ -463,4 +504,29 @@ export function adminSetupSectionError(
     title: copy.title,
     message: copy.message,
   };
+}
+
+export function isReadinessCardBlocking(kind: SetupChecklistBadgeKind): boolean {
+  return kind === 'required' || kind === 'blocking';
+}
+
+export function setupPosPrintingStatus(
+  settings: { readonly issues?: readonly { readonly messageKey?: string | null }[] } | undefined,
+): SetupChecklistStatus {
+  if (!settings) return 'UNKNOWN';
+
+  const hasPrintIssue =
+    settings.issues?.some(item => item.messageKey?.startsWith('settings.print.')) ?? false;
+  return hasPrintIssue ? 'MISSING' : 'READY';
+}
+
+export function setupPosPrintingStatusLabelKey(status: SetupChecklistStatus): string {
+  switch (status) {
+    case 'READY':
+      return 'admin.setup.operationalStatus.configured';
+    case 'MISSING':
+      return 'admin.setup.operationalStatus.notConfigured';
+    default:
+      return 'admin.setup.operationalStatus.recommended';
+  }
 }

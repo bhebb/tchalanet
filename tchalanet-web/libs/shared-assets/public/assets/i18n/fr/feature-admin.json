@@ -172,9 +172,21 @@
       "required": "Requis",
       "blocking": "Bloquant",
       "blockedBy": "Bloqué par :",
+      "requiredSetupTitle": "Essentiel pour vendre",
+      "requiredSetupDescription": "Ces éléments doivent être prêts avant de démarrer la vente.",
+      "operationalSetupTitle": "Configuration opérationnelle",
+      "operationalSetupDescription": "Ces éléments ne bloquent pas la vente, mais améliorent le contrôle et l’exploitation.",
+      "operationalStatus": {
+        "configured": "Configuré",
+        "notConfigured": "Non configuré",
+        "recommended": "Recommandé",
+        "notEnabled": "Non activé"
+      },
       "progress": {
         "title": "{{completed}} / {{total}} étapes obligatoires terminées",
-        "subtitle": "Suivi de l'état de préparation"
+        "subtitle": "Suivi de l'état de préparation",
+        "readyToSell": "Prêt à vendre.",
+        "notReadyToSell": "Pas encore prêt à vendre · {{count}} élément(s) bloquant(s)."
       },
       "section": {
         "identity": "Identité",
@@ -208,6 +220,9 @@
         "limits": "Limites de vente",
         "limitsDesc": "Limites de vente appliquées à votre santral.",
         "limitsCta": "Configurer les limites",
+        "posPrinting": "POS et impression",
+        "posPrintingDesc": "Configurez les reçus, PDF et paramètres d’impression par défaut.",
+        "posPrintingCta": "Configurer l’impression",
         "settings": "Paramètres du santral",
         "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre santral.",
         "settingsCta": "Configurer les paramètres",

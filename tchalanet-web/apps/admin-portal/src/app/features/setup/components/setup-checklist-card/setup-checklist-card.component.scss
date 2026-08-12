@@ -74,6 +74,13 @@
   &--address { font-size: 0.8125rem; }
 }
 
+.setup__card-status-label {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tch-color-on-surface);
+}
+
 .setup__card-error {
   display: block;
   margin: 0.25rem 0;

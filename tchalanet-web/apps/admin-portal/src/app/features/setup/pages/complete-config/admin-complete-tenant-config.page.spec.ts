@@ -8,7 +8,13 @@ import { resolve } from 'node:path';
 import { ApiResponse, ProblemDetail, webAppErrorFromNotice } from '@tch/api';
 import { describe, expect, it } from 'vitest';
 
-import { adminSetupPageError, adminSetupSectionError } from './admin-complete-tenant-config.page';
+import {
+  adminSetupPageError,
+  adminSetupSectionError,
+  isReadinessCardBlocking,
+  setupPosPrintingStatus,
+  setupPosPrintingStatusLabelKey,
+} from './admin-complete-tenant-config.page';
 
 describe('AdminCompleteTenantConfigPage error presentation', () => {
   it('renders page failures from client-owned ProblemDetail copy', () => {
@@ -43,6 +49,42 @@ describe('AdminCompleteTenantConfigPage error presentation', () => {
       message: 'Complétez les éléments manquants quand vous êtes prêt.',
     });
     expect(view.message).not.toBe(fixture.notices[0].message);
+  });
+});
+
+describe('AdminCompleteTenantConfigPage setup classification', () => {
+  it('keeps operational setup out of readiness blockers', () => {
+    expect(isReadinessCardBlocking('required')).toBe(true);
+    expect(isReadinessCardBlocking('blocking')).toBe(true);
+    expect(isReadinessCardBlocking('optional')).toBe(false);
+    expect(isReadinessCardBlocking('operational')).toBe(false);
+  });
+
+  it('maps POS printing status from settings print issues', () => {
+    expect(setupPosPrintingStatus(undefined)).toBe('UNKNOWN');
+    expect(setupPosPrintingStatus({ issues: [] })).toBe('READY');
+    expect(
+      setupPosPrintingStatus({
+        issues: [{ messageKey: 'settings.print.receipt_template_missing' }],
+      }),
+    ).toBe('MISSING');
+    expect(
+      setupPosPrintingStatus({
+        issues: [{ messageKey: 'settings.locale.default_missing' }],
+      }),
+    ).toBe('READY');
+  });
+
+  it('uses simple operational status labels for POS printing', () => {
+    expect(setupPosPrintingStatusLabelKey('READY')).toBe(
+      'admin.setup.operationalStatus.configured',
+    );
+    expect(setupPosPrintingStatusLabelKey('MISSING')).toBe(
+      'admin.setup.operationalStatus.notConfigured',
+    );
+    expect(setupPosPrintingStatusLabelKey('UNKNOWN')).toBe(
+      'admin.setup.operationalStatus.recommended',
+    );
   });
 });
 
