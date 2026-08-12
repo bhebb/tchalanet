@@ -304,38 +304,88 @@ Modifier `private-navigation.model.ts` en miroir du pagemodel backend, **dans le
 
 ## Tests / critères d'acceptation
 
-**Limit resolution**
-- Une valeur TENANT est affichée comme valeur héritée sur un draw sans override.
-- Une valeur DRAW_CHANNEL override correctement TENANT.
-- Une valeur SELLER_TERMINAL override correctement DRAW_CHANNEL.
-- Un champ nullable vide affiche la valeur résolue et sa provenance.
-- Les scores internes ne sont jamais affichés.
+### Backend — unitaires (couverture 100 % du code nouveau et modifié)
 
-**Projection**
-- `TicketPlacedEvent` met à jour TENANT.
-- `TicketPlacedEvent` met à jour DRAW_CHANNEL.
-- `TicketPlacedEvent` met à jour SELLER_TERMINAL lorsque présent.
-- Le même event rejoué ne double aucune exposition.
-- Aucun backfill historique n'est implicitement exécuté.
+**Projection SELLER_TERMINAL** (`ExposureProjectorAdapterTest`)
+- Event avec `sellerTerminalId` → 3 scopes projetés (TENANT, DRAW_CHANNEL, SELLER_TERMINAL).
+- Event sans `sellerTerminalId` → 2 scopes seulement.
+- Replay du même `eventId` → aucun double comptage sur aucun scope.
 
-**Admin draw**
-- `/admin/draws/{drawId}/overview` fournit toutes les données nécessaires au détail.
-- La page ne déclenche pas plusieurs appels cross-domain inutiles pour reconstruire le même écran.
-- "Top sélections" et "Numéros à risque" sont deux sections visuelles distinctes.
-- "Bloke nimero" ouvre le dialog avec le channel courant pré-sélectionné.
+**Cascade override** (`LimitResolverTest`)
+- TENANT=500 + DRAW_CHANNEL=300 + SELLER_TERMINAL=200 → résolu à 200.
+- TENANT=500 + DRAW_CHANNEL=300, sans SELLER_TERMINAL → résolu à 300.
+- TENANT=500 uniquement → résolu à 500.
+- Aucune règle configurée → résultat null, pas d'erreur.
 
-**POS**
-- `/tenant/cashier/draws/{drawId}/detail` utilise le SellerTerminal du Request Context.
-- Aucun `sellerTerminalId` client n'est nécessaire ou accepté.
-- Les top selections sont triées par montant misé descendant.
-- L'exposition affiche limite + ratio lorsqu'une règle est configurée.
-- Après fermeture du draw, le rapport reste consultable.
-- Les informations de risque deviennent non actionnables lorsque le draw n'est plus OPEN.
+**BFF query handlers**
+- `PosDrawDetailHandler` appelle `ctx.sellerTerminalIdRequired()` — aucun paramètre client accepté.
+- Draw CLOSED → payload avec `exposure.active = false`, `topSelections` présent.
 
-**Navigation**
-- PageModel backend et navigation Angular sont modifiés dans le même commit.
-- `/limits` et `/limits/number` restent dans le menu.
-- Les vues avancées restent routables mais hors navigation principale.
+### Backend — Spring IT (Testcontainers, même base que `BusinessRuntimeIntegrationTestBase`)
+
+**Cas 1 — Bloquer un numéro**
+- Configurer `BLOCK_SELECTION_PER_DRAW` scope TENANT pour la sélection "34".
+- Vente avec "34" → `SellTicketOutcome` REJECTED, `BreachOutcome.ruleKey = BLOCK_SELECTION_PER_DRAW`.
+- Aucun ticket persisted.
+
+**Cas 2 — Override de scope (TENANT → DRAW_CHANNEL → SELLER_TERMINAL)**
+- Configurer `MAX_STAKE_PER_LINE` : TENANT=500, DRAW_CHANNEL=300, SELLER_TERMINAL=100.
+- Vente à 150 HTG → REJECTED, limite effective = 100 (SELLER_TERMINAL l'emporte).
+- Vente à 50 HTG → APPROVED.
+
+**Cas 3 — Exposition cumulative**
+- Configurer `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` scope DRAW_CHANNEL, limite = 1 000 HTG, sélection "12".
+- 9 ventes à 100 HTG → APPROVED, compteur DRAW_CHANNEL = 900.
+- 1 vente à 200 HTG → REJECTED (dépasserait 1 000), compteur inchangé à 900.
+- Replay d'un event déjà projeté → compteur inchangé (idempotence).
+
+### Web — e2e Playwright (`apps/web-e2e/src/admin-portal/`)
+
+**Navigation** (`limits-nav-simplification.spec.ts`)
+- `limits-global`, `limits-draw`, `limits-seller` absents du sidenav (section limits et section sellers).
+- `/limits` (overview) et `/limits/number` présents et navigables.
+- Routes avancées (`/limits/global`, `/limits/draw`) directement routables → pas de redirect.
+- Testé à 360 dp et 1 280 dp. Sélecteurs sur `href` (stable, indépendant de la locale).
+
+**LimitPolicyBlockComponent** (`limit-policy-block.spec.ts`)
+- Champ vide → valeur héritée et provenance affichées.
+- Saisie d'une valeur → override émis ; effacement → retour état hérité.
+- Viewport 360 dp : chaque ruleKey sur une ligne, pas d'overflow horizontal.
+
+**Bloke nimero dans le draw detail** (`draw-detail-block-number.spec.ts`)
+- Draw OPEN → bouton visible, clic ouvre dialog avec channel pré-sélectionné, pas de picker draw.
+- Draw CLOSED → bouton absent.
+
+**Numéros à risque dans le draw detail** (`draw-detail-exposure.spec.ts`)
+- `exposureAlerts` non vide dans la réponse BFF → section visible avec ratio affiché.
+- `exposureAlerts` vide ou `limitConfigured: false` → section absente.
+
+### Backend — e2e Python (`testing/e2e/tests/business_critical/test_limit_policy_scenarios.py`)
+
+Tests contre un serveur réel (pytest + httpx, marqueurs `L2 / business_critical / slow`). Même pattern que `test_business_day_scenarios.py` : provision via API, draw ouvert, assertions HTTP directes.
+
+**Cas 1 — Bloquer un numéro**
+- Admin configure `BLOCK_SELECTION_PER_DRAW` scope TENANT pour "34".
+- Seller terminal vend "34" → 422 / outcome REJECTED.
+- Aucun ticket créé. `GET /admin/draws/{drawId}/overview` → pas de stake sur "34".
+
+**Cas 2 — Override de scope**
+- Configurer `MAX_STAKE_PER_LINE` : TENANT=500, DRAW_CHANNEL=300, SELLER_TERMINAL=100.
+- Vente à 150 HTG → REJECTED, `effectiveLimit = 100`, `resolvedScope = SELLER_TERMINAL`.
+- Vente à 50 HTG → APPROVED.
+- `GET /admin/draws/{drawId}/overview` → `effectiveLimits` confirme la résolution.
+
+**Cas 3 — Exposition cumulative**
+- Configurer `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` scope DRAW_CHANNEL, limite = 1 000 HTG, sélection "12".
+- 9 ventes à 100 HTG → APPROVED ; `GET /tenant/cashier/draws/{drawId}/detail` → ratio ≈ 0.90.
+- 10e vente à 200 HTG → REJECTED ; compteur inchangé à 900.
+- Aucun `sellerTerminalId` client requis — résolu depuis le Request Context.
+
+### Perf — Locust (`testing/e2e/loadtest/`)
+
+- **`CashierUser`** : ajouter tâche `read_draw_detail` (`@task(1)`, tag `read`) — `GET /tenant/cashier/draws/{drawId}/detail`. Objectif : p95 < 300 ms à 20 users.
+- **`AdminUser`** (à créer si absent, `weight = 1`) : tâche `read_draw_overview` — `GET /admin/draws/{drawId}/overview`. Objectif : p95 < 500 ms.
+- Critère de non-régression : p95 de `sell_basket` inchangé à ± 10 % avant/après.
 
 ---
 

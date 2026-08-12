@@ -190,3 +190,133 @@ Toutes les clés dans les 3 locales. Créole haïtien (`ht`) = langue première,
   - ht: `Pa gen vant ankò pou tiraj sa a` / fr: `Aucune vente pour ce tirage` / en: `No sales for this draw yet`
 - [ ] `pos.reports.exposure_ratio` — label ratio exposition (accessible + tooltip)
   - ht: `{ratio}% nan limit la` / fr: `{ratio}% du plafond` / en: `{ratio}% of limit`
+
+---
+
+## Slice 12 — Tests backend : unitaires + intégration limitpolicy (couverture 100 %)
+
+Cible : tout le code nouveau ou modifié dans `core/limitpolicy`.
+
+**ExposureProjectorAdapterTest** (fichier existant, compléter) :
+- [ ] `scopesForIncludesSellerTerminalWhenPresent` — event avec `sellerTerminalId` → 3 scopes (TENANT, DRAW_CHANNEL, SELLER_TERMINAL)
+- [ ] `scopesForExcludesSellerTerminalWhenAbsent` — event sans sellerTerminalId → 2 scopes uniquement
+- [ ] `replayDoesNotDoubleCountAnyScope` — même eventId rejoué deux fois → chaque scope upsert idempotent (mock JdbcTemplate vérifie que le SQL contient `ON CONFLICT DO UPDATE` et pas `INSERT` naïf)
+
+**LimitResolver / cascade override (nouveaux tests unitaires)** :
+- [ ] `sellerTerminalOverridesDrawChannel` — ruleKey configuré TENANT=500 + DRAW_CHANNEL=300 + SELLER_TERMINAL=200 → résolu à 200
+- [ ] `drawChannelOverridesTenantWhenNoTerminalOverride` — ruleKey configuré TENANT=500 + DRAW_CHANNEL=300, pas de SELLER_TERMINAL → résolu à 300
+- [ ] `tenantFallsBackWhenNoOtherOverride` — ruleKey configuré TENANT=500 uniquement → résolu à 500
+- [ ] `nullResultWhenNoAssignmentAtAnyScope` — aucune règle configurée → résultat null (pas d'erreur)
+
+**DrawExposureArchiveDatasetProvider (nouveaux tests unitaires)** :
+- [ ] `planCountsRowsInPeriod` — JDBC stub retourne N rows → `plan().count() == N`
+- [ ] `exportStreamsAndSoftDeletes` — export stream, puis vérifie `deleted_at` positionné
+
+**BFF query handlers (nouveaux tests unitaires)** :
+- [ ] `adminDrawOverviewHandlerAggregatesAllDomains` — fake query bus → `AdminDrawOverviewResponse` contient draw + topSelections + exposureAlerts
+- [ ] `posDrawDetailHandlerResolvesTerminalFromContext` — `sellerTerminalIdRequired()` appelé ; aucun paramètre client accepté
+- [ ] `posDrawDetailHandlerReturnsExposureInactiveWhenDrawClosed` — draw CLOSED → `exposure.active == false`, topSelections présent
+
+## Slice 13 — Tests backend Spring IT : 3 cas e2e limitpolicy
+
+Classe à créer : `LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBase`
+
+Pattern identique à `SalesPolicyPromotionSpringIntegrationTest` : SpringBoot + Testcontainers, appels via `commandBus` / `queryBus`, assertions SQL directes si nécessaire.
+
+**Cas 1 — Block number**
+- [ ] Configurer `BLOCK_SELECTION_PER_DRAW` scope TENANT pour le numéro "34" sur le draw
+- [ ] Tenter une vente avec la sélection "34"
+- [ ] Assertion : `SellTicketOutcome` status = REJECTED, `BreachOutcome` ruleKey = `BLOCK_SELECTION_PER_DRAW`
+- [ ] Vérifier qu'aucun ticket n'est persisted en base
+
+**Cas 2 — Override de scope (cascade TENANT → DRAW_CHANNEL → SELLER_TERMINAL)**
+- [ ] Configurer `MAX_STAKE_PER_LINE` : TENANT=500, DRAW_CHANNEL=300, SELLER_TERMINAL=100
+- [ ] Tenter une vente avec mise 150 HTG (dépasse SELLER_TERMINAL=100, mais pas DRAW_CHANNEL=300)
+- [ ] Assertion : sale REJECTED avec ruleKey = `MAX_STAKE_PER_LINE`, limite effective = 100
+- [ ] Tenter une vente avec mise 50 HTG (sous tous les plafonds)
+- [ ] Assertion : sale APPROVED
+
+**Cas 3 — Exposition cumulative (MAX_STAKE_EXPOSURE)**
+- [ ] Configurer `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` scope DRAW_CHANNEL, limite = 1 000 HTG, sélection "12"
+- [ ] Vendre 9 tickets de 100 HTG sur "12" → OK (cumul = 900 HTG)
+- [ ] Vendre 1 ticket de 200 HTG sur "12" → REJECTED (cumul dépasserait 1 000)
+- [ ] Vérifier que le compteur DRAW_CHANNEL pour "12" est bien à 900 (pas 1 100) en base
+- [ ] (optionnel) Rejouer un événement de vente déjà projeté → compteur inchangé (idempotence)
+
+## Slice 14 — Tests e2e web (Playwright)
+
+Fichiers dans `tchalanet-web/apps/web-e2e/src/admin-portal/`.
+
+**Navigation limits (`limits-nav-simplification.spec.ts`)**
+- [ ] Après simplification du nav : `/app/admin/limits/global` absent du sidenav
+- [ ] `/app/admin/limits/draw` absent du sidenav
+- [ ] `/app/admin/limits/seller-terminal` absent du sidenav (section limits ET section sellers)
+- [ ] `/app/admin/limits` (overview) présent et actif
+- [ ] `/app/admin/limits/number` présent et actif
+- [ ] Les routes `/limits/global` et `/limits/draw` restent routables (navigation directe → 200, pas de redirect)
+- [ ] Tester sur viewport 360 dp (mobile) ET 1280 dp (desktop) — même sidenav, même résultat
+- Sélecteurs : `href` stable, pas de label text (convention existante)
+
+**LimitPolicyBlockComponent (`limit-policy-block.spec.ts`)**
+- [ ] Champ vide → placeholder affiche la valeur héritée et sa provenance (`Hérite du tenant · 500 G`)
+- [ ] Saisie d'une valeur → placeholder disparaît, composant émet `LimitPolicyOverride`
+- [ ] Effacer la valeur → revient à l'état hérité
+- [ ] Sur viewport 360 dp : chaque ruleKey sur une ligne, pas d'overflow horizontal
+
+**Draw detail — Bloke nimero (`draw-detail-block-number.spec.ts`)**
+- [ ] Draw OPEN : bouton "Bloke nimero" visible dans le header
+- [ ] Clic → dialog ouvre avec channel pré-sélectionné (pas de picker draw)
+- [ ] Draw CLOSED : bouton absent
+
+**Draw detail — Numéros à risque (`draw-detail-exposure.spec.ts`)**
+- [ ] Section "Numéros à risque" visible quand `exposureAlerts` non vide dans la réponse BFF
+- [ ] Section absente quand `exposureAlerts` vide ou `limitConfigured: false`
+- [ ] Ratio affiché avec barre/chip pour chaque entrée
+
+## Slice 15 — Tests e2e Python (pytest, `testing/e2e/`)
+
+Fichier à créer : `tests/business_critical/test_limit_policy_scenarios.py`
+
+Marqueurs pytest : `@pytest.mark.L2`, `@pytest.mark.business_critical`, `@pytest.mark.slow`
+
+Pattern : même base que `test_business_day_scenarios.py` — provision tenant + seller terminal via API, ouvre un draw, puis appelle les endpoints REST directement via `ApiClient` / `httpx`.
+
+**Cas 1 — Bloquer un numéro via API admin**
+- [ ] Provision tenant + 1 seller terminal, ouvre un draw
+- [ ] Admin : `POST /admin/policies/limits/assignments` → `BLOCK_SELECTION_PER_DRAW` scope TENANT, sélection "34"
+- [ ] Seller terminal tente de vendre "34" → réponse 422 ou outcome REJECTED
+- [ ] Vérifier : aucun ticket créé (liste tickets vide ou ticket absent)
+- [ ] Admin : `GET /admin/draws/{drawId}/overview` → `exposureAlerts` ne contient pas "34" (pas de stake)
+
+**Cas 2 — Override de scope TENANT → DRAW_CHANNEL → SELLER_TERMINAL**
+- [ ] Configurer `MAX_STAKE_PER_LINE` : TENANT=500, DRAW_CHANNEL=300, SELLER_TERMINAL=100 via assignments API
+- [ ] Seller terminal vend avec mise 150 HTG → REJECTED, `breachRuleKey = MAX_STAKE_PER_LINE`, `effectiveLimit = 100`
+- [ ] Seller terminal vend avec mise 50 HTG → APPROVED
+- [ ] Admin : `GET /admin/draws/{drawId}/overview` → `effectiveLimits.MAX_STAKE_PER_LINE.resolvedValue = 100`, `resolvedScope = SELLER_TERMINAL`
+
+**Cas 3 — Exposition cumulative + BFF POS detail**
+- [ ] Configurer `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` scope DRAW_CHANNEL, limite = 1 000 HTG, sélection "12"
+- [ ] Vendre 9 tickets à 100 HTG sur "12" → tous APPROVED
+- [ ] `GET /tenant/cashier/draws/{drawId}/detail` → `topSelections[0].selectionKey = "12"`, `exposure.active = true`, `alerts[0].ratio ≈ 0.90`
+- [ ] Tenter une 10e vente à 200 HTG → REJECTED
+- [ ] `GET /tenant/cashier/draws/{drawId}/detail` → compteur inchangé à 900 (pas 1 100)
+- [ ] Vérifier qu'aucun `sellerTerminalId` en query param n'est nécessaire (Request Context)
+
+## Slice 16 — Perf Locust (nouvelles tâches dans `testing/e2e/loadtest/`)
+
+**`CashierUser`** (`loadtest/users.py`) :
+- [ ] Ajouter tâche `@tag("read") @task(1) def read_draw_detail(self) -> None`
+  - appel `GET /tenant/cashier/draws/{drawId}/detail` pour un draw ouvert aléatoire
+  - tagué `read` (même bucket que `list_available_draws`)
+  - objectif : mesurer p95 < 300 ms sous la charge nominale (20 CashierUsers)
+
+**`AdminUser`** (`loadtest/users.py`) — à créer si absent :
+- [ ] Classe `AdminUser(User)` avec `weight = 1`, `wait_time = between(1.0, 3.0)`
+- [ ] Tâche `@tag("admin_read") @task(1) def read_draw_overview(self) -> None`
+  - appel `GET /admin/draws/{drawId}/overview` pour un draw du jour
+  - objectif : p95 < 500 ms (BFF agrège plusieurs domaines)
+
+**Seuils à valider avant merge** :
+- `GET /tenant/cashier/draws/{drawId}/detail` : p95 < 300 ms, error rate < 0.1 %
+- `GET /admin/draws/{drawId}/overview` : p95 < 500 ms, error rate < 0.1 %
+- Aucune régression sur `sell_basket` (p95 avant/après ± 10 %)
