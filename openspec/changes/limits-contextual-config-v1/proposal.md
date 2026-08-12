@@ -102,12 +102,15 @@ Retourne `ExposureAlertsOverviewView` — déjà implémenté dans le query hand
 - **BFF admin** : nouveau endpoint `GET /admin/draws/{drawId}/overview` dans `features/tenantadmin/draw` — agrège draw channel info + draw + résultat + top selections (core/sales) + exposure DRAW_CHANNEL (core/limitpolicy). Remplace les deux appels séparés actuels du frontend.
 - **BFF POS** : nouveau endpoint `GET /tenant/cashier/draws/{drawId}/detail` dans `features/pos/draws/PosDrawsController` (controller existant, ajouter `@GetMapping("/{drawId}/detail")`) — agrège draw info + top selections scope SELLER_TERMINAL + exposure SELLER_TERMINAL. Uniquement si le tirage est OPEN.
 
+### Backend — pagemodel
+- Modifier `tchalanet-app/src/main/resources/pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json` : retirer les enfants `limits-global`, `limits-draw`, `limits-seller` de la section `limits`, et `sellers-limits` de la section `sellers`. Les routes Angular sous-jacentes restent actives.
+
 ### Web — admin-portal
-- Nouveau composant `LimitPolicyBlockComponent` (champs par ruleKey, nullable, avec valeur héritée).
+- Nouveau composant `LimitPolicyBlockComponent` — **mobile-first** (colonne à 360 dp, grille à 600 dp+), `OnPush`, signals, `standalone: true` dans `libs/ui/console/`.
 - Intégrer dans : setup tenant config, draw channel detail, seller terminal form.
-- Réduire menu limits : supprimer `global` et `draw` du nav, garder `overview` + `number`.
-- Ajouter bouton "Bloke nimero" sur le détail du tirage (pré-sélection du channel).
-- Nouveau widget "Numéros à risque" sur le détail du tirage (appel exposure-alerts).
+- **Simplification du menu** : modifier `private-navigation.model.ts` en miroir du pagemodel backend — retirer `limits-global`, `limits-draw`, `limits-seller`, `sellers-limits` du nav (même commit que le pagemodel). Garder `overview` + `number`.
+- Ajouter bouton "Bloke nimero" sur le détail du tirage (pré-sélection du channel, input optionnel sur le dialog existant).
+- Nouveau widget "Numéros à risque" sur le détail du tirage via `rxResource`.
 - Nouveau service call `getExposureAlerts(drawId, channelId)` dans `AdminLimitsApi`.
 
 ### Mobile — POS Flutter
