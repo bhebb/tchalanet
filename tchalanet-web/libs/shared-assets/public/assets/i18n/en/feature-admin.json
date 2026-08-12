@@ -2404,7 +2404,7 @@
       "empty": "Sales limits need configuration",
       "limitsSection": {
         "title": "Limits",
-        "descriptionInherit": "Unconfigured values use tenant defaults"
+        "descriptionInherit": "Unconfigured values use the operator defaults"
       }
     }
   },
@@ -2417,13 +2417,13 @@
   "drawChannel": {
     "limitsSection": {
       "title": "Channel limits",
-      "descriptionInherit": "Unconfigured values inherit from tenant"
+      "descriptionInherit": "Unconfigured values inherit from the operator"
     }
   },
   "sellerTerminal": {
     "limitsSection": {
       "title": "Seller limits",
-      "descriptionInherit": "Unconfigured values inherit from tenant"
+      "descriptionInherit": "Unconfigured values inherit from the operator"
     }
   },
   "draws": {

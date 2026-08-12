@@ -2404,7 +2404,7 @@
       "empty": "Limites de vente à configurer",
       "limitsSection": {
         "title": "Limites",
-        "descriptionInherit": "Les valeurs non configurées utilisent les valeurs du tenant"
+        "descriptionInherit": "Les valeurs non configurées utilisent les valeurs du santral"
       }
     }
   },
@@ -2417,13 +2417,13 @@
   "drawChannel": {
     "limitsSection": {
       "title": "Limites du canal",
-      "descriptionInherit": "Les valeurs non configurées héritent du tenant"
+      "descriptionInherit": "Les valeurs non configurées héritent du santral"
     }
   },
   "sellerTerminal": {
     "limitsSection": {
       "title": "Limites vendeur",
-      "descriptionInherit": "Les valeurs non configurées héritent du tenant"
+      "descriptionInherit": "Les valeurs non configurées héritent du santral"
     }
   },
   "draws": {

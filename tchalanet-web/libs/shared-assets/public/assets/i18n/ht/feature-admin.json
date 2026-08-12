@@ -2404,7 +2404,7 @@
       "empty": "Limit vant yo bezwen konfigire",
       "limitsSection": {
         "title": "Limit",
-        "descriptionInherit": "Valè ki pa konfigire ap itilize valè tenant an"
+        "descriptionInherit": "Valè ki pa konfigire ap itilize valè santral la"
       }
     }
   },
@@ -2417,13 +2417,13 @@
   "drawChannel": {
     "limitsSection": {
       "title": "Limit kanal",
-      "descriptionInherit": "Valè ki pa konfigire ap eritye depi tenant an"
+      "descriptionInherit": "Valè ki pa konfigire ap eritye depi santral la"
     }
   },
   "sellerTerminal": {
     "limitsSection": {
       "title": "Limit machann",
-      "descriptionInherit": "Valè ki pa konfigire ap eritye depi tenant an"
+      "descriptionInherit": "Valè ki pa konfigire ap eritye depi santral la"
     }
   },
   "draws": {
