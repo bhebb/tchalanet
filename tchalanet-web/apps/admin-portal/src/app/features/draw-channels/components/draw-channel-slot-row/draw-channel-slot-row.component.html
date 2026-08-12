@@ -14,28 +14,39 @@
   </div>
 
   <div class="slot-row__right">
+    @if (s.saleReadyGameCount !== undefined || s.offeredGameCount !== undefined) {
+      <span class="slot-row__games">
+        {{ 'admin.drawChannels.slots.gamesReady' | translate: {
+          ready: s.saleReadyGameCount ?? 0,
+          offered: s.offeredGameCount ?? 0
+        } }}
+      </span>
+    }
+
     @if (s.drawTime) {
       <code class="slot-row__time">{{ s.drawTime | slice:0:5 }}</code>
     } @else {
       <span class="slot-row__time slot-row__time--missing">—</span>
     }
 
-    <mat-slide-toggle
-      class="slot-row__toggle"
-      [checked]="s.enabled"
-      [disabled]="saving()"
-      [attr.aria-label]="(s.enabled ? 'admin.drawChannels.slots.toggle.disable' : 'admin.drawChannels.slots.toggle.enable') | translate"
-      (change)="toggleEnabled.emit($event.checked)"
-    />
+    @if (!readonly()) {
+      <mat-slide-toggle
+        class="slot-row__toggle"
+        [checked]="s.enabled"
+        [disabled]="saving()"
+        [attr.aria-label]="(s.enabled ? 'admin.drawChannels.slots.toggle.disable' : 'admin.drawChannels.slots.toggle.enable') | translate"
+        (change)="toggleEnabled.emit($event.checked)"
+      />
 
-    <button
-      mat-icon-button
-      class="slot-row__edit-btn"
-      (click)="configure.emit(s)"
-      [attr.aria-label]="'admin.drawChannels.actions.configure' | translate"
-    >
-      <span class="material-symbols-outlined">settings</span>
-    </button>
+      <button
+        mat-icon-button
+        class="slot-row__edit-btn"
+        (click)="configure.emit(s)"
+        [attr.aria-label]="'admin.drawChannels.actions.configure' | translate"
+      >
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+    }
   </div>
 
 </div>

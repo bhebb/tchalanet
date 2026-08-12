@@ -410,6 +410,14 @@
         "activeChannels": "Créneaux actifs",
         "todo": "À configurer"
       },
+      "profile": {
+        "haitiLottery": "Profil Haiti Lottery"
+      },
+      "facts": {
+        "activeChannels": "canaux actifs",
+        "offeredGames": "jeux disponibles",
+        "readyGames": "jeux prêts"
+      },
       "filters": {
         "all": "Tous",
         "active": "Actifs",
@@ -474,6 +482,7 @@
           "needsConfig": "À configurer",
           "disabled": "Inactif"
         },
+        "gamesReady": "{{ready}}/{{offered}} jeux prêts",
         "toggle": {
           "enable": "Activer ce créneau",
           "disable": "Désactiver ce créneau"
@@ -486,12 +495,18 @@
         "refresh": "Rafraîchir",
         "configure": "Configurer",
         "configureChannel": "Configurer le canal",
-        "configureGameOffer": "Configurer les jeux du canal"
+        "configureGameOffer": "Configurer les jeux du canal",
+        "viewGeneratedDraws": "Voir les tirages"
       },
       "readiness": {
         "ready": "Prêt pour la vente",
         "todo": "Configuration incomplète",
-        "sourceWarning": "Vente configurée · Source à vérifier"
+        "sourceWarning": "Vente configurée · Source à vérifier",
+        "reason": {
+          "noChannels": "Aucun canal n'est configuré pour ce provider.",
+          "noGames": "Les canaux existent, mais aucun jeu n'est disponible à la vente.",
+          "reviewCoverage": "Vérifiez les jeux, la visibilité POS et les limites."
+        }
       }
     },
     "games": {

@@ -4,20 +4,7 @@ import type {
   ConsoleDrawResultSourceStatus,
 } from '@tch/web/console';
 
-export type UsLotteryProviderCode =
-  | 'NY'
-  | 'FL'
-  | 'GA'
-  | 'TN'
-  | 'TX'
-  | 'PA'
-  | 'NJ'
-  | 'CA'
-  | 'MO'
-  | 'IL'
-  | 'MI'
-  | 'OH'
-  | 'MN';
+export type UsLotteryProviderCode = string;
 
 export type DrawChannelProviderTenantStatus =
   | 'ACTIVE'
@@ -49,6 +36,8 @@ export interface DrawChannelSlotConfigView {
   readonly enabled: boolean;
   readonly drawTime?: string | null;
   readonly salesCutoffMinutes?: number | null;
+  readonly offeredGameCount?: number;
+  readonly saleReadyGameCount?: number;
 }
 
 export interface DrawChannelProviderReadinessView {
@@ -61,9 +50,14 @@ export interface DrawChannelProviderView {
   readonly providerCode: UsLotteryProviderCode;
   readonly providerLabel: string;
   readonly timezone: string;
+  readonly profileLabelKey?: string;
   readonly tenantStatus: DrawChannelProviderTenantStatus;
   readonly resultAcquisition: DrawResultAcquisitionView;
   readonly defaultSalesCutoffMinutes?: number | null;
+  readonly configuredChannelCount?: number;
+  readonly activeChannelCount?: number;
+  readonly offeredGameCount?: number;
+  readonly saleReadyGameCount?: number;
   readonly slots: readonly DrawChannelSlotConfigView[];
   readonly readiness: DrawChannelProviderReadinessView;
 }

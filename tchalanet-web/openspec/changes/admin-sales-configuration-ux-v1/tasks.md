@@ -43,21 +43,21 @@
 
 ## 3. Draw Channels UX: Sale Availability
 
-- [ ] Treat draw channels as a tenant-facing aggregated configuration surface.
-- [ ] Replace or bypass local Draw Channels mock data with backend-backed channel/game availability before presenting sale-readiness states.
-- [ ] Preserve backend ownership boundaries; compose existing public APIs/read models where required.
-- [ ] Model primary sale status separately from result-source mode.
-- [ ] Use primary sale statuses: Ready, Needs attention, Disabled.
+- [x] Treat draw channels as a tenant-facing aggregated configuration surface.
+- [x] Replace or bypass local Draw Channels mock data with backend-backed channel/game availability before presenting sale-readiness states.
+- [x] Preserve backend ownership boundaries; compose existing public APIs/read models where required.
+- [x] Model primary sale status separately from result-source mode.
+- [x] Use primary sale statuses: Ready, Needs attention, Disabled.
 - [ ] Use secondary attributes: Automatic/Manual, number of available games, number of upcoming/generated draws.
-- [ ] Redesign draw-channel cards using business labels: result source, automatic results, manual results, draw time, sales close, available games, upcoming draws.
-- [ ] Add next actions for Configure game availability and Review schedule.
-- [ ] Detect and surface configured channels with no useful sellable coverage.
+- [x] Redesign draw-channel cards using business labels: result source, automatic results, manual results, draw time, sales close, available games, upcoming draws.
+- [x] Add next actions for Configure game availability and Review schedule.
+- [x] Detect and surface configured channels with no useful sellable coverage.
 - [ ] Distinguish no upcoming/generated draws from upcoming draws with no games available.
 - [ ] Ensure no upcoming draws routes to schedule review.
-- [ ] Ensure no games available routes to game availability/draw configuration.
-- [ ] Ensure manual mode does not imply incomplete and automatic mode does not imply ready.
-- [ ] Surface incomplete states without raw technical codes or overloaded status.
-- [ ] Keep provider/channel names from backend display data; fallback to stable code only when no display label exists.
+- [x] Ensure no games available routes to game availability/draw configuration.
+- [x] Ensure manual mode does not imply incomplete and automatic mode does not imply ready.
+- [x] Surface incomplete states without raw technical codes or overloaded status.
+- [x] Keep provider/channel names from backend display data; fallback to stable code only when no display label exists.
 
 ## 4. Tenant Settings: Global Defaults
 
@@ -88,11 +88,11 @@
 ## 7. Web State / API Integration
 
 - [ ] Inventory data already available to setup, games, draw channels, and seller terminals.
-- [ ] Keep API calls in feature stores/services, not presentational components.
+- [x] Keep API calls in feature stores/services, not presentational components.
 - [ ] Use Angular signals and feature-local state.
 - [ ] Represent explicit states: loading, loaded, empty, error, and partial/needs-attention where applicable.
 - [ ] Do not introduce a new global sales configuration store.
-- [ ] Consume `ApiResponse<T>` through API clients and expose unwrapped business data to stores/components.
+- [x] Consume `ApiResponse<T>` through API clients and expose unwrapped business data to stores/components.
 
 ## 8. Backend Follow-Up Only If Required
 

@@ -18,6 +18,7 @@ export class DrawChannelSlotRowComponent {
   readonly slot          = input.required<DrawChannelSlotConfigView>();
   readonly index         = input<number>(0);
   readonly saving        = input<boolean>(false);
+  readonly readonly      = input<boolean>(false);
 
   readonly configure     = output<DrawChannelSlotConfigView>();
   readonly toggleEnabled = output<boolean>();
