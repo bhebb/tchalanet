@@ -576,15 +576,8 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         labelKey: 'nav.admin.games_available',
         icon: 'casino',
         destination: { kind: 'route', value: '/app/admin/games' },
+        activeRoutes: ['/app/admin/pricing'],
         children: [
-          {
-            id: 'games-overview',
-            labelKey: 'nav.admin.games_overview',
-            icon: 'dashboard',
-            destination: { kind: 'route', value: '/app/admin/games' },
-            activeMatch: 'exact',
-            activeRoutes: ['/app/admin/pricing'],
-          },
           {
             id: 'games-channel-matrix',
             labelKey: 'nav.admin.games_channel_matrix',

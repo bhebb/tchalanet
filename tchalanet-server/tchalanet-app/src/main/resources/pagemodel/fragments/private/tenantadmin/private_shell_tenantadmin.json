@@ -358,15 +358,10 @@
             "path": "/app/admin/games",
             "kind": "internal",
             "icon": "casino",
+            "active_routes": [
+              "/app/admin/pricing"
+            ],
             "children": [
-              {
-                "id": "games-overview",
-                "label_key": "nav.admin.games_overview",
-                "path": "/app/admin/games",
-                "kind": "internal",
-                "icon": "dashboard",
-                "active_match": "exact"
-              },
               {
                 "id": "games-channel-matrix",
                 "label_key": "nav.admin.games_channel_matrix",

@@ -220,12 +220,11 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(companySettings?.activeRoutes).toContain('/app/admin/company/settings/config');
   });
 
-  it('keeps games overview active for pricing details', () => {
+  it('keeps games active for pricing details without exposing a separate overview child', () => {
     const games = adminItem('games');
-    const overview = games?.children?.find(child => child.id === 'games-overview');
 
-    expect(overview?.activeMatch).toBe('exact');
-    expect(overview?.activeRoutes).toContain('/app/admin/pricing');
+    expect(games?.activeRoutes).toContain('/app/admin/pricing');
+    expect(games?.children?.map(child => child.id)).toEqual(['games-channel-matrix']);
   });
 });
 
