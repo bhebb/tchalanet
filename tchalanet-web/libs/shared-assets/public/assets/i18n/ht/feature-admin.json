@@ -912,6 +912,26 @@
       "global": {
         "scopeNote": "Limit yo aplike globalman pou tout tèminal santral la."
       },
+      "blockNumber": {
+        "title": "Bloke nimewo",
+        "description": "Chwazi yon tiraj ki louvri, antre nimewo yo, epi konfime blokaj la.",
+        "quickCta": "Bloke yon nimewo",
+        "loadingDraws": "Chajman tiraj yo…",
+        "noOpenDraws": "Pa gen tiraj ki louvri kounye a.",
+        "drawLabel": "Tiraj (kanal)",
+        "numbersLabel": "Nimewo pou bloke",
+        "numberPlaceholder": "Antre yon nimewo epi peze Antre",
+        "numberHint": "Antre nimewo yo separe pa Antre oswa vigil.",
+        "numberRequired": "Antre omwen yon nimewo.",
+        "removeNumber": "Retire nimewo {{number}}",
+        "durationLabel": "Dire blokaj la",
+        "durationToday": "Jodi a sèlman",
+        "durationPermanent": "Pèmanan",
+        "confirm": "Bloke",
+        "saving": "Blokaj ap fèt…",
+        "errorTitle": "Erè pandan blokaj",
+        "cancel": "Anile"
+      },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",
         "copy": "Pou gany reyèl yo, itilize rezilta ak rapò; isit la nou sitou bloke nimewo ak miz ki vann.",
@@ -1590,6 +1610,10 @@
           "active": "Aktif",
           "needsConfig": "Pou konfigire",
           "disabled": "Inaktif"
+        },
+        "toggle": {
+          "enable": "Aktive lè tiraj sa a",
+          "disable": "Dezaktive lè tiraj sa a"
         }
       },
       "salesCutoff": "Vant fèmen: {{minutes}} min anvan tiraj",

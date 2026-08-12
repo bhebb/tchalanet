@@ -458,6 +458,10 @@
           "active": "Actif",
           "needsConfig": "À configurer",
           "disabled": "Inactif"
+        },
+        "toggle": {
+          "enable": "Activer ce créneau",
+          "disable": "Désactiver ce créneau"
         }
       },
       "salesCutoff": "Fermeture vente : {{minutes}} min avant tirage",
@@ -1386,6 +1390,26 @@
       },
       "global": {
         "scopeNote": "Limites appliquées globalement à tous les terminaux du santral."
+      },
+      "blockNumber": {
+        "title": "Bloquer des numéros",
+        "description": "Sélectionnez un tirage actif, entrez les numéros et confirmez le blocage.",
+        "quickCta": "Bloquer un numéro",
+        "loadingDraws": "Chargement des tirages…",
+        "noOpenDraws": "Aucun tirage ouvert pour le moment.",
+        "drawLabel": "Tirage (canal)",
+        "numbersLabel": "Numéros à bloquer",
+        "numberPlaceholder": "Entrez un numéro et appuyez sur Entrée",
+        "numberHint": "Entrez les numéros séparés par Entrée ou virgule.",
+        "numberRequired": "Entrez au moins un numéro.",
+        "removeNumber": "Retirer le numéro {{number}}",
+        "durationLabel": "Durée du blocage",
+        "durationToday": "Aujourd'hui seulement",
+        "durationPermanent": "Permanent",
+        "confirm": "Bloquer",
+        "saving": "Blocage en cours…",
+        "errorTitle": "Erreur lors du blocage",
+        "cancel": "Annuler"
       },
       "number": {
         "actionsAria": "Actions rapides par numéro",

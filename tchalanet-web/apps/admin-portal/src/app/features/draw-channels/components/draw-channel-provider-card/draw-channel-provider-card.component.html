@@ -27,7 +27,9 @@
           <tch-draw-channel-slot-row
             [slot]="slot"
             [index]="i"
+            [saving]="savingSlotKey() === slot.slotKey"
             (configure)="toggleSlot.emit($event)"
+            (toggleEnabled)="toggleSlotEnabled.emit({ slot, enabled: $event })"
           />
         }
       </div>
