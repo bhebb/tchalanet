@@ -17,6 +17,8 @@ Le backend (`LimitResolver`) applique un **score par scope** — la règle la pl
 | DRAW_CHANNEL | 30 | Override le tenant pour ce tirage |
 | SELLER_TERMINAL / AGENT | 60 | Override les deux |
 
+Les scores restent un détail interne du resolver. Ils ne doivent pas être exposés dans l'UI normale. L'UI exprime uniquement l'héritage : tenant → draw channel → seller terminal.
+
 **7 ruleKeys exposés** (via `rules.v1.json`) :
 
 | ruleKey | Catégorie | Stateful |
@@ -31,11 +33,29 @@ Le backend (`LimitResolver`) applique un **score par scope** — la règle la pl
 
 Les règles stateful (`stateless: false`) lisent l'accumulation de ventes réelles en base (`DrawExposureJpaEntity`). Aujourd'hui la projection (`ExposureProjectorAdapter.scopesFor()`) ne couvre que TENANT et DRAW_CHANNEL — **SELLER_TERMINAL n'est pas projeté** bien que `TicketPlacedEvent.context().sellerTerminalId()` soit disponible.
 
+L'ajout du scope SELLER_TERMINAL doit utiliser le même mécanisme d'idempotence que les projections existantes. Un replay du même `TicketPlacedEvent` ne doit jamais doubler les compteurs TENANT, DRAW_CHANNEL ou SELLER_TERMINAL.
+
 **Mise min/max par jeu** : stockée dans `TenantGame.minStake / maxStake` — système séparé du limitpolicy, pas concerné par ce change.
 
-**Numéros chauds POS** : le vendeur doit pouvoir voir ses propres top numéros (scope SELLER_TERMINAL). La donnée n'existe pas encore — nécessite d'activer la projection SELLER_TERMINAL dans `ExposureProjectorAdapter`.
+### Numéros chauds POS
 
-**Page de détail draw côté mobile** : `SellerTerminalDrawReportPage` est la page de détail d'un tirage en POS (Flutter). Elle appelle aujourd'hui deux endpoints :
+Le vendeur doit pouvoir voir ses propres top numéros pour un tirage, sur le scope SELLER_TERMINAL.
+
+Dans ce change, "numéro chaud" signifie une sélection classée par montant total misé (`totalStake DESC`) pour le seller terminal courant et le draw courant.
+
+Un numéro chaud n'est pas nécessairement un numéro à risque :
+- **Top / chaud** = volume de ventes important.
+- **À risque** = exposition proche du plafond résolu.
+
+Si une règle `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` est active, la vue peut enrichir chaque numéro chaud avec : exposition actuelle, limite résolue, ratio exposure/limit.
+
+La donnée SELLER_TERMINAL n'existe pas encore — nécessite d'activer la projection SELLER_TERMINAL dans `ExposureProjectorAdapter`.
+
+Aucun backfill historique n'est effectué dans ce change. Après déploiement, les projections SELLER_TERMINAL ne contiennent que les ventes projetées depuis leur activation. Les top numéros et expositions terminal peuvent donc être partiels pendant la période de montée en charge.
+
+### Page de détail draw côté mobile
+
+`SellerTerminalDrawReportPage` est la page de détail d'un tirage en POS (Flutter). Elle appelle aujourd'hui deux endpoints :
 1. `GET /tenant/cashier/tickets/stats?date=YYYY-MM-DD` → stats journalières avec breakdown par drawId (totalCents, ticketCount, winningsCents, sellerCommissionCents)
 2. `GET /tenant/cashier/tickets?fromDate=...&drawId=...` → liste des tickets vendus sur ce tirage
 
@@ -48,7 +68,8 @@ Elle n'appelle aucun endpoint de top sélections ni d'exposition — le `PosDraw
 - L'admin configure les limites hors contexte (page dédiée séparée des draw/terminal).
 - La page "global" est générique, peu compréhensible.
 - L'action la plus fréquente (bloquer un numéro sur un tirage) nécessite 3 clics alors qu'elle devrait être accessible depuis le détail du tirage.
-- Les exposures (numéros chauds approchant leur plafond) ne sont pas encore exposées en UI — le backend est prêt (`GetExposureAlertsOverviewQuery` + `DrawExposureJpaEntity`) mais aucun endpoint REST ni vue frontend.
+- Les exposures (numéros approchant leur plafond) ne sont pas encore exposées en UI — le backend possède déjà la query `GetExposureAlertsOverviewQuery` et la projection `DrawExposureJpaEntity`, mais aucun endpoint REST ni vue frontend ne les exploitent.
+- Les admins ne doivent pas avoir à comprendre les scopes techniques ou leurs scores pour configurer correctement une limite.
 
 ---
 
@@ -56,13 +77,38 @@ Elle n'appelle aucun endpoint de top sélections ni d'exposition — le `PosDraw
 
 ### 1. Config de limite dans le contexte
 
-Un **bloc "Limites"** réutilisable (`LimitPolicyBlockComponent`) avec un champ nullable par ruleKey, affiché dans :
+Un **bloc "Limites"** réutilisable (`LimitPolicyBlockComponent`) est affiché dans :
+- **Setup → Config tenant** : règles TENANT, défaut global pour tous les draws/terminaux
+- **Détail draw channel** : règles DRAW_CHANNEL, override du tenant
+- **Création / édition seller terminal** : règles SELLER_TERMINAL, override du draw/tenant
 
-- **Setup → Config tenant** : règles TENANT (défaut global pour tous les draws/terminaux)
-- **Détail draw channel** : règles DRAW_CHANNEL (override par tirage, nullable = hérite du tenant)
-- **Création / édition seller terminal** : règles SELLER_TERMINAL (override par terminal, nullable = hérite)
+Chaque champ est nullable. La valeur héritée et sa provenance sont affichées :
 
-Chaque champ nullable signifie "hériter du niveau supérieur". Les libellés affichent la valeur résolue en grisé quand le champ est vide (`= hérite : 500 HTG`).
+```
+Valeur renseignée :
+Maximum par ligne  [ 300 ]
+
+Valeur vide :
+Maximum par ligne  [     ]  Hérite du tenant · 500 G
+
+Sur seller terminal (override draw channel présent) :
+Maximum par ligne  [     ]  Hérite du tirage · 300 G
+
+Sur seller terminal (pas d'override draw channel) :
+Maximum par ligne  [     ]  Hérite du tenant · 500 G
+```
+
+Le composant affiche la valeur résolue et sa provenance, sans exposer les scores internes du LimitResolver.
+
+**Organisation du bloc** — grouper les règles par intention, pas par liste technique :
+
+| Groupe | ruleKeys |
+|---|---|
+| **Vente** | Mise max par ligne, Nombre max de lignes, Mise max du ticket |
+| **Restrictions** | Types de jeu bloqués, Numéros bloqués |
+| **Exposition** | Mise cumulée max par numéro et tirage, Nombre max de ventes par numéro et tirage |
+
+Les règles les moins courantes peuvent être placées sous une zone "Avancé". La configuration affichée par contexte peut être limitée aux règles réellement pertinentes pour ce scope.
 
 ### 2. Section Limits → réduite à 2 rôles
 
@@ -71,62 +117,225 @@ Chaque champ nullable signifie "hériter du niveau supérieur". Les libellés af
 | **Vue active** (`/limits`) | Tableau lecture seule des règles actives résolues par scope (tenant + draw + terminal) — audit, pas config |
 | **Numéros bloqués** (`/limits/number`) | Liste des BLOCK_SELECTION actifs + bouton "Bloke nimero" rapide |
 
-Pages supprimées du menu : `global`, `draw` (accessible en lien "Vue avancée" si besoin admin).
+Pages supprimées du menu : `global`, `draw`, `seller-terminal`. Les routes Angular restent actives pour compatibilité et usage avancé. La vue `/limits/draw` reste accessible via un lien "Vue avancée".
+
+Limits devient principalement une surface d'observation/audit ; la configuration quotidienne revient dans son contexte naturel.
 
 ### 3. Action contextuelle "Bloke nimero" dans le détail d'un tirage
 
 Sur la page détail d'un tirage ouvert :
-- Bouton **"Bloke nimero"** dans la zone d'actions de la page header.
-- Ouvre le `BlockNumberQuickDialogComponent` existant avec le draw channel **pré-sélectionné** (pas de picker de tirage dans le dialog).
-- Les numéros déjà bloqués sur ce draw sont affichés en bas du dialog (liste légère).
+- Bouton **"Bloke nimero"** dans la zone d'actions du page header
+- Ouvre le `BlockNumberQuickDialogComponent` existant
+- Draw channel pré-sélectionné — pas de picker de tirage dans ce contexte
+- Les numéros déjà bloqués sur ce draw sont affichés en bas du dialog dans une liste légère
 
-### 4. Exposures — endpoint backend + widget draw
+Le dialog reste réutilisable depuis `/limits/number` avec sélection manuelle du draw/channel.
 
-**Backend (nouveau endpoint)** :
+### 4. Exposures — API core/admin avancée
+
+Exposer la query existante via un endpoint admin mono-domain :
+
 ```
-GET /admin/policies/limits/exposure-alerts?drawId={drawId}&scope=DRAW_CHANNEL&targetId={channelId}&limit=10
+GET /admin/policies/limits/exposure-alerts?drawId={drawId}&scope={scope}&targetId={targetId}&limit=10
 ```
-Retourne `ExposureAlertsOverviewView` — déjà implémenté dans le query handler, pas encore exposé.
 
-**Frontend draw detail** :
-- Section "Numéros à risque" sous les top 5 sélections actuelles (qui viennent des financials).
-- Affiche les numéros approchant leur plafond `MAX_STAKE_EXPOSURE` avec un ratio (barre de progression ou chip coloré).
-- Visible seulement si une règle `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` est configurée pour ce draw channel.
+Retourne `ExposureAlertsOverviewView`. Cet endpoint sert à : vue Limits avancée, audit, diagnostic, surfaces génériques limitpolicy. Il n'est **pas** la source principale du détail Draw Admin.
+
+### 5. Admin Draw Detail — BFF unique
+
+Ajouter `GET /admin/draws/{drawId}/overview` dans `features/tenantadmin/draw`.
+
+Le BFF agrège les données nécessaires à l'écran :
+
+```json
+{
+  "draw": {},
+  "channel": {},
+  "result": {},
+  "topSelections": [],
+  "effectiveLimits": {},
+  "exposureAlerts": []
+}
+```
+
+Le BFF orchestre uniquement des queries des domaines propriétaires. Il ne recalcule aucune limite, aucun montant ou ratio métier qui appartient à `core.limitpolicy` / `core.sales`.
+
+**Frontend draw detail** — deux sections distinctes :
+
+```
+Top sélections
+34   14 500 G
+12   11 200 G
+09    8 900 G
+
+Numéros à risque
+34   14 500 / 15 000   97 %
+09    8 900 / 10 000   89 %
+```
+
+Un top numéro peut ne pas être à risque, et un numéro moins vendu peut être à risque si son plafond est inférieur. "Numéros à risque" est visible seulement lorsqu'une règle résolue `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` s'applique au draw channel.
+
+### 6. Projection SELLER_TERMINAL
+
+Dans `ExposureProjectorAdapter.scopesFor()`, ajouter le scope terminal lorsque disponible :
+
+```java
+LimitScopeRef.sellerTerminal(event.context().sellerTerminalId())
+```
+
+Projection cible d'un `TicketPlacedEvent` : TENANT + DRAW_CHANNEL + SELLER_TERMINAL. Le traitement reste idempotent par `eventId`.
+
+Tests minimum requis :
+- projection TENANT
+- projection DRAW_CHANNEL
+- projection SELLER_TERMINAL lorsque `sellerTerminalId` est présent
+- absence du scope SELLER_TERMINAL lorsque l'event n'en contient pas
+- replay du même event = aucun double comptage
+
+### 7. POS Draw Detail BFF
+
+Ajouter `@GetMapping("/{drawId}/detail")` dans `PosDrawsController` existant.
+
+Le seller terminal **ne doit jamais être fourni par le client**. Le scope est résolu depuis le Request Context :
+
+```
+scope    = SELLER_TERMINAL
+targetId = ctx.sellerTerminalIdRequired()
+```
+
+Aucun `?sellerTerminalId=...` n'est accepté.
+
+Le BFF agrège : draw info, topSelections SELLER_TERMINAL, effective exposure limit, exposure SELLER_TERMINAL.
+
+L'endpoint reste consultable après fermeture du tirage (pour que `SellerTerminalDrawReportPage` reste cohérente pendant la transition OPEN → CLOSED). Les informations d'exposition/action sont marquées inactives quand le tirage n'est plus OPEN :
+
+```json
+// Tirage OPEN
+{ "draw": {}, "topSelections": [], "exposure": { "active": true, "limitConfigured": true, "alerts": [] } }
+
+// Tirage CLOSED
+{ "draw": {}, "topSelections": [], "exposure": { "active": false, "limitConfigured": true, "alerts": [] } }
+```
+
+### 8. POS Flutter — "Nimero cho"
+
+`SellerTerminalDrawReportPage` continue d'appeler `/tenant/cashier/tickets/stats` et `/tenant/cashier/tickets` — ces deux appels ne sont pas remplacés.
+
+Ajouter l'appel `GET /tenant/cashier/draws/{drawId}/detail` pour les informations complémentaires.
+
+Nouveau widget **"Nimero cho"** — top sélections du terminal pour ce tirage, triées par montant total misé descendant :
+
+```
+Nimero cho
+34      1 450 G
+12      1 200 G
+09        850 G
+
+Avec limite configurée :
+34      1 450 / 1 500 G      97 %
+12      1 200 / 2 000 G      60 %
+```
+
+Le ratio d'exposition est une information complémentaire ; il ne change pas la définition du classement. La section exposition/risque est active uniquement pour un draw OPEN. Les top selections peuvent rester visibles dans le rapport après fermeture.
 
 ---
 
 ## Impact
 
-### Backend
-- **Activer projection SELLER_TERMINAL** dans `ExposureProjectorAdapter.scopesFor()` — ajouter `LimitScopeRef.sellerTerminal(event.context().sellerTerminalId())` si présent. Toutes les ventes futures sont alors tracées par terminal.
-- **BFF admin** : nouveau endpoint `GET /admin/draws/{drawId}/overview` dans `features/tenantadmin/draw` — agrège draw channel info + draw + résultat + top selections (core/sales) + exposure DRAW_CHANNEL (core/limitpolicy). Remplace les deux appels séparés actuels du frontend.
-- **BFF POS** : nouveau endpoint `GET /tenant/cashier/draws/{drawId}/detail` dans `features/pos/draws/PosDrawsController` (controller existant, ajouter `@GetMapping("/{drawId}/detail")`) — agrège draw info + top selections scope SELLER_TERMINAL + exposure SELLER_TERMINAL. Uniquement si le tirage est OPEN.
+### Backend — core.limitpolicy
+- Activer projection SELLER_TERMINAL dans `ExposureProjectorAdapter.scopesFor()`.
+- Conserver idempotence du projector (par `eventId`).
+- Exposer `GetExposureAlertsOverviewQuery` via endpoint admin limitpolicy.
+- Ajouter/adapter les queries nécessaires aux BFF sans exposer repositories ou JPA entities.
+
+### Backend — features/tenantadmin
+Nouveau BFF `GET /admin/draws/{drawId}/overview` — draw + channel + result + top selections + effective limits + exposure alerts. Aucune logique métier critique dans la feature.
+
+### Backend — features/pos
+Nouveau endpoint `GET /tenant/cashier/draws/{drawId}/detail` dans `PosDrawsController` existant. Résout automatiquement le seller terminal depuis `TchRequestContext`.
 
 ### Backend — pagemodel
-- Modifier `tchalanet-app/src/main/resources/pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json` : retirer les enfants `limits-global`, `limits-draw`, `limits-seller` de la section `limits`, et `sellers-limits` de la section `sellers`. Les routes Angular sous-jacentes restent actives.
+Modifier `tchalanet-app/src/main/resources/pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json` :
+- Retirer `limits-global`, `limits-draw`, `limits-seller` de la section `limits`
+- Retirer `sellers-limits` de la section `sellers`
+- Garder `limits-overview` + `limits-number`
+
+Les routes restent actives.
 
 ### Web — admin-portal
-- Nouveau composant `LimitPolicyBlockComponent` — **mobile-first** (colonne à 360 dp, grille à 600 dp+), `OnPush`, signals, `standalone: true` dans `libs/ui/console/`.
-- Intégrer dans : setup tenant config, draw channel detail, seller terminal form.
-- **Simplification du menu** : modifier `private-navigation.model.ts` en miroir du pagemodel backend — retirer `limits-global`, `limits-draw`, `limits-seller`, `sellers-limits` du nav (même commit que le pagemodel). Garder `overview` + `number`.
-- Ajouter bouton "Bloke nimero" sur le détail du tirage (pré-sélection du channel, input optionnel sur le dialog existant).
-- Nouveau widget "Numéros à risque" sur le détail du tirage via `rxResource`.
-- Nouveau service call `getExposureAlerts(drawId, channelId)` dans `AdminLimitsApi`.
+Nouveau composant `LimitPolicyBlockComponent` :
+- **Mobile-first** : colonne à 360 dp, grille à partir de 600 dp (cible POS Sunmi V2)
+- `OnPush`, signals, `standalone: true`, dans `libs/ui/console/`
+- Règles groupées par intention (Vente / Restrictions / Exposition)
+- Affiche valeur héritée + provenance
+
+Intégrer dans : Setup tenant config, Draw Channel Detail, Seller Terminal create/edit.
+
+### Web — navigation
+Modifier `private-navigation.model.ts` en miroir du pagemodel backend, **dans le même commit** : retirer `limits-global`, `limits-draw`, `limits-seller`, `sellers-limits`. Garder `overview` + `number`.
+
+### Web — draw detail
+- Bouton "Bloke nimero" avec channel pré-sélectionné dans le dialog
+- Utiliser le BFF `/admin/draws/{drawId}/overview` comme source principale de la page
+- Ne pas déclencher d'appel frontend indépendant vers `AdminLimitsApi.getExposureAlerts()` — les exposures sont déjà incluses dans l'overview
+- Sections distinctes "Top sélections" et "Numéros à risque"
+- L'état est possédé par la feature/page ; les composants de présentation reçoivent leurs données par inputs et ne font pas d'appel HTTP direct
 
 ### Mobile — POS Flutter
-- `SellerTerminalDrawReportPage` continue d'appeler `/tenant/cashier/tickets/stats` (stats + breakdown par draw) et `/tenant/cashier/tickets` (liste tickets) — pas touché.
-- Ajouter un appel au nouveau BFF `GET /tenant/cashier/draws/{drawId}/detail` pour obtenir les top sélections SELLER_TERMINAL et l'exposition.
-- Nouveau widget "Nimero cho" dans `SellerTerminalDrawReportPage` : liste des top numéros du terminal pour ce tirage, avec ratio d'exposition si `MAX_STAKE_EXPOSURE` est configuré. Visible seulement si le tirage est OPEN.
+- Conserver les endpoints actuels stats + tickets
+- Ajouter `/tenant/cashier/draws/{drawId}/detail`
+- Ajouter widget "Nimero cho"
+- Ne jamais transmettre de `sellerTerminalId` depuis le client
+- Gérer proprement le passage OPEN → CLOSED sans casser la page
 
 ---
 
 ## Non-goals
 
-- **Ne pas migrer** les données existantes — les assignments TENANT existants restent valides.
+- **Ne pas migrer/backfiller** les données existantes de projection SELLER_TERMINAL.
 - **Ne pas implémenter** les 6 ruleKeys non exposés (`MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW`, etc.).
-- **Ne pas toucher** la page `seller-terminal` dans limits (restera accessible mais hors menu principal).
+- **Ne pas supprimer** les anciennes routes Limits — elles restent accessibles hors navigation principale.
 - **Pas de reset** de l'interface `UpsertLimitDialog` existante — elle reste pour la vue avancée `/limits/draw`.
-- **Pas de mise min/max** par jeu dans ce change (c'est `TenantGame`, pas limitpolicy).
+- **Pas de mise min/max** par jeu dans ce change (`TenantGame`, pas limitpolicy).
+- **Ne pas fusionner** les statistiques/tickets existants de `SellerTerminalDrawReportPage` dans le nouveau BFF POS.
+- **Ne pas exposer** les scores internes TENANT=10 / DRAW_CHANNEL=30 / SELLER_TERMINAL=60 dans l'UI.
+
+---
+
+## Tests / critères d'acceptation
+
+**Limit resolution**
+- Une valeur TENANT est affichée comme valeur héritée sur un draw sans override.
+- Une valeur DRAW_CHANNEL override correctement TENANT.
+- Une valeur SELLER_TERMINAL override correctement DRAW_CHANNEL.
+- Un champ nullable vide affiche la valeur résolue et sa provenance.
+- Les scores internes ne sont jamais affichés.
+
+**Projection**
+- `TicketPlacedEvent` met à jour TENANT.
+- `TicketPlacedEvent` met à jour DRAW_CHANNEL.
+- `TicketPlacedEvent` met à jour SELLER_TERMINAL lorsque présent.
+- Le même event rejoué ne double aucune exposition.
+- Aucun backfill historique n'est implicitement exécuté.
+
+**Admin draw**
+- `/admin/draws/{drawId}/overview` fournit toutes les données nécessaires au détail.
+- La page ne déclenche pas plusieurs appels cross-domain inutiles pour reconstruire le même écran.
+- "Top sélections" et "Numéros à risque" sont deux sections visuelles distinctes.
+- "Bloke nimero" ouvre le dialog avec le channel courant pré-sélectionné.
+
+**POS**
+- `/tenant/cashier/draws/{drawId}/detail` utilise le SellerTerminal du Request Context.
+- Aucun `sellerTerminalId` client n'est nécessaire ou accepté.
+- Les top selections sont triées par montant misé descendant.
+- L'exposition affiche limite + ratio lorsqu'une règle est configurée.
+- Après fermeture du draw, le rapport reste consultable.
+- Les informations de risque deviennent non actionnables lorsque le draw n'est plus OPEN.
+
+**Navigation**
+- PageModel backend et navigation Angular sont modifiés dans le même commit.
+- `/limits` et `/limits/number` restent dans le menu.
+- Les vues avancées restent routables mais hors navigation principale.
 
 ---
 
