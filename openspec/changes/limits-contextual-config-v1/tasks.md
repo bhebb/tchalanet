@@ -1,11 +1,18 @@
 # tasks — limits-contextual-config-v1
 
-## Slice 1 — Backend : endpoint exposure-alerts
+## Slice 1 — Backend : projection SELLER_TERMINAL + BFF endpoints
 
-- [ ] Ajouter `GET /admin/policies/limits/exposure-alerts` dans `LimitPolicyAdminController`
-  - params : `drawId` (UUID), `scope` (DRAW_CHANNEL), `targetId` (channelId), `limit` (int, défaut 10)
-  - réutilise `GetExposureAlertsOverviewQuery` + handler existant
-- [ ] Ajouter le call dans `AdminLimitsApi` côté web (`getExposureAlerts(drawId, channelId, limit)`)
+- [ ] `ExposureProjectorAdapter.scopesFor()` : ajouter scope SELLER_TERMINAL
+  - `if (event.context().sellerTerminalId() != null) scopes.add(LimitScopeRef.sellerTerminal(...))`
+  - `sellerTerminalId` est déjà dans `TicketContextPayload`
+- [ ] BFF admin : créer `features/tenantadmin/draw/TenantAdminDrawOverviewController`
+  - `GET /admin/draws/{drawId}/overview`
+  - agrège : draw (core/draw) + channel info (catalog) + résultat + top selections (core/sales) + exposure DRAW_CHANNEL (core/limitpolicy, seulement si OPEN)
+  - retourne `AdminDrawOverviewResponse` (record)
+- [ ] BFF POS : créer `features/pos/draws/PosDrawDetailController`
+  - `GET /tenant/cashier/draws/{drawId}/detail`
+  - agrège : draw info + top selections SELLER_TERMINAL + exposure SELLER_TERMINAL
+  - seulement si draw OPEN et sellerTerminalId présent dans le contexte
 
 ## Slice 2 — Web : composant LimitPolicyBlockComponent
 

@@ -29,9 +29,11 @@ Le backend (`LimitResolver`) applique un **score par scope** — la règle la pl
 | MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW | EXPOSURE | **oui** |
 | MAX_SALES_COUNT_PER_SELECTION_PER_DRAW | EXPOSURE | **oui** |
 
-Les règles stateful (`stateless: false`) lisent l'accumulation de ventes réelles en base (`DrawExposureJpaEntity`) — elles ne sont donc applicables qu'à scope DRAW_CHANNEL ou TENANT (pas SELLER_TERMINAL qui n'a pas de projection d'exposition aujourd'hui).
+Les règles stateful (`stateless: false`) lisent l'accumulation de ventes réelles en base (`DrawExposureJpaEntity`). Aujourd'hui la projection (`ExposureProjectorAdapter.scopesFor()`) ne couvre que TENANT et DRAW_CHANNEL — **SELLER_TERMINAL n'est pas projeté** bien que `TicketPlacedEvent.context().sellerTerminalId()` soit disponible.
 
 **Mise min/max par jeu** : stockée dans `TenantGame.minStake / maxStake` — système séparé du limitpolicy, pas concerné par ce change.
+
+**Numéros chauds POS** : le vendeur doit pouvoir voir ses propres top numéros (scope SELLER_TERMINAL). La donnée n'existe pas encore — nécessite d'activer la projection SELLER_TERMINAL dans `ExposureProjectorAdapter`.
 
 ---
 
@@ -90,8 +92,9 @@ Retourne `ExposureAlertsOverviewView` — déjà implémenté dans le query hand
 ## Impact
 
 ### Backend
-- Exposer `GET /admin/policies/limits/exposure-alerts` dans `LimitPolicyAdminController`.
-- Paramètres : `drawId`, `scope` (DRAW_CHANNEL), `targetId` (channelId), `limit` (défaut 10).
+- **Activer projection SELLER_TERMINAL** dans `ExposureProjectorAdapter.scopesFor()` — ajouter `LimitScopeRef.sellerTerminal(event.context().sellerTerminalId())` si présent. Toutes les ventes futures sont alors tracées par terminal.
+- **BFF admin** : nouveau endpoint `GET /admin/draws/{drawId}/overview` dans `features/tenantadmin/draw` — agrège draw channel info + draw + résultat + top selections (core/sales) + exposure DRAW_CHANNEL (core/limitpolicy). Remplace les deux appels séparés actuels du frontend.
+- **BFF POS** : nouveau endpoint `GET /tenant/cashier/draws/{drawId}/detail` dans `features/pos/draws` — agrège draw info + top selections scope SELLER_TERMINAL + exposure SELLER_TERMINAL. Uniquement si le tirage est OPEN.
 
 ### Web — admin-portal
 - Nouveau composant `LimitPolicyBlockComponent` (champs par ruleKey, nullable, avec valeur héritée).
