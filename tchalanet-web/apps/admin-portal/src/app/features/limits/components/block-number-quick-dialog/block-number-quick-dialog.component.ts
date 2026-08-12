@@ -1,153 +1,186 @@
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import type { MatChipInputEvent } from '@angular/material/chips';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MatInputModule } from '@angular/material/input';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import type { MatChipInputEvent } from '@angular/material/chips';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchSectionError } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
 import { resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
-import { TranslateService } from '@ngx-translate/core';
 
-import { DrawAdminApi } from '../../../draws/data-access/draw-admin.api.service';
-import type { DrawSummary } from '../../../draws/data-access/draw-admin.api.service';
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { LimitRuleSpec } from '../../data-access/admin-limits.models';
-import { buildParams, detectParamSchema } from '../../data-access/admin-limits.models';
 
-type DurationMode = 'today' | 'permanent';
+export interface BlockNumberQuickDialogData {
+  readonly channelId?: string;
+}
 
 @Component({
   selector: 'tch-block-number-quick-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FormsModule,
     AdminDialogShellComponent,
     MatButtonModule,
-    MatButtonToggleModule,
     MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatProgressSpinnerModule,
-    MatSelectModule,
+    MatInputModule,
     TchSectionError,
     TranslatePipe,
   ],
-  templateUrl: './block-number-quick-dialog.component.html',
+  template: `
+    <tch-admin-dialog-shell
+      title="Bloke nimero"
+      description="Ajoute les numéros sélectionnés à la liste de blocage du canal."
+      icon="block"
+    >
+      <div class="bnqd">
+        @if (error()) {
+          <tch-section-error title="Erreur" [message]="error()!" />
+        }
+
+        <p class="bnqd__help">
+          Entrez les numéros à bloquer. Appuyez sur Entrée ou virgule pour ajouter chaque numéro.
+        </p>
+
+        <mat-form-field appearance="outline" class="bnqd__field">
+          <mat-label>Numéros</mat-label>
+          <mat-chip-grid #chipGrid aria-label="Numéros à bloquer">
+            @for (num of selections(); track num) {
+              <mat-chip-row (removed)="removeNumber(num)">
+                {{ num }}
+                <button matChipRemove aria-label="Retirer {{ num }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">cancel</span>
+                </button>
+              </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <input
+            placeholder="Ex: 12, 34..."
+            [matChipInputFor]="chipGrid"
+            [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+            (matChipInputTokenEnd)="addNumber($event)"
+          />
+        </mat-form-field>
+      </div>
+
+      <button actions mat-button mat-dialog-close [disabled]="saving()">
+        Annuler
+      </button>
+      <button
+        actions
+        mat-flat-button
+        color="primary"
+        [disabled]="saving() || selections().length === 0"
+        (click)="save()"
+      >
+        @if (saving()) {
+          <span class="material-symbols-outlined" aria-hidden="true" style="animation: spin 1s linear infinite">
+            progress_activity
+          </span>
+        }
+        Bloquer
+      </button>
+    </tch-admin-dialog-shell>
+  `,
+  styles: [`
+    .bnqd {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .bnqd__help {
+      font-size: 0.875rem;
+      color: var(--tch-color-on-surface-variant, #46464f);
+      margin: 0;
+    }
+
+    .bnqd__field {
+      width: 100%;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+    }
+  `],
 })
-export class BlockNumberQuickDialogComponent implements OnInit {
-  private readonly drawApi = inject(DrawAdminApi);
-  private readonly limitsApi = inject(AdminLimitsApi);
+export class BlockNumberQuickDialogComponent {
+  private readonly api = inject(AdminLimitsApi);
   private readonly dialogRef = inject(MatDialogRef<BlockNumberQuickDialogComponent>);
+  private readonly data = inject<BlockNumberQuickDialogData>(MAT_DIALOG_DATA);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly separatorKeyCodes = [ENTER, COMMA];
-
-  spec: LimitRuleSpec | null = null;
-
-  readonly loadingDraws = signal(true);
-  readonly openDraws = signal<DrawSummary[]>([]);
-  readonly selectedDrawId = signal<string | null>(null);
-  readonly numbers = signal<string[]>([]);
-  readonly duration = signal<DurationMode>('today');
+  readonly selections = signal<string[]>([]);
   readonly saving = signal(false);
-  readonly errorMessage = signal<string | null>(null);
-
-  ngOnInit(): void {
-    this.drawApi.listDraws({ status: 'OPEN', size: 30 }).subscribe({
-      next: page => {
-        this.openDraws.set(page.items ?? []);
-        const first = (page.items ?? [])[0];
-        if (first) this.selectedDrawId.set(first.id);
-        this.loadingDraws.set(false);
-      },
-      error: () => {
-        this.loadingDraws.set(false);
-      },
-    });
-  }
-
-  drawLabel(draw: DrawSummary): string {
-    return `${draw.channel.name} ${draw.slot.label}`;
-  }
+  readonly error = signal<string | null>(null);
 
   addNumber(event: MatChipInputEvent): void {
     const val = (event.value ?? '').trim();
-    if (val && !this.numbers().includes(val)) {
-      this.numbers.update(n => [...n, val]);
+    if (val && !this.selections().includes(val)) {
+      this.selections.update(s => [...s, val]);
     }
     event.chipInput?.clear();
   }
 
-  removeNumber(n: string): void {
-    this.numbers.update(list => list.filter(x => x !== n));
-  }
-
-  get canSave(): boolean {
-    return this.numbers().length > 0 && this.selectedDrawId() !== null && !this.saving();
+  removeNumber(num: string): void {
+    this.selections.update(s => s.filter(x => x !== num));
   }
 
   save(): void {
-    if (!this.canSave) return;
-
-    const draw = this.openDraws().find(d => d.id === this.selectedDrawId());
-    if (!draw) return;
-
-    const spec = this.spec;
-    const params = spec
-      ? buildParams(detectParamSchema(spec), spec.paramsTemplate, {
-          valueCentsHtg: 0,
-          maxCount: 0,
-          windowMinutes: 0,
-          betTypeCode: '',
-          selectionIds: this.numbers(),
-        })
-      : { selections: this.numbers() };
-
-    const endsAt = this.duration() === 'today' ? this.todayEnd() : null;
+    const channelId = this.data.channelId;
+    if (!channelId || this.selections().length === 0) return;
 
     this.saving.set(true);
-    this.errorMessage.set(null);
+    this.error.set(null);
 
-    this.limitsApi
+    this.api
       .upsertAssignment(
         {
           ruleKey: 'BLOCK_SELECTION_PER_DRAW',
           targetType: 'DRAW_CHANNEL',
-          targetId: draw.channel.id,
+          targetId: channelId,
           enabled: true,
           onBreach: 'BLOCK',
-          params,
-          startsAt: null,
-          endsAt,
+          params: { selections: this.selections() },
         },
         { suppressShellFeedback: true },
       )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.dialogRef.close(true);
-        },
+        next: result => this.dialogRef.close(result),
         error: (err: unknown) => {
+          this.error.set(this.resolveError(err));
           this.saving.set(false);
-          const problem = mapHttpErrorToProblemDetail(err);
-          const normalized = webAppErrorFromProblemDetail(problem, 'admin.limits.blockNumber', 'section');
-          const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-          this.errorMessage.set(toErrorViewModel(normalized, copy).message);
         },
       });
   }
 
-  private todayEnd(): string {
-    const d = new Date();
-    d.setHours(23, 59, 59, 999);
-    return d.toISOString();
+  private resolveError(err: unknown): string {
+    const problem = mapHttpErrorToProblemDetail(err);
+    const normalized = webAppErrorFromProblemDetail(problem, 'admin.limits.blockNumber', 'section');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return toErrorViewModel(normalized, copy).message;
   }
 }

@@ -101,4 +101,26 @@
       </p>
     }
   </div>
+
+  @if (view().exposureAlerts?.length && view().exposureLimitConfigured) {
+    <div class="draw-detail-activity__exposure">
+      <p class="draw-detail-activity__eyebrow">Numéros à risque</p>
+      <ul class="draw-detail-activity__exposure-list">
+        @for (alert of view().exposureAlerts!; track alert.selectionKey) {
+          <li class="draw-detail-activity__exposure-item">
+            <span class="draw-detail-activity__exposure-num">{{ alert.selectionKey }}</span>
+            @if (alert.stakeRatio !== null) {
+              <span
+                class="draw-detail-activity__exposure-chip"
+                [class.is-green]="alert.stakeRatio < 0.5"
+                [class.is-orange]="alert.stakeRatio >= 0.5 && alert.stakeRatio < 0.8"
+                [class.is-red]="alert.stakeRatio >= 0.8"
+              >{{ (alert.stakeRatio * 100 | number: '1.0-0') }}%</span>
+            }
+            <span class="draw-detail-activity__exposure-stake">{{ (alert.stakeTotal | number: '1.0-2') }} HTG</span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
 }

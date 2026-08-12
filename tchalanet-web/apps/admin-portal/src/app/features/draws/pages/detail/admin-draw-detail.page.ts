@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -48,6 +49,7 @@ import {
   DrawDetailActivityView,
   DrawDetailActivityComponent,
 } from './components/draw-detail-activity/draw-detail-activity.component';
+import { BlockNumberQuickDialogComponent } from '../../../limits/components/block-number-quick-dialog/block-number-quick-dialog.component';
 
 type PageState = 'loading' | 'ready' | 'error';
 type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
@@ -61,10 +63,12 @@ type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
     RouterLink,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
     ConsoleDrawDetailComponent,
     AdminSectionCardComponent,
     DrawResultDrawerComponent,
     DrawDetailActivityComponent,
+    BlockNumberQuickDialogComponent,
   ],
   templateUrl: './admin-draw-detail.page.html',
   styleUrls: ['./admin-draw-detail.page.scss'],
@@ -76,6 +80,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   private readonly financials = inject(AdminFinancialsApi);
   private readonly access = inject(AccessService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
   private timerId: ReturnType<typeof setInterval> | null = null;
 
   readonly pageState = signal<PageState>('loading');
@@ -111,7 +116,16 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       ? { title: this.errorTitle() ?? 'Problème détecté', message: this.errorMessage() ?? '' }
       : null,
   );
-  readonly detailActions = computed(() => [{ id: 'back', label: 'Retour', icon: 'arrow_back' }]);
+  readonly detailActions = computed(() => {
+    const d = this.draw();
+    const actions: { id: string; label: string; icon: string }[] = [
+      { id: 'back', label: 'Retour', icon: 'arrow_back' },
+    ];
+    if (d?.salesStatus === 'OPEN') {
+      actions.push({ id: 'block-number', label: 'Bloke nimero', icon: 'block' });
+    }
+    return actions;
+  });
   readonly drawDetailView = computed<ConsoleDrawDetailView | null>(() => {
     const draw = this.draw();
     if (!draw) return null;
@@ -210,6 +224,9 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   onDetailAction(event: ConsoleEntityDetailActionEvent): void {
     if (event.action.id === 'back') {
       void this.router.navigate(['/app/admin/draws']);
+    } else if (event.action.id === 'block-number') {
+      const d = this.draw();
+      if (d) this.openBlockNumber(d);
     }
   }
 
@@ -446,6 +463,14 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       );
     }
     return 'Le tirage est encore ouvert. Le résultat pourra être saisi ou récupéré après la fermeture.';
+  }
+
+  openBlockNumber(draw: GeneratedDrawView): void {
+    this.dialog.open(BlockNumberQuickDialogComponent, {
+      width: '480px',
+      maxWidth: '95vw',
+      data: { channelId: draw.drawChannelId },
+    });
   }
 
   openResultPanel(draw: GeneratedDrawView): void {

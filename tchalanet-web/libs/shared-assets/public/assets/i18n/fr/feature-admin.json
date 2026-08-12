@@ -2401,7 +2401,41 @@
       "default_missing": "Taux de commission santral à configurer"
     },
     "limits": {
-      "empty": "Limites de vente à configurer"
+      "empty": "Limites de vente à configurer",
+      "limitsSection": {
+        "title": "Limites",
+        "descriptionInherit": "Les valeurs non configurées utilisent les valeurs du tenant"
+      }
+    }
+  },
+  "tenantSetup": {
+    "limitsSection": {
+      "title": "Limites par défaut",
+      "descriptionInherit": "Ces limites s'appliquent à tous les canaux et vendeurs si non configurées séparément"
+    }
+  },
+  "drawChannel": {
+    "limitsSection": {
+      "title": "Limites du canal",
+      "descriptionInherit": "Les valeurs non configurées héritent du tenant"
+    }
+  },
+  "sellerTerminal": {
+    "limitsSection": {
+      "title": "Limites vendeur",
+      "descriptionInherit": "Les valeurs non configurées héritent du tenant"
+    }
+  },
+  "draws": {
+    "detail": {
+      "blockNumber": "Bloquer numéro",
+      "blockFromRisk": "Bloquer",
+      "hotNumbers": {
+        "title": "Numéros à risque",
+        "ratioColumn": "Ratio",
+        "empty": "Aucun numéro à risque pour ce tirage",
+        "notConfigured": "Limite d'exposition non configurée"
+      }
     }
   },
   "dashboard": {

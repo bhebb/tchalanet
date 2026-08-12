@@ -2401,7 +2401,41 @@
       "default_missing": "To komisyon santral la bezwen konfigire"
     },
     "limits": {
-      "empty": "Limit vant yo bezwen konfigire"
+      "empty": "Limit vant yo bezwen konfigire",
+      "limitsSection": {
+        "title": "Limit",
+        "descriptionInherit": "Valè ki pa konfigire ap itilize valè tenant an"
+      }
+    }
+  },
+  "tenantSetup": {
+    "limitsSection": {
+      "title": "Limit pa defo",
+      "descriptionInherit": "Limit sa yo aplike pou tout kanal ak machann si yo pa konfigire separe"
+    }
+  },
+  "drawChannel": {
+    "limitsSection": {
+      "title": "Limit kanal",
+      "descriptionInherit": "Valè ki pa konfigire ap eritye depi tenant an"
+    }
+  },
+  "sellerTerminal": {
+    "limitsSection": {
+      "title": "Limit machann",
+      "descriptionInherit": "Valè ki pa konfigire ap eritye depi tenant an"
+    }
+  },
+  "draws": {
+    "detail": {
+      "blockNumber": "Bloke nimero",
+      "blockFromRisk": "Bloke",
+      "hotNumbers": {
+        "title": "Nimero cho",
+        "ratioColumn": "Pousantaj",
+        "empty": "Pa gen nimero cho pou tiraj sa a",
+        "notConfigured": "Limit ekspozisyon pa konfigire"
+      }
     }
   },
   "dashboard": {

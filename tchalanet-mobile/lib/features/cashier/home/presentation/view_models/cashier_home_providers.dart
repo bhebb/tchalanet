@@ -5,8 +5,10 @@ import '../../../tickets/data/models/cashier_ticket_models.dart';
 import '../../../tickets/data/services/cashier_sell_catalog_service.dart';
 import '../../../tickets/data/services/cashier_ticket_service.dart';
 import '../../data/models/cashier_home_models.dart';
+import '../../data/models/pos_draw_detail_models.dart';
 import '../../data/models/pos_profile_models.dart';
 import '../../data/services/cashier_home_service.dart';
+import '../../data/services/pos_draw_detail_service.dart';
 import '../../data/services/pos_profile_service.dart';
 import '../../data/services/terminal_stats_service.dart';
 
@@ -112,6 +114,20 @@ final availableDrawsProvider = FutureProvider<List<CashierAvailableDrawView>>((
       .fetchAvailableDraws();
   return draws.where((d) => d.isOpen).toList();
 });
+
+/// Draw detail for a specific draw: top selections + exposure alerts (SELLER_TERMINAL scope).
+/// Returns null if the draw is not open so the caller can skip the block silently.
+final posDrawDetailProvider = FutureProvider.autoDispose
+    .family<PosDrawDetailResponse?, String>((ref, drawId) async {
+      final isOpen = ref
+          .watch(availableDrawsProvider)
+          .maybeWhen(
+            data: (draws) => draws.any((draw) => draw.drawId == drawId),
+            orElse: () => false,
+          );
+      if (!isOpen) return null;
+      return ref.watch(posDrawDetailServiceProvider).fetchDrawDetail(drawId);
+    });
 
 /// The most recently sold ticket, kept separate from the draw catalogue so a
 /// temporary history failure never prevents a cashier from starting a sale.

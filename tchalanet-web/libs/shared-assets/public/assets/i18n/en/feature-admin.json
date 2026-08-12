@@ -2401,7 +2401,41 @@
       "default_missing": "Operator commission rate needs configuration"
     },
     "limits": {
-      "empty": "Sales limits need configuration"
+      "empty": "Sales limits need configuration",
+      "limitsSection": {
+        "title": "Limits",
+        "descriptionInherit": "Unconfigured values use tenant defaults"
+      }
+    }
+  },
+  "tenantSetup": {
+    "limitsSection": {
+      "title": "Default limits",
+      "descriptionInherit": "These limits apply to all channels and sellers if not separately configured"
+    }
+  },
+  "drawChannel": {
+    "limitsSection": {
+      "title": "Channel limits",
+      "descriptionInherit": "Unconfigured values inherit from tenant"
+    }
+  },
+  "sellerTerminal": {
+    "limitsSection": {
+      "title": "Seller limits",
+      "descriptionInherit": "Unconfigured values inherit from tenant"
+    }
+  },
+  "draws": {
+    "detail": {
+      "blockNumber": "Block number",
+      "blockFromRisk": "Block",
+      "hotNumbers": {
+        "title": "Hot numbers",
+        "ratioColumn": "Ratio",
+        "empty": "No hot numbers for this draw",
+        "notConfigured": "Exposure limit not configured"
+      }
     }
   },
   "dashboard": {

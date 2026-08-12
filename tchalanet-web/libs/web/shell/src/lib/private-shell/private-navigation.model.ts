@@ -443,12 +443,6 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             icon: 'point_of_sale',
             destination: { kind: 'route', value: '/app/admin/seller-terminals/commissions' },
           },
-          {
-            id: 'sellers-limits',
-            labelKey: 'nav.admin.seller_limits',
-            icon: 'shield',
-            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
-          },
         ],
       },
       {
@@ -465,28 +459,10 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
             activeMatch: 'exact',
           },
           {
-            id: 'limits-global',
-            labelKey: 'nav.admin.limits_global',
-            icon: 'tune',
-            destination: { kind: 'route', value: '/app/admin/limits/global' },
-          },
-          {
             id: 'limits-number',
             labelKey: 'nav.admin.limits_number',
             icon: 'pin',
             destination: { kind: 'route', value: '/app/admin/limits/number' },
-          },
-          {
-            id: 'limits-draw',
-            labelKey: 'nav.admin.limits_draw',
-            icon: 'event',
-            destination: { kind: 'route', value: '/app/admin/limits/draw' },
-          },
-          {
-            id: 'limits-seller',
-            labelKey: 'nav.admin.limits_seller',
-            icon: 'person',
-            destination: { kind: 'route', value: '/app/admin/limits/seller-terminal' },
           },
         ],
       },

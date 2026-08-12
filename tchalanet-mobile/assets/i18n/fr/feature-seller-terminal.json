@@ -153,7 +153,11 @@
       "sell_this_draw": "Vendre un ticket",
       "draw_empty": "Aucun ticket pour ce tirage ce jour-là.",
       "pick_date": "Choisir une date",
-      "other_date": "Une autre date"
+      "other_date": "Une autre date",
+      "hot_numbers": "Numéros chauds",
+      "hot_numbers_error": "Impossible de charger les numéros chauds",
+      "hot_numbers_empty": "Aucune vente pour ce tirage",
+      "exposure_ratio": "{ratio}% du plafond"
     },
     "tickets": {
       "history_title": "Historique des tickets",
