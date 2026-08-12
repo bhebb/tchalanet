@@ -110,16 +110,20 @@ Le composant affiche la valeur résolue et sa provenance, sans exposer les score
 
 Les règles les moins courantes peuvent être placées sous une zone "Avancé". La configuration affichée par contexte peut être limitée aux règles réellement pertinentes pour ce scope.
 
-**Comportement collapse selon le contexte** :
+**Collapse par groupe** — chaque groupe (Vente / Restrictions / Exposition) est individuellement collapsible. L'utilisateur peut ouvrir Vente sans ouvrir Exposition. Le composant expose un input `[defaultExpandedGroups]` (liste des groupes ouverts par défaut) que le contexte parent contrôle. L'état expand/collapse est un signal local, non persisté.
 
-| Contexte | État par défaut | Raison |
+Defaults par contexte :
+
+| Contexte | Groupes ouverts par défaut | Raison |
 |---|---|---|
-| Provisioning tenant (onboarding) | **Replié** | L'écran est déjà dense ; les limites sont optionnelles au provisioning |
-| Setup tenant (config existante) | **Déplié** | L'admin est là pour configurer |
-| Draw channel detail | **Déplié** | Contexte dédié, peu de champs visibles |
-| Seller terminal create/edit | **Replié** | Les limites terminales sont une exception, pas la règle |
+| Provisioning tenant (platform) | aucun — tout replié | Écran dense, limites optionnelles au provisioning |
+| Setup tenant (admin config) | **Vente** seulement | Config la plus fréquente, Restrictions et Exposition sur demande |
+| Draw channel detail | **Vente** + **Restrictions** | Override courant : mise max et blocages ; Exposition sur demande |
+| Seller terminal create/edit | aucun — tout replié | Exception, pas la règle |
 
-Le composant expose un input `[collapsed]` (défaut : `false`) que le contexte parent contrôle. L'état expanded/collapsed est local au composant (signal), non persisté.
+**Placement par contexte** :
+- **Provisioning tenant (platform)** : onglet ou section "Limites" dédiée dans le formulaire de provisioning
+- **Setup tenant (admin)** : bloc "Limites" dans la page de config générale (aux côtés du nom, timezone, etc.), même niveau que les autres blocs de config
 
 ### 2. Section Limits → réduite à 2 rôles
 

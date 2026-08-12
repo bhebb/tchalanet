@@ -63,11 +63,12 @@ Conventions : composant standalone `OnPush`, signals, librairie `libs/ui/console
   - Chaque champ est nullable ; valeur héritée + provenance affichées en grisé (`Hérite du tenant · 500 G` / `Hérite du tirage · 300 G`)
   - Ne jamais afficher les scores internes (10/30/60)
   - Emits `LimitPolicyOverride` (map ruleKey → valeur | null)
-  - Input `collapsed = input<boolean>(false)` — état expanded/collapsed local (signal), non persisté
-    - Provisioning tenant → `[collapsed]="true"` (écran dense, limites optionnelles)
-    - Setup tenant config → `[collapsed]="false"` (admin vient configurer)
-    - Draw channel detail → `[collapsed]="false"`
-    - Seller terminal create/edit → `[collapsed]="true"` (exception, pas la règle)
+  - Chaque groupe (Vente / Restrictions / Exposition) est individuellement collapsible — expand/collapse indépendants
+  - Input `defaultExpandedGroups = input<LimitGroup[]>([])` — le contexte parent contrôle quels groupes sont ouverts par défaut ; l'état est un signal local, non persisté
+    - Provisioning tenant (platform) → `[]` tout replié (écran dense, limites optionnelles)
+    - Setup tenant config (admin) → `['VENTE']` seulement (config la plus fréquente)
+    - Draw channel detail → `['VENTE', 'RESTRICTIONS']`
+    - Seller terminal create/edit → `[]` tout replié (exception, pas la règle)
 - [ ] Charger les specs depuis `api.listRules()` pour libellés/paramsTemplate
 
 ## Slice 3 — Web : intégration dans Setup tenant config
