@@ -2,14 +2,12 @@ package com.tchalanet.server.features.tenantadmin.draw;
 
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
-import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.core.draw.api.query.DrawSummary;
 import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.api.query.GetEffectiveLimitsForDrawQuery;
 import com.tchalanet.server.core.limitpolicy.api.query.GetExposureAlertsOverviewQuery;
-import com.tchalanet.server.core.sales.api.query.DrawTopSelectionsView;
 import com.tchalanet.server.core.sales.api.query.ListDrawTopSelectionsQuery;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +31,7 @@ public class TenantAdminDrawOverviewService {
         queryBus.ask(new ListDrawTopSelectionsQuery(tenantId, drawId, TOP_SELECTIONS_LIMIT));
 
     var effectiveLimitsView =
-        queryBus.ask(
-            new GetEffectiveLimitsForDrawQuery(tenantId, draw.drawChannelId()));
+        queryBus.ask(new GetEffectiveLimitsForDrawQuery(tenantId, draw.drawChannelId()));
 
     var exposureAlertsView =
         queryBus.ask(

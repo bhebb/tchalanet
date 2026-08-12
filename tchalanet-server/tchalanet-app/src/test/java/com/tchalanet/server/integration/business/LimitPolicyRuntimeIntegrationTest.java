@@ -54,7 +54,8 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                     LimitScopeRef.tenant(tenantId),
                     true,
                     BreachOutcome.BLOCK,
-                    JSON.readTree("""
+                    JSON.readTree(
+                        """
                         {"betType":"MATCH_1_2D","selections":["34"]}
                         """),
                     FIXED_NOW.minusSeconds(86_400),
@@ -71,7 +72,11 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                         HTG,
                         List.of(
                             new SellTicketLineInput(
-                                1, GameCode.HT_BOLET, BetType.MATCH_1_2D, "34", null,
+                                1,
+                                GameCode.HT_BOLET,
+                                BetType.MATCH_1_2D,
+                                "34",
+                                null,
                                 new BigDecimal("10"))),
                         SaleCommunicationOptions.none(),
                         List.of())));
@@ -81,7 +86,8 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
   }
 
   @Test
-  @DisplayName("Cas 2 — SELLER_TERMINAL overrides DRAW_CHANNEL overrides TENANT for MAX_STAKE_PER_LINE")
+  @DisplayName(
+      "Cas 2 — SELLER_TERMINAL overrides DRAW_CHANNEL overrides TENANT for MAX_STAKE_PER_LINE")
   void mostSpecificScopeWins() throws Exception {
     var draw = openedDrawContaining(GameCode.HT_BOLET);
     var sellerTerminalId = sellerContext.sellerTerminalIdRequired();
@@ -96,7 +102,8 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                     LimitScopeRef.tenant(tenantId),
                     true,
                     BreachOutcome.BLOCK,
-                    JSON.readTree("""
+                    JSON.readTree(
+                        """
                         {"valueCents":50000}
                         """),
                     FIXED_NOW.minusSeconds(86_400),
@@ -111,7 +118,8 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                     LimitScopeRef.drawChannel(draw.drawChannelId()),
                     true,
                     BreachOutcome.BLOCK,
-                    JSON.readTree("""
+                    JSON.readTree(
+                        """
                         {"valueCents":30000}
                         """),
                     FIXED_NOW.minusSeconds(86_400),
@@ -126,7 +134,8 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                     LimitScopeRef.sellerTerminal(sellerTerminalId),
                     true,
                     BreachOutcome.BLOCK,
-                    JSON.readTree("""
+                    JSON.readTree(
+                        """
                         {"valueCents":10000}
                         """),
                     FIXED_NOW.minusSeconds(86_400),
@@ -144,7 +153,11 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                         HTG,
                         List.of(
                             new SellTicketLineInput(
-                                1, GameCode.HT_BOLET, BetType.MATCH_1_2D, "07", null,
+                                1,
+                                GameCode.HT_BOLET,
+                                BetType.MATCH_1_2D,
+                                "07",
+                                null,
                                 new BigDecimal("150"))),
                         SaleCommunicationOptions.none(),
                         List.of())));
@@ -163,7 +176,11 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                         HTG,
                         List.of(
                             new SellTicketLineInput(
-                                1, GameCode.HT_BOLET, BetType.MATCH_1_2D, "07", null,
+                                1,
+                                GameCode.HT_BOLET,
+                                BetType.MATCH_1_2D,
+                                "07",
+                                null,
                                 new BigDecimal("50"))),
                         SaleCommunicationOptions.none(),
                         List.of())));
@@ -187,7 +204,8 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                     LimitScopeRef.drawChannel(draw.drawChannelId()),
                     true,
                     BreachOutcome.BLOCK,
-                    JSON.readTree("""
+                    JSON.readTree(
+                        """
                         {"valueCents":100000}
                         """),
                     FIXED_NOW.minusSeconds(86_400),
@@ -206,7 +224,11 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                           HTG,
                           List.of(
                               new SellTicketLineInput(
-                                  1, GameCode.HT_BOLET, BetType.MATCH_1_2D, "12", null,
+                                  1,
+                                  GameCode.HT_BOLET,
+                                  BetType.MATCH_1_2D,
+                                  "12",
+                                  null,
                                   new BigDecimal("100"))),
                           SaleCommunicationOptions.none(),
                           List.of())));
@@ -225,7 +247,11 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                         HTG,
                         List.of(
                             new SellTicketLineInput(
-                                1, GameCode.HT_BOLET, BetType.MATCH_1_2D, "12", null,
+                                1,
+                                GameCode.HT_BOLET,
+                                BetType.MATCH_1_2D,
+                                "12",
+                                null,
                                 new BigDecimal("200"))),
                         SaleCommunicationOptions.none(),
                         List.of())));
@@ -311,8 +337,6 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
 
   private Integer countTickets() {
     return jdbc.queryForObject(
-        "select count(*) from sales_ticket where tenant_id = ?",
-        Integer.class,
-        tenantId.value());
+        "select count(*) from sales_ticket where tenant_id = ?", Integer.class, tenantId.value());
   }
 }
