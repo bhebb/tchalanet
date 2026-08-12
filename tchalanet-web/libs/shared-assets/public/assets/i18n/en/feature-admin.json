@@ -726,16 +726,22 @@
       "readiness": {
         "READY": "Ready",
         "TODO": "Needs setup",
-        "BLOCKED": "Unavailable"
+        "BLOCKED": "Unavailable",
+        "reason": {
+          "missingStakeOrPricing": "Stake limits or pricing are missing."
+        }
       },
       "card": {
         "unavailable": "Coming soon",
         "blockers": "To resolve",
         "readyChecks": "Checks",
         "systemGame": "System game · {{name}}",
+        "posVisible": "Visible on POS",
+        "posHidden": "Hidden on POS",
         "stakeUnavailable": "Stake unavailable",
         "stakeConfigured": "Stake configured",
         "stakeMissing": "Stake not configured",
+        "notConfigured": "Not configured",
         "pricingMissing": "Pricing not configured",
         "pricingOptions": "{{count}} pricing option(s)",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
@@ -747,7 +753,8 @@
           "reactivate": "Reactivate",
           "edit": "Edit",
           "unavailable": "Unavailable",
-          "maryaj": "Configure free Maryaj"
+          "maryaj": "Configure free Maryaj",
+          "availability": "Draw availability"
         }
       }
     },

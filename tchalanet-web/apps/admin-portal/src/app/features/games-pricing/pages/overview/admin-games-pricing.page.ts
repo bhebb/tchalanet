@@ -161,7 +161,7 @@ export class AdminGamesPricingPage {
       displayName: game.gameName,
       category: null,
       enabled: game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG',
-      visibleInPos: true,
+      visibleInPos: game.visibleInPos,
       displayOrder: 0,
       minStake: game.limits.minStake,
       maxStake: game.limits.maxStake,

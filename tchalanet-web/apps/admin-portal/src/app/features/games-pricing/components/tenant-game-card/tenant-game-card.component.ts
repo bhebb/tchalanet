@@ -73,6 +73,11 @@ export class TenantGameCardComponent {
         ...(this.isMaryajGratis(game.gameCode)
           ? [{ id: 'maryaj-gratis', label: this.t('admin.gamesPricing.card.action.maryaj'), icon: 'redeem' }]
           : []),
+        {
+          id: 'availability',
+          label: this.t('admin.gamesPricing.card.action.availability'),
+          icon: 'rule_settings',
+        },
       ],
     };
   });
@@ -90,6 +95,9 @@ export class TenantGameCardComponent {
         break;
       case 'maryaj-gratis':
         void this.router.navigate(['/app/admin/maryaj-gratis'], { fragment: 'game' });
+        break;
+      case 'availability':
+        void this.router.navigate(['/app/admin/games/channel-matrix']);
         break;
     }
   }
@@ -132,6 +140,13 @@ export class TenantGameCardComponent {
   private summaryItems(game: TenantGamePricingView): ConsoleGameCardView['summaryItems'] {
     const items: ConsoleGameCardSummaryItem[] = [
       { icon: 'casino', label: this.t('admin.gamesPricing.card.systemGame', { name: game.gameName }) },
+      {
+        icon: 'point_of_sale',
+        label: game.visibleInPos
+          ? this.t('admin.gamesPricing.card.posVisible')
+          : this.t('admin.gamesPricing.card.posHidden'),
+        warning: !game.visibleInPos,
+      },
     ];
 
     if (!this.hasStakeConfig(game)) {
@@ -194,9 +209,7 @@ export class TenantGameCardComponent {
   }
 
   private pricingProfileLabel(profile: string): string {
-    return profile === 'Barème standard'
-      ? this.t('admin.gamesPricing.card.standardPricingProfile')
-      : profile;
+    return profile.startsWith('admin.') ? this.t(profile) : profile;
   }
 
   private t(key: string, params?: Record<string, unknown>): string {

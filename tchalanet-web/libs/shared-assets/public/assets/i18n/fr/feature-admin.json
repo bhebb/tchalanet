@@ -1259,16 +1259,22 @@
       "readiness": {
         "READY": "Prêt",
         "TODO": "À configurer",
-        "BLOCKED": "Non disponible"
+        "BLOCKED": "Non disponible",
+        "reason": {
+          "missingStakeOrPricing": "Les limites de mise ou le barème sont manquants."
+        }
       },
       "card": {
         "unavailable": "Bientôt disponible",
         "blockers": "À traiter",
         "readyChecks": "Contrôles",
         "systemGame": "Jeu système · {{name}}",
+        "posVisible": "Visible sur POS",
+        "posHidden": "Masqué POS",
         "stakeUnavailable": "Mise indisponible",
         "stakeConfigured": "Mise configurée",
         "stakeMissing": "Mise non configurée",
+        "notConfigured": "Non configuré",
         "pricingMissing": "Barème non configuré",
         "pricingOptions": "{{count}} option(s) de barème",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
@@ -1280,7 +1286,8 @@
           "reactivate": "Réactiver",
           "edit": "Modifier",
           "unavailable": "Non disponible",
-          "maryaj": "Configurer Maryaj gratis"
+          "maryaj": "Configurer Maryaj gratis",
+          "availability": "Disponibilité par tirage"
         }
       }
     },

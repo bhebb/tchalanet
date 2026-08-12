@@ -726,16 +726,22 @@
       "readiness": {
         "READY": "Pare",
         "TODO": "Pou konfigire",
-        "BLOCKED": "Pa disponib"
+        "BLOCKED": "Pa disponib",
+        "reason": {
+          "missingStakeOrPricing": "Limit miz yo oswa barèm nan manke."
+        }
       },
       "card": {
         "unavailable": "Ap vini",
         "blockers": "Pou regle",
         "readyChecks": "Kontwòl",
         "systemGame": "Jwèt sistèm · {{name}}",
+        "posVisible": "Vizib sou POS",
+        "posHidden": "Kache sou POS",
         "stakeUnavailable": "Miz pa disponib",
         "stakeConfigured": "Miz konfigire",
         "stakeMissing": "Miz pa konfigire",
+        "notConfigured": "Pa konfigire",
         "pricingMissing": "Barèm pa konfigire",
         "pricingOptions": "{{count}} opsyon barèm",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
@@ -747,7 +753,8 @@
           "reactivate": "Reaktive",
           "edit": "Modifye",
           "unavailable": "Pa disponib",
-          "maryaj": "Konfigire Maryaj gratis"
+          "maryaj": "Konfigire Maryaj gratis",
+          "availability": "Disponiblite pa tiraj"
         }
       }
     },
