@@ -207,6 +207,13 @@
                 "path": "/app/admin/seller-terminals/commissions",
                 "kind": "internal",
                 "icon": "point_of_sale"
+              },
+              {
+                "id": "sellers-limits",
+                "label_key": "nav.admin.seller_limits",
+                "path": "/app/admin/limits/seller-terminal",
+                "kind": "internal",
+                "icon": "shield"
               }
             ]
           },
