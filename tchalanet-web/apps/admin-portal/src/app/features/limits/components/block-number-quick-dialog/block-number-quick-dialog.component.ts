@@ -41,6 +41,26 @@ type DurationMode = 'today' | 'permanent';
     TranslatePipe,
   ],
   templateUrl: './block-number-quick-dialog.component.html',
+  styles: [`
+    .bnq-dialog__info-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent);
+      color: var(--mat-sys-on-surface-variant);
+      font-size: 0.875rem;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+    }
+    .bnq-dialog__info-note .material-symbols-outlined {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: var(--mat-sys-primary);
+    }
+  `],
 })
 export class BlockNumberQuickDialogComponent implements OnInit {
   private readonly drawApi = inject(DrawAdminApi);

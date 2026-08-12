@@ -930,7 +930,8 @@
         "confirm": "Bloke",
         "saving": "Blokaj ap fèt…",
         "errorTitle": "Erè pandan blokaj",
-        "cancel": "Anile"
+        "cancel": "Anile",
+        "infoNote": "Nimewo bloke yo p ap ka jwe nan tiraj sa a. Blokaj la aplike otomatikman."
       },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",

@@ -1409,7 +1409,8 @@
         "confirm": "Bloquer",
         "saving": "Blocage en cours…",
         "errorTitle": "Erreur lors du blocage",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "infoNote": "Les numéros bloqués ne pourront plus être joués sur ce tirage. Le blocage est appliqué automatiquement."
       },
       "number": {
         "actionsAria": "Actions rapides par numéro",

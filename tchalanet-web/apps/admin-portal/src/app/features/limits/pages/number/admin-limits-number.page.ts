@@ -128,6 +128,10 @@ export class AdminLimitsNumberPage implements OnInit {
   }
 
   openNumberAction(ruleKey: RuleKey): void {
+    if (ruleKey === 'BLOCK_SELECTION_PER_DRAW') {
+      this.openBlockNumberQuick();
+      return;
+    }
     const row = this.rowFor(ruleKey);
     if (!row) return;
     this.openUpsert(row);

@@ -930,7 +930,8 @@
         "confirm": "Block",
         "saving": "Blocking…",
         "errorTitle": "Block failed",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "infoNote": "Blocked numbers can no longer be played on this draw. The block is applied automatically."
       },
       "number": {
         "actionsAria": "Quick actions by number",
