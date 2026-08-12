@@ -161,6 +161,8 @@ function formatAssignmentParams(assignment: LimitBlockAssignment): string {
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       :host {
         display: block;
       }
@@ -291,7 +293,7 @@ function formatAssignmentParams(assignment: LimitBlockAssignment): string {
 
       /* ─── Responsive: 2-column grid from 600dp ───────────────────────────── */
 
-      @media (min-width: 600px) {
+      @include ui.up(medium) {
         .lpb__group-body {
           display: grid;
           grid-template-columns: 1fr 1fr;
