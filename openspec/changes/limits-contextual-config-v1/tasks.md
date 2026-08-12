@@ -13,6 +13,7 @@ Chaque slice cible un projet précis. Respecter strictement les conventions du p
 - Angular 20 : signals + `resource`/`rxResource`, `OnPush` change detection partout.
 - Pas de `ngModel` ni `EventEmitter` dans les composants signals.
 - Chaque composant est `standalone: true`. Librairie `libs/ui/console/` pour les composants réutilisables cross-features.
+- **Mobile-first obligatoire** : tout nouveau composant est conçu pour 360 dp en premier (cible POS Sunmi V2), puis s'étend vers desktop avec des media queries progressives. Pas de layout qui suppose un écran large par défaut.
 
 **Mobile** (`tchalanet-mobile`)
 - Architecture MVVM feature-first : `data/services/` (stateless, appelle Dio) → `data/models/` (DTOs + domain models) → `presentation/view_models/` (Riverpod providers) → `presentation/views/` (widgets).
@@ -51,7 +52,7 @@ Chaque slice cible un projet précis. Respecter strictement les conventions du p
 
 ## Slice 2 — Web : composant LimitPolicyBlockComponent
 
-Conventions : composant standalone `OnPush`, signals, librairie `libs/ui/console/`.
+Conventions : composant standalone `OnPush`, signals, librairie `libs/ui/console/`. **Mobile-first** : layout en colonne à 360 dp, une ligne par ruleKey ; s'élargit en grille à partir de 600 dp.
 
 - [ ] Créer `libs/ui/console/src/lib/limit-policy-block/limit-policy-block.component.ts`
   - un champ nullable par ruleKey TICKET (`MAX_STAKE_PER_LINE`, `MAX_LINES_PER_TICKET`, `MAX_STAKE_PER_TICKET`) et pour `BLOCK_BET_TYPE`
@@ -108,11 +109,26 @@ Conventions : `DrawDetailActivityComponent` existant, ajouter une section `resou
   - bouton "Bloquer" à côté de chaque numéro à risque (ouvre quick dialog pré-rempli)
 - [ ] Ajouter `getExposureAlerts(drawId, channelId, limit)` dans `AdminLimitsApi`
 
-## Slice 8 — Web : simplification menu limits
+## Slice 8 — Simplification menu limits (backend pagemodel + web)
 
-- [ ] Retirer `global` et `draw` du sidenav `TENANT_ADMIN_NAVIGATION` (garder les routes actives)
-- [ ] Menu limits : garder `overview` (lecture seule audit) + `number` (bloke nimero)
-- [ ] Ajouter lien "Vue avancée →" sur la page overview vers `/limits/draw` pour accès admin
+La navigation est définie à deux endroits qui doivent rester synchrones.
+
+**Backend — `tchalanet-app/src/main/resources/pagemodel/fragments/private/tenantadmin/private_shell_tenantadmin.json`**
+
+- [ ] Dans la section `limits` (navigationDrawer), retirer les enfants `limits-global`, `limits-draw`, `limits-seller`
+  - Garder : `limits-overview` (`/app/admin/limits`, exact) + `limits-number` (`/app/admin/limits/number`)
+  - Les routes `/app/admin/limits/global`, `/app/admin/limits/draw`, `/app/admin/limits/seller-terminal` restent actives côté Angular — seulement retirées du nav
+- [ ] Dans la section `sellers` (navigationDrawer), retirer l'enfant `sellers-limits` (pointait vers `/app/admin/limits/seller-terminal` — désormais intégré dans la page seller terminal)
+
+**Web — `tchalanet-web/libs/web/shell/src/lib/private-shell/private-navigation.model.ts`**
+
+- [ ] Retirer `limits-global`, `limits-draw`, `limits-seller` de `TENANT_ADMIN_NAVIGATION`
+  - Miroir exact des retraits backend — les deux fichiers doivent refléter la même structure
+- [ ] Retirer `sellers-limits` de la section sellers dans le même fichier
+
+**Les deux fichiers modifiés dans le même commit** pour éviter toute désynchronisation.
+
+- [ ] Ajouter lien "Vue avancée →" sur la page `/limits` (overview) vers `/limits/draw` pour accès admin exceptionnel
 
 ## Slice 9 — i18n web
 
