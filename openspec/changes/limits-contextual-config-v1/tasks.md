@@ -55,9 +55,14 @@ Chaque slice cible un projet précis. Respecter strictement les conventions du p
 Conventions : composant standalone `OnPush`, signals, librairie `libs/ui/console/`. **Mobile-first** : layout en colonne à 360 dp, une ligne par ruleKey ; s'élargit en grille à partir de 600 dp.
 
 - [ ] Créer `libs/ui/console/src/lib/limit-policy-block/limit-policy-block.component.ts`
-  - un champ nullable par ruleKey TICKET (`MAX_STAKE_PER_LINE`, `MAX_LINES_PER_TICKET`, `MAX_STAKE_PER_TICKET`) et pour `BLOCK_BET_TYPE`
-  - valeur héritée affichée en grisé quand champ vide (`= hérite : 500 HTG`)
-  - emits `LimitPolicyOverride` (map ruleKey → valeur | null)
+  - Règles groupées par intention (pas de liste technique plate) :
+    - **Vente** : `MAX_STAKE_PER_LINE`, `MAX_LINES_PER_TICKET`, `MAX_STAKE_PER_TICKET`
+    - **Restrictions** : `BLOCK_BET_TYPE`, `BLOCK_SELECTION_PER_DRAW`
+    - **Exposition** : `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW`, `MAX_SALES_COUNT_PER_SELECTION_PER_DRAW`
+  - Les règles Exposition peuvent être dans une zone repliable "Avancé" (moins courantes)
+  - Chaque champ est nullable ; valeur héritée + provenance affichées en grisé (`Hérite du tenant · 500 G` / `Hérite du tirage · 300 G`)
+  - Ne jamais afficher les scores internes (10/30/60)
+  - Emits `LimitPolicyOverride` (map ruleKey → valeur | null)
 - [ ] Charger les specs depuis `api.listRules()` pour libellés/paramsTemplate
 
 ## Slice 3 — Web : intégration dans Setup tenant config
@@ -105,7 +110,7 @@ Conventions : `DrawDetailActivityComponent` existant, ajouter une section `resou
 - [ ] Ajouter section "Numéros à risque" dans `DrawDetailActivityComponent`
   - appel `getExposureAlerts(drawId, channelId, 10)` via `rxResource`
   - masqué si aucune règle `MAX_STAKE_EXPOSURE` n'est configurée pour ce channel (ratio null)
-  - afficher chips numéros avec barre de progression ou couleur (vert → orange → rouge)
+  - afficher chips numéros avec codage couleur du ratio fourni par le BFF : < 50 % vert, 50–79 % orange, ≥ 80 % rouge — ne pas recalculer côté frontend
   - bouton "Bloquer" à côté de chaque numéro à risque (ouvre quick dialog pré-rempli)
 - [ ] Ajouter `getExposureAlerts(drawId, channelId, limit)` dans `AdminLimitsApi`
 
@@ -171,7 +176,7 @@ Conventions : MVVM feature-first, Riverpod, i18n obligatoire (ht/fr/en), `flutte
   - `ref.watch(posDrawDetailProvider(drawId))` → AsyncValue
   - visible seulement si tirage OPEN (`isOpen == true`) et données non nulles
   - liste les `topSelections` avec numéro + montant formaté
-  - si `exposureAlerts` présent et non vide : afficher chip coloré ratio (< 50 % = vert, < 80 % = orange, ≥ 80 % = rouge)
+  - si `exposureAlerts` présent et non vide : afficher chip coloré avec le ratio fourni par le BFF (< 50 % = vert, 50–79 % = orange, ≥ 80 % = rouge) — ne pas recalculer côté Flutter
   - état loading : `CircularProgressIndicator` compact inline (ne pas bloquer la page principale)
   - état error : texte discret `pos.reports.hot_numbers_error` (ne pas afficher de FeedbackState)
   - titre section : `pos.reports.hot_numbers`

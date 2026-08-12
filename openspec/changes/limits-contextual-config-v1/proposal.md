@@ -175,6 +175,13 @@ Numéros à risque
 
 Un top numéro peut ne pas être à risque, et un numéro moins vendu peut être à risque si son plafond est inférieur. "Numéros à risque" est visible seulement lorsqu'une règle résolue `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` s'applique au draw channel.
 
+**Codage couleur du ratio** (commun admin draw detail et mobile "Nimero cho") :
+- < 50 % → vert (normal)
+- 50–79 % → orange (attention)
+- ≥ 80 % → rouge (critique)
+
+Le ratio est calculé côté backend (`exposure / resolvedLimit`) et exposé dans le payload — le frontend ne recalcule pas.
+
 ### 6. Projection SELLER_TERMINAL
 
 Dans `ExposureProjectorAdapter.scopesFor()`, ajouter le scope terminal lorsque disponible :
