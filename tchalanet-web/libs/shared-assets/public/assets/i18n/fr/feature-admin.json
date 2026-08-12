@@ -397,7 +397,7 @@
     },
     "drawChannels": {
       "title": "Canaux de tirage",
-      "description": "Configurez les providers, sources de résultats et créneaux de vente actifs pour votre espace.",
+      "description": "Configurez les fournisseurs de tirage, les sources de résultats et les heures de vente actives pour votre espace.",
       "status": {
         "active": "Actif",
         "needsConfig": "À configurer",
@@ -405,8 +405,8 @@
         "unavailable": "Non disponible"
       },
       "summary": {
-        "availableStates": "Providers",
-        "activeStates": "Providers actifs",
+        "availableStates": "Fournisseurs",
+        "activeStates": "Fournisseurs actifs",
         "activeChannels": "Créneaux actifs",
         "todo": "À configurer"
       },
@@ -425,25 +425,24 @@
         "sourceError": "Erreur source"
       },
       "search": {
-        "placeholder": "Rechercher un provider..."
+        "placeholder": "Rechercher un fournisseur..."
       },
       "loading": "Chargement des canaux de tirage...",
-      "resultsCount": "{{count}} provider(s) affiché(s)",
+      "resultsCount": "{{count}} fournisseur(s) affiché(s)",
       "empty": {
-        "title": "Aucun provider",
-        "filtered": "Modifiez le filtre ou la recherche pour afficher des providers.",
-        "none": "Aucun provider n'est disponible pour ce santral."
+        "title": "Aucun fournisseur",
+        "filtered": "Modifiez le filtre ou la recherche pour afficher des fournisseurs.",
+        "none": "Aucun fournisseur n'est disponible pour ce santral."
       },
       "notice": {
         "title": "Action non disponible",
-        "configureUnavailable": "La configuration directe de {{provider}} sera activée avec l'endpoint backend.",
+        "configureUnavailable": "La configuration directe de {{provider}} sera bientôt disponible.",
         "saved": "Configuration de {{provider}} enregistrée."
       },
       "config": {
         "title": "Configurer {{name}}",
         "loading": "Chargement de la configuration du canal...",
         "code": "Code du canal",
-        "resultSlot": "Créneau résultat",
         "name": "Nom affiché",
         "timezone": "Fuseau horaire",
         "drawTime": "Heure du tirage",
@@ -470,7 +469,7 @@
         },
         "description": "Réglez le mode résultat, les horaires de vente et les créneaux actifs.",
         "section": {
-          "provider": "Provider",
+          "provider": "Fournisseur",
           "slots": "Créneaux"
         },
         "field": {
@@ -498,7 +497,7 @@
       },
       "sourceError": {
         "title": "Source de résultats indisponible",
-        "message": "Les ventes restent disponibles, mais les résultats automatiques de ce provider sont à vérifier."
+        "message": "Les ventes restent disponibles, mais les résultats automatiques de ce fournisseur sont à vérifier."
       },
       "acquisition": {
         "auto": "Acquisition auto",
@@ -519,8 +518,8 @@
           "disabled": "Inactif"
         },
         "cutoffTime": "Fermeture {{value}}",
-        "platformActive": "Platform actif",
-        "platformInactive": "Platform inactif",
+        "platformActive": "Disponible au catalogue",
+        "platformInactive": "Désactivé au catalogue",
         "toggle": {
           "enable": "Activer ce créneau",
           "disable": "Désactiver ce créneau"
@@ -541,8 +540,8 @@
         "todo": "Configuration incomplète",
         "sourceWarning": "Vente configurée · Source à vérifier",
         "reason": {
-          "noActiveChannels": "Aucun canal de tirage n'est actif pour ce provider.",
-          "noChannels": "Aucun canal n'est configuré pour ce provider.",
+          "noActiveChannels": "Aucune heure de tirage n'est active pour ce fournisseur.",
+          "noChannels": "Aucune heure de tirage n'est configurée pour ce fournisseur.",
           "noGames": "Les canaux existent, mais aucun jeu n'est disponible à la vente.",
           "reviewCoverage": "Vérifiez les jeux, la visibilité POS et les limites."
         }
@@ -667,7 +666,7 @@
       },
       "filters": {
         "search": "Recherche",
-        "searchPlaceholder": "Rechercher provider, slot...",
+        "searchPlaceholder": "Rechercher un fournisseur ou une heure de tirage...",
         "status": "Statut",
         "reset": "Réinitialiser",
         "draw": "Tirage",

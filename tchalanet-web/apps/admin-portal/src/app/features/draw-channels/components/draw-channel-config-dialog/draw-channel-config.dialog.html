@@ -9,9 +9,6 @@
   } @else if (detail(); as d) {
     <div class="dc-config__readonly">
       <span>{{ 'admin.drawChannels.config.code' | translate }}: <strong>{{ d.code }}</strong></span>
-      @if (d.resultSlotId) {
-        <span>{{ 'admin.drawChannels.config.resultSlot' | translate }}: <strong>{{ d.resultSlotId }}</strong></span>
-      }
     </div>
 
     @if (errorKey(); as key) {

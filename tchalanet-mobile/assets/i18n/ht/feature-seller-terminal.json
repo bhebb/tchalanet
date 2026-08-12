@@ -336,6 +336,7 @@
       "forget_printer": "Retire enprimant lan",
       "test_printer": "Teste enpresyon",
       "printer_test_ok": "Yo voye resi tès la.",
+      "printer_error": "Nou pa kapab konekte ak enprimant lan. Verifye li limen epi li asosye ak telefòn sa a.",
       "copy_count": "Kantite kopi",
       "notifications": "Notifikasyon",
       "notifications_enabled": "Notifikasyon aktive",

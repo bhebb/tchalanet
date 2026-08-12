@@ -336,6 +336,7 @@
       "forget_printer": "Forget printer",
       "test_printer": "Test print",
       "printer_test_ok": "Test receipt sent.",
+      "printer_error": "Unable to connect to the printer. Check that it is on and paired with this phone.",
       "copy_count": "Copy count",
       "notifications": "Notifications",
       "notifications_enabled": "Notifications enabled",

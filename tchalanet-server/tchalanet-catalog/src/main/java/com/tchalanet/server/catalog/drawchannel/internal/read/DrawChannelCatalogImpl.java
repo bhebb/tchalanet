@@ -14,7 +14,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelMappe
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelEntity;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelGameRepository;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
-import com.tchalanet.server.catalog.resultslot.internal.persistence.ResultSlotJpaRepository;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
@@ -51,7 +51,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   private final DrawChannelGameRepository gameRepository;
   private final DrawChannelGameMapper gameMapper;
   private final JsonUtils jsonUtils;
-  private final ResultSlotJpaRepository resultSlotRepository;
+  private final ResultSlotCatalog resultSlotCatalog;
 
   /**
    * RLS NOTE: - tenant scoping is enforced by PostgreSQL policies using app.current_tenant. - this
@@ -280,9 +280,9 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         (drawTime == null) ? null : drawTime.minusSeconds(Math.max(0, cutoffSec));
     boolean resultSlotActive =
         e.getResultSlotId() != null
-            && resultSlotRepository
-                .findByIdAndDeletedAtIsNull(e.getResultSlotId())
-                .map(slot -> slot.isActive())
+            && resultSlotCatalog
+                .findById(ResultSlotId.of(e.getResultSlotId()))
+                .map(slot -> slot.active())
                 .orElse(false);
 
     return new DrawChannelSummaryView(

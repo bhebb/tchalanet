@@ -1595,14 +1595,13 @@
       },
       "notice": {
         "title": "Aksyon pa disponib",
-        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap aktive ak pwen API sèvè a.",
+        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap disponib byento.",
         "saved": "Konfigirasyon {{provider}} anrejistre."
       },
       "config": {
         "title": "Konfigire {{name}}",
         "loading": "Chajman konfigirasyon kanal la...",
         "code": "Kòd kanal la",
-        "resultSlot": "Lè rezilta platform",
         "name": "Non pou afiche",
         "timezone": "Zòn lè",
         "drawTime": "Lè tiraj",
@@ -1678,8 +1677,8 @@
           "disabled": "Inaktif"
         },
         "cutoffTime": "Vant fèmen {{value}}",
-        "platformActive": "Platform aktif",
-        "platformInactive": "Platform inaktif",
+        "platformActive": "Disponib nan katalòg",
+        "platformInactive": "Dezaktive nan katalòg",
         "toggle": {
           "enable": "Aktive lè tiraj sa a",
           "disable": "Dezaktive lè tiraj sa a"
@@ -1826,7 +1825,7 @@
       },
       "filters": {
         "search": "Rechèch",
-        "searchPlaceholder": "Chèche provider, slot...",
+        "searchPlaceholder": "Chèche founisè oswa lè tiraj...",
         "status": "Estati",
         "reset": "Reyinisyalize",
         "draw": "Tiraj",

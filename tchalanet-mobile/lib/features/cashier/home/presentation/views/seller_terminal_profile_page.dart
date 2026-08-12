@@ -542,7 +542,7 @@ class _BluetoothPrinterSettingsState
       final devices = await _repository.scan();
       if (mounted) setState(() => _devices = devices);
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = _printerErrorMessage());
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -559,7 +559,7 @@ class _BluetoothPrinterSettingsState
       });
       ref.invalidate(printerServiceProvider);
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = _printerErrorMessage());
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -592,11 +592,14 @@ class _BluetoothPrinterSettingsState
         );
       }
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      if (mounted) setState(() => _error = _printerErrorMessage());
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
+
+  String _printerErrorMessage() =>
+      widget.translations.translate('pos.settings.printer_error');
 
   Future<void> _clear() async {
     await _repository.clear();

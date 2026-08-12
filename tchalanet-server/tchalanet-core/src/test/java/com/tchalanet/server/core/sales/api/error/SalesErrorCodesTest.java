@@ -14,7 +14,19 @@ class SalesErrorCodesTest {
   @Test
   void registersPriorityPosCodesWithClientSafeContract() {
     assertThat(SalesErrorCodes.all())
-        .hasSize(50)
+        .hasSize(52)
+        .anySatisfy(
+            descriptor(
+                "sales.draw_channel.inactive",
+                ErrorCategory.CONFLICT,
+                HttpStatus.CONFLICT,
+                ErrorRetryPolicy.AFTER_USER_ACTION))
+        .anySatisfy(
+            descriptor(
+                "sales.result_slot.inactive",
+                ErrorCategory.CONFLICT,
+                HttpStatus.CONFLICT,
+                ErrorRetryPolicy.AFTER_USER_ACTION))
         .anySatisfy(
             descriptor(
                 "sales.draw.cutoff_elapsed",

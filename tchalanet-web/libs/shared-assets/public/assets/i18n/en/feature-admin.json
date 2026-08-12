@@ -1556,7 +1556,7 @@
     },
     "drawChannels": {
       "title": "Draw channels",
-      "description": "Configure providers, result sources, and active draw slots for this operator.",
+      "description": "Configure lottery sources, result sources, and active draw times for this operator.",
       "status": {
         "active": "Active",
         "needsConfig": "Needs setup",
@@ -1564,8 +1564,8 @@
         "unavailable": "Unavailable"
       },
       "summary": {
-        "availableStates": "Providers",
-        "activeStates": "Active providers",
+        "availableStates": "Lottery sources",
+        "activeStates": "Active sources",
         "activeChannels": "Active slots",
         "todo": "Needs setup"
       },
@@ -1584,25 +1584,24 @@
         "sourceError": "Source error"
       },
       "search": {
-        "placeholder": "Search provider..."
+        "placeholder": "Search source..."
       },
       "loading": "Loading draw channels...",
-      "resultsCount": "{{count}} provider(s) shown",
+      "resultsCount": "{{count}} source(s) shown",
       "empty": {
-        "title": "No provider",
-        "filtered": "Change the filter or search to show providers.",
-        "none": "No provider is available for this operator."
+        "title": "No source",
+        "filtered": "Change the filter or search to show sources.",
+        "none": "No lottery source is available for this operator."
       },
       "notice": {
         "title": "Action unavailable",
-        "configureUnavailable": "Direct configuration for {{provider}} will be enabled with the backend endpoint.",
+        "configureUnavailable": "Direct configuration for {{provider}} will be available soon.",
         "saved": "{{provider}} configuration saved."
       },
       "config": {
         "title": "Configure {{name}}",
         "loading": "Loading channel configuration...",
         "code": "Channel code",
-        "resultSlot": "Result slot",
         "name": "Display name",
         "timezone": "Timezone",
         "drawTime": "Draw time",
@@ -1629,7 +1628,7 @@
         },
         "description": "Adjust result mode, sales hours, and active draw slots.",
         "section": {
-          "provider": "Provider",
+          "provider": "Lottery source",
           "slots": "Slots"
         },
         "field": {
@@ -1657,7 +1656,7 @@
       },
       "sourceError": {
         "title": "Result source unavailable",
-        "message": "Sales can remain available, but automatic results for this provider need review."
+        "message": "Sales can remain available, but automatic results for this source need review."
       },
       "acquisition": {
         "auto": "Automatic acquisition",
@@ -1678,8 +1677,8 @@
           "disabled": "Inactive"
         },
         "cutoffTime": "Sales close {{value}}",
-        "platformActive": "Platform active",
-        "platformInactive": "Platform inactive",
+        "platformActive": "Available in catalog",
+        "platformInactive": "Disabled in catalog",
         "toggle": {
           "enable": "Enable this slot",
           "disable": "Disable this slot"
@@ -1700,8 +1699,8 @@
         "todo": "Incomplete configuration",
         "sourceWarning": "Sales configured · Source needs review",
         "reason": {
-          "noActiveChannels": "No draw channel is active for this provider.",
-          "noChannels": "No channel is configured for this provider.",
+          "noActiveChannels": "No draw time is active for this source.",
+          "noChannels": "No draw time is configured for this source.",
           "noGames": "Channels exist, but no game is available for sale.",
           "reviewCoverage": "Review games, POS visibility, and limits."
         }
@@ -1826,7 +1825,7 @@
       },
       "filters": {
         "search": "Search",
-        "searchPlaceholder": "Search provider, slot...",
+        "searchPlaceholder": "Search source or draw time...",
         "status": "Status",
         "reset": "Reset",
         "draw": "Draw",
