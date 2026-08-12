@@ -9,6 +9,9 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelGameView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotStatsView;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
@@ -48,6 +51,7 @@ class GenerateDrawsForRangeCommandHandlerTest {
     var handler =
         new GenerateDrawsForRangeCommandHandler(
             new FakeDrawChannelCatalog(slotId),
+            FakeResultSlotCatalog.active(slotId),
             lifecycle,
             new FakeResultSlotCalendarReaderPort(slotId, drawDate.plusDays(1)),
             () -> UUID.randomUUID(),
@@ -74,6 +78,7 @@ class GenerateDrawsForRangeCommandHandlerTest {
     var handler =
         new GenerateDrawsForRangeCommandHandler(
             new FakeDrawChannelCatalog(slotId),
+            FakeResultSlotCatalog.active(slotId),
             lifecycle,
             new FakeResultSlotCalendarReaderPort(slotId, drawDate),
             () -> UUID.randomUUID(),
@@ -85,6 +90,29 @@ class GenerateDrawsForRangeCommandHandlerTest {
 
     assertThat(result.created()).isZero();
     assertThat(result.skippedProviderClosed()).isEqualTo(1);
+    assertThat(lifecycle.rows).isEmpty();
+  }
+
+  @Test
+  void inactiveResultSlotDoesNotGenerateDraw() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var slotId = ResultSlotId.of(UUID.randomUUID());
+    var drawDate = LocalDate.of(2026, 1, 2);
+    var lifecycle = new FakeDrawLifecyclePort();
+    var handler =
+        new GenerateDrawsForRangeCommandHandler(
+            new FakeDrawChannelCatalog(slotId),
+            FakeResultSlotCatalog.inactive(),
+            lifecycle,
+            new FakeResultSlotCalendarReaderPort(slotId, drawDate.plusDays(1)),
+            () -> UUID.randomUUID(),
+            new FixedTimeProvider(Instant.parse("2026-01-01T12:00:00Z")));
+
+    var result =
+        handler.handle(
+            new GenerateDrawsForRangeCommand(tenantId, drawDate, drawDate, false, false, null));
+
+    assertThat(result.created()).isZero();
     assertThat(lifecycle.rows).isEmpty();
   }
 
@@ -118,6 +146,59 @@ class GenerateDrawsForRangeCommandHandlerTest {
     @Override
     public Clock clock() {
       return Clock.fixed(fixedNow, ZoneId.of("UTC"));
+    }
+  }
+
+  private record FakeResultSlotCatalog(ResultSlotId activeSlotId) implements ResultSlotCatalog {
+
+    static FakeResultSlotCatalog active(ResultSlotId slotId) {
+      return new FakeResultSlotCatalog(slotId);
+    }
+
+    static FakeResultSlotCatalog inactive() {
+      return new FakeResultSlotCatalog(null);
+    }
+
+    @Override
+    public List<ResultSlotView> listActive() {
+      if (activeSlotId == null) return List.of();
+      return List.of(
+          new ResultSlotView(
+              activeSlotId,
+              "HT_NY_MID",
+              "HAITI",
+              ZoneId.of("America/New_York"),
+              LocalTime.NOON,
+              "MON-SUN",
+              true,
+              null,
+              null,
+              null));
+    }
+
+    @Override
+    public Optional<ResultSlotView> findByKey(String slotKey) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ResultSlotView requireByKey(String slotKey) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Optional<ResultSlotView> findById(ResultSlotId id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean existsLive(ResultSlotId id) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ResultSlotStatsView stats() {
+      throw new UnsupportedOperationException();
     }
   }
 
