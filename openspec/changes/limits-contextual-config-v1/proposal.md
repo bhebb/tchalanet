@@ -110,6 +110,17 @@ Le composant affiche la valeur résolue et sa provenance, sans exposer les score
 
 Les règles les moins courantes peuvent être placées sous une zone "Avancé". La configuration affichée par contexte peut être limitée aux règles réellement pertinentes pour ce scope.
 
+**Comportement collapse selon le contexte** :
+
+| Contexte | État par défaut | Raison |
+|---|---|---|
+| Provisioning tenant (onboarding) | **Replié** | L'écran est déjà dense ; les limites sont optionnelles au provisioning |
+| Setup tenant (config existante) | **Déplié** | L'admin est là pour configurer |
+| Draw channel detail | **Déplié** | Contexte dédié, peu de champs visibles |
+| Seller terminal create/edit | **Replié** | Les limites terminales sont une exception, pas la règle |
+
+Le composant expose un input `[collapsed]` (défaut : `false`) que le contexte parent contrôle. L'état expanded/collapsed est local au composant (signal), non persisté.
+
 ### 2. Section Limits → réduite à 2 rôles
 
 | Page | Contenu |
