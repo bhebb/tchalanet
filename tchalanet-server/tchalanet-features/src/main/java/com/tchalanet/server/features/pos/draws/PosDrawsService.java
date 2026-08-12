@@ -8,8 +8,13 @@ import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
+import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.api.query.CashierNextDrawView;
+import com.tchalanet.server.core.draw.api.query.GetDrawByIdQuery;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
+import com.tchalanet.server.core.limitpolicy.api.query.GetExposureAlertsOverviewQuery;
 import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import java.time.ZoneId;
@@ -107,6 +112,56 @@ public class PosDrawsService {
         localDateTime.toLocalDate(),
         localDateTime.toLocalTime(),
         localZone.getId());
+  }
+
+  public PosDrawDetailResponse getDetail(TchRequestContext ctx, DrawId drawId) {
+    var tenantId = ctx.tenantIdRequired();
+    var sellerTerminalId = ctx.sellerTerminalIdRequired();
+
+    var draw = queryBus.ask(new GetDrawByIdQuery(drawId));
+    boolean isOpen = draw.status() == DrawStatus.OPEN;
+
+    var scope = LimitScopeRef.sellerTerminal(sellerTerminalId);
+    var alertsView = queryBus.ask(new GetExposureAlertsOverviewQuery(tenantId, drawId, scope, 10));
+
+    List<PosDrawDetailResponse.ExposureAlertItem> alertItems;
+    List<PosDrawDetailResponse.TopSelectionItem> topSelections;
+    boolean limitConfigured;
+
+    if (alertsView == null || alertsView.items().isEmpty()) {
+      alertItems = List.of();
+      topSelections = List.of();
+      limitConfigured = false;
+    } else {
+      limitConfigured = true;
+      alertItems =
+          alertsView.items().stream()
+              .map(
+                  a ->
+                      new PosDrawDetailResponse.ExposureAlertItem(
+                          a.betType().name(),
+                          a.selectionKey(),
+                          a.stakeTotal(),
+                          a.salesCount(),
+                          a.maxStakeExposureLimit(),
+                          a.stakeRatio()))
+              .toList();
+      topSelections =
+          alertsView.items().stream()
+              .map(
+                  a ->
+                      new PosDrawDetailResponse.TopSelectionItem(
+                          a.selectionKey(),
+                          a.betType().name(),
+                          a.stakeTotal() != null
+                              ? a.stakeTotal().movePointRight(2).longValue()
+                              : 0L,
+                          a.salesCount()))
+              .toList();
+    }
+
+    var exposure = new PosDrawDetailResponse.ExposureInfo(isOpen, limitConfigured, alertItems);
+    return new PosDrawDetailResponse(drawId.value(), topSelections, exposure);
   }
 
   private boolean tenantBusinessOpen(TchRequestContext ctx) {
