@@ -20,6 +20,12 @@
       </span>
     }
 
+    <span class="slot-row__platform slot-row__platform--{{ s.resultSlotActive === false ? 'inactive' : 'active' }}">
+      {{ (s.resultSlotActive === false
+        ? 'admin.drawChannels.slots.platformInactive'
+        : 'admin.drawChannels.slots.platformActive') | translate }}
+    </span>
+
     @if (s.drawTime) {
       <code class="slot-row__time">{{ s.drawTime | slice:0:5 }}</code>
     } @else {

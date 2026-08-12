@@ -40,6 +40,7 @@ describe('AdminDrawChannelsApiService', () => {
       channelId: 'channel-active',
       label: 'HT · Evening',
       enabled: true,
+      resultSlotActive: true,
       drawTime: '20:00',
       cutoffTime: '19:50',
     });
@@ -56,6 +57,7 @@ function tenantDrawChannels() {
       cutoffTime: '11:50',
       timezone: 'America/Port-au-Prince',
       active: false,
+      resultSlotActive: true,
     },
     {
       id: 'channel-active',
@@ -65,6 +67,7 @@ function tenantDrawChannels() {
       cutoffTime: '19:50',
       timezone: 'America/Port-au-Prince',
       active: true,
+      resultSlotActive: true,
     },
   ];
 }

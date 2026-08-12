@@ -1635,6 +1635,8 @@
           "disabled": "Inaktif"
         },
         "cutoffTime": "Vant fèmen {{value}}",
+        "platformActive": "Platform aktif",
+        "platformInactive": "Platform inaktif",
         "toggle": {
           "enable": "Aktive lè tiraj sa a",
           "disable": "Dezaktive lè tiraj sa a"

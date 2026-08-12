@@ -1635,6 +1635,8 @@
           "disabled": "Inactive"
         },
         "cutoffTime": "Sales close {{value}}",
+        "platformActive": "Platform active",
+        "platformInactive": "Platform inactive",
         "toggle": {
           "enable": "Enable this slot",
           "disable": "Disable this slot"

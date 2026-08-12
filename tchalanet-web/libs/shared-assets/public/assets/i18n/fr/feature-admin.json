@@ -483,6 +483,8 @@
           "disabled": "Inactif"
         },
         "cutoffTime": "Fermeture {{value}}",
+        "platformActive": "Platform actif",
+        "platformInactive": "Platform inactif",
         "toggle": {
           "enable": "Activer ce créneau",
           "disable": "Désactiver ce créneau"

@@ -17,6 +17,7 @@ interface TenantDrawChannelSummary {
   readonly cutoffTime: string;
   readonly timezone: string;
   readonly active: boolean;
+  readonly resultSlotActive?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -33,6 +34,18 @@ export class AdminDrawChannelsApiService {
         },
       })
       .pipe(map(channels => this.toProviders(channels)));
+  }
+
+  setChannelActive(
+    channelId: string,
+    active: boolean,
+    options?: TchRequestOptions,
+  ): Observable<unknown> {
+    return this.backend.patch<unknown>(
+      `/tenant/draw-channels/${channelId}/active`,
+      { active },
+      options,
+    );
   }
 
   private toProviders(channels: readonly TenantDrawChannelSummary[]): DrawChannelProviderView[] {
@@ -108,6 +121,7 @@ export class AdminDrawChannelsApiService {
       slotKey: identity.slotKey ?? channel.channelCode,
       label: identity.channelName ?? channel.channelName ?? channel.channelCode,
       enabled: channel.active,
+      resultSlotActive: channel.resultSlotActive,
       drawTime: channel.drawTime,
       cutoffTime: channel.cutoffTime,
     };

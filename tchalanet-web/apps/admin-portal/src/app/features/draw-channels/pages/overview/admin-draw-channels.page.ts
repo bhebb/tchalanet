@@ -21,6 +21,7 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
   DrawChannelProviderView,
+  DrawChannelSlotConfigView,
 } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelsSummaryComponent } from '../../components/draw-channels-summary/draw-channels-summary.component';
 import { DrawChannelProviderCardComponent } from '../../components/draw-channel-provider-card/draw-channel-provider-card.component';
@@ -65,6 +66,7 @@ export class AdminDrawChannelsPage implements OnInit {
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
   readonly allProviders = signal<DrawChannelProviderView[]>([]);
+  readonly savingChannelId = signal<string | null>(null);
   readonly activeFilter = signal<ActiveFilter>('all');
   readonly searchQuery = signal<string>('');
 
@@ -110,6 +112,23 @@ export class AdminDrawChannelsPage implements OnInit {
         this.pageState.set('ready');
       },
       error: (err: unknown) => {
+        this.pageError.set(this.errorViewModel(err));
+        this.pageState.set('error');
+      },
+    });
+  }
+
+  toggleChannelEnabled(slot: DrawChannelSlotConfigView, enabled: boolean): void {
+    if (!slot.channelId || this.savingChannelId()) return;
+    this.savingChannelId.set(slot.channelId);
+    this.actionNotice.set(null);
+    this.api.setChannelActive(slot.channelId, enabled, { suppressShellFeedback: true }).subscribe({
+      next: () => {
+        this.savingChannelId.set(null);
+        this.load();
+      },
+      error: (err: unknown) => {
+        this.savingChannelId.set(null);
         this.pageError.set(this.errorViewModel(err));
         this.pageState.set('error');
       },

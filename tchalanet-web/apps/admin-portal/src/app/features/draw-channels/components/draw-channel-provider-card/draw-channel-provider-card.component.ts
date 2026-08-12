@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { LowerCasePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +9,7 @@ import { consoleLotteryProviderLogoUrl } from '@tch/web/console';
 import {
   DrawChannelProviderView,
   DrawChannelProviderTenantStatus,
+  DrawChannelSlotConfigView,
 } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelSourceBadgeComponent } from '../draw-channel-source-badge/draw-channel-source-badge.component';
 import { DrawChannelSlotRowComponent } from '../draw-channel-slot-row/draw-channel-slot-row.component';
@@ -47,6 +48,9 @@ const STATUS_LABEL: Record<DrawChannelProviderTenantStatus, string> = {
 })
 export class DrawChannelProviderCardComponent {
   readonly provider = input.required<DrawChannelProviderView>();
+  readonly savingChannelId = input<string | null>(null);
+
+  readonly toggleChannelEnabled = output<{ slot: DrawChannelSlotConfigView; enabled: boolean }>();
 
   readonly statusTone  = computed<AdminStatusTone>(() => STATUS_TONE[this.provider().tenantStatus]);
   readonly statusLabel = computed<string>(() => STATUS_LABEL[this.provider().tenantStatus]);

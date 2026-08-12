@@ -92,6 +92,8 @@
         @for (provider of filteredProviders(); track provider.providerCode) {
           <tch-draw-channel-provider-card
             [provider]="provider"
+            [savingChannelId]="savingChannelId()"
+            (toggleChannelEnabled)="toggleChannelEnabled($event.slot, $event.enabled)"
           />
         }
       </div>
