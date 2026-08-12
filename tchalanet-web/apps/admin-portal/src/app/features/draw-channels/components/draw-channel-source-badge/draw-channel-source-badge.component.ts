@@ -1,10 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { DrawResultAcquisitionView } from '../../data-access/admin-draw-channels.models';
 
 @Component({
   selector: 'tch-draw-channel-source-badge',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [TranslatePipe],
   templateUrl: './draw-channel-source-badge.component.html',
   styleUrls: ['./draw-channel-source-badge.component.scss'],
 })
@@ -24,12 +26,12 @@ export class DrawChannelSourceBadgeComponent {
 
   readonly label = computed<string>(() => {
     const a = this.acquisition();
-    if (a.sourceStatus === 'ERROR') return 'Source en erreur';
-    if (a.sourceStatus === 'DISABLED') return 'Non disponible';
+    if (a.sourceStatus === 'ERROR') return 'admin.drawChannels.acquisition.error';
+    if (a.sourceStatus === 'DISABLED') return 'admin.drawChannels.acquisition.disabled';
     switch (a.mode) {
-      case 'AUTO':         return 'Acquisition auto';
-      case 'MANUAL':       return 'Saisie manuelle';
-      case 'UNCONFIGURED': return 'Mode résultat à définir';
+      case 'AUTO':         return 'admin.drawChannels.acquisition.auto';
+      case 'MANUAL':       return 'admin.drawChannels.acquisition.manual';
+      case 'UNCONFIGURED': return 'admin.drawChannels.acquisition.unconfigured';
     }
   });
 

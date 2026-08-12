@@ -415,8 +415,7 @@
       },
       "facts": {
         "activeChannels": "canaux actifs",
-        "offeredGames": "jeux disponibles",
-        "readyGames": "jeux prêts"
+        "totalChannels": "canaux configurés"
       },
       "filters": {
         "all": "Tous",
@@ -470,6 +469,7 @@
         "manual": "Saisie manuelle",
         "unconfigured": "Mode résultat à définir",
         "error": "Source en erreur",
+        "disabled": "Non disponible",
         "last": "Dernière",
         "next": "Prochaine",
         "lastManualEntry": "Dernière saisie"
@@ -482,7 +482,7 @@
           "needsConfig": "À configurer",
           "disabled": "Inactif"
         },
-        "gamesReady": "{{ready}}/{{offered}} jeux prêts",
+        "cutoffTime": "Fermeture {{value}}",
         "toggle": {
           "enable": "Activer ce créneau",
           "disable": "Désactiver ce créneau"
@@ -503,6 +503,7 @@
         "todo": "Configuration incomplète",
         "sourceWarning": "Vente configurée · Source à vérifier",
         "reason": {
+          "noActiveChannels": "Aucun canal de tirage n'est actif pour ce provider.",
           "noChannels": "Aucun canal n'est configuré pour ce provider.",
           "noGames": "Les canaux existent, mais aucun jeu n'est disponible à la vente.",
           "reviewCoverage": "Vérifiez les jeux, la visibilité POS et les limites."

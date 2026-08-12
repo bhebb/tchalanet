@@ -1567,8 +1567,7 @@
       },
       "facts": {
         "activeChannels": "active channels",
-        "offeredGames": "available games",
-        "readyGames": "ready games"
+        "totalChannels": "configured channels"
       },
       "filters": {
         "all": "All",
@@ -1622,6 +1621,7 @@
         "manual": "Manual entry",
         "unconfigured": "Result mode to define",
         "error": "Source error",
+        "disabled": "Not available",
         "last": "Last",
         "next": "Next",
         "lastManualEntry": "Last manual entry"
@@ -1634,7 +1634,7 @@
           "needsConfig": "Needs setup",
           "disabled": "Inactive"
         },
-        "gamesReady": "{{ready}}/{{offered}} games ready",
+        "cutoffTime": "Sales close {{value}}",
         "toggle": {
           "enable": "Enable this slot",
           "disable": "Disable this slot"
@@ -1655,6 +1655,7 @@
         "todo": "Incomplete configuration",
         "sourceWarning": "Sales configured · Source needs review",
         "reason": {
+          "noActiveChannels": "No draw channel is active for this provider.",
           "noChannels": "No channel is configured for this provider.",
           "noGames": "Channels exist, but no game is available for sale.",
           "reviewCoverage": "Review games, POS visibility, and limits."

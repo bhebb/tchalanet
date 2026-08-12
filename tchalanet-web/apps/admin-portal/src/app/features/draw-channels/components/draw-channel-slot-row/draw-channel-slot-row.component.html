@@ -14,12 +14,9 @@
   </div>
 
   <div class="slot-row__right">
-    @if (s.saleReadyGameCount !== undefined || s.offeredGameCount !== undefined) {
+    @if (s.cutoffTime) {
       <span class="slot-row__games">
-        {{ 'admin.drawChannels.slots.gamesReady' | translate: {
-          ready: s.saleReadyGameCount ?? 0,
-          offered: s.offeredGameCount ?? 0
-        } }}
+        {{ 'admin.drawChannels.slots.cutoffTime' | translate: { value: (s.cutoffTime | slice:0:5) } }}
       </span>
     }
 

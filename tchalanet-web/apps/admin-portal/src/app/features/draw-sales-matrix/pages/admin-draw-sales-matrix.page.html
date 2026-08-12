@@ -21,7 +21,7 @@
     (retry)="load()"
   >
     <ng-template tchAsyncReady>
-      @if (matrix(); as matrixVm) {
+      @if (activeMatrix(); as matrixVm) {
         <tch-draw-sales-matrix-summary [summary]="matrixVm.summary" />
         <tch-draw-sales-matrix-provider-list
           [providers]="matrixVm.providers"

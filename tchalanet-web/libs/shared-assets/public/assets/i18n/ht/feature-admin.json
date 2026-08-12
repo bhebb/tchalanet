@@ -1567,8 +1567,7 @@
       },
       "facts": {
         "activeChannels": "kanal aktif",
-        "offeredGames": "jwèt disponib",
-        "readyGames": "jwèt pare"
+        "totalChannels": "kanal konfigire"
       },
       "filters": {
         "all": "Tout",
@@ -1622,6 +1621,7 @@
         "manual": "Antre manyèl",
         "unconfigured": "Mòd rezilta pou defini",
         "error": "Erè sous",
+        "disabled": "Pa disponib",
         "last": "Dènye",
         "next": "Pwochen",
         "lastManualEntry": "Dènye antre manyèl"
@@ -1634,7 +1634,7 @@
           "needsConfig": "Pou konfigire",
           "disabled": "Inaktif"
         },
-        "gamesReady": "{{ready}}/{{offered}} jwèt pare",
+        "cutoffTime": "Vant fèmen {{value}}",
         "toggle": {
           "enable": "Aktive lè tiraj sa a",
           "disable": "Dezaktive lè tiraj sa a"
@@ -1655,6 +1655,7 @@
         "todo": "Konfigirasyon pa konplè",
         "sourceWarning": "Vant konfigire · Sous pou verifye",
         "reason": {
+          "noActiveChannels": "Pa gen kanal tiraj ki aktif pou founisè sa a.",
           "noChannels": "Pa gen kanal konfigire pou founisè sa a.",
           "noGames": "Kanal yo la, men pa gen jwèt ki disponib pou vann.",
           "reviewCoverage": "Verifye jwèt yo, vizibilite POS, ak limit yo."

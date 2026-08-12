@@ -44,17 +44,19 @@
 ## 3. Draw Channels UX: Sale Availability
 
 - [x] Treat draw channels as a tenant-facing aggregated configuration surface.
-- [x] Replace or bypass local Draw Channels mock data with backend-backed channel/game availability before presenting sale-readiness states.
+- [x] Replace local Draw Channels mock data with backend-backed tenant draw channels from `/tenant/draw-channels?activeOnly=false`.
+- [x] Sort active draw channels first while still showing inactive/supported channels.
 - [x] Preserve backend ownership boundaries; compose existing public APIs/read models where required.
 - [x] Model primary sale status separately from result-source mode.
 - [x] Use primary sale statuses: Ready, Needs attention, Disabled.
 - [ ] Use secondary attributes: Automatic/Manual, number of available games, number of upcoming/generated draws.
-- [x] Redesign draw-channel cards using business labels: result source, automatic results, manual results, draw time, sales close, available games, upcoming draws.
-- [x] Add next actions for Configure game availability and Review schedule.
+- [x] Redesign draw-channel cards using business labels: result source, automatic results, manual results, draw time, sales close, and channel status.
+- [x] Add next actions for Configure game availability and Review schedule without mixing game matrix details into draw-channel cards.
 - [x] Detect and surface configured channels with no useful sellable coverage.
 - [ ] Distinguish no upcoming/generated draws from upcoming draws with no games available.
 - [ ] Ensure no upcoming draws routes to schedule review.
 - [x] Ensure no games available routes to game availability/draw configuration.
+- [x] Keep Matrix focused on games supported per active draw channel only.
 - [x] Ensure manual mode does not imply incomplete and automatic mode does not imply ready.
 - [x] Surface incomplete states without raw technical codes or overloaded status.
 - [x] Keep provider/channel names from backend display data; fallback to stable code only when no display label exists.

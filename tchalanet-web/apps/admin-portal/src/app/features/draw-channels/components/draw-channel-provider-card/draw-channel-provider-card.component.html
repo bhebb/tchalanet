@@ -24,12 +24,8 @@
       {{ 'admin.drawChannels.facts.activeChannels' | translate }}
     </span>
     <span>
-      <strong>{{ p.offeredGameCount ?? 0 }}</strong>
-      {{ 'admin.drawChannels.facts.offeredGames' | translate }}
-    </span>
-    <span>
-      <strong>{{ p.saleReadyGameCount ?? 0 }}</strong>
-      {{ 'admin.drawChannels.facts.readyGames' | translate }}
+      <strong>{{ p.configuredChannelCount ?? p.slots.length }}</strong>
+      {{ 'admin.drawChannels.facts.totalChannels' | translate }}
     </span>
   </div>
 

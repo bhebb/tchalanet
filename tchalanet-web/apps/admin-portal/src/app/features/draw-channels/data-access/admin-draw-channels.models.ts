@@ -35,6 +35,7 @@ export interface DrawChannelSlotConfigView {
   readonly label: string;
   readonly enabled: boolean;
   readonly drawTime?: string | null;
+  readonly cutoffTime?: string | null;
   readonly salesCutoffMinutes?: number | null;
   readonly offeredGameCount?: number;
   readonly saleReadyGameCount?: number;
