@@ -5,6 +5,8 @@
 - [x] Confirm existing setup page separates required and optional cards.
 - [x] Confirm backend readiness keeps `limits`, `commission`, and `subscription` out of readiness rollup.
 - [x] Confirm games, draw channels, tenant settings, and seller terminals remain separate ownership surfaces.
+- [x] Confirm Games BFF reads tenant games from backend `TenantGameApi`, while current Draw Channels page still uses local mock data.
+- [x] Confirm `draw-sales-matrix` is the backend-backed surface for channel/game availability and should be the source for sellable coverage.
 
 ## 1. Setup Page: Readiness vs Operational Setup
 
@@ -25,6 +27,7 @@
 ## 2. Games Configuration UX
 
 - [ ] Redesign games overview cards around business configuration instead of implementation concepts.
+- [ ] Preserve backend `enabled` and `visibleInPos` as activation/POS truth; show missing pricing/stake setup separately.
 - [ ] Show a clear overall sale configuration status: Ready, Needs attention, or Disabled.
 - [ ] Separate game cards into activation, POS visibility, stake limits, pricing/payout, and advanced options.
 - [ ] Add a first-class available-on-draws summary.
@@ -41,6 +44,7 @@
 ## 3. Draw Channels UX: Sale Availability
 
 - [ ] Treat draw channels as a tenant-facing aggregated configuration surface.
+- [ ] Replace or bypass local Draw Channels mock data with backend-backed channel/game availability before presenting sale-readiness states.
 - [ ] Preserve backend ownership boundaries; compose existing public APIs/read models where required.
 - [ ] Model primary sale status separately from result-source mode.
 - [ ] Use primary sale statuses: Ready, Needs attention, Disabled.

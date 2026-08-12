@@ -7,6 +7,11 @@
 The games overview SHALL present each game's sale configuration in business terms: active state,
 POS visibility, stake readiness, payout/pricing readiness, and availability by draw.
 
+The UI SHALL preserve backend tenant-game truth: `enabled`, `visibleInPos`, backend display names,
+tenant-game IDs, pricing rows, and limit/stake fields are the source data. UI readiness labels MAY
+summarize missing configuration, but they SHALL NOT replace a backend-enabled game with a different
+activation state.
+
 #### Scenario: Tenant admin reviews game readiness
 
 - **GIVEN** tenant games are loaded
@@ -14,6 +19,14 @@ POS visibility, stake readiness, payout/pricing readiness, and availability by d
 - **THEN** each game shows whether it is Ready, Needs attention, or Disabled
 - **AND** the status is derived from supported configuration data rather than raw technical codes
 - **AND** raw game codes are secondary or fallback display only.
+
+#### Scenario: Backend-enabled game has missing auxiliary setup
+
+- **GIVEN** the backend returns a tenant game with `enabled=true`
+- **AND** stake limits or pricing need attention
+- **WHEN** the admin opens the games page
+- **THEN** the game remains presented as enabled/active
+- **AND** the missing stake or pricing setup is shown as a separate Needs attention item.
 
 #### Scenario: Tenant admin reviews game card groups
 

@@ -7,6 +7,10 @@
 The draw channels page SHALL present provider/channel configuration using operator-facing labels and
 statuses.
 
+The draw-channel UX SHALL consume backend channel/game availability data. It SHALL preserve backend
+provider/channel display names and stable codes, and it SHALL NOT use local mock data as the source
+of sale-readiness truth.
+
 #### Scenario: Tenant admin reviews draw channels
 
 - **GIVEN** draw channel providers are loaded
@@ -14,6 +18,13 @@ statuses.
 - **THEN** result source, draw, draw time, sales close, result mode, sale status, available games, and upcoming draws are visible
 - **AND** raw acquisition mode values are translated into business copy
 - **AND** provider and draw display names are preserved.
+
+#### Scenario: Backend returns a channel/game matrix
+
+- **GIVEN** the backend returns draw channels and channel-game availability
+- **WHEN** the draw-channel UX derives sale coverage
+- **THEN** channel active state, channel display name, offered games, enabled channel games, and POS visibility come from backend data
+- **AND** the UI uses fallback codes only when display labels are missing.
 
 ### Requirement: Draw channel sale status is separate from result mode
 
