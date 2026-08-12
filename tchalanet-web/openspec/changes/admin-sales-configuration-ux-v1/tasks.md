@@ -105,7 +105,7 @@
 - [x] Run focused lint for touched admin portal project/libs.
 - [ ] Run focused admin e2e smoke if runtime is available.
 - [ ] Verify responsive screenshots at 360 dp, tablet, and desktop.
-- [ ] Verify setup ready, setup incomplete, missing printing, operational card secondary presentation.
+- [x] Verify setup ready, setup incomplete, missing printing, operational card secondary presentation.
 - [ ] Verify games active/disabled, POS visibility, stake/pricing status, availability action, and Maryaj Gratis route.
 - [ ] Verify draw channels ready+automatic, ready+manual, disabled, no games available, no upcoming draws, manual-not-incomplete, and automatic-not-ready states.
 - [ ] Verify seller terminals distinguish tenant print defaults from terminal overrides and preserve supported print modes.

@@ -14,6 +14,8 @@ import {
   isReadinessCardBlocking,
   setupPosPrintingStatus,
   setupPosPrintingStatusLabelKey,
+  setupSettingsTarget,
+  setupSettingsTargetFromReason,
 } from './admin-complete-tenant-config.page';
 
 describe('AdminCompleteTenantConfigPage error presentation', () => {
@@ -85,6 +87,40 @@ describe('AdminCompleteTenantConfigPage setup classification', () => {
     expect(setupPosPrintingStatusLabelKey('UNKNOWN')).toBe(
       'admin.setup.operationalStatus.recommended',
     );
+  });
+
+  it('keeps print issues operational while required settings corrections prefer sale blockers', () => {
+    const settings = {
+      status: 'MISSING',
+      issues: [
+        { messageKey: 'settings.print.paper_size_missing' },
+        { messageKey: 'settings.defaults.currency_missing' },
+      ],
+    };
+
+    expect(setupPosPrintingStatus(settings)).toBe('MISSING');
+    expect(setupSettingsTarget(settings)).toEqual({
+      route: '/app/admin/company/settings/config',
+    });
+  });
+
+  it('routes settings corrective actions to the matching settings section', () => {
+    expect(setupSettingsTargetFromReason('settings.print.paper_size_missing')).toEqual({
+      route: '/app/admin/company/settings/config',
+      fragment: 'print',
+    });
+    expect(setupSettingsTargetFromReason('settings.send.sms_missing')).toEqual({
+      route: '/app/admin/company/settings/config',
+      fragment: 'send',
+    });
+    expect(setupSettingsTargetFromReason('settings.calendar.weekend_missing')).toEqual({
+      route: '/app/admin/company/settings/config',
+      fragment: 'calendar',
+    });
+    expect(setupSettingsTargetFromReason('settings.locale.default_missing')).toEqual({
+      route: '/app/admin/company/settings/config',
+      fragment: 'languages',
+    });
   });
 });
 

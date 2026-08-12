@@ -57,7 +57,10 @@
       </div>
     </section>
 
-    <section class="setup__section setup__section--operational" aria-labelledby="setup-operational-title">
+    <section
+      class="setup__section setup__section--operational"
+      aria-labelledby="setup-operational-title"
+    >
       <div class="setup__section-heading">
         <h2 id="setup-operational-title">{{ 'admin.setup.operationalSetupTitle' | translate }}</h2>
         <p>{{ 'admin.setup.operationalSetupDescription' | translate }}</p>
@@ -65,22 +68,22 @@
 
       <div class="setup__grid" data-testid="admin-setup-operational-checklist">
         @for (card of operationalSetupCards(); track card.id) {
-        <tch-setup-checklist-card
-          [attr.data-testid]="'admin-setup-card-' + card.id"
-          [icon]="card.icon"
-          [titleKey]="card.titleKey"
-          [status]="card.status"
-          [badgeKind]="card.badgeKind"
-          [body]="card.body"
-          [bodyVariant]="card.bodyVariant"
-          [statusLabelKey]="card.statusLabelKey"
-          [ctaKey]="card.ctaKey"
-          [route]="card.route"
-          [queryParams]="card.queryParams"
-          [fragment]="card.fragment"
-          [emphasizeMissing]="card.emphasizeMissing"
-          [sectionErrors]="sectionErrorsFor(card.sectionErrorTargets)"
-        />
+          <tch-setup-checklist-card
+            [attr.data-testid]="'admin-setup-card-' + card.id"
+            [icon]="card.icon"
+            [titleKey]="card.titleKey"
+            [status]="card.status"
+            [badgeKind]="card.badgeKind"
+            [body]="card.body"
+            [bodyVariant]="card.bodyVariant"
+            [statusLabelKey]="card.statusLabelKey"
+            [ctaKey]="card.ctaKey"
+            [route]="card.route"
+            [queryParams]="card.queryParams"
+            [fragment]="card.fragment"
+            [emphasizeMissing]="card.emphasizeMissing"
+            [sectionErrors]="sectionErrorsFor(card.sectionErrorTargets)"
+          />
         }
       </div>
     </section>

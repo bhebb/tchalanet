@@ -942,6 +942,47 @@ export class ApiStub {
     );
   }
 
+  /** Return a ready setup where POS/printing remains an operational recommendation. */
+  async adminSetupPrintingMissingOperational(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.apiRoute(/\/admin\/overview(?:\?|$)/, r =>
+      json(
+        r,
+        envelope({
+          ...adminOverviewStub,
+          status: 'READY',
+          missingCount: 0,
+          sections: adminOverviewStub.sections.map(section =>
+            section.id === 'settings'
+              ? {
+                  ...section,
+                  status: 'READY',
+                  issues: [
+                    {
+                      key: 'settings.print.paper_size_missing',
+                      messageKey: 'settings.print.paper_size_missing',
+                      route: '/app/admin/company/settings/config#print',
+                    },
+                  ],
+                }
+              : section.id === 'draws' || section.id === 'generated_draws'
+                ? { ...section, status: 'READY', issues: [] }
+                : section,
+          ),
+          setup: {
+            totalSteps: 5,
+            completedSteps: 5,
+            status: 'COMPLETE',
+            canCreateSellerTerminal: true,
+            blockingSteps: [],
+            nextRecommendedStep: null,
+          },
+        }),
+      ),
+    );
+  }
+
   /** Deterministic POS data used by the mobile sale-flow browser test. */
   async posSale(): Promise<void> {
     if (!this.enabled) return;

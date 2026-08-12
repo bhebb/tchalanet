@@ -64,6 +64,13 @@ interface SetupPageErrorViewModel {
   readonly message: string;
 }
 
+interface SetupSettingsTarget {
+  readonly route: string;
+  readonly fragment?: string;
+}
+
+const TENANT_SETTINGS_CONFIG_ROUTE = '/app/admin/company/settings/config';
+
 @Component({
   selector: 'tch-admin-complete-tenant-config-page',
   standalone: true,
@@ -401,27 +408,8 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     );
   }
 
-  private settingsTarget(): { route: string; fragment?: string } {
-    const issue = this.sectionMap()
-      .get('settings')
-      ?.issues?.find(item => item.messageKey?.startsWith('settings.'));
-    const reason = issue?.messageKey ?? '';
-    if (reason.startsWith('settings.print.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'print' };
-    }
-    if (reason.startsWith('settings.send.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'send' };
-    }
-    if (reason.startsWith('settings.calendar.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'calendar' };
-    }
-    if (reason.startsWith('settings.locale.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'languages' };
-    }
-    if (reason.startsWith('settings.identity.') || reason.startsWith('settings.defaults.')) {
-      return { route: '/app/admin/company/settings/config' };
-    }
-    return { route: '/app/admin/company/settings/config' };
+  private settingsTarget(): SetupSettingsTarget {
+    return setupSettingsTarget(this.sectionMap().get('settings'));
   }
 
   private posPrintingStatus(): SetupChecklistStatus {
@@ -508,6 +496,36 @@ export function adminSetupSectionError(
 
 export function isReadinessCardBlocking(kind: SetupChecklistBadgeKind): boolean {
   return kind === 'required' || kind === 'blocking';
+}
+
+export function setupSettingsTarget(
+  settings: { readonly issues?: readonly { readonly messageKey?: string | null }[] } | undefined,
+): SetupSettingsTarget {
+  const reason =
+    settings?.issues?.find(
+      item =>
+        item.messageKey?.startsWith('settings.') &&
+        !item.messageKey.startsWith('settings.print.'),
+    )?.messageKey ??
+    settings?.issues?.find(item => item.messageKey?.startsWith('settings.'))?.messageKey ??
+    '';
+  return setupSettingsTargetFromReason(reason);
+}
+
+export function setupSettingsTargetFromReason(reason: string): SetupSettingsTarget {
+  if (reason.startsWith('settings.print.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'print' };
+  }
+  if (reason.startsWith('settings.send.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'send' };
+  }
+  if (reason.startsWith('settings.calendar.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'calendar' };
+  }
+  if (reason.startsWith('settings.locale.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'languages' };
+  }
+  return { route: TENANT_SETTINGS_CONFIG_ROUTE };
 }
 
 export function setupPosPrintingStatus(
