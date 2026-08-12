@@ -28,27 +28,43 @@ Chaque slice cible un projet précis. Respecter strictement les conventions du p
 
 ## Slice 0 — Backend : archivage draw_exposure
 
+Les lignes `draw_exposure` s'accumulent indéfiniment ; le cycle de vie du draw est la référence naturelle de purge — une fois le draw archivé, ses projections d'exposition ne sont plus jamais consultées par les queries runtime de `limitpolicy`. L'archivage suit donc le draw, pas une période calendaire.
+
+**Important** : `draw_exposure` est une projection stateful — on ne peut pas soft-delete des données d'accumulation. On hard-delete après archivage du draw (les rows ne valent plus rien une fois le draw terminé).
+
 - [ ] Créer `core/limitpolicy/internal/infra/archive/DrawExposureArchiveDatasetProvider`
   - `key()` → `ArchiveDatasetKey.of("draw_exposure", "Draw Exposure")`
-  - `plan()` → count par `last_event_at` dans la période (ou join sur `draw.scheduled_at`)
-  - `export()` → stream rows + soft-delete (`deleted_at = now()`) après export
+  - `plan(drawArchiveRef)` → count des rows `draw_exposure` dont le draw associé est dans l'état `ARCHIVED` (join sur `draw.status = 'ARCHIVED'` ou via `draw.scheduled_at < cutoffDate` passée en paramètre par le scheduler d'archive)
+  - `export(drawArchiveRef)` → stream des rows éligibles, puis **hard-delete** après export confirmé — pas de `deleted_at`, pas de soft-delete
   - `generateLookupRows()` → liste vide (pas de lookup individuel sur l'exposition)
-- [ ] Créer `DrawExposureArchiveJdbcRepository` (countByPeriod, streamByPeriod, softDelete)
-- [ ] Vérifier que les index existants (`WHERE deleted_at IS NULL`) couvrent bien les queries actives après purge
+- [ ] Créer `DrawExposureArchiveJdbcRepository` : `countByArchivedDraw()`, `streamByArchivedDraw()`, `deleteByArchivedDraw()`
+- [ ] **Preuve qu'aucune query runtime ne dépend des lignes archivées** :
+  - Lister toutes les queries SQL de `ExposureProjectorAdapter` et `ExposureQueryAdapter` — elles filtrent toutes sur `draw_id = ?` (draw OPEN/CLOSED en cours)
+  - Aucune query ne fait un scan global sans filtre `draw_id`
+  - Ajouter dans `DrawExposureArchiveDatasetProviderTest` : après delete, rejouer `ExposureQueryAdapter.getExposure(archivedDrawId)` → retourne vide (pas d'erreur, pas de résultat fantôme)
 
 ## Slice 1 — Backend : projection SELLER_TERMINAL + BFF endpoints
+
+**Clarification : deux usages distincts de SELLER_TERMINAL**
+
+- **Projection** (ce Slice) = `DrawExposureJpaEntity` rows avec `scope_type = SELLER_TERMINAL`. Accumulées automatiquement dans `ExposureProjectorAdapter` à chaque `TicketPlacedEvent`. Orthogonal à la configuration.
+- **Configuration** = `LimitAssignment` rows avec `scope_type = SELLER_TERMINAL`. Posées explicitement par l'admin via `UpsertLimitAssignmentCommand`. Orthogonal à la projection.
 
 - [ ] `ExposureProjectorAdapter.scopesFor()` : ajouter scope SELLER_TERMINAL
   - `if (event.context().sellerTerminalId() != null) scopes.add(LimitScopeRef.sellerTerminal(...))`
   - `sellerTerminalId` est déjà dans `TicketContextPayload`
+  - Pas de backfill : seuls les nouveaux tickets post-déploiement sont projetés par terminal
 - [ ] BFF admin : créer `features/tenantadmin/draw/TenantAdminDrawOverviewController`
   - `GET /admin/draws/{drawId}/overview`
-  - agrège : draw (core/draw) + channel info (catalog) + résultat + top selections (core/sales) + exposure DRAW_CHANNEL (core/limitpolicy, seulement si OPEN)
-  - retourne `AdminDrawOverviewResponse` (record)
+  - agrège : draw (core/draw) + channel info (catalog) + résultat + top selections (core/sales) + exposure DRAW_CHANNEL (core/limitpolicy) + `effectiveLimits` résolu
+  - `effectiveLimits` : résolution TENANT + DRAW_CHANNEL uniquement — la vue admin n'est pas contextualisée à un terminal ; ne jamais inclure une résolution SELLER_TERMINAL dans cette réponse
+  - retourne `AdminDrawOverviewResponse` (record) — même shape que draw OPEN ou CLOSED ; le champ `exposureAlerts` est `[]` si draw CLOSED, pas absent
 - [ ] BFF POS : ajouter `@GetMapping("/{drawId}/detail")` dans `features/pos/draws/PosDrawsController` (controller existant)
   - `GET /tenant/cashier/draws/{drawId}/detail`
+  - `sellerTerminalId` résolu depuis `TchRequestContext.sellerTerminalIdRequired()` — jamais depuis un query param client
   - agrège : draw info + top selections scope SELLER_TERMINAL + exposure SELLER_TERMINAL
-  - retourne `PosDrawDetailResponse` (record) — seulement si draw OPEN et sellerTerminalId présent dans le contexte
+  - retourne `PosDrawDetailResponse` (record) — **toujours le même shape**, draw OPEN ou CLOSED
+  - champ `exposure.active = true` si draw OPEN et expositions calculées, `false` si draw CLOSED (le client lit ce flag, pas le statut du draw)
 
 ## Slice 2 — Web : composant LimitPolicyBlockComponent
 
@@ -111,14 +127,14 @@ Conventions : `AdminDrawDetailPage` existante, ajouter un `input` optionnel au d
 
 ## Slice 7 — Web : widget "Numéros à risque" dans le détail tirage
 
-Conventions : `DrawDetailActivityComponent` existant, ajouter une section `resource`-driven.
+Conventions : `AdminDrawDetailPage` charge le BFF `/admin/draws/{drawId}/overview` comme **source unique** — pas de second appel API pour l'exposition.
 
 - [ ] Ajouter section "Numéros à risque" dans `DrawDetailActivityComponent`
-  - appel `getExposureAlerts(drawId, channelId, 10)` via `rxResource`
-  - masqué si aucune règle `MAX_STAKE_EXPOSURE` n'est configurée pour ce channel (ratio null)
+  - lire `exposureAlerts` depuis la réponse `AdminDrawOverviewResponse` déjà chargée dans `AdminDrawDetailPage` (signal/resource existant) — ne pas créer de `rxResource` séparé
+  - masqué si `exposureAlerts` vide ou si `effectiveLimits` ne contient aucune règle `MAX_STAKE_EXPOSURE` configurée (`limitConfigured: false`)
   - afficher chips numéros avec codage couleur du ratio fourni par le BFF : < 50 % vert, 50–79 % orange, ≥ 80 % rouge — ne pas recalculer côté frontend
   - bouton "Bloquer" à côté de chaque numéro à risque (ouvre quick dialog pré-rempli)
-- [ ] Ajouter `getExposureAlerts(drawId, channelId, limit)` dans `AdminLimitsApi`
+- **Ne pas** ajouter `getExposureAlerts()` dans `AdminLimitsApi` — les données viennent du BFF overview
 
 ## Slice 8 — Simplification menu limits (backend pagemodel + web)
 
@@ -220,8 +236,9 @@ Cible : tout le code nouveau ou modifié dans `core/limitpolicy`.
 - [ ] `nullResultWhenNoAssignmentAtAnyScope` — aucune règle configurée → résultat null (pas d'erreur)
 
 **DrawExposureArchiveDatasetProvider (nouveaux tests unitaires)** :
-- [ ] `planCountsRowsInPeriod` — JDBC stub retourne N rows → `plan().count() == N`
-- [ ] `exportStreamsAndSoftDeletes` — export stream, puis vérifie `deleted_at` positionné
+- [ ] `planCountsRowsByArchivedDraw` — JDBC stub retourne N rows pour draws archivés → `plan().count() == N`
+- [ ] `exportStreamsAndHardDeletes` — export stream, puis vérifie que `deleteByArchivedDraw()` est appelé (pas de `deleted_at`, hard-delete)
+- [ ] `afterDeleteQueryReturnsEmpty` — après delete, `ExposureQueryAdapter.getExposure(archivedDrawId)` retourne vide (pas d'exception)
 
 **BFF query handlers (nouveaux tests unitaires)** :
 - [ ] `adminDrawOverviewHandlerAggregatesAllDomains` — fake query bus → `AdminDrawOverviewResponse` contient draw + topSelections + exposureAlerts
@@ -303,7 +320,9 @@ Pattern : même base que `test_business_day_scenarios.py` — provision tenant +
 - [ ] Configurer `MAX_STAKE_PER_LINE` : TENANT=500, DRAW_CHANNEL=300, SELLER_TERMINAL=100 via assignments API
 - [ ] Seller terminal vend avec mise 150 HTG → REJECTED, `breachRuleKey = MAX_STAKE_PER_LINE`, `effectiveLimit = 100`
 - [ ] Seller terminal vend avec mise 50 HTG → APPROVED
-- [ ] Admin : `GET /admin/draws/{drawId}/overview` → `effectiveLimits.MAX_STAKE_PER_LINE.resolvedValue = 100`, `resolvedScope = SELLER_TERMINAL`
+- [ ] Admin : `GET /admin/draws/{drawId}/overview` → `effectiveLimits.MAX_STAKE_PER_LINE.resolvedValue = 300`, `resolvedScope = DRAW_CHANNEL`
+  - Le BFF admin n'est pas contextualisé à un terminal ; la résolution s'arrête à DRAW_CHANNEL (valeur 300)
+  - La limite SELLER_TERMINAL=100 n'est visible que via `GET /tenant/cashier/draws/{drawId}/detail` (BFF POS, contextualisé au terminal)
 
 **Cas 3 — Exposition cumulative + BFF POS detail**
 - [ ] Configurer `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` scope DRAW_CHANNEL, limite = 1 000 HTG, sélection "12"

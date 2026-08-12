@@ -37,6 +37,14 @@ L'ajout du scope SELLER_TERMINAL doit utiliser le même mécanisme d'idempotence
 
 **Mise min/max par jeu** : stockée dans `TenantGame.minStake / maxStake` — système séparé du limitpolicy, pas concerné par ce change.
 
+### Archivage draw_exposure
+
+La table `draw_exposure` accumule une row par `(draw_id, scope_type, scope_target_id, selection_key)` à chaque `TicketPlacedEvent`. Elle n'est jamais purgée. Sur un tirage actif, ces rows sont consultées par les queries runtime de `LimitResolver`. Sur un tirage archivé, elles ne sont plus jamais lues.
+
+Le cycle de vie du draw est la référence naturelle de purge : une fois un draw archivé (`draw.status = ARCHIVED`), ses projections d'exposition sont obsolètes et peuvent être supprimées.
+
+`DrawExposureJpaEntity` est une projection stateful — pas de soft-delete. On hard-delete après confirmation que le draw est archivé. La plateforme d'archivage est `ArchiveDatasetProvider` (pattern existant, voir `DrawArchiveDatasetProvider` comme référence).
+
 ### Numéros chauds POS
 
 Le vendeur doit pouvoir voir ses propres top numéros pour un tirage, sur le scope SELLER_TERMINAL.
@@ -173,6 +181,8 @@ Le BFF agrège les données nécessaires à l'écran :
 }
 ```
 
+**`effectiveLimits`** contient les limites résolues à l'échelle TENANT et DRAW_CHANNEL uniquement. La vue admin n'est pas contextualisée à un seller terminal particulier — elle ne renvoie jamais une résolution SELLER_TERMINAL. Si une règle `MAX_STAKE_PER_LINE` vaut TENANT=500 et DRAW_CHANNEL=300, alors `effectiveLimits.MAX_STAKE_PER_LINE = { resolvedValue: 300, resolvedScope: "DRAW_CHANNEL" }`.
+
 Le BFF orchestre uniquement des queries des domaines propriétaires. Il ne recalcule aucune limite, aucun montant ou ratio métier qui appartient à `core.limitpolicy` / `core.sales`.
 
 **Frontend draw detail** — deux sections distinctes :
@@ -199,13 +209,20 @@ Le ratio est calculé côté backend (`exposure / resolvedLimit`) et exposé dan
 
 ### 6. Projection SELLER_TERMINAL
 
+**Deux usages distincts du scope SELLER_TERMINAL** :
+
+- **Projection** = `DrawExposureJpaEntity` rows avec `scope_type = SELLER_TERMINAL`, accumulées automatiquement dans `ExposureProjectorAdapter` à chaque `TicketPlacedEvent`. Ce sont les données brutes d'exposition par terminal.
+- **Configuration** = `LimitAssignment` rows avec `scope_type = SELLER_TERMINAL`, posées explicitement par l'admin via `UpsertLimitAssignmentCommand`. Ce sont les règles qui plafonnent les ventes.
+
+Les deux sont orthogonaux. Une projection peut exister sans configuration (on accumule sans plafonner), et une configuration peut exister sans que la projection soit encore active (plafond défini, mais les données terminal ne sont pas encore cumulées). Ce change active la projection — la configuration SELLER_TERMINAL est déjà possible via l'UI existante.
+
 Dans `ExposureProjectorAdapter.scopesFor()`, ajouter le scope terminal lorsque disponible :
 
 ```java
 LimitScopeRef.sellerTerminal(event.context().sellerTerminalId())
 ```
 
-Projection cible d'un `TicketPlacedEvent` : TENANT + DRAW_CHANNEL + SELLER_TERMINAL. Le traitement reste idempotent par `eventId`.
+Projection cible d'un `TicketPlacedEvent` : TENANT + DRAW_CHANNEL + SELLER_TERMINAL. Le traitement reste idempotent par `eventId`. Pas de backfill — seuls les tickets créés après déploiement sont projetés par terminal.
 
 Tests minimum requis :
 - projection TENANT
@@ -269,6 +286,7 @@ Le ratio d'exposition est une information complémentaire ; il ne change pas la 
 - Conserver idempotence du projector (par `eventId`).
 - Exposer `GetExposureAlertsOverviewQuery` via endpoint admin limitpolicy.
 - Ajouter/adapter les queries nécessaires aux BFF sans exposer repositories ou JPA entities.
+- Ajouter `DrawExposureArchiveDatasetProvider` : purge hard-delete des rows `draw_exposure` dont le draw est archivé ; prouver qu'aucune query runtime ne dépend des rows archivées.
 
 ### Backend — features/tenantadmin
 Nouveau BFF `GET /admin/draws/{drawId}/overview` — draw + channel + result + top selections + effective limits + exposure alerts. Aucune logique métier critique dans la feature.
@@ -393,9 +411,9 @@ Tests contre un serveur réel (pytest + httpx, marqueurs `L2 / business_critical
 
 **Cas 2 — Override de scope**
 - Configurer `MAX_STAKE_PER_LINE` : TENANT=500, DRAW_CHANNEL=300, SELLER_TERMINAL=100.
-- Vente à 150 HTG → REJECTED, `effectiveLimit = 100`, `resolvedScope = SELLER_TERMINAL`.
+- Vente à 150 HTG → REJECTED, `effectiveLimit = 100`, `resolvedScope = SELLER_TERMINAL` (résolution côté POS, contextualisé au terminal).
 - Vente à 50 HTG → APPROVED.
-- `GET /admin/draws/{drawId}/overview` → `effectiveLimits` confirme la résolution.
+- `GET /admin/draws/{drawId}/overview` → `effectiveLimits.MAX_STAKE_PER_LINE = { resolvedValue: 300, resolvedScope: "DRAW_CHANNEL" }` — la vue admin n'est pas contextualisée à un terminal ; la résolution SELLER_TERMINAL n'est visible que via `GET /tenant/cashier/draws/{drawId}/detail`.
 
 **Cas 3 — Exposition cumulative**
 - Configurer `MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW` scope DRAW_CHANNEL, limite = 1 000 HTG, sélection "12".
