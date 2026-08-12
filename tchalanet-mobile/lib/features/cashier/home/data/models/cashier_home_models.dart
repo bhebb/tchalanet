@@ -1,3 +1,5 @@
+import '../../../../../core/money/currency_code.dart';
+
 /// Typed ids arrive either as a bare string or wrapped (`{"value": "<uuid>"}`)
 /// depending on the server serializer — accept both.
 String? idValue(dynamic raw) => switch (raw) {
@@ -212,7 +214,7 @@ class CashierHomeResponse {
     this.session,
     this.primaryDraw,
     this.primaryAction,
-    this.currency,
+    this.currency = defaultCurrencyCode,
   });
 
   final String? surface;
@@ -228,8 +230,8 @@ class CashierHomeResponse {
   final List<HomeNavigationItem> navigation;
   final List<String> notices;
 
-  /// Tenant currency code from backend (e.g. "HTG"). Never hardcode client-side.
-  final String? currency;
+  /// Tenant currency code from backend, defaulting to HTG when absent.
+  final String currency;
 
   bool get isOperational => requiredStep == null;
 
@@ -284,7 +286,7 @@ class CashierHomeResponse {
     notices:
         (json['notices'] as List<dynamic>?)?.map((e) => e as String).toList() ??
         [],
-    currency: json['currency'] as String?,
+    currency: resolveCurrencyCode(json['currency'] as String?),
   );
 }
 

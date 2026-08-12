@@ -61,7 +61,7 @@ Widget _harness({
   List<CashierAvailableDrawView> openDraws = const [],
   String drawId = 'draw-1',
   String isoDate = '2026-08-05',
-  String? drawLabel = 'Nouyòk · Aswè',
+  String? drawLabel = 'New York · Aswè',
 }) => ProviderScope(
   overrides: [
     i18nBundleProvider.overrideWithValue(_translations),
@@ -119,7 +119,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Nouyòk · Aswè'), findsOneWidget);
+    expect(find.text('New York · Aswè'), findsOneWidget);
     expect(find.text('2026-08-05'), findsOneWidget);
     // Every figure comes from the matching breakdown line, never the
     // whole-day totals and never the other draw's line.

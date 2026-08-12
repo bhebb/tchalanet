@@ -19,7 +19,7 @@ public class TicketReceiptMoneyFormatter {
       return amount;
     }
     // Default display: currency before amount (e.g. "HTG 10.00") for receipts/messages
-    return money.currency().code() + " " + amount;
+    return currencyCode(money) + " " + amount;
   }
 
   /**
@@ -34,10 +34,7 @@ public class TicketReceiptMoneyFormatter {
     if (!profile.compactCurrencyDisplay()) {
       return null;
     }
-    var code = money.currency() == null ? null : money.currency().code();
-    if (code == null || code.isBlank()) {
-      return null;
-    }
+    var code = currencyCode(money);
 
     if (translations != null) {
       var translated = translations.text(TicketReceiptI18nKeys.CURRENCY_NOTE);
@@ -51,5 +48,10 @@ public class TicketReceiptMoneyFormatter {
     }
 
     return "Montants en " + code;
+  }
+
+  private String currencyCode(Money money) {
+    var code = money.currency() == null ? null : money.currency().code();
+    return code == null || code.isBlank() ? "HTG" : code;
   }
 }

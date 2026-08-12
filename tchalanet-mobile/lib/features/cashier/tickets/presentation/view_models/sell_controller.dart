@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/money/currency_code.dart';
 import '../../../../../core/network/api_exception.dart';
 import '../../data/models/cashier_sell_catalog_models.dart';
 import '../../data/models/cashier_ticket_models.dart';
@@ -57,8 +58,7 @@ class SellFormData {
     this.selection = '',
     this.stake = 0.0,
     this.committedLines = const [],
-    this.currency =
-        'HTG', // default safe fallback; overridden from home response
+    this.currency = defaultCurrencyCode,
   });
 
   final List<CashierAvailableDrawView> draws;
@@ -145,7 +145,7 @@ class SellFormData {
         : selectedBetOption as int?,
     selection: selection ?? this.selection,
     stake: stake ?? this.stake,
-    currency: currency ?? this.currency,
+    currency: resolveCurrencyCode(currency ?? this.currency),
     committedLines: committedLines ?? this.committedLines,
   );
 }

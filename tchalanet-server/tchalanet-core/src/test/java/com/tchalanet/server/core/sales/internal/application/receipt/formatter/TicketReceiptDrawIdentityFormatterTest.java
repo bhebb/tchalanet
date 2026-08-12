@@ -25,13 +25,16 @@ class TicketReceiptDrawIdentityFormatterTest {
       new TicketReceiptDrawIdentityFormatter();
 
   @Test
-  void prefersI18nIdentityOverrideOverLegacyChannelLabel() {
-    var receipt = receipt("HT_GA_LATE", "GA_LATE", "GA", "Haïti • Georgia • Late");
+  void ignoresI18nProviderAndIdentityOverridesToKeepOfficialProviderNames() {
+    var receipt = receipt("HT_TX_LATE", "TX_LATE", "TX", "Haïti • Texas • Late");
     var translations =
         new TicketReceiptI18nResolver.TicketReceiptTranslations(
-            Map.of("receipt.draw.identity.GA_LATE", "Jòji · Ta"));
+            Map.of(
+                "receipt.draw.identity.TX_LATE", "Teksas · Ta",
+                "receipt.draw.provider.TX", "Teksas",
+                "receipt.draw.slot.LATE", "Ta"));
 
-    assertThat(formatter.label(receipt, translations)).isEqualTo("Jòji · Ta");
+    assertThat(formatter.label(receipt, translations)).isEqualTo("Texas · Ta");
   }
 
   @Test
@@ -40,20 +43,20 @@ class TicketReceiptDrawIdentityFormatterTest {
     var translations =
         new TicketReceiptI18nResolver.TicketReceiptTranslations(
             Map.of(
-                "receipt.draw.provider.GA", "Georgia",
+                "receipt.draw.provider.GA", "Jòji",
                 "receipt.draw.slot.LATE", "Late"));
 
     assertThat(formatter.label(receipt, translations)).isEqualTo("Georgia · Late");
   }
 
   @Test
-  void fallsBackToStableCodesWhenTranslationsAreMissing() {
+  void fallsBackToOfficialProviderWhenSlotTranslationsAreMissing() {
     var receipt = receipt("HT_GA_LATE", "GA_LATE", "GA", "Haïti • Georgia • Late");
 
     assertThat(
             formatter.label(
                 receipt, new TicketReceiptI18nResolver.TicketReceiptTranslations(Map.of())))
-        .isEqualTo("GA · LATE");
+        .isEqualTo("Georgia");
   }
 
   @Test

@@ -66,6 +66,25 @@ void main() {
     expect(response.notices.single.code, 'promotion.decision.applied');
   });
 
+  test('ticket money models default a missing or blank currency to HTG', () {
+    final preview = CashierTicketPreviewResponse.fromJson({
+      'status': 'DRAFT',
+      'currency': ' ',
+      'totalAmount': 15.0,
+    });
+    final summary = CashierTicketSummaryView.fromJson({
+      'id': 'ticket-1',
+      'ticketCode': 'TCK-1',
+      'status': 'APPROVED',
+      'totalAmountCents': 1500,
+      'currency': '',
+    });
+
+    expect(preview.currency, 'HTG');
+    expect(summary.currency, 'HTG');
+    expect(summary.formattedAmount, '15.00 HTG');
+  });
+
   test('prepare response retains generated Maryaj gratis lines', () {
     final response = CashierTicketPreviewResponse.fromJson({
       'preparationId': 'preparation-1',

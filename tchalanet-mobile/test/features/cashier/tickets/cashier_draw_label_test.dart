@@ -20,7 +20,7 @@ void main() {
     localTimezone: 'America/Port-au-Prince',
   );
 
-  test('localizes the provider and slot instead of rendering catalog code', () {
+  test('keeps official provider name and localizes slot', () {
     const translations = I18nBundle(
       locale: 'ht',
       translations: {
@@ -29,26 +29,60 @@ void main() {
       },
     );
 
-    expect(localizedCashierDrawLabel(draw, translations), 'Nouyòk · Midi');
+    expect(localizedCashierDrawLabel(draw, translations), 'New York · Midi');
   });
 
-  test('localizes ticket draw identity from result provider and slot keys', () {
+  test(
+    'ticket draw identity keeps official provider name and localizes slot',
+    () {
+      const translations = I18nBundle(
+        locale: 'ht',
+        translations: {
+          'pos.draw.providers.ny': 'Nouyòk',
+          'pos.draw.slots.midday': 'Midi',
+        },
+      );
+
+      expect(
+        localizedDrawIdentityLabel(
+          providerCode: 'NY',
+          slotKey: 'NY_MID',
+          fallback: 'New York · Midday',
+          translations: translations,
+        ),
+        'New York · Midi',
+      );
+    },
+  );
+
+  test('ticket draw identity derives provider from slot key when missing', () {
     const translations = I18nBundle(
       locale: 'ht',
-      translations: {
-        'pos.draw.providers.ny': 'Nouyòk',
-        'pos.draw.slots.midday': 'Midi',
-      },
+      translations: {'pos.draw.slots.evening': 'Aswè'},
     );
 
     expect(
       localizedDrawIdentityLabel(
-        providerCode: 'NY',
-        slotKey: 'NY_MID',
-        fallback: 'New York · Midday',
+        providerCode: null,
+        slotKey: 'FL_EVE',
+        fallback: 'Tiraj',
         translations: translations,
       ),
-      'Nouyòk · Midi',
+      'Florida · Aswè',
+    );
+  });
+
+  test('ticket draw identity keeps numeric slot codes as displayable time', () {
+    const translations = I18nBundle(locale: 'ht', translations: {});
+
+    expect(
+      localizedDrawIdentityLabel(
+        providerCode: null,
+        slotKey: 'HT_TX_2212',
+        fallback: 'Tiraj',
+        translations: translations,
+      ),
+      'Texas · 22:12',
     );
   });
 }

@@ -1,3 +1,5 @@
+import '../../../../../core/money/currency_code.dart';
+
 // ─── Request models ───────────────────────────────────────────────────────────
 
 class CashierTicketLineRequest {
@@ -128,7 +130,7 @@ class CashierTicketPreviewResponse {
         expiresAt: json['expiresAt'] != null
             ? DateTime.tryParse(json['expiresAt'] as String)
             : null,
-        currency: json['currency'] as String?,
+        currency: resolveCurrencyCode(json['currency'] as String?),
         totalAmount: (json['totalAmount'] as num?)?.toDouble(),
         lines:
             (json['lines'] as List<dynamic>?)
@@ -397,7 +399,7 @@ class CashierTicketSummaryView {
   String get displayCode => publicCode ?? ticketCode;
 
   /// Fallback identity for catalog entries that do not yet expose a stable
-  /// provider/slot pair. Seller views prefer localized stable codes.
+  /// provider/slot pair. Seller views keep provider names official and localize slots.
   String get drawLabel {
     final name = drawChannelName;
     final dt = drawScheduledAt?.toLocal();
@@ -424,7 +426,7 @@ class CashierTicketSummaryView {
         publicCode: json['publicCode'] as String?,
         status: json['status'] as String? ?? 'UNKNOWN',
         totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
-        currency: json['currency'] as String? ?? 'HTG',
+        currency: resolveCurrencyCode(json['currency'] as String?),
         drawId: json['drawId'] as String?,
         resultSlotKey: json['resultSlotKey'] as String?,
         resultProvider: json['resultProvider'] as String?,
@@ -552,7 +554,7 @@ class CashierTicketDetailsView extends CashierTicketSummaryView {
     publicCode: json['publicCode'] as String?,
     status: json['status'] as String? ?? 'UNKNOWN',
     totalAmountCents: (json['totalAmountCents'] as num?)?.toInt() ?? 0,
-    currency: json['currency'] as String? ?? 'HTG',
+    currency: resolveCurrencyCode(json['currency'] as String?),
     drawId: json['drawId'] as String?,
     resultSlotKey: json['resultSlotKey'] as String?,
     resultProvider: json['resultProvider'] as String?,
