@@ -12,6 +12,46 @@ import 'package:tchalanet_mobile/features/cashier/tickets/data/services/cashier_
 import 'package:tchalanet_mobile/features/cashier/tickets/presentation/view_models/sell_controller.dart';
 
 void main() {
+  test('form exposes only games available on the selected draw', () {
+    const form = SellFormData(
+      draws: [
+        CashierAvailableDrawView(
+          drawId: 'draw-1',
+          drawChannelId: 'channel-1',
+          channelLabel: 'Haiti - NY',
+          gameCodes: ['BOLET'],
+          status: 'OPEN',
+          providerDate: '2026-07-24',
+          providerTime: '20:00:00',
+          providerTimezone: 'America/New_York',
+          localDate: '2026-07-24',
+          localTime: '20:00:00',
+          localTimezone: 'America/Port-au-Prince',
+        ),
+      ],
+      games: [
+        _game,
+        CashierGameOptionResponse(
+          gameCode: 'HT_LOTO4',
+          gameLabel: 'Loto 4',
+          betType: 'SINGLE',
+          betTypeLabel: 'Loto 4',
+          requiresOption: false,
+          options: [],
+          selectionDigits: 4,
+          selectionSegments: 1,
+        ),
+      ],
+      selectedDrawId: 'draw-1',
+      selectedGameCode: 'HT_LOTO4',
+      selectedBetType: 'SINGLE',
+    );
+
+    expect(form.availableGames.map((game) => game.gameCode), ['BOLET']);
+    expect(form.selectedGame, isNull);
+    expect(form.canAddLine, isFalse);
+  });
+
   test(
     'prepare exposes shared validation fixture as translation keys',
     () async {

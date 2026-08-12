@@ -77,7 +77,14 @@ class SellFormData {
   CashierAvailableDrawView? get selectedDraw =>
       draws.where((d) => d.drawId == selectedDrawId).firstOrNull;
 
-  CashierGameOptionResponse? get selectedGame => games
+  List<CashierGameOptionResponse> get availableGames {
+    final draw = selectedDraw;
+    if (draw == null) return const [];
+    final allowed = draw.gameCodes.toSet();
+    return games.where((g) => allowed.contains(g.gameCode)).toList();
+  }
+
+  CashierGameOptionResponse? get selectedGame => availableGames
       .where(
         (g) => g.gameCode == selectedGameCode && g.betType == selectedBetType,
       )
@@ -85,7 +92,7 @@ class SellFormData {
 
   /// True when the current entry (selection + stake) forms a valid line.
   bool get canAddLine =>
-      selectedGameCode != null && selection.trim().isNotEmpty && stake > 0;
+      selectedGame != null && selection.trim().isNotEmpty && stake > 0;
 
   bool get hasEntryInProgress => selection.trim().isNotEmpty || stake > 0;
 
@@ -126,9 +133,9 @@ class SellFormData {
   SellFormData copyWith({
     List<CashierAvailableDrawView>? draws,
     List<CashierGameOptionResponse>? games,
-    String? selectedDrawId,
-    String? selectedGameCode,
-    String? selectedBetType,
+    Object? selectedDrawId = _sentinel,
+    Object? selectedGameCode = _sentinel,
+    Object? selectedBetType = _sentinel,
     Object? selectedBetOption = _sentinel,
     String? selection,
     double? stake,
@@ -137,9 +144,15 @@ class SellFormData {
   }) => SellFormData(
     draws: draws ?? this.draws,
     games: games ?? this.games,
-    selectedDrawId: selectedDrawId ?? this.selectedDrawId,
-    selectedGameCode: selectedGameCode ?? this.selectedGameCode,
-    selectedBetType: selectedBetType ?? this.selectedBetType,
+    selectedDrawId: selectedDrawId == _sentinel
+        ? this.selectedDrawId
+        : selectedDrawId as String?,
+    selectedGameCode: selectedGameCode == _sentinel
+        ? this.selectedGameCode
+        : selectedGameCode as String?,
+    selectedBetType: selectedBetType == _sentinel
+        ? this.selectedBetType
+        : selectedBetType as String?,
     selectedBetOption: selectedBetOption == _sentinel
         ? this.selectedBetOption
         : selectedBetOption as int?,
@@ -238,6 +251,12 @@ class SellController extends Notifier<SellState> {
 
       final drawId =
           preselectedDrawId ?? draws.where((d) => d.isOpen).firstOrNull?.drawId;
+      final selectedDraw = draws.where((d) => d.drawId == drawId).firstOrNull;
+      final allowedGameCodes =
+          selectedDraw?.gameCodes.toSet() ?? const <String>{};
+      final firstGame = games
+          .where((game) => allowedGameCodes.contains(game.gameCode))
+          .firstOrNull;
 
       // Currency from home response; fallback to HTG only if not provided.
       final resolvedCurrency = currency ?? 'HTG';
@@ -247,6 +266,8 @@ class SellController extends Notifier<SellState> {
           draws: draws.where((d) => d.isOpen).toList(),
           games: games,
           selectedDrawId: drawId,
+          selectedGameCode: firstGame?.gameCode,
+          selectedBetType: firstGame?.betType,
           currency: resolvedCurrency,
         ),
       );
@@ -258,8 +279,23 @@ class SellController extends Notifier<SellState> {
   void selectDraw(String drawId) {
     final current = state;
     if (current is! SellReady) return;
+    final draw = current.form.draws
+        .where((d) => d.drawId == drawId)
+        .firstOrNull;
+    final allowedGameCodes = draw?.gameCodes.toSet() ?? const <String>{};
+    final firstGame = current.form.games
+        .where((game) => allowedGameCodes.contains(game.gameCode))
+        .firstOrNull;
     state = SellReady(
-      current.form.copyWith(selectedDrawId: drawId),
+      current.form.copyWith(
+        selectedDrawId: drawId,
+        selectedGameCode: firstGame?.gameCode,
+        selectedBetType: firstGame?.betType,
+        selectedBetOption: null,
+        selection: '',
+        stake: 0.0,
+        committedLines: const [],
+      ),
       previewResult: null,
     );
   }
@@ -267,6 +303,13 @@ class SellController extends Notifier<SellState> {
   void selectGame(CashierGameOptionResponse game) {
     final current = state;
     if (current is! SellReady) return;
+    if (!current.form.availableGames.any(
+      (candidate) =>
+          candidate.gameCode == game.gameCode &&
+          candidate.betType == game.betType,
+    )) {
+      return;
+    }
     state = SellReady(
       current.form.copyWith(
         selectedGameCode: game.gameCode,

@@ -69,7 +69,7 @@
             [tchSectionErrors]="sectionErrors()"
           >
             <tch-pos-game-selector
-              [games]="games()"
+              [games]="availableGamesForSelectedDraw()"
               [selectedCode]="selectedGameCode()"
               (gameSelected)="selectGame($event)"
             />
@@ -94,7 +94,7 @@
           <tch-pos-ticket-line-editor
             [lines]="lines()"
             [selectedGameCode]="selectedGameCode()"
-            [games]="games()"
+            [games]="availableGamesForSelectedDraw()"
             [readonly]="lineEditorReadonly()"
             [readonlyMessage]="lineEditorReadonlyReason() ?? ''"
             (lineAdded)="addLine($event)"
@@ -175,7 +175,7 @@
           [lines]="lines()"
           [confirmedTicket]="confirmedTicket()"
           [freeLineCount]="confirmedFreeLineCount()"
-          [games]="games()"
+          [games]="availableGamesForSelectedDraw()"
         />
 
         <!-- Activity -->

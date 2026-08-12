@@ -519,6 +519,41 @@ class _SellBodyState extends ConsumerState<_SellBody> {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 
+  Future<void> _selectDrawWithConfirmation(
+    String drawId,
+    I18nBundle translations,
+  ) async {
+    if (drawId == widget.form.selectedDrawId) return;
+    final hasTicketWork =
+        widget.form.committedLines.isNotEmpty || widget.form.hasEntryInProgress;
+    if (!hasTicketWork) {
+      widget.onSelectDraw(drawId);
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(translations.translate('pos.sale.change_draw_title')),
+        content: Text(translations.translate('pos.sale.change_draw_message')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(translations.translate('pos.sale.change_draw_cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(translations.translate('pos.sale.change_draw_confirm')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    _clearPendingUndo();
+    widget.onSelectDraw(drawId);
+    FocusManager.instance.primaryFocus?.unfocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -556,11 +591,12 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                         selected: widget.form.selectedDrawId,
                         enabled: !_isLoading && !_isTicketLocked,
                         compact: isCompactEntry,
-                        onSelect: widget.onSelectDraw,
+                        onSelect: (drawId) =>
+                            _selectDrawWithConfirmation(drawId, translations),
                       ),
               ),
 
-              if (widget.form.games.isNotEmpty)
+              if (widget.form.availableGames.isNotEmpty)
                 // A Wrap, not a scrolling row, and no section label: the chips
                 // describe themselves. Five games used to wrap onto three rows
                 // (204 dp of a 556 dp budget) because each chip was ~107 dp and
@@ -583,7 +619,7 @@ class _SellBodyState extends ConsumerState<_SellBody> {
                     // need to pre-select a lot.
                     children: () {
                       final seen = <String>{};
-                      return widget.form.games
+                      return widget.form.availableGames
                           .where((g) => seen.add(g.gameLabel))
                           .map((g) {
                             final selected =
@@ -624,7 +660,7 @@ class _SellBodyState extends ConsumerState<_SellBody> {
               // and both values are short. As two stacked sections they cost
               // 208 dp; side by side they cost about half, which is what buys
               // the ticket lines their place on screen.
-              if (widget.form.selectedGameCode != null)
+              if (widget.form.selectedGame != null)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

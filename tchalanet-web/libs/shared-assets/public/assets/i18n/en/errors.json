@@ -469,6 +469,10 @@
             "title": "Missing game",
             "message": "Choose Borlette, Maryaj, Loto 3, Loto 4, or Loto 5 before adding the line."
           },
+          "game_not_available_on_draw_channel": {
+            "title": "Game unavailable for this draw",
+            "message": "Choose a game available for this draw or select another draw."
+          },
           "bet_type_required": {
             "title": "Missing play type",
             "message": "Choose the play type for the line and try again."

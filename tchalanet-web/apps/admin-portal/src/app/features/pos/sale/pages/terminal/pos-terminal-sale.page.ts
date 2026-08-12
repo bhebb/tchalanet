@@ -122,6 +122,12 @@ export class PosTerminalSalePage implements OnInit {
   readonly availableDraws = computed(() =>
     this.openDraws().filter(draw => isPosDrawAvailableNow(draw, this.saleNowMs())),
   );
+  readonly availableGamesForSelectedDraw = computed(() => {
+    const draw = this.availableSelectedDraw();
+    if (!draw) return [];
+    const allowed = new Set(draw.gameCodes);
+    return this.games().filter(game => game.enabled && allowed.has(game.gameCode));
+  });
 
   /**
    * An expired draw is never used to prepare or confirm a sale. When no line has been entered,
@@ -226,6 +232,7 @@ export class PosTerminalSalePage implements OnInit {
       next: draws => {
         this.openDraws.set(draws);
         this.selectedDraw.set(draws[0] ?? null);
+        this.selectFirstAvailableGameForDraw();
         if (draws.length === 0) {
           this.clearLines();
         }
@@ -244,10 +251,7 @@ export class PosTerminalSalePage implements OnInit {
     this.api.getActiveGamesForPos({ suppressShellFeedback: true }).subscribe({
       next: games => {
         this.games.set(games);
-        const borlette = games.find(g => g.gameCode === 'BORLETTE' && g.enabled);
-        this.selectedGameCode.set(
-          borlette?.gameCode ?? games.find(g => g.enabled)?.gameCode ?? null,
-        );
+        this.selectFirstAvailableGameForDraw();
       },
       error: err => {
         this.games.set([]);
@@ -274,11 +278,23 @@ export class PosTerminalSalePage implements OnInit {
   }
 
   selectDraw(draw: PosOpenDrawView): void {
-    if (isPosDrawAvailableNow(draw, this.saleNowMs())) this.selectedDraw.set(draw);
+    if (!isPosDrawAvailableNow(draw, this.saleNowMs())) return;
+    this.selectedDraw.set(draw);
+    this.clearLines();
+    this.selectFirstAvailableGameForDraw();
   }
 
   selectGame(gameCode: string): void {
+    if (!this.availableGamesForSelectedDraw().some(game => game.gameCode === gameCode)) return;
     this.selectedGameCode.set(gameCode);
+  }
+
+  private selectFirstAvailableGameForDraw(): void {
+    const games = this.availableGamesForSelectedDraw();
+    const current = this.selectedGameCode();
+    if (current && games.some(game => game.gameCode === current)) return;
+    const bolet = games.find(game => game.gameCode === 'HT_BOLET' || game.gameCode === 'BORLETTE');
+    this.selectedGameCode.set(bolet?.gameCode ?? games[0]?.gameCode ?? null);
   }
 
   hasSectionError(target: string): boolean {

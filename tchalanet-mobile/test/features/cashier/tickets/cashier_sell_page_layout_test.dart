@@ -27,6 +27,10 @@ const _translations = I18nBundle(
     'pos.sale.add_line': 'Ajoute',
     'pos.sale.verify_sale': 'Verifye vant la',
     'pos.sale.change_draw': 'Chanje',
+    'pos.sale.change_draw_title': 'Chanje tiraj la?',
+    'pos.sale.change_draw_message': 'Sa ap retire liy ki sou tikè a.',
+    'pos.sale.change_draw_confirm': 'Wi, chanje tiraj',
+    'pos.sale.change_draw_cancel': 'Non, kenbe tikè a',
     'pos.sale.cancel': 'Anile',
     'pos.sale.no_draws': 'Pa gen tiraj.',
     'pos.sale.remove_line': 'Retire liy la',
@@ -58,13 +62,29 @@ const _draw = CashierAvailableDrawView(
   channelCode: 'HT_GA_EVE',
   resultSlotKey: 'GA_EVE',
   channelLabel: 'Haïti • Georgia • Evening',
-  gameCodes: ['HT_BOLET'],
+  gameCodes: ['HT_MARYAJ', 'HT_LOTO4', 'HT_BOLET', 'HT_LOTO5', 'HT_LOTO3'],
   status: 'OPEN',
   providerDate: '2026-08-06',
   providerTime: '23:00:00',
   providerTimezone: 'America/New_York',
   localDate: '2026-08-06',
   localTime: '23:00:00',
+  localTimezone: 'America/Port-au-Prince',
+);
+
+const _draw2 = CashierAvailableDrawView(
+  drawId: 'draw-2',
+  drawChannelId: 'channel-2',
+  channelCode: 'HT_NY_MID',
+  resultSlotKey: 'NY_MID',
+  channelLabel: 'Haïti • New York • Midday',
+  gameCodes: ['HT_BOLET'],
+  status: 'OPEN',
+  providerDate: '2026-08-06',
+  providerTime: '12:00:00',
+  providerTimezone: 'America/New_York',
+  localDate: '2026-08-06',
+  localTime: '12:00:00',
   localTimezone: 'America/Port-au-Prince',
 );
 
@@ -109,40 +129,41 @@ final _form = SellFormData(
   ],
 );
 
-Widget _harness({double keyboardInset = 0}) => ProviderScope(
-  overrides: [
-    i18nBundleProvider.overrideWithValue(_translations),
-    cashierHomeProvider.overrideWith(
-      (ref) async => const CashierHomeResponse(
-        quickActions: [],
-        widgets: [],
-        navigation: [],
-        notices: [],
-      ),
-    ),
-    cashierReadinessProvider.overrideWith(
-      (ref) async => const CashierReadinessResponse(
-        ready: true,
-        attentionLevel: CashierAttentionLevel.none,
-        badges: [],
-        notifications: [],
-        blockers: [],
-      ),
-    ),
-    sellControllerProvider.overrideWith(() => _FakeSell(_form)),
-  ],
-  child: PosContextProvider(
-    context: SurfaceContext.posTerminal,
-    child: MaterialApp(
-      home: MediaQuery(
-        data: MediaQueryData(
-          viewInsets: EdgeInsets.only(bottom: keyboardInset),
+Widget _harness({double keyboardInset = 0, SellFormData? form}) =>
+    ProviderScope(
+      overrides: [
+        i18nBundleProvider.overrideWithValue(_translations),
+        cashierHomeProvider.overrideWith(
+          (ref) async => const CashierHomeResponse(
+            quickActions: [],
+            widgets: [],
+            navigation: [],
+            notices: [],
+          ),
         ),
-        child: const CashierSellPage(),
+        cashierReadinessProvider.overrideWith(
+          (ref) async => const CashierReadinessResponse(
+            ready: true,
+            attentionLevel: CashierAttentionLevel.none,
+            badges: [],
+            notifications: [],
+            blockers: [],
+          ),
+        ),
+        sellControllerProvider.overrideWith(() => _FakeSell(form ?? _form)),
+      ],
+      child: PosContextProvider(
+        context: SurfaceContext.posTerminal,
+        child: MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(
+              viewInsets: EdgeInsets.only(bottom: keyboardInset),
+            ),
+            child: const CashierSellPage(),
+          ),
+        ),
       ),
-    ),
-  ),
-);
+    );
 
 Future<void> _pumpAtTerminalSize(WidgetTester tester) async {
   tester.view.physicalSize = _posTerminal;
@@ -218,6 +239,27 @@ void main() {
     expect(find.text('Non, kontinye vann'), findsOneWidget);
 
     await tester.tap(find.text('Non, kontinye vann'));
+    await tester.pumpAndSettle();
+    expect(find.text('#1 Bòlèt'), findsOneWidget);
+  });
+
+  testWidgets('changing draw with ticket lines asks first', (tester) async {
+    final form = _form.copyWith(draws: const [_draw, _draw2]);
+    tester.view.physicalSize = _posTerminal;
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(_harness(form: form));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Chanje'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(ListTile).last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chanje tiraj la?'), findsOneWidget);
+    expect(find.text('Sa ap retire liy ki sou tikè a.'), findsOneWidget);
+
+    await tester.tap(find.text('Non, kenbe tikè a'));
     await tester.pumpAndSettle();
     expect(find.text('#1 Bòlèt'), findsOneWidget);
   });

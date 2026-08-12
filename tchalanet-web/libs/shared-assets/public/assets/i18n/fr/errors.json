@@ -469,6 +469,10 @@
             "title": "Jeu manquant",
             "message": "Choisissez Borlette, Maryaj, Loto 3, Loto 4 ou Loto 5 avant d’ajouter la ligne."
           },
+          "game_not_available_on_draw_channel": {
+            "title": "Jeu indisponible pour ce tirage",
+            "message": "Choisissez un jeu disponible pour ce tirage ou sélectionnez un autre tirage."
+          },
           "bet_type_required": {
             "title": "Type de jeu manquant",
             "message": "Choisissez le type de pari de la ligne puis réessayez."
