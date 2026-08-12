@@ -931,7 +931,16 @@
         "saving": "Blocking…",
         "errorTitle": "Block failed",
         "cancel": "Cancel",
-        "infoNote": "Blocked numbers can no longer be played on this draw. The block is applied automatically."
+        "infoNote": "Blocked numbers can no longer be played on this draw. The block is applied automatically.",
+        "noticeSaved": "Block saved.",
+        "noticeDeleted": "Block removed.",
+        "deleteConfirm": "Remove this number block?",
+        "listAria": "Blocked numbers by draw",
+        "colDraw": "Draw",
+        "colNumbers": "Blocked numbers",
+        "colExpiry": "Duration",
+        "deleteAria": "Remove this block",
+        "unknownChannel": "Unknown draw"
       },
       "number": {
         "actionsAria": "Quick actions by number",

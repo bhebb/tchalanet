@@ -931,7 +931,16 @@
         "saving": "Blokaj ap fèt…",
         "errorTitle": "Erè pandan blokaj",
         "cancel": "Anile",
-        "infoNote": "Nimewo bloke yo p ap ka jwe nan tiraj sa a. Blokaj la aplike otomatikman."
+        "infoNote": "Nimewo bloke yo p ap ka jwe nan tiraj sa a. Blokaj la aplike otomatikman.",
+        "noticeSaved": "Blokaj anrejistre.",
+        "noticeDeleted": "Blokaj efase.",
+        "deleteConfirm": "Efase blokaj nimewo sa yo ?",
+        "listAria": "Nimewo bloke pa tiraj",
+        "colDraw": "Tiraj",
+        "colNumbers": "Nimewo bloke",
+        "colExpiry": "Dire",
+        "deleteAria": "Efase blokaj sa a",
+        "unknownChannel": "Tiraj enkoni"
       },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",

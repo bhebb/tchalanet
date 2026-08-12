@@ -76,9 +76,79 @@
   font-size: var(--tch-font-size-body-sm);
 }
 
+// Blocked numbers list
+.limits-number__blocked-list {
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-lg);
+  overflow: hidden;
+}
+
+.limits-number__blocked-header {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr) 6rem 3rem;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--tch-color-surface-container);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-semibold, 600);
+  color: var(--tch-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.limits-number__blocked-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 3fr) 6rem 3rem;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+
+  &:first-of-type {
+    border-top: none;
+  }
+}
+
+.limits-number__blocked-draw {
+  font-weight: var(--tch-weight-medium, 500);
+  color: var(--tch-color-on-surface);
+  font-size: var(--tch-font-size-body-sm);
+}
+
+.limits-number__blocked-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.limits-number__num-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 1.625rem;
+  padding: 0 0.4rem;
+  border-radius: var(--tch-radius-sm, 4px);
+  background: color-mix(in srgb, var(--tch-color-error) 12%, transparent);
+  color: var(--tch-color-error);
+  font-size: var(--tch-font-size-label-md);
+  font-weight: var(--tch-weight-semibold, 600);
+  font-variant-numeric: tabular-nums;
+}
+
+.limits-number__blocked-expiry {
+  font-size: var(--tch-font-size-body-sm);
+  color: var(--tch-color-on-surface-variant);
+}
+
+.limits-number__blocked-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 @include ui.up(expanded) {
   .limits-number__actions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 24rem);
   }
 
   .limits-number__action-card {

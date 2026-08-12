@@ -1410,7 +1410,16 @@
         "saving": "Blocage en cours…",
         "errorTitle": "Erreur lors du blocage",
         "cancel": "Annuler",
-        "infoNote": "Les numéros bloqués ne pourront plus être joués sur ce tirage. Le blocage est appliqué automatiquement."
+        "infoNote": "Les numéros bloqués ne pourront plus être joués sur ce tirage. Le blocage est appliqué automatiquement.",
+        "noticeSaved": "Blocage enregistré.",
+        "noticeDeleted": "Blocage supprimé.",
+        "deleteConfirm": "Supprimer ce blocage de numéros ?",
+        "listAria": "Numéros bloqués par tirage",
+        "colDraw": "Tirage",
+        "colNumbers": "Numéros bloqués",
+        "colExpiry": "Durée",
+        "deleteAria": "Supprimer ce blocage",
+        "unknownChannel": "Tirage inconnu"
       },
       "number": {
         "actionsAria": "Actions rapides par numéro",

@@ -1,30 +1,22 @@
 <div class="limits-child-page">
 
-  <div
-    class="limits-number__actions"
-    [attr.aria-label]="'admin.limits.number.actionsAria' | translate"
-  >
-    @for (action of quickActions; track action.ruleKey) {
-    <article
-      class="limits-number__action-card"
-      [class.limits-number__action-card--configured]="isActionConfigured(action.ruleKey)"
-    >
-      <span class="material-symbols-outlined limits-number__action-icon">{{ action.icon }}</span>
+  <div class="limits-number__actions">
+    <article class="limits-number__action-card">
+      <span class="material-symbols-outlined limits-number__action-icon">block</span>
       <span class="limits-number__action-body">
-        <strong>{{ action.titleKey | translate }}</strong>
-        <small>{{ action.descriptionKey | translate }}</small>
+        <strong>{{ 'admin.limits.number.actions.block.title' | translate }}</strong>
+        <small>{{ 'admin.limits.number.actions.block.description' | translate }}</small>
       </span>
-      <span class="limits-number__action-state">{{ actionStateLabel(action.ruleKey) }}</span>
       <button
-        mat-stroked-button
+        mat-flat-button
+        color="warn"
         type="button"
-        [disabled]="!isActionAvailable(action.ruleKey)"
-        (click)="openNumberAction(action.ruleKey)"
+        [disabled]="!blockSpec()"
+        (click)="openBlockNumberQuick()"
       >
-        {{ action.ctaKey | translate }}
+        {{ 'admin.limits.number.actions.block.cta' | translate }}
       </button>
     </article>
-    }
   </div>
 
   <div class="limits-child-page__toolbar">
@@ -39,47 +31,71 @@
   </div>
 
   @if (loading()) {
-  <tch-loading [label]="'admin.limits.common.loading' | translate" />
+    <tch-loading [label]="'admin.limits.common.loading' | translate" />
   } @else if (pageError(); as err) {
-  <tch-error-panel
-    [title]="err.title"
-    [message]="err.message"
-    [showRetry]="true"
-    [retryLabel]="'common.retry' | translate"
-    (retry)="load()"
-  />
-  } @else if (allRows().length === 0) {
-  <tch-admin-empty-state
-    icon="numbers"
-    [title]="'admin.limits.child.catalogEmptyTitle' | translate"
-    [message]="'admin.limits.child.catalogEmptyMessage' | translate"
-  />
-  } @else { @if (actionError(); as err) {
-  <tch-section-error
-    class="limits-child-page__action-feedback"
-    [title]="err.title"
-    [message]="err.message"
-    [severity]="err.severity"
-  />
-  } @else if (actionNotice()) {
-  <tch-section-error
-    class="limits-child-page__action-feedback"
-    [title]="'admin.limits.common.actionDone' | translate"
-    [message]="actionNotice()! | translate"
-    severity="info"
-  />
-  } @if (activeRows().length === 0) {
-  <tch-admin-empty-state
-    icon="numbers"
-    [title]="'admin.limits.child.noConfiguredTitle' | translate"
-    [message]="'admin.limits.child.noConfiguredNumber' | translate"
-  />
+    <tch-error-panel
+      [title]="err.title"
+      [message]="err.message"
+      [showRetry]="true"
+      [retryLabel]="'common.retry' | translate"
+      (retry)="load()"
+    />
   } @else {
-  <tch-limit-assignments-table
-    [rows]="activeRows()"
-    [canEdit]="true"
-    (upsert)="openUpsert($event)"
-    (delete)="confirmDelete($event)"
-  />
-  } }
+    @if (actionError(); as err) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        [title]="err.title"
+        [message]="err.message"
+        [severity]="err.severity"
+      />
+    } @else if (actionNotice()) {
+      <tch-section-error
+        class="limits-child-page__action-feedback"
+        [title]="'admin.limits.common.actionDone' | translate"
+        [message]="actionNotice()! | translate"
+        severity="info"
+      />
+    }
+
+    @if (blockedRows().length === 0) {
+      <tch-admin-empty-state
+        icon="numbers"
+        [title]="'admin.limits.child.noConfiguredTitle' | translate"
+        [message]="'admin.limits.child.noConfiguredNumber' | translate"
+      />
+    } @else {
+      <div class="limits-number__blocked-list" role="table" [attr.aria-label]="'admin.limits.blockNumber.listAria' | translate">
+        <div class="limits-number__blocked-header" role="row">
+          <span role="columnheader">{{ 'admin.limits.blockNumber.colDraw' | translate }}</span>
+          <span role="columnheader">{{ 'admin.limits.blockNumber.colNumbers' | translate }}</span>
+          <span role="columnheader">{{ 'admin.limits.blockNumber.colExpiry' | translate }}</span>
+          <span role="columnheader"></span>
+        </div>
+        @for (row of blockedRows(); track row.id.value) {
+          <div class="limits-number__blocked-row" role="row">
+            <span class="limits-number__blocked-draw" role="cell">
+              {{ row.channelLabel || ('admin.limits.blockNumber.unknownChannel' | translate) }}
+            </span>
+            <span class="limits-number__blocked-numbers" role="cell">
+              @for (n of row.numbers; track n) {
+                <span class="limits-number__num-chip">{{ n }}</span>
+              }
+            </span>
+            <span class="limits-number__blocked-expiry" role="cell">{{ expiryLabel(row) }}</span>
+            <span class="limits-number__blocked-actions" role="cell">
+              <button
+                mat-icon-button
+                color="warn"
+                type="button"
+                [attr.aria-label]="'admin.limits.blockNumber.deleteAria' | translate"
+                (click)="deleteBlocked(row)"
+              >
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </span>
+          </div>
+        }
+      </div>
+    }
+  }
 </div>

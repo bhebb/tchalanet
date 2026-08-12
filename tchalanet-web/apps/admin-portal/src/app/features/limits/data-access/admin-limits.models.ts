@@ -31,6 +31,8 @@ export interface LimitAssignmentItem {
   params: unknown;
   startsAt: string | null;
   endsAt: string | null;
+  targetId?: string | null;
+  targetLabel?: string | null;
 }
 
 export interface ListLimitAssignmentsView {
