@@ -559,7 +559,7 @@
           "needsConfig": "À configurer",
           "disabled": "Inactif"
         },
-        "cutoffTime": "Fermeture {{value}}",
+        "cutoffTime": "Fermeture: {{value}}",
         "drawTimeLabel": "Heure du tirage",
         "salesCloseLabel": "Fermeture vente",
         "catalogLabel": "Catalogue",

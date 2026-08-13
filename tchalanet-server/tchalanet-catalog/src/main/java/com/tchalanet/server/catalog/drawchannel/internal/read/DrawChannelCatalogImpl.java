@@ -7,6 +7,7 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelGameView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
+import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import com.tchalanet.server.catalog.drawchannel.api.model.GameSummaryView;
 import com.tchalanet.server.catalog.drawchannel.internal.cache.DrawChannelCacheNames;
 import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelGameMapper;
@@ -27,6 +28,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -294,6 +296,31 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         zone,
         e.getDaysOfWeek(),
         e.isActive(),
-        resultSlotActive);
+        resultSlotActive,
+        defaultSource(e));
+  }
+
+  private DrawSource defaultSource(DrawChannelEntity e) {
+    if (e.getResultSlotId() == null) {
+      return DrawSource.MANUAL;
+    }
+    return resultSlotCatalog
+        .findById(ResultSlotId.of(e.getResultSlotId()))
+        .map(slot -> sourceMode(slot.sourceCfg()))
+        .orElse(null);
+  }
+
+  private DrawSource sourceMode(JsonNode sourceCfg) {
+    JsonNode sourceMode = sourceCfg == null ? null : sourceCfg.get("source_mode");
+    String value =
+        sourceMode == null || sourceMode.isNull() ? null : sourceMode.asText("").trim();
+    if (value == null || value.isBlank()) {
+      return DrawSource.EXTERNAL;
+    }
+    try {
+      return DrawSource.valueOf(value.toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException ignored) {
+      return DrawSource.EXTERNAL;
+    }
   }
 }

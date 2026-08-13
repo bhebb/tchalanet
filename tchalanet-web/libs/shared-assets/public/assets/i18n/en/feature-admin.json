@@ -1729,7 +1729,7 @@
           "needsConfig": "Needs setup",
           "disabled": "Inactive"
         },
-        "cutoffTime": "Sales close {{value}}",
+        "cutoffTime": "Sales close: {{value}}",
         "drawTimeLabel": "Draw time",
         "salesCloseLabel": "Sales close",
         "catalogLabel": "Catalog",

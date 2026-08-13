@@ -20,7 +20,6 @@ import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
   DrawChannelProviderView,
-  DrawResultAcquisitionView,
   DrawChannelSlotConfigView,
 } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelsSummaryComponent } from '../../components/draw-channels-summary/draw-channels-summary.component';
@@ -110,7 +109,7 @@ export class AdminDrawChannelsPage implements OnInit {
             providerCode: provider.providerCode,
             providerLabel: provider.providerLabel,
             slot,
-            resultMode: this.resultMode(provider.resultAcquisition.mode),
+            resultMode: this.slotResultMode(slot),
             status: this.channelStatus(slot),
           };
         }),
@@ -243,9 +242,10 @@ export class AdminDrawChannelsPage implements OnInit {
       .join(', ');
   }
 
-  private resultMode(mode: DrawResultAcquisitionView['mode']): DrawChannelListRow['resultMode'] {
-    if (mode === 'AUTO') return 'AUTO';
-    if (mode === 'MANUAL') return 'MANUAL';
+  private slotResultMode(slot: DrawChannelSlotConfigView): DrawChannelListRow['resultMode'] {
+    if (slot.resultSlotActive === false) return 'UNCONFIGURED';
+    if (slot.defaultSource === 'MANUAL') return 'MANUAL';
+    if (slot.defaultSource) return 'AUTO';
     return 'UNCONFIGURED';
   }
 

@@ -23,10 +23,15 @@ describe('AdminDrawChannelsApiService', () => {
     });
     expect(providers).toHaveLength(1);
     expect(providers[0]).toMatchObject({
-      providerCode: 'HT',
-      providerLabel: 'HT',
-      timezone: 'America/Port-au-Prince',
+      providerCode: 'NY',
+      providerLabel: 'New York',
+      timezone: 'America/New_York',
       tenantStatus: 'ACTIVE',
+      resultAcquisition: {
+        mode: 'AUTO',
+        source: 'API',
+        sourceStatus: 'OK',
+      },
       configuredChannelCount: 2,
       activeChannelCount: 1,
       readiness: {
@@ -38,9 +43,10 @@ describe('AdminDrawChannelsApiService', () => {
     expect(providers[0].slots.map(slot => slot.channelId)).toEqual(['channel-active', 'channel-inactive']);
     expect(providers[0].slots[0]).toMatchObject({
       channelId: 'channel-active',
-      label: 'HT · Evening',
+      label: 'New York · Evening',
       enabled: true,
       resultSlotActive: true,
+      defaultSource: 'EXTERNAL',
       drawTime: '20:00',
       cutoffTime: '19:50',
     });
@@ -127,23 +133,25 @@ function tenantDrawChannels() {
   return [
     {
       id: 'channel-inactive',
-      channelCode: 'HT_MID',
-      channelName: 'HT · Midday',
+      channelCode: 'HT_NY_MID',
+      channelName: 'Haïti • New York • Midday',
       drawTime: '12:00',
       cutoffTime: '11:50',
-      timezone: 'America/Port-au-Prince',
+      timezone: 'America/New_York',
       active: false,
       resultSlotActive: true,
+      defaultSource: 'EXTERNAL',
     },
     {
       id: 'channel-active',
-      channelCode: 'HT_EVE',
-      channelName: 'HT · Evening',
+      channelCode: 'HT_NY_EVE',
+      channelName: 'Haïti • New York • Evening',
       drawTime: '20:00',
       cutoffTime: '19:50',
-      timezone: 'America/Port-au-Prince',
+      timezone: 'America/New_York',
       active: true,
       resultSlotActive: true,
+      defaultSource: 'EXTERNAL',
     },
   ];
 }

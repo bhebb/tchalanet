@@ -1729,7 +1729,7 @@
           "needsConfig": "Pou konfigire",
           "disabled": "Inaktif"
         },
-        "cutoffTime": "Vant fèmen {{value}}",
+        "cutoffTime": "Vant fèmen: {{value}}",
         "drawTimeLabel": "Lè tiraj",
         "salesCloseLabel": "Fèmti vant",
         "catalogLabel": "Katalòg",

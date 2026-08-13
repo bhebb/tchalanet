@@ -7,7 +7,9 @@ import { consoleDrawIdentity } from '@tch/web/console';
 import {
   DrawChannelDetailView,
   DrawChannelProviderView,
+  DrawChannelSource,
   DrawChannelSlotConfigView,
+  DrawResultAcquisitionView,
   UpdateTenantDrawChannelRequest,
 } from './admin-draw-channels.models';
 
@@ -21,6 +23,7 @@ interface TenantDrawChannelSummary {
   readonly daysOfWeek?: string | null;
   readonly active: boolean;
   readonly resultSlotActive?: boolean;
+  readonly defaultSource?: DrawChannelSource | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -112,8 +115,8 @@ export class AdminDrawChannelsApiService {
       profileLabelKey: 'admin.drawChannels.profile.haitiLottery',
       tenantStatus,
       resultAcquisition: {
-        mode: activeChannelCount > 0 ? 'MANUAL' : 'UNCONFIGURED',
-        source: activeChannelCount > 0 ? 'MANUAL' : null,
+        mode: this.providerResultMode(slots),
+        source: this.providerResultSource(slots),
         sourceStatus: activeChannelCount > 0 ? 'OK' : 'UNCONFIGURED',
       },
       configuredChannelCount: slots.length,
@@ -150,7 +153,20 @@ export class AdminDrawChannelsApiService {
       drawTime: channel.drawTime,
       cutoffTime: channel.cutoffTime,
       daysOfWeek: channel.daysOfWeek,
+      defaultSource: channel.defaultSource,
     };
+  }
+
+  private providerResultMode(slots: readonly DrawChannelSlotConfigView[]): DrawResultAcquisitionView['mode'] {
+    const activeSlots = slots.filter(slot => slot.enabled);
+    if (activeSlots.length === 0) return 'UNCONFIGURED';
+    return activeSlots.every(slot => slot.defaultSource === 'MANUAL') ? 'MANUAL' : 'AUTO';
+  }
+
+  private providerResultSource(slots: readonly DrawChannelSlotConfigView[]): DrawResultAcquisitionView['source'] {
+    const source = slots.find(slot => slot.enabled && slot.defaultSource)?.defaultSource;
+    if (!source) return null;
+    return source === 'MANUAL' ? 'MANUAL' : 'API';
   }
 }
 

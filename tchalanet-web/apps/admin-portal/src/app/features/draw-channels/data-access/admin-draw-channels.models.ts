@@ -39,6 +39,7 @@ export interface DrawChannelSlotConfigView {
   readonly cutoffTime?: string | null;
   readonly salesCutoffMinutes?: number | null;
   readonly daysOfWeek?: string | null;
+  readonly defaultSource?: DrawChannelSource | null;
 }
 
 export type DrawChannelSource =
