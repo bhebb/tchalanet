@@ -38,10 +38,7 @@ class UpdateSellerTerminalSettingsCommandHandlerTest {
 
     assertThatCode(() -> handler.handle(command)).doesNotThrowAnyException();
 
-    verify(settingsPort).save(
-        TENANT_ID,
-        TERMINAL_ID,
-        new SellerTerminalSettingsView(receipt, notifications),
-        null);
+    verify(settingsPort)
+        .save(TENANT_ID, TERMINAL_ID, new SellerTerminalSettingsView(receipt, notifications), null);
   }
 }
