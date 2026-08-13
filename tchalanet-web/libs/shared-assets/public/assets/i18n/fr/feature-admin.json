@@ -1692,11 +1692,15 @@
           "notConfigured": "Non configuré"
         },
         "offeredCount": "{{active}} jeu(x) actif(s) sur {{offered}} offert(s)",
+        "activeGamesLabel": "Jeux actifs",
+        "offeredGamesLabel": "Jeux offerts",
+        "availableGamesLabel": "À ajouter",
         "channelMissing": "Canal manquant",
         "channelInactive": "Canal inactif"
       },
       "channel": {
         "label": "Canal",
+        "settingsTitle": "Paramètres du tirage",
         "salesOpen": "Ouverture vente : {{value}}",
         "cutoff": "Cutoff : {{seconds}}s avant le tirage",
         "activeGames": "{{count}} jeu(x) actif(s)",
@@ -1709,7 +1713,8 @@
       },
       "section": {
         "offered": "Offre active sur ce canal",
-        "available": "Jeux disponibles à ajouter"
+        "available": "Jeux disponibles à ajouter",
+        "noOfferedGames": "Aucun jeu n'est vendu sur ce tirage pour le moment. Ajoutez un jeu ci-dessous pour le rendre disponible aux vendeurs."
       },
       "game": {
         "status": {

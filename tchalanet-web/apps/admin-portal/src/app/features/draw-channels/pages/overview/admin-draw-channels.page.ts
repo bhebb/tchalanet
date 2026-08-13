@@ -6,7 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -63,7 +63,9 @@ type PageState = 'loading' | 'ready' | 'error';
 export class AdminDrawChannelsPage implements OnInit {
   private readonly api = inject(AdminDrawChannelsApiService);
   private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
+  private handledDeepLinkKey: string | null = null;
 
   readonly pageState = signal<PageState>('loading');
   readonly pageError = signal<ErrorViewModel | null>(null);
@@ -113,6 +115,7 @@ export class AdminDrawChannelsPage implements OnInit {
       next: data => {
         this.allProviders.set(data);
         this.pageState.set('ready');
+        this.handleDeepLinkedChannel(data);
       },
       error: (err: unknown) => {
         this.pageError.set(this.errorViewModel(err));
@@ -153,6 +156,33 @@ export class AdminDrawChannelsPage implements OnInit {
       .subscribe(saved => {
         if (saved === true) this.load();
       });
+  }
+
+  private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {
+    const providerParam = this.route.snapshot.queryParamMap.get('provider')?.trim().toLowerCase();
+    const slotParam = this.route.snapshot.queryParamMap.get('slot')?.trim().toLowerCase();
+    if (!providerParam && !slotParam) return;
+
+    const deepLinkKey = `${providerParam ?? ''}:${slotParam ?? ''}`;
+    if (this.handledDeepLinkKey === deepLinkKey) return;
+
+    const provider = providers.find(p =>
+      !providerParam ||
+      p.providerCode.toLowerCase() === providerParam ||
+      p.providerLabel.toLowerCase().includes(providerParam)
+    );
+    const slot = provider?.slots.find(s =>
+      !slotParam ||
+      s.slotKey.toLowerCase() === slotParam ||
+      s.channelId?.toLowerCase() === slotParam ||
+      s.label.toLowerCase().includes(slotParam)
+    );
+
+    if (providerParam) this.searchQuery.set(provider?.providerLabel ?? providerParam);
+    if (!slot) return;
+
+    this.handledDeepLinkKey = deepLinkKey;
+    queueMicrotask(() => this.openChannelConfig(slot));
   }
 
   private errorViewModel(err: unknown): ErrorViewModel {

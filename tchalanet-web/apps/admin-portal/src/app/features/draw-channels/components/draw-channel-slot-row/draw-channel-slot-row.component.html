@@ -42,12 +42,13 @@
       />
 
       <button
-        mat-icon-button
+        mat-stroked-button
         class="slot-row__edit-btn"
         (click)="configure.emit(s)"
         [attr.aria-label]="'admin.drawChannels.actions.configure' | translate"
       >
         <span class="material-symbols-outlined">settings</span>
+        <span>{{ 'admin.drawChannels.actions.configure' | translate }}</span>
       </button>
     }
   </div>

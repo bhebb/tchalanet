@@ -52,6 +52,15 @@
     justify-content: flex-start;
   }
 
+  &__edit-btn {
+    min-height: 2.75rem;
+
+    .material-symbols-outlined {
+      font-size: 1.125rem;
+      margin-inline-end: 0.25rem;
+    }
+  }
+
   &__time {
     font-size: 0.875rem;
     font-weight: var(--tch-weight-bold, 700);

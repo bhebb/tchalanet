@@ -18,21 +18,30 @@
   </mat-expansion-panel-header>
 
   @if (slotVm.channel; as channel) {
+    <div class="matrix-slot-overview">
+      <div class="matrix-slot-overview__item">
+        <span>{{ 'admin.drawSalesMatrix.slot.activeGamesLabel' | translate }}</span>
+        <strong>{{ activeOfferedCount() }}</strong>
+      </div>
+      <div class="matrix-slot-overview__item">
+        <span>{{ 'admin.drawSalesMatrix.slot.offeredGamesLabel' | translate }}</span>
+        <strong>{{ offeredCount() }}</strong>
+      </div>
+      <div class="matrix-slot-overview__item">
+        <span>{{ 'admin.drawSalesMatrix.slot.availableGamesLabel' | translate }}</span>
+        <strong>{{ availableGames().length }}</strong>
+      </div>
+    </div>
+
     <div class="matrix-channel-info">
-      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">router</span>
+      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">schedule</span>
       <div class="matrix-channel-info__body">
         <span class="matrix-channel-info__title">
-          {{ 'admin.drawSalesMatrix.channel.label' | translate }}
-          <strong>{{ channelDisplayLabel(channel.channelCode) }}</strong>
+          {{ 'admin.drawSalesMatrix.channel.settingsTitle' | translate }}
         </span>
-        <span class="matrix-channel-info__hint">{{ 'admin.drawSalesMatrix.channel.matrixHelp' | translate }}</span>
         <span class="matrix-channel-info__facts">
           <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
           <span>{{ 'admin.drawSalesMatrix.channel.cutoff' | translate: { seconds: channel.cutoffSec } }}</span>
-          <span>{{ 'admin.drawSalesMatrix.channel.activeGames' | translate: { count: activeOfferedCount() } }}</span>
-          @if (availableGames().length > 0) {
-            <span>{{ 'admin.drawSalesMatrix.channel.availableToAdd' | translate: { count: availableGames().length } }}</span>
-          }
           @if (channel.dependsOnChannelId) {
             <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
           }
@@ -76,6 +85,11 @@
           (gameAction)="onGameAction($event)"
         />
       }
+    </div>
+  } @else {
+    <div class="matrix-empty-offer">
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      <p>{{ 'admin.drawSalesMatrix.section.noOfferedGames' | translate }}</p>
     </div>
   }
 

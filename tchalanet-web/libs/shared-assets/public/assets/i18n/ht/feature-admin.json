@@ -1138,11 +1138,15 @@
           "notConfigured": "Pa konfigire"
         },
         "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
+        "activeGamesLabel": "Jwèt aktif",
+        "offeredGamesLabel": "Jwèt yo ofri",
+        "availableGamesLabel": "Pou ajoute",
         "channelMissing": "Kanal manke",
         "channelInactive": "Kanal inaktif"
       },
       "channel": {
         "label": "Kanal tiraj",
+        "settingsTitle": "Paramèt tiraj",
         "salesOpen": "Ouvèti vant : {{value}}",
         "cutoff": "Fèmti vant : {{seconds}}s avan tiraj la",
         "activeGames": "{{count}} jwèt aktif",
@@ -1155,7 +1159,8 @@
       },
       "section": {
         "offered": "Òf aktif sou règ sa a",
-        "available": "Jwèt disponib pou ajoute"
+        "available": "Jwèt disponib pou ajoute",
+        "noOfferedGames": "Pa gen jwèt k ap vann sou tiraj sa a pou kounye a. Ajoute yon jwèt anba a pou vandè yo ka vann li."
       },
       "game": {
         "status": {

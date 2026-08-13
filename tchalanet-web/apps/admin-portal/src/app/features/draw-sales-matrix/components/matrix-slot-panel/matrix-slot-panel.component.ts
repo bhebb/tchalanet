@@ -89,13 +89,6 @@ export class DrawSalesMatrixSlotPanelComponent {
     return 'admin.drawSalesMatrix.slot.status.notConfigured';
   }
 
-  protected channelDisplayLabel(channelCode: string): string {
-    return consoleDrawIdentity({
-      providerCode: this.providerCode(),
-      channelCode,
-    }).channelName ?? channelCode;
-  }
-
   protected feedbackKey(slot: SlotMatrixView, game: ChannelGameSetupView): string | null {
     const drawChannelId = slot.channel?.drawChannelId.value;
     return drawChannelId ? `${drawChannelId}:${game.tenantGameId.value}` : null;

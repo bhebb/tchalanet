@@ -1138,11 +1138,15 @@
           "notConfigured": "Not configured"
         },
         "offeredCount": "{{active}} active game(s) out of {{offered}} offered",
+        "activeGamesLabel": "Active games",
+        "offeredGamesLabel": "Offered games",
+        "availableGamesLabel": "Can add",
         "channelMissing": "Missing channel",
         "channelInactive": "Inactive channel"
       },
       "channel": {
         "label": "Channel",
+        "settingsTitle": "Draw settings",
         "salesOpen": "Sales open: {{value}}",
         "cutoff": "Cutoff: {{seconds}}s before draw",
         "activeGames": "{{count}} active game(s)",
@@ -1155,7 +1159,8 @@
       },
       "section": {
         "offered": "Active offer on this channel",
-        "available": "Games available to add"
+        "available": "Games available to add",
+        "noOfferedGames": "No game is currently sold on this draw. Add a game below to make it available to sellers."
       },
       "game": {
         "status": {

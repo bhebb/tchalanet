@@ -89,6 +89,57 @@
   }
 }
 
+.matrix-slot-overview {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1fr;
+  margin-block: 0.5rem 0.75rem;
+
+  &__item {
+    background: var(--tch-color-surface-container-low);
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    display: grid;
+    gap: 0.125rem;
+    min-width: 0;
+    padding: 0.625rem;
+
+    span {
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+      overflow-wrap: anywhere;
+    }
+
+    strong {
+      color: var(--tch-color-on-surface);
+      font-size: var(--tch-font-size-title-md);
+      font-weight: var(--tch-weight-bold);
+    }
+  }
+}
+
+.matrix-empty-offer {
+  align-items: start;
+  background: var(--tch-color-surface-container-low);
+  border: 1px dashed var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  color: var(--tch-color-on-surface-variant);
+  display: flex;
+  gap: 0.5rem;
+  margin-block: 0.5rem 1rem;
+  padding: 0.875rem;
+
+  p {
+    margin: 0;
+  }
+
+  .material-symbols-outlined {
+    color: var(--tch-color-primary);
+    font-family: 'Material Symbols Outlined';
+    font-size: 1.25rem;
+  }
+}
+
 .matrix-section-label {
   margin: 0.75rem 0 0.5rem;
   color: var(--tch-color-on-surface-variant);
@@ -131,6 +182,10 @@
 }
 
 @include ui.up(medium) {
+  .matrix-slot-overview {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .matrix-channel-info {
     grid-template-columns: auto minmax(0, 1fr) auto;
 
