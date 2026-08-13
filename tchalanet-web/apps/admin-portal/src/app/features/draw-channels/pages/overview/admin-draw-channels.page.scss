@@ -138,7 +138,6 @@
       flex: 1 1 18rem;
     }
 
-    &__grid,
     &__skeleton-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
@@ -147,7 +146,6 @@
 
 @include ui.up(large) {
   .dc-page {
-    &__grid,
     &__skeleton-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }

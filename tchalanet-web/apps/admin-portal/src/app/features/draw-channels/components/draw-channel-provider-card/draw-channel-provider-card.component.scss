@@ -83,9 +83,9 @@
   }
 
   &__slots-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: 0.5rem;
+    grid-template-columns: 1fr;
   }
 
   &__no-slots {
@@ -198,6 +198,22 @@
     &__identity {
       align-items: center;
       flex-direction: row;
+    }
+  }
+}
+
+@include ui.up(expanded) {
+  .pcard {
+    &__slots-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@include ui.up(large) {
+  .pcard {
+    &__slots-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 }
