@@ -28,6 +28,11 @@ public record DrawChannelView(
     String notes,
     ResultSlotId resultSlotId,
     DrawSource defaultSource,
+    String resultSlotKey,
+    String resultProvider,
+    String resultProviderSlotCode,
+    String resultSlotDaysOfWeek,
+    Boolean resultSlotActive,
     Instant createdAt,
     Instant updatedAt) {
 

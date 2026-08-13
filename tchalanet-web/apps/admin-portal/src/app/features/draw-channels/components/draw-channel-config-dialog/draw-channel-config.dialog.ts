@@ -6,30 +6,25 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { consoleDrawIdentity } from '@tch/web/console';
 
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
   DrawChannelDetailView,
-  DrawChannelWeekDay,
+  DrawChannelSource,
   UpdateTenantDrawChannelRequest,
 } from '../../data-access/admin-draw-channels.models';
 
 interface DrawChannelConfigDialogData {
   readonly channelId: string;
   readonly label: string;
+  readonly mode: 'configure' | 'details';
 }
 
 interface DrawChannelConfigForm {
-  readonly name: string;
-  readonly timezone: string;
-  readonly drawTime: string;
   readonly cutoffSec: number | null;
-  readonly daysOfWeek: readonly DrawChannelWeekDay[];
   readonly active: boolean;
-  readonly period: string;
-  readonly notes: string;
 }
 
 @Component({
@@ -44,7 +39,6 @@ interface DrawChannelConfigForm {
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
-    MatSelectModule,
     TranslatePipe,
   ],
   templateUrl: './draw-channel-config.dialog.html',
@@ -54,32 +48,18 @@ export class DrawChannelConfigDialog {
   private readonly api = inject(AdminDrawChannelsApiService);
   private readonly dialogRef = inject(MatDialogRef<DrawChannelConfigDialog, boolean>);
   private readonly data = inject<DrawChannelConfigDialogData>(MAT_DIALOG_DATA);
+  private readonly translate = inject(TranslateService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly errorKey = signal<string | null>(null);
   readonly detail = signal<DrawChannelDetailView | null>(null);
   readonly title = this.data.label;
-
-  readonly weekDays: readonly DrawChannelWeekDay[] = [
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-    'SUNDAY',
-  ];
+  readonly mode = this.data.mode;
 
   readonly form = signal<DrawChannelConfigForm>({
-    name: '',
-    timezone: '',
-    drawTime: '',
     cutoffSec: null,
-    daysOfWeek: [],
     active: false,
-    period: '',
-    notes: '',
   });
 
   constructor() {
@@ -93,14 +73,8 @@ export class DrawChannelConfigDialog {
       next: detail => {
         this.detail.set(detail);
         this.form.set({
-          name: detail.name ?? '',
-          timezone: detail.timezone ?? '',
-          drawTime: normalizeTime(detail.drawTime),
           cutoffSec: detail.cutoffSec ?? null,
-          daysOfWeek: detail.daysOfWeek ?? [],
           active: detail.active,
-          period: detail.period ?? '',
-          notes: detail.notes ?? '',
         });
         this.loading.set(false);
       },
@@ -121,22 +95,64 @@ export class DrawChannelConfigDialog {
     return Number.isFinite(parsed) ? parsed : null;
   }
 
+  titleKey(): string {
+    return this.mode === 'details'
+      ? 'admin.drawChannels.config.detailsTitle'
+      : 'admin.drawChannels.config.title';
+  }
+
+  drawTimeLabel(detail: DrawChannelDetailView): string {
+    return normalizeTime(detail.drawTime) || '—';
+  }
+
+  timezoneLabel(detail: DrawChannelDetailView): string {
+    return detail.timezone?.trim() || '—';
+  }
+
+  resultModeKey(source: DrawChannelSource | null | undefined): string {
+    return source === 'MANUAL'
+      ? 'admin.drawChannels.config.result.mode.manual'
+      : 'admin.drawChannels.config.result.mode.automatic';
+  }
+
+  resultSourceKey(source: DrawChannelSource | null | undefined): string {
+    return source === 'MANUAL'
+      ? 'admin.drawChannels.config.result.source.manual'
+      : 'admin.drawChannels.config.result.source.provider';
+  }
+
+  resultProviderLabel(detail: DrawChannelDetailView): string {
+    const provider = detail.resultProvider?.trim();
+    if (!provider) return '—';
+    return consoleDrawIdentity({ providerCode: provider }).providerName ?? provider;
+  }
+
+  resultSlotLabel(detail: DrawChannelDetailView): string {
+    return detail.resultProviderSlotCode?.trim() || detail.resultSlotKey?.trim() || '—';
+  }
+
+  resultDaysLabel(detail: DrawChannelDetailView): string {
+    const value = detail.resultSlotDaysOfWeek?.trim();
+    if (!value) return '—';
+    if (value === 'MON-SUN') {
+      return this.translate.instant('admin.drawChannels.list.days.everyDay');
+    }
+    return value;
+  }
+
+  resultProjectionKey(detail: DrawChannelDetailView): string {
+    return detail.resultSlotActive === false
+      ? 'admin.drawChannels.config.result.projection.inactive'
+      : 'admin.drawChannels.config.result.projection.active';
+  }
+
   save(): void {
     const detail = this.detail();
-    if (!detail || this.saving()) return;
+    if (!detail || this.saving() || this.mode === 'details') return;
     const form = this.form();
     const request: UpdateTenantDrawChannelRequest = {
-      name: form.name.trim() || detail.name,
-      label: form.name.trim() || detail.label,
-      timezone: form.timezone.trim() || null,
-      drawTime: form.drawTime || null,
       cutoffSec: form.cutoffSec,
-      daysOfWeek: form.daysOfWeek,
       active: form.active,
-      sortOrder: detail.sortOrder,
-      period: form.period.trim() || null,
-      notes: form.notes.trim() || null,
-      defaultSource: detail.defaultSource ?? null,
     };
 
     this.saving.set(true);

@@ -174,6 +174,11 @@ class CorrectAppliedDrawResultCommandHandlerTest {
                     null,
                     resultSlotId,
                     DrawSource.SYSTEM,
+                    "RS",
+                    "NY",
+                    "MIDDAY",
+                    "MON-SUN",
+                    true,
                     Instant.now(),
                     Instant.now()));
           }

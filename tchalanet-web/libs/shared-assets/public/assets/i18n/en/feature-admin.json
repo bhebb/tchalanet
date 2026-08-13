@@ -1644,6 +1644,7 @@
       },
       "config": {
         "title": "Configure {{name}}",
+        "detailsTitle": "{{name}} details",
         "loading": "Loading channel configuration...",
         "code": "Channel code",
         "name": "Display name",
@@ -1656,9 +1657,38 @@
         "period": "Period",
         "notes": "Notes",
         "active": "Channel active for this operator",
+        "sales": {
+          "title": "Sales",
+          "description": "Choose whether this operator can sell on this draw channel and how long before the draw sales should close."
+        },
+        "system": {
+          "title": "System information",
+          "readonly": "This information comes from the platform catalog. Operator admins cannot edit it here."
+        },
         "error": {
           "load": "The channel configuration could not be loaded.",
           "save": "The channel configuration could not be saved."
+        },
+        "result": {
+          "title": "Results",
+          "mode": {
+            "label": "Mode",
+            "automatic": "Automatic",
+            "manual": "Manual"
+          },
+          "source": {
+            "label": "Source",
+            "provider": "{{provider}}",
+            "manual": "Manual entry"
+          },
+          "providerSlot": "Official draw",
+          "openDays": "Open days",
+          "projection": {
+            "label": "Haiti conversion",
+            "active": "Active",
+            "inactive": "Needs review"
+          },
+          "readonly": "The result source comes from the platform catalog. Tenant admins cannot edit it here."
         },
         "source": {
           "SYSTEM": "System",

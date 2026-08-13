@@ -474,6 +474,7 @@
       },
       "config": {
         "title": "Configurer {{name}}",
+        "detailsTitle": "Détails {{name}}",
         "loading": "Chargement de la configuration du canal...",
         "code": "Code du canal",
         "name": "Nom affiché",
@@ -486,9 +487,38 @@
         "period": "Période",
         "notes": "Notes",
         "active": "Canal actif pour cet espace",
+        "sales": {
+          "title": "Vente",
+          "description": "Choisissez si ce santral peut vendre sur ce canal et combien de temps avant le tirage les ventes doivent fermer."
+        },
+        "system": {
+          "title": "Informations système",
+          "readonly": "Ces informations viennent du catalogue plateforme. L’admin tenant ne les modifie pas ici."
+        },
         "error": {
           "load": "Impossible de charger la configuration du canal.",
           "save": "Impossible d'enregistrer la configuration du canal."
+        },
+        "result": {
+          "title": "Résultats",
+          "mode": {
+            "label": "Mode",
+            "automatic": "Automatique",
+            "manual": "Manuel"
+          },
+          "source": {
+            "label": "Source",
+            "provider": "{{provider}}",
+            "manual": "Saisie manuelle"
+          },
+          "providerSlot": "Tirage officiel",
+          "openDays": "Jours ouverts",
+          "projection": {
+            "label": "Conversion Haïti",
+            "active": "Active",
+            "inactive": "À vérifier"
+          },
+          "readonly": "La source de résultat vient du catalogue plateforme. L’admin tenant ne peut pas la modifier ici."
         },
         "source": {
           "SYSTEM": "Système",

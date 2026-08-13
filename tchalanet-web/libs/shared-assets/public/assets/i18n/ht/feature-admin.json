@@ -1644,6 +1644,7 @@
       },
       "config": {
         "title": "Konfigire {{name}}",
+        "detailsTitle": "Detay {{name}}",
         "loading": "Chajman konfigirasyon kanal la...",
         "code": "Kòd kanal la",
         "name": "Non pou afiche",
@@ -1656,9 +1657,38 @@
         "period": "Peryòd",
         "notes": "Nòt",
         "active": "Kanal aktif pou santral sa a",
+        "sales": {
+          "title": "Vant",
+          "description": "Chwazi si santral la ka vann sou kanal sa a epi konbyen tan anvan tiraj la vant dwe fèmen."
+        },
+        "system": {
+          "title": "Enfòmasyon sistèm",
+          "readonly": "Enfòmasyon sa yo soti nan katalòg platfòm nan. Admin santral la pa modifye yo isit la."
+        },
         "error": {
           "load": "Nou pa kapab chaje konfigirasyon kanal la.",
           "save": "Nou pa kapab anrejistre konfigirasyon kanal la."
+        },
+        "result": {
+          "title": "Rezilta",
+          "mode": {
+            "label": "Mòd",
+            "automatic": "Otomatik",
+            "manual": "Manyèl"
+          },
+          "source": {
+            "label": "Sous",
+            "provider": "{{provider}}",
+            "manual": "Antre manyèl"
+          },
+          "providerSlot": "Tiraj ofisyèl",
+          "openDays": "Jou ouvè",
+          "projection": {
+            "label": "Konvèsyon Ayiti",
+            "active": "Aktif",
+            "inactive": "Pou verifye"
+          },
+          "readonly": "Sous rezilta a soti nan katalòg platfòm nan. Admin santral la pa ka modifye li isit la."
         },
         "source": {
           "SYSTEM": "Sistèm",

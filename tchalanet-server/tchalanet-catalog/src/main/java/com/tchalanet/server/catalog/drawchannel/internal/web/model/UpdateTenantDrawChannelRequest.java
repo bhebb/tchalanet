@@ -1,6 +1,5 @@
 package com.tchalanet.server.catalog.drawchannel.internal.web.model;
 
-import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -16,5 +15,4 @@ public record UpdateTenantDrawChannelRequest(
     Boolean active,
     Integer sortOrder,
     String period,
-    String notes,
-    DrawSource defaultSource) {}
+    String notes) {}

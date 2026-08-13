@@ -76,20 +76,24 @@ export interface DrawChannelDetailView {
   readonly notes?: string | null;
   readonly resultSlotId?: string | null;
   readonly defaultSource?: DrawChannelSource | null;
+  readonly resultSlotKey?: string | null;
+  readonly resultProvider?: string | null;
+  readonly resultProviderSlotCode?: string | null;
+  readonly resultSlotDaysOfWeek?: string | null;
+  readonly resultSlotActive?: boolean | null;
 }
 
 export interface UpdateTenantDrawChannelRequest {
-  readonly name: string;
+  readonly name?: string;
   readonly label?: string | null;
   readonly timezone?: string | null;
   readonly drawTime?: string | null;
   readonly cutoffSec?: number | null;
   readonly daysOfWeek?: readonly DrawChannelWeekDay[] | null;
-  readonly active: boolean;
+  readonly active?: boolean;
   readonly sortOrder?: number | null;
   readonly period?: string | null;
   readonly notes?: string | null;
-  readonly defaultSource?: DrawChannelSource | null;
 }
 
 export interface DrawChannelProviderReadinessView {

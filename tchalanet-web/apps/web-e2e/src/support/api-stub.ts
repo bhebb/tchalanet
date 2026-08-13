@@ -303,6 +303,11 @@ const drawChannelsStub = [
     daysOfWeek: 'MON-SUN',
     active: true,
     resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'HT_TX_1000',
+    resultProvider: 'TX',
+    resultProviderSlotCode: '1000',
+    resultSlotDaysOfWeek: 'MON-SUN',
     saleReadyGameCount: 6,
     offeredGameCount: 6,
   },
@@ -316,6 +321,11 @@ const drawChannelsStub = [
     daysOfWeek: 'MON-SAT',
     active: true,
     resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'GA_EVE',
+    resultProvider: 'GA',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'MON-SAT',
     saleReadyGameCount: 4,
     offeredGameCount: 4,
   },
@@ -329,6 +339,11 @@ const drawChannelsStub = [
     daysOfWeek: 'MON-FRI',
     active: true,
     resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'CA_EVE',
+    resultProvider: 'CA',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'MON-FRI',
     saleReadyGameCount: 0,
     offeredGameCount: 0,
   },
@@ -342,6 +357,11 @@ const drawChannelsStub = [
     daysOfWeek: 'MON-SUN',
     active: false,
     resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'NY_EVE',
+    resultProvider: 'NY',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'MON-SUN',
     saleReadyGameCount: 4,
     offeredGameCount: 4,
   },
@@ -355,6 +375,11 @@ const drawChannelsStub = [
     daysOfWeek: 'SAT,SUN',
     active: true,
     resultSlotActive: false,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'FL_EVE',
+    resultProvider: 'FL',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'SAT,SUN',
     saleReadyGameCount: 4,
     offeredGameCount: 4,
   },
@@ -915,6 +940,37 @@ export class ApiStub {
   /** Deterministic draw-channel configuration data for mobile/desktop UX checks. */
   async adminDrawChannels(): Promise<void> {
     if (!this.enabled) return;
+
+    await this.apiRoute(/\/tenant\/draw-channels\/[^/?]+(?:\?|$)/, async r => {
+      const url = new URL(r.request().url());
+      const id = url.pathname.split('/').pop();
+      const channel = drawChannelsStub.find(item => item.id === id) ?? drawChannelsStub[0];
+      await json(
+        r,
+        envelope({
+          id: channel.id,
+          code: channel.channelCode,
+          name: channel.channelName,
+          label: channel.channelName,
+          timezone: channel.timezone,
+          drawTime: channel.drawTime,
+          cutoffSec: 300,
+          daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
+          active: channel.active,
+          sortOrder: 1,
+          period: null,
+          flags: {},
+          notes: null,
+          resultSlotId: `slot-${channel.id}`,
+          defaultSource: channel.defaultSource,
+          resultSlotKey: channel.resultSlotKey,
+          resultProvider: channel.resultProvider,
+          resultProviderSlotCode: channel.resultProviderSlotCode,
+          resultSlotDaysOfWeek: channel.resultSlotDaysOfWeek,
+          resultSlotActive: channel.resultSlotActive,
+        }),
+      );
+    });
 
     await this.apiRoute(/\/tenant\/draw-channels(?:\?|$)/, r =>
       json(r, envelope(drawChannelsStub)),

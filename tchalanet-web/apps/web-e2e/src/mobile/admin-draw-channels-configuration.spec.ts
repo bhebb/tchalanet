@@ -33,18 +33,25 @@ test.describe('Admin draw-channel configuration — mobile', () => {
     await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
     await expect(firstCard).not.toContainText(/Jeux|Jwèt|Games/);
     await expect(firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ })).toBeVisible();
+    await expect(firstCard.getByRole('button', { name: /Voir détails|Gade detay|View details/ })).toBeVisible();
 
     const configureButton = firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ });
-    const cardBox = await firstCard.boundingBox();
     const buttonBox = await configureButton.boundingBox();
-    expect(cardBox).not.toBeNull();
     expect(buttonBox).not.toBeNull();
-    if (!cardBox || !buttonBox) return;
-    expect(buttonBox.width).toBeGreaterThan(cardBox.width * 0.8);
+    if (!buttonBox) return;
+    expect(buttonBox.height).toBeGreaterThanOrEqual(40);
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
     expect(overflow).toBeLessThanOrEqual(0);
+
+    await configureButton.click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('heading', { name: /Vente|Vant|Sales/ })).toBeVisible();
+    await expect(dialog.getByRole('heading', { name: /Informations système|Enfòmasyon sistèm|System information/ })).toBeVisible();
+    await expect(dialog).toContainText(/Automatique|Otomatik|Automatic/);
+    await expect(dialog).toContainText('Texas');
+    await expect(dialog).toContainText(/Tous les jours|Chak jou|Every day/);
   });
 });

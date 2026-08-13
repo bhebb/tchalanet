@@ -104,7 +104,6 @@ describe('AdminDrawChannelsApiService', () => {
           sortOrder: 11,
           period: 'EVENING',
           notes: null,
-          defaultSource: null,
         },
         { suppressShellFeedback: true },
       ),
@@ -122,7 +121,6 @@ describe('AdminDrawChannelsApiService', () => {
         sortOrder: 11,
         period: 'EVENING',
         notes: null,
-        defaultSource: null,
       },
       { suppressShellFeedback: true },
     );

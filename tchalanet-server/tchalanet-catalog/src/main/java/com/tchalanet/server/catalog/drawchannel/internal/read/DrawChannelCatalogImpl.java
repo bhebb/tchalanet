@@ -16,6 +16,7 @@ import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannel
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelGameRepository;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.json.utils.JsonUtils;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
@@ -81,14 +82,16 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   @Override
   @Cacheable(value = DrawChannelCacheNames.BY_ID, key = "#tenantId.value() + ':' + #id.value()")
   public Optional<DrawChannelView> findById(TenantId tenantId, DrawChannelId id) {
-    return repository.findById(id.value()).map(mapper::toView);
+    return repository.findById(id.value()).map(entity -> toViewWithResultSlot(mapper.toView(entity)));
   }
 
   @Override
   @Cacheable(value = DrawChannelCacheNames.BY_TENANT, key = "#tenantId.value() + ':code:' + #code")
   public Optional<DrawChannelView> findByTenantAndCode(TenantId tenantId, String code) {
     if (code == null || code.isBlank()) return Optional.empty();
-    return repository.findFirstByCodeIgnoreCase(code.trim()).map(mapper::toView);
+    return repository
+        .findFirstByCodeIgnoreCase(code.trim())
+        .map(entity -> toViewWithResultSlot(mapper.toView(entity)));
   }
 
   @Override
@@ -201,7 +204,10 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
             pageReq.pageable().getSort());
 
     Page<DrawChannelEntity> page = repository.findAll(spec, springPageRequest);
-    List<DrawChannelView> items = page.getContent().stream().map(mapper::toView).toList();
+    List<DrawChannelView> items =
+        page.getContent().stream()
+            .map(entity -> toViewWithResultSlot(mapper.toView(entity)))
+            .toList();
 
     return TchPage.of(
         items,
@@ -260,7 +266,9 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
 
   @Override
   public List<DrawChannelView> listAllFull(TenantId tenantId) {
-    return repository.findAllByOrderBySortOrderAsc().stream().map(mapper::toView).toList();
+    return repository.findAllByOrderBySortOrderAsc().stream()
+        .map(entity -> toViewWithResultSlot(mapper.toView(entity)))
+        .toList();
   }
 
   @Override
@@ -280,12 +288,8 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
     int cutoffSec = e.getCutoffSec();
     LocalTime cutoffTime =
         (drawTime == null) ? null : drawTime.minusSeconds(Math.max(0, cutoffSec));
-    boolean resultSlotActive =
-        e.getResultSlotId() != null
-            && resultSlotCatalog
-                .findById(ResultSlotId.of(e.getResultSlotId()))
-                .map(slot -> slot.active())
-                .orElse(false);
+    Optional<ResultSlotView> resultSlot = resultSlot(e.getResultSlotId());
+    boolean resultSlotActive = resultSlot.map(ResultSlotView::active).orElse(false);
 
     return new DrawChannelSummaryView(
         e.getId() == null ? null : e.getId().toString(),
@@ -297,17 +301,47 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         e.getDaysOfWeek(),
         e.isActive(),
         resultSlotActive,
-        defaultSource(e));
+        resultSlot.map(slot -> sourceMode(slot.sourceCfg())).orElse(DrawSource.MANUAL));
   }
 
-  private DrawSource defaultSource(DrawChannelEntity e) {
-    if (e.getResultSlotId() == null) {
-      return DrawSource.MANUAL;
-    }
-    return resultSlotCatalog
-        .findById(ResultSlotId.of(e.getResultSlotId()))
-        .map(slot -> sourceMode(slot.sourceCfg()))
-        .orElse(null);
+  private DrawChannelView toViewWithResultSlot(DrawChannelView view) {
+    Optional<ResultSlotView> resultSlot =
+        view.resultSlotId() == null
+            ? Optional.empty()
+            : resultSlotCatalog.findById(view.resultSlotId());
+    DrawSource defaultSource =
+        resultSlot.map(slot -> sourceMode(slot.sourceCfg())).orElse(DrawSource.MANUAL);
+
+    return new DrawChannelView(
+        view.id(),
+        view.tenantId(),
+        view.code(),
+        view.name(),
+        view.label(),
+        view.timezone(),
+        view.drawTime(),
+        view.cutoffSec(),
+        view.daysOfWeek(),
+        view.active(),
+        view.sortOrder(),
+        view.period(),
+        view.flags(),
+        view.notes(),
+        view.resultSlotId(),
+        defaultSource,
+        resultSlot.map(ResultSlotView::slotKey).orElse(null),
+        resultSlot.map(ResultSlotView::provider).orElse(null),
+        resultSlot.map(slot -> providerSlotCode(slot.sourceCfg())).orElse(null),
+        resultSlot.map(ResultSlotView::daysOfWeek).orElse(null),
+        resultSlot.map(ResultSlotView::active).orElse(null),
+        view.createdAt(),
+        view.updatedAt());
+  }
+
+  private Optional<ResultSlotView> resultSlot(UUID resultSlotId) {
+    return resultSlotId == null
+        ? Optional.empty()
+        : resultSlotCatalog.findById(ResultSlotId.of(resultSlotId));
   }
 
   private DrawSource sourceMode(JsonNode sourceCfg) {
@@ -322,5 +356,11 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
     } catch (IllegalArgumentException ignored) {
       return DrawSource.EXTERNAL;
     }
+  }
+
+  private String providerSlotCode(JsonNode sourceCfg) {
+    JsonNode node = sourceCfg == null ? null : sourceCfg.get("provider_slot_code");
+    String value = node == null || node.isNull() ? null : node.asText("").trim();
+    return value == null || value.isBlank() ? null : value;
   }
 }

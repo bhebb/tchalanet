@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
@@ -54,6 +55,7 @@ interface DrawChannelListRow {
     RouterLink,
     SlicePipe,
     MatButtonModule,
+    MatSlideToggleModule,
     TranslatePipe,
     AdminPageShellComponent,
     AdminRefreshButtonComponent,
@@ -186,15 +188,27 @@ export class AdminDrawChannelsPage implements OnInit {
   }
 
   openChannelConfig(slot: DrawChannelSlotConfigView): void {
+    this.openChannelDialog(slot, 'configure');
+  }
+
+  openChannelDetails(slot: DrawChannelSlotConfigView): void {
+    this.openChannelDialog(slot, 'details');
+  }
+
+  private openChannelDialog(
+    slot: DrawChannelSlotConfigView,
+    mode: 'configure' | 'details',
+  ): void {
     if (!slot.channelId) return;
     this.dialog
       .open(DrawChannelConfigDialog, {
         data: {
           channelId: slot.channelId,
           label: slot.label,
+          mode,
         },
-        maxWidth: '640px',
-        width: 'min(640px, 96vw)',
+        maxWidth: mode === 'details' ? '680px' : '640px',
+        width: mode === 'details' ? 'min(680px, 96vw)' : 'min(640px, 96vw)',
       })
       .afterClosed()
       .subscribe(saved => {

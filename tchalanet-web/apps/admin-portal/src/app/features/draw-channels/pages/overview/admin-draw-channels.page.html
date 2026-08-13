@@ -108,10 +108,27 @@
                 </div>
               </div>
 
-              <tch-admin-status-pill
-                [label]="rowStatusLabelKey(row.status) | translate"
-                [tone]="rowStatusTone(row.status)"
-              />
+              <div class="dc-page__state-control">
+                @if (row.status === 'attention') {
+                  <tch-admin-status-pill
+                    [label]="rowStatusLabelKey(row.status) | translate"
+                    [tone]="rowStatusTone(row.status)"
+                  />
+                }
+                <mat-slide-toggle
+                  class="dc-page__active-toggle"
+                  [checked]="slot.enabled"
+                  [disabled]="!slot.channelId || savingChannelId() === slot.channelId"
+                  [attr.aria-label]="(slot.enabled
+                    ? 'admin.drawChannels.slots.toggle.disable'
+                    : 'admin.drawChannels.slots.toggle.enable') | translate"
+                  (change)="toggleChannelEnabled(slot, $event.checked)"
+                >
+                  {{ (slot.enabled
+                    ? 'admin.drawChannels.slots.saleEnabled'
+                    : 'admin.drawChannels.slots.saleDisabled') | translate }}
+                </mat-slide-toggle>
+              </div>
             </header>
 
             <div class="dc-page__card-state">
@@ -129,13 +146,25 @@
                   }
                 </strong>
               </p>
-              <p class="dc-page__cutoff">
-                @if (slot.cutoffTime) {
-                  {{ 'admin.drawChannels.slots.cutoffTime' | translate: { value: (slot.cutoffTime | slice:0:5) } }}
-                } @else {
-                  {{ 'admin.drawChannels.salesCutoffMissing' | translate }}
-                }
-              </p>
+              <div class="dc-page__cutoff-row">
+                <p class="dc-page__cutoff">
+                  @if (slot.cutoffTime) {
+                    {{ 'admin.drawChannels.slots.cutoffTime' | translate: { value: (slot.cutoffTime | slice:0:5) } }}
+                  } @else {
+                    {{ 'admin.drawChannels.salesCutoffMissing' | translate }}
+                  }
+                </p>
+                <button
+                  mat-icon-button
+                  type="button"
+                  class="dc-page__cutoff-edit"
+                  [disabled]="!slot.channelId"
+                  [attr.aria-label]="'common.edit' | translate"
+                  (click)="openChannelConfig(slot)"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
+              </div>
               <p class="dc-page__days">
                 {{ 'admin.drawChannels.list.days.label' | translate: { value: daysOfWeekLabel(slot.daysOfWeek) } }}
               </p>
@@ -150,6 +179,14 @@
                 (click)="openChannelConfig(slot)"
               >
                 {{ 'admin.drawChannels.actions.configure' | translate }}
+              </button>
+              <button
+                mat-button
+                [disabled]="!slot.channelId"
+                (click)="openChannelDetails(slot)"
+              >
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                {{ 'admin.drawChannels.actions.viewDetails' | translate }}
               </button>
             </div>
           </article>

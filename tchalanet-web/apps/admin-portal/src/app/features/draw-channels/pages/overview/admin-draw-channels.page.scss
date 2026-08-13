@@ -138,6 +138,21 @@
     min-width: 0;
   }
 
+  &__state-control {
+    align-items: center;
+    display: inline-flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  &__active-toggle {
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-label-sm, 0.6875rem);
+    font-weight: var(--tch-weight-semibold, 600);
+  }
+
   &__channel-main {
     align-items: flex-start;
     display: flex;
@@ -216,6 +231,26 @@
     gap: 0.125rem;
   }
 
+  &__cutoff-row {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  &__cutoff-edit {
+    --mdc-icon-button-state-layer-size: 1.875rem;
+    color: var(--tch-color-primary);
+    flex: 0 0 auto;
+    height: 1.875rem;
+    padding: 0;
+    width: 1.875rem;
+
+    .material-symbols-outlined {
+      font-size: 1rem;
+    }
+  }
+
   &__time {
     align-items: baseline;
     display: flex;
@@ -244,10 +279,18 @@
 
   &__channel-action {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     justify-content: flex-start;
 
     button {
-      width: 100%;
+      flex: 1 1 10rem;
+      min-height: 2.75rem;
+
+      .material-symbols-outlined {
+        font-size: 1.125rem;
+        margin-inline-end: 0.25rem;
+      }
     }
   }
 

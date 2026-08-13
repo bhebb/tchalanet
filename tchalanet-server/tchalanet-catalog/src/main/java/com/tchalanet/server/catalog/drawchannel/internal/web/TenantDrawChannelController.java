@@ -90,7 +90,7 @@ public class TenantDrawChannelController {
             req.period() == null ? existing.period() : req.period(),
             req.notes() == null ? existing.notes() : req.notes(),
             existing.resultSlotId(),
-            req.defaultSource() == null ? existing.defaultSource() : req.defaultSource());
+            existing.defaultSource());
     var view = adminService.updateFromRequest(id, update);
     return ApiResponse.success(view);
   }

@@ -54,7 +54,7 @@ class DrawResultAuditSpringIntegrationTest extends BusinessRuntimeIntegrationTes
         .allSatisfy(
             row -> {
               assertThat(row.get("active")).isEqualTo(true);
-              assertThat(row.get("source_mode")).isNull();
+              assertThat(row.get("source_mode")).isEqualTo("EXTERNAL");
             });
   }
 
