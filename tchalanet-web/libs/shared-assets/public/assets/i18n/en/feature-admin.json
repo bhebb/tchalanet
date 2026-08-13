@@ -1647,12 +1647,15 @@
         "detailsTitle": "{{name}} details",
         "loading": "Loading channel configuration...",
         "code": "Channel code",
-        "name": "Display name",
+        "name": "Draw channel name",
         "timezone": "Timezone",
         "drawTime": "Draw time",
         "salesOpenTime": "Sales open",
+        "salesCloseTime": "Sales close",
         "cutoffSec": "Sales close before draw (seconds)",
         "daysOfWeek": "Open days",
+        "openDaysHint": "The result slot is open: {{days}}",
+        "salesStopBeforeDraw": "This draw stops selling tickets {{minutes}} minutes before {{drawTime}}.",
         "defaultSource": "Default result source",
         "noSource": "No source configured",
         "period": "Period",
@@ -1661,6 +1664,11 @@
         "sales": {
           "title": "Sales",
           "description": "Choose whether this operator can sell on this draw channel, when sales open, which days are sold, and how long before the draw sales should close."
+        },
+        "warning": {
+          "salesOpenAfterDraw": "Sales opening must be before or at the draw time.",
+          "salesCloseAtDraw": "Sales cannot close exactly at draw time. Choose an earlier time.",
+          "salesCloseAfterDraw": "Sales closing must be before the draw time."
         },
         "system": {
           "title": "System information",

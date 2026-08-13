@@ -1647,12 +1647,15 @@
         "detailsTitle": "Detay {{name}}",
         "loading": "Chajman konfigirasyon kanal la...",
         "code": "Kòd kanal la",
-        "name": "Non pou afiche",
+        "name": "Non jwèt tiraj la",
         "timezone": "Zòn lè",
         "drawTime": "Lè tiraj",
-        "salesOpenTime": "Vant ouvè",
+        "salesOpenTime": "Lè tiraj sa louvri",
+        "salesCloseTime": "Lè tiraj sa fèmen",
         "cutoffSec": "Fèmti vant anvan tiraj (segonn)",
         "daysOfWeek": "Jou ouvè",
+        "openDaysHint": "Result slot la ouvè: {{days}}",
+        "salesStopBeforeDraw": "Tiraj sa a sispann vann tikè {{minutes}} minit avan {{drawTime}}.",
         "defaultSource": "Sous rezilta pa defo",
         "noSource": "Pa gen sous konfigire",
         "period": "Peryòd",
@@ -1661,6 +1664,11 @@
         "sales": {
           "title": "Vant",
           "description": "Chwazi si santral la ka vann sou kanal sa a, lè vant ouvè, jou vant ouvè, epi konbyen tan anvan tiraj la vant dwe fèmen."
+        },
+        "warning": {
+          "salesOpenAfterDraw": "Lè vant ouvè a dwe avan oswa menm lè ak lè tiraj la.",
+          "salesCloseAtDraw": "Vant pa dwe fèmen menm lè ak tiraj la. Mete yon lè ki pi bonè.",
+          "salesCloseAfterDraw": "Lè vant fèmen an dwe avan lè tiraj la."
         },
         "system": {
           "title": "Enfòmasyon sistèm",

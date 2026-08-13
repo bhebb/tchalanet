@@ -20,9 +20,21 @@ public class DrawChannelErrorCodes {
       validation("catalog.drawchannel.flags_required");
   public static final ErrorDescriptor FLAGS_INVALID =
       validation("catalog.drawchannel.flags_invalid");
+  public static final ErrorDescriptor DAYS_NOT_SUPPORTED_BY_RESULT_SLOT =
+      validation("catalog.drawchannel.days_not_supported_by_result_slot");
+  public static final ErrorDescriptor SALES_OPEN_AFTER_DRAW_TIME =
+      validation("catalog.drawchannel.sales_open_after_draw_time");
+  public static final ErrorDescriptor SALES_CLOSE_NOT_BEFORE_DRAW_TIME =
+      validation("catalog.drawchannel.sales_close_not_before_draw_time");
 
   public static Set<ErrorDescriptor> all() {
-    return Set.of(DELETED, FLAGS_REQUIRED, FLAGS_INVALID);
+    return Set.of(
+        DELETED,
+        FLAGS_REQUIRED,
+        FLAGS_INVALID,
+        DAYS_NOT_SUPPORTED_BY_RESULT_SLOT,
+        SALES_OPEN_AFTER_DRAW_TIME,
+        SALES_CLOSE_NOT_BEFORE_DRAW_TIME);
   }
 
   private static ErrorDescriptor notFound(String code) {

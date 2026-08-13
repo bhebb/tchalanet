@@ -35,18 +35,35 @@
               [value]="form().salesOpenTime"
               (input)="patchForm({ salesOpenTime: $any($event.target).value })"
             />
+            @if (salesOpenAfterDraw()) {
+            <mat-hint class="dc-config__warning">
+              {{ 'admin.drawChannels.config.warning.salesOpenAfterDraw' | translate }}
+            </mat-hint>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>{{ 'admin.drawChannels.config.cutoffSec' | translate }}</mat-label>
+            <mat-label>{{ 'admin.drawChannels.config.salesCloseTime' | translate }}</mat-label>
             <input
               matInput
-              type="number"
-              min="0"
-              step="30"
-              [value]="form().cutoffSec ?? ''"
-              (input)="patchForm({ cutoffSec: parseNumber($any($event.target).value) })"
+              type="time"
+              [value]="form().salesCloseTime"
+              (input)="patchForm({ salesCloseTime: $any($event.target).value })"
             />
+            @if (salesCloseAtDrawTime()) {
+            <mat-hint class="dc-config__warning">
+              {{ 'admin.drawChannels.config.warning.salesCloseAtDraw' | translate }}
+            </mat-hint>
+            } @else if (salesCloseAfterDraw()) {
+            <mat-hint class="dc-config__warning">
+              {{ 'admin.drawChannels.config.warning.salesCloseAfterDraw' | translate }}
+            </mat-hint>
+            } @else if (salesStopNote(); as note) {
+            <mat-hint>
+              {{ 'admin.drawChannels.config.salesStopBeforeDraw' | translate: { minutes:
+              note.minutes, drawTime: note.drawTime } }}
+            </mat-hint>
+            }
           </mat-form-field>
         </div>
 
@@ -57,10 +74,23 @@
             [value]="form().daysOfWeek"
             (selectionChange)="patchForm({ daysOfWeek: $event.value })"
           >
-            @for (day of weekDays; track day) {
+            @for (day of supportedWeekDays(); track day) {
             <mat-option [value]="day">{{ dayLabelKey(day) | translate }}</mat-option>
             }
           </mat-select>
+          <mat-hint>
+            {{ 'admin.drawChannels.config.openDaysHint' | translate: { days: resultDaysLabel(d) } }}
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="dc-config__full">
+          <mat-label>{{ 'admin.drawChannels.config.notes' | translate }}</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [value]="form().notes"
+            (input)="patchForm({ notes: $any($event.target).value })"
+          ></textarea>
         </mat-form-field>
       </section>
     </div>
@@ -121,7 +151,12 @@
   <button mat-button mat-dialog-close [disabled]="saving()">
     {{ 'common.cancel' | translate }}
   </button>
-  <button mat-flat-button color="primary" [disabled]="loading() || saving()" (click)="save()">
+  <button
+    mat-flat-button
+    color="primary"
+    [disabled]="loading() || saving() || !canSave()"
+    (click)="save()"
+  >
     {{ (saving() ? 'common.saving' : 'common.save') | translate }}
   </button>
   }

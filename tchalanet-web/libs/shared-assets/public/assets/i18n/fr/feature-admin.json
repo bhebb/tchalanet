@@ -477,12 +477,15 @@
         "detailsTitle": "Détails {{name}}",
         "loading": "Chargement de la configuration du canal...",
         "code": "Code du canal",
-        "name": "Nom affiché",
+        "name": "Nom du canal de tirage",
         "timezone": "Fuseau horaire",
         "drawTime": "Heure du tirage",
         "salesOpenTime": "Ouverture des ventes",
+        "salesCloseTime": "Fermeture des ventes",
         "cutoffSec": "Fermeture avant tirage (secondes)",
         "daysOfWeek": "Jours ouverts",
+        "openDaysHint": "Le créneau de résultat est ouvert : {{days}}",
+        "salesStopBeforeDraw": "Ce tirage arrête de vendre des billets {{minutes}} minutes avant {{drawTime}}.",
         "defaultSource": "Source résultat par défaut",
         "noSource": "Aucune source configurée",
         "period": "Période",
@@ -491,6 +494,11 @@
         "sales": {
           "title": "Vente",
           "description": "Choisissez si ce santral peut vendre sur ce canal, l'heure d'ouverture des ventes, les jours vendus et combien de temps avant le tirage les ventes doivent fermer."
+        },
+        "warning": {
+          "salesOpenAfterDraw": "L'ouverture des ventes doit être avant ou à l'heure du tirage.",
+          "salesCloseAtDraw": "Les ventes ne peuvent pas fermer exactement à l'heure du tirage. Choisissez une heure plus tôt.",
+          "salesCloseAfterDraw": "La fermeture des ventes doit être avant l'heure du tirage."
         },
         "system": {
           "title": "Informations système",

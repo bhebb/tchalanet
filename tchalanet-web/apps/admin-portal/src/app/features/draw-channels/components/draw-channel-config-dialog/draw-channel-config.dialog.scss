@@ -30,6 +30,11 @@
   margin: 0;
 }
 
+.dc-config__warning {
+  color: var(--tch-color-error, #b3261e);
+  font-weight: 600;
+}
+
 .dc-config__body {
   display: grid;
   gap: 16px;

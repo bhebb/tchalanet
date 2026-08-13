@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,8 +26,9 @@ interface DrawChannelConfigDialogData {
 
 interface DrawChannelConfigForm {
   readonly salesOpenTime: string;
-  readonly cutoffSec: number | null;
+  readonly salesCloseTime: string;
   readonly daysOfWeek: readonly DrawChannelWeekDay[];
+  readonly notes: string;
   readonly active: boolean;
 }
 
@@ -61,12 +62,55 @@ export class DrawChannelConfigDialog {
   readonly detail = signal<DrawChannelDetailView | null>(null);
   readonly title = this.data.label;
   readonly mode = this.data.mode;
-  readonly weekDays = DAY_ORDER;
+  readonly supportedWeekDays = computed(() =>
+    expandResultSlotDays(this.detail()?.resultSlotDaysOfWeek),
+  );
+  readonly salesOpenAfterDraw = computed(() => {
+    const detail = this.detail();
+    if (!detail) return false;
+    const draw = minutesOfDay(normalizeTime(detail.drawTime));
+    const open = minutesOfDay(this.form().salesOpenTime);
+    return draw != null && open != null && open > draw;
+  });
+  readonly salesCloseAtDrawTime = computed(() => {
+    const detail = this.detail();
+    if (!detail) return false;
+    const draw = minutesOfDay(normalizeTime(detail.drawTime));
+    const close = minutesOfDay(this.form().salesCloseTime);
+    return draw != null && close != null && close === draw;
+  });
+  readonly salesCloseAfterDraw = computed(() => {
+    const detail = this.detail();
+    if (!detail) return false;
+    const draw = minutesOfDay(normalizeTime(detail.drawTime));
+    const close = minutesOfDay(this.form().salesCloseTime);
+    return draw != null && close != null && close > draw;
+  });
+  readonly salesStopNote = computed(() => {
+    const detail = this.detail();
+    if (!detail) return null;
+    const drawTime = normalizeTime(detail.drawTime);
+    const draw = minutesOfDay(drawTime);
+    const close = minutesOfDay(this.form().salesCloseTime);
+    if (draw == null || close == null || close >= draw) return null;
+    return {
+      minutes: draw - close,
+      drawTime: formatDrawTimeForSalesNote(drawTime, this.translate.currentLang),
+    };
+  });
+  readonly canSave = computed(
+    () =>
+      this.form().daysOfWeek.length > 0 &&
+      !this.salesOpenAfterDraw() &&
+      !this.salesCloseAtDrawTime() &&
+      !this.salesCloseAfterDraw(),
+  );
 
   readonly form = signal<DrawChannelConfigForm>({
     salesOpenTime: '00:00',
-    cutoffSec: null,
+    salesCloseTime: '',
     daysOfWeek: [],
+    notes: '',
     active: false,
   });
 
@@ -80,10 +124,12 @@ export class DrawChannelConfigDialog {
     this.api.getChannelDetail(this.data.channelId, { suppressShellFeedback: true }).subscribe({
       next: detail => {
         this.detail.set(detail);
+        const supportedDays = expandResultSlotDays(detail.resultSlotDaysOfWeek);
         this.form.set({
           salesOpenTime: normalizeTime(detail.salesOpenTime) || '00:00',
-          cutoffSec: detail.cutoffSec ?? null,
-          daysOfWeek: detail.daysOfWeek ?? expandResultSlotDays(detail.resultSlotDaysOfWeek),
+          salesCloseTime: salesCloseTime(detail.drawTime, detail.cutoffSec),
+          daysOfWeek: supportedTenantDays(detail.daysOfWeek, supportedDays),
+          notes: detail.notes ?? '',
           active: detail.active,
         });
         this.loading.set(false);
@@ -97,12 +143,6 @@ export class DrawChannelConfigDialog {
 
   patchForm(patch: Partial<DrawChannelConfigForm>): void {
     this.form.update(current => ({ ...current, ...patch }));
-  }
-
-  parseNumber(value: string): number | null {
-    if (!value.trim()) return null;
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
   }
 
   titleKey(): string {
@@ -150,12 +190,15 @@ export class DrawChannelConfigDialog {
   }
 
   resultDaysLabel(detail: DrawChannelDetailView): string {
-    const value = detail.resultSlotDaysOfWeek?.trim();
-    if (!value) return '—';
-    if (value === 'MON-SUN') {
+    return this.daysLabel(expandResultSlotDays(detail.resultSlotDaysOfWeek));
+  }
+
+  daysLabel(days: readonly DrawChannelWeekDay[]): string {
+    if (!days.length) return '—';
+    if (days.length === DAY_ORDER.length) {
       return this.translate.instant('admin.drawChannels.list.days.everyDay');
     }
-    return value;
+    return days.map(day => this.translate.instant(this.dayLabelKey(day))).join(', ');
   }
 
   resultProjectionKey(detail: DrawChannelDetailView): string {
@@ -166,12 +209,13 @@ export class DrawChannelConfigDialog {
 
   save(): void {
     const detail = this.detail();
-    if (!detail || this.saving() || this.mode === 'details') return;
+    if (!detail || this.saving() || this.mode === 'details' || !this.canSave()) return;
     const form = this.form();
     const request: UpdateTenantDrawChannelRequest = {
       salesOpenTime: form.salesOpenTime || null,
-      cutoffSec: form.cutoffSec,
+      cutoffSec: cutoffSeconds(detail.drawTime, form.salesCloseTime),
       daysOfWeek: form.daysOfWeek,
+      notes: form.notes.trim() || null,
       active: form.active,
     };
 
@@ -195,6 +239,60 @@ export class DrawChannelConfigDialog {
 function normalizeTime(value: string | null | undefined): string {
   return value ? value.slice(0, 5) : '';
 }
+
+function salesCloseTime(
+  drawTime: string | null | undefined,
+  cutoffSec: number | null | undefined,
+): string {
+  const draw = minutesOfDay(normalizeTime(drawTime));
+  if (draw == null || cutoffSec == null) return '';
+  return timeOfDay(draw - Math.round(cutoffSec / 60));
+}
+
+function cutoffSeconds(drawTime: string | null | undefined, closeTime: string): number | null {
+  const draw = minutesOfDay(normalizeTime(drawTime));
+  const close = minutesOfDay(closeTime);
+  if (draw == null || close == null) return null;
+  return ((draw - close + MINUTES_PER_DAY) % MINUTES_PER_DAY) * 60;
+}
+
+function minutesOfDay(value: string): number | null {
+  const [hourValue, minuteValue] = value.split(':');
+  const hour = Number(hourValue);
+  const minute = Number(minuteValue);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return hour * 60 + minute;
+}
+
+function timeOfDay(totalMinutes: number): string {
+  const minutes = ((totalMinutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+function formatDrawTimeForSalesNote(value: string, language: string | undefined): string {
+  const minutes = minutesOfDay(value);
+  if (minutes == null) return value;
+  const hour24 = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  if (language?.startsWith('ht')) {
+    const period = hour24 < 12 ? 'maten' : 'aswè';
+    const hour12 = hour24 % 12 || 12;
+    return minute === 0
+      ? `${hour12}zè ${period}`
+      : `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+  }
+  if (language?.startsWith('en')) {
+    const period = hour24 < 12 ? 'AM' : 'PM';
+    const hour12 = hour24 % 12 || 12;
+    return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+  }
+  return value;
+}
+
+const MINUTES_PER_DAY = 24 * 60;
 
 const DAY_ORDER: readonly DrawChannelWeekDay[] = [
   'MONDAY',
@@ -233,6 +331,15 @@ function expandResultSlotDays(value: string | null | undefined): readonly DrawCh
     }
   }
   return DAY_ORDER.filter(day => days.has(day));
+}
+
+function supportedTenantDays(
+  tenantDays: readonly DrawChannelWeekDay[] | null | undefined,
+  supportedDays: readonly DrawChannelWeekDay[],
+): readonly DrawChannelWeekDay[] {
+  const requested = tenantDays?.length ? tenantDays : supportedDays;
+  const supported = new Set(supportedDays);
+  return DAY_ORDER.filter(day => requested.includes(day) && supported.has(day));
 }
 
 function dayToken(token: string): DrawChannelWeekDay | null {
