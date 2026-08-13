@@ -57,20 +57,32 @@
 
   <dl class="gp-game-card__facts">
     <div class="gp-game-card__fact">
-      <dt>{{ 'admin.gamesPricing.card.fact.pos' | translate }}</dt>
-      <dd>{{ posLabelKey(g) | translate }}</dd>
+      <span class="material-symbols-outlined" aria-hidden="true">point_of_sale</span>
+      <div>
+        <dt>{{ 'admin.gamesPricing.card.fact.pos' | translate }}</dt>
+        <dd>{{ posLabelKey(g) | translate }}</dd>
+      </div>
     </div>
     <div class="gp-game-card__fact">
-      <dt>{{ 'admin.gamesPricing.card.fact.stakes' | translate }}</dt>
-      <dd>{{ stakeLabel(g) }}</dd>
+      <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+      <div>
+        <dt>{{ 'admin.gamesPricing.card.fact.stakes' | translate }}</dt>
+        <dd>{{ stakeLabel(g) }}</dd>
+      </div>
     </div>
     <div class="gp-game-card__fact">
-      <dt>{{ 'admin.gamesPricing.card.fact.payouts' | translate }}</dt>
-      <dd>{{ pricingLabel(g) }}</dd>
+      <span class="material-symbols-outlined" aria-hidden="true">price_check</span>
+      <div>
+        <dt>{{ 'admin.gamesPricing.card.fact.payouts' | translate }}</dt>
+        <dd>{{ pricingLabel(g) }}</dd>
+      </div>
     </div>
-    <div class="gp-game-card__fact">
-      <dt>{{ 'admin.gamesPricing.card.fact.availability' | translate }}</dt>
-      <dd>{{ availabilityLabelKey(g) | translate }}</dd>
+    <div class="gp-game-card__fact gp-game-card__fact--{{ availabilityState(g) }}">
+      <span class="material-symbols-outlined" aria-hidden="true">{{ availabilityIcon(g) }}</span>
+      <div>
+        <dt>{{ 'admin.gamesPricing.card.fact.availability' | translate }}</dt>
+        <dd>{{ availabilityLabelKey(g) | translate }}</dd>
+      </div>
     </div>
   </dl>
 

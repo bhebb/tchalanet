@@ -10,6 +10,7 @@ import { type DrawChannelSlotConfigView } from '../../data-access/admin-draw-cha
 
 export type DrawChannelListResultMode = 'AUTO' | 'MANUAL' | 'UNCONFIGURED';
 export type DrawChannelListStatus = 'active' | 'attention' | 'inactive';
+type DrawChannelSaleAvailabilityState = 'available' | 'attention' | 'unavailable';
 
 export interface DrawChannelListItemView {
   readonly providerCode: string;
@@ -53,7 +54,20 @@ export class DrawChannelListItemComponent {
     return `admin.drawChannels.list.resultMode.${mode}`;
   }
 
-  messageLabelKey(row: DrawChannelListItemView): string {
+  saleAvailabilityState(row: DrawChannelListItemView): DrawChannelSaleAvailabilityState {
+    if (!row.slot.enabled) return 'unavailable';
+    if (!row.slot.drawTime || row.slot.resultSlotActive === false) return 'attention';
+    return 'available';
+  }
+
+  saleAvailabilityIcon(row: DrawChannelListItemView): string {
+    const state = this.saleAvailabilityState(row);
+    if (state === 'available') return 'check_circle';
+    if (state === 'attention') return 'warning';
+    return 'block';
+  }
+
+  saleAvailabilityLabelKey(row: DrawChannelListItemView): string {
     if (!row.slot.enabled) return 'admin.drawChannels.list.message.inactive';
     if (!row.slot.drawTime) return 'admin.drawChannels.list.message.missingSchedule';
     if (row.slot.resultSlotActive === false)

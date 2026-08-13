@@ -89,6 +89,11 @@ export class DrawSalesMatrixSlotPanelComponent {
     return 'admin.drawSalesMatrix.slot.status.notConfigured';
   }
 
+  protected cutoffMinutes(cutoffSec: number | null | undefined): number {
+    if (cutoffSec == null) return 0;
+    return Math.max(0, Math.round(cutoffSec / 60));
+  }
+
   protected feedbackKey(slot: SlotMatrixView, game: ChannelGameSetupView): string | null {
     const drawChannelId = slot.channel?.drawChannelId.value;
     return drawChannelId ? `${drawChannelId}:${game.tenantGameId.value}` : null;

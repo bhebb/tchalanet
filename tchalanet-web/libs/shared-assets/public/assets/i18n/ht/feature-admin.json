@@ -740,8 +740,8 @@
         "systemGame": "Jwèt sistèm · {{name}}",
         "saleActive": "Vann jwèt sa a: aktive",
         "saleDisabled": "Vann jwèt sa a: dezaktive",
-        "posVisible": "Vizib sou POS",
-        "posHidden": "Kache sou POS",
+        "posVisible": "Sou machin vant",
+        "posHidden": "Kache sou machin vant",
         "posYes": "Wi",
         "posNo": "Non",
         "saleEnabledShort": "An vant",
@@ -755,11 +755,12 @@
         "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} opsyon barèm",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
-        "availabilityReview": "Verifye tiraj yo",
+        "availabilityReview": "Disponib pou vann",
+        "availabilityNeedsConfig": "Pou verifye avan vant",
         "availabilityUnavailable": "Pa disponib sou tiraj yo",
         "standardPricingProfile": "Barèm estanda",
         "fact": {
-          "pos": "POS",
+          "pos": "Machin vant",
           "stakes": "Miz",
           "payouts": "Barèm",
           "availability": "Disponib"
@@ -779,6 +780,11 @@
           "maryaj": "Konfigire Maryaj gratis",
           "availability": "Disponiblite pa tiraj"
         }
+      },
+      "confirm": {
+        "disableTitle": "Dezaktive {{name}}?",
+        "disableMessage": "Vandè yo p ap ka vann jwèt sa a apre chanjman an.",
+        "disableAction": "Dezaktive"
       }
     },
     "maryajGratis": {
@@ -1165,7 +1171,7 @@
         "label": "Kanal tiraj",
         "settingsTitle": "Paramèt tiraj",
         "salesOpen": "Ouvèti vant : {{value}}",
-        "cutoff": "Fèmti vant : {{seconds}}s avan tiraj la",
+        "cutoff": "Tiraj sa a sispann vann tikè {{minutes}} minit avan {{drawTime}}.",
         "activeGames": "{{count}} jwèt aktif",
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
         "dependsOnAnother": "Depann de yon lòt règ",
@@ -1642,8 +1648,8 @@
           "everyDay": "Chak jou"
         },
         "message": {
-          "active": "Kanal sa a disponib pou vann.",
-          "inactive": "Kanal sa a pa aktif pou vann.",
+          "active": "Disponib pou vann",
+          "inactive": "Pa disponib pou vann",
           "missingSchedule": "Lè tiraj la bezwen konfigire.",
           "noGames": "Pa gen jwèt ki disponib sou tiraj sa a.",
           "sourceInactive": "Sous rezilta a bezwen verifye."
@@ -1659,6 +1665,11 @@
         "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap disponib byento.",
         "saved": "Konfigirasyon {{provider}} anrejistre.",
         "channelSaved": "Kanal tiraj la anrejistre."
+      },
+      "confirm": {
+        "disableTitle": "Dezaktive {{name}}?",
+        "disableMessage": "Santral la p ap ka vann tikè sou kanal tiraj sa a apre chanjman an.",
+        "disableAction": "Dezaktive"
       },
       "config": {
         "title": "Konfigire {{name}}",

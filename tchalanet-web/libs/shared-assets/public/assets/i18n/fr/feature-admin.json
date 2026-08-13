@@ -455,8 +455,8 @@
           "everyDay": "Tous les jours"
         },
         "message": {
-          "active": "Ce canal est disponible à la vente.",
-          "inactive": "Ce canal n'est pas actif pour la vente.",
+          "active": "Disponible à la vente",
+          "inactive": "Non disponible à la vente",
           "missingSchedule": "L'heure du tirage doit être configurée.",
           "noGames": "Aucun jeu n'est disponible sur ce tirage.",
           "sourceInactive": "La source de résultats doit être vérifiée."
@@ -472,6 +472,11 @@
         "configureUnavailable": "La configuration directe de {{provider}} sera bientôt disponible.",
         "saved": "Configuration de {{provider}} enregistrée.",
         "channelSaved": "Configuration du canal de tirage enregistrée."
+      },
+      "confirm": {
+        "disableTitle": "Désactiver {{name}} ?",
+        "disableMessage": "Le santral ne pourra plus vendre de tickets sur ce canal de tirage après ce changement.",
+        "disableAction": "Désactiver"
       },
       "config": {
         "title": "Configurer {{name}}",
@@ -1413,8 +1418,8 @@
         "systemGame": "Jeu système · {{name}}",
         "saleActive": "Vente du jeu : active",
         "saleDisabled": "Vente du jeu : désactivée",
-        "posVisible": "Visible sur POS",
-        "posHidden": "Masqué POS",
+        "posVisible": "Sur appareil de vente",
+        "posHidden": "Masqué sur appareil de vente",
         "posYes": "Oui",
         "posNo": "Non",
         "saleEnabledShort": "En vente",
@@ -1428,11 +1433,12 @@
         "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} option(s) de barème",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
-        "availabilityReview": "Vérifier les tirages",
+        "availabilityReview": "Disponible à la vente",
+        "availabilityNeedsConfig": "À vérifier avant vente",
         "availabilityUnavailable": "Indisponible sur les tirages",
         "standardPricingProfile": "Barème standard",
         "fact": {
-          "pos": "POS",
+          "pos": "Appareil de vente",
           "stakes": "Mises",
           "payouts": "Barème",
           "availability": "Disponible"
@@ -1452,6 +1458,11 @@
           "maryaj": "Configurer Maryaj gratis",
           "availability": "Disponibilité par tirage"
         }
+      },
+      "confirm": {
+        "disableTitle": "Désactiver {{name}} ?",
+        "disableMessage": "Les vendeurs ne pourront plus vendre ce jeu après ce changement.",
+        "disableAction": "Désactiver"
       }
     },
     "maryajGratis": {
@@ -1838,7 +1849,7 @@
         "label": "Canal",
         "settingsTitle": "Paramètres du tirage",
         "salesOpen": "Ouverture vente : {{value}}",
-        "cutoff": "Cutoff : {{seconds}}s avant le tirage",
+        "cutoff": "Ce tirage arrête la vente {{minutes}} minute(s) avant {{drawTime}}.",
         "activeGames": "{{count}} jeu(x) actif(s)",
         "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
         "dependsOnAnother": "Dépend d'un autre canal",

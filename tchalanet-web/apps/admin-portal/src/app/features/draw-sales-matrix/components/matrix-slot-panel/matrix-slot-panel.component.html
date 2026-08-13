@@ -41,7 +41,16 @@
         </span>
         <span class="matrix-channel-info__facts">
           <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
-          <span>{{ 'admin.drawSalesMatrix.channel.cutoff' | translate: { seconds: channel.cutoffSec } }}</span>
+          <span>
+            {{
+              'admin.drawSalesMatrix.channel.cutoff'
+                | translate
+                  : {
+                      minutes: cutoffMinutes(channel.cutoffSec),
+                      drawTime: channel.drawTime ?? '-'
+                    }
+            }}
+          </span>
           @if (channel.dependsOnChannelId) {
             <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
           }

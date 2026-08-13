@@ -20,6 +20,7 @@ const STATUS_TONE: Record<TenantGameStatus, AdminStatusTone> = {
 
 const MARYAJ_GRATIS_GAME_CODES = new Set(['HT_MARYAJ_GRATIS', 'HT_MARYAJ_GRATUIT']);
 type TenantGameListStatus = 'active' | 'attention' | 'inactive' | 'unavailable';
+type TenantGameAvailabilityState = 'available' | 'attention' | 'unavailable';
 
 export interface TenantGameCardError {
   readonly title: string;
@@ -136,9 +137,26 @@ export class TenantGameCardComponent {
   }
 
   availabilityLabelKey(game: TenantGamePricingView): string {
-    return game.tenantStatus === 'UNAVAILABLE'
-      ? 'admin.gamesPricing.card.availabilityUnavailable'
-      : 'admin.gamesPricing.card.availabilityReview';
+    if (game.tenantStatus === 'UNAVAILABLE' || game.tenantStatus === 'INACTIVE') {
+      return 'admin.gamesPricing.card.availabilityUnavailable';
+    }
+    if (this.hasBlockingItems(game)) return 'admin.gamesPricing.card.availabilityNeedsConfig';
+    return 'admin.gamesPricing.card.availabilityReview';
+  }
+
+  availabilityState(game: TenantGamePricingView): TenantGameAvailabilityState {
+    if (game.tenantStatus === 'UNAVAILABLE' || game.tenantStatus === 'INACTIVE') {
+      return 'unavailable';
+    }
+    if (this.hasBlockingItems(game)) return 'attention';
+    return 'available';
+  }
+
+  availabilityIcon(game: TenantGamePricingView): string {
+    const state = this.availabilityState(game);
+    if (state === 'available') return 'event_available';
+    if (state === 'attention') return 'warning';
+    return 'event_busy';
   }
 
   isMaryajGratis(gameCode: string): boolean {

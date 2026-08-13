@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { TchNotice } from '@tch/ui/components';
+import { TchConfirmDialog, type TchConfirmDialogData, TchNotice } from '@tch/ui/components';
 import {
   AdminEmptyStateComponent,
   AdminPageShellComponent,
@@ -149,6 +149,10 @@ export class AdminDrawChannelsPage {
 
   toggleChannelEnabled(slot: DrawChannelSlotConfigView, enabled: boolean): void {
     if (!slot.channelId) return;
+    if (!enabled) {
+      this.confirmDisableChannel(slot);
+      return;
+    }
     this.toggleChannel.execute({ slot, enabled }, { key: slot.channelId });
   }
 
@@ -179,6 +183,30 @@ export class AdminDrawChannelsPage {
       .afterClosed()
       .subscribe(saved => {
         if (saved === true) this.load();
+      });
+  }
+
+  private confirmDisableChannel(slot: DrawChannelSlotConfigView): void {
+    const channelId = slot.channelId;
+    if (!channelId) return;
+    this.dialog
+      .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
+        data: {
+          title: this.translate.instant('admin.drawChannels.confirm.disableTitle', {
+            name: slot.label,
+          }),
+          message: this.translate.instant('admin.drawChannels.confirm.disableMessage'),
+          confirmLabel: this.translate.instant('admin.drawChannels.confirm.disableAction'),
+          cancelLabel: this.translate.instant('common.cancel'),
+          destructive: true,
+          icon: 'block',
+        },
+      })
+      .afterClosed()
+      .subscribe(result => {
+        if (result?.confirmed) {
+          this.toggleChannel.execute({ slot, enabled: false }, { key: channelId });
+        }
       });
   }
 

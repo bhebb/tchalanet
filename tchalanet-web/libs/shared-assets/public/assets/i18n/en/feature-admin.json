@@ -740,8 +740,8 @@
         "systemGame": "System game · {{name}}",
         "saleActive": "Sell this game: active",
         "saleDisabled": "Sell this game: disabled",
-        "posVisible": "Visible on POS",
-        "posHidden": "Hidden on POS",
+        "posVisible": "On sales device",
+        "posHidden": "Hidden on sales device",
         "posYes": "Yes",
         "posNo": "No",
         "saleEnabledShort": "On sale",
@@ -755,11 +755,12 @@
         "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} pricing option(s)",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
-        "availabilityReview": "Review draws",
+        "availabilityReview": "Available for sale",
+        "availabilityNeedsConfig": "Review before sale",
         "availabilityUnavailable": "Unavailable on draws",
         "standardPricingProfile": "Standard pricing",
         "fact": {
-          "pos": "POS",
+          "pos": "Sales device",
           "stakes": "Stakes",
           "payouts": "Payouts",
           "availability": "Available"
@@ -779,6 +780,11 @@
           "maryaj": "Configure free Maryaj",
           "availability": "Draw availability"
         }
+      },
+      "confirm": {
+        "disableTitle": "Disable {{name}}?",
+        "disableMessage": "Sellers will not be able to sell this game after this change.",
+        "disableAction": "Disable"
       }
     },
     "maryajGratis": {
@@ -1165,7 +1171,7 @@
         "label": "Channel",
         "settingsTitle": "Draw settings",
         "salesOpen": "Sales open: {{value}}",
-        "cutoff": "Cutoff: {{seconds}}s before draw",
+        "cutoff": "Sales stop {{minutes}} minute(s) before {{drawTime}}.",
         "activeGames": "{{count}} active game(s)",
         "availableToAdd": "{{count}} game(s) available to add",
         "dependsOnAnother": "Depends on another channel",
@@ -1642,8 +1648,8 @@
           "everyDay": "Every day"
         },
         "message": {
-          "active": "This channel is available for sales.",
-          "inactive": "This channel is not active for sales.",
+          "active": "Available for sale",
+          "inactive": "Not available for sale",
           "missingSchedule": "The draw time needs to be configured.",
           "noGames": "No games are available on this draw.",
           "sourceInactive": "The result source needs to be checked."
@@ -1659,6 +1665,11 @@
         "configureUnavailable": "Direct configuration for {{provider}} will be available soon.",
         "saved": "{{provider}} configuration saved.",
         "channelSaved": "Draw channel settings saved."
+      },
+      "confirm": {
+        "disableTitle": "Disable {{name}}?",
+        "disableMessage": "The operator will not be able to sell tickets on this draw channel after this change.",
+        "disableAction": "Disable"
       },
       "config": {
         "title": "Configure {{name}}",
