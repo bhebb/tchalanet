@@ -51,6 +51,8 @@ import {
 } from './components/draw-detail-activity/draw-detail-activity.component';
 import { BlockNumberQuickDialogComponent } from '../../../limits/components/block-number-quick-dialog/block-number-quick-dialog.component';
 
+// BlockNumberQuickDialogComponent is opened programmatically via MatDialog — not declared in the template.
+
 type PageState = 'loading' | 'ready' | 'error';
 type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
 type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
@@ -68,7 +70,6 @@ type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
     AdminSectionCardComponent,
     DrawResultDrawerComponent,
     DrawDetailActivityComponent,
-    BlockNumberQuickDialogComponent,
   ],
   templateUrl: './admin-draw-detail.page.html',
   styleUrls: ['./admin-draw-detail.page.scss'],

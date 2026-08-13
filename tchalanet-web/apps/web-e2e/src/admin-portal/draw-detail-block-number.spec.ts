@@ -9,7 +9,8 @@ import { credsFor } from '../support/env';
  * - Clicking   → dialog opens with channel pre-selected (no draw picker visible)
  * - Draw CLOSED → button absent
  *
- * Network interception stubs the draw overview endpoint so tests are deterministic.
+ * The page fetches GET /admin/draws/:id (via AdminGeneratedDrawsApiService.getDrawById).
+ * Shape: DrawView { id, channel, slot, drawDate, scheduledAt, cutoffAt, status, active, lastResult }.
  */
 
 const creds = credsFor('admin');
@@ -18,33 +19,39 @@ const OPEN_DRAW_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
 const CLOSED_DRAW_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
 const DRAW_CHANNEL_ID = 'cccccccc-0000-0000-0000-000000000001';
 
-function stubDrawOverview(page: import('@playwright/test').Page, drawId: string, salesStatus: 'OPEN' | 'CLOSED') {
-  return page.route(`**/api/v1/admin/draws/${drawId}/overview`, route =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        status: 'SUCCESS',
-        data: {
-          draw: {
-            drawId,
-            drawChannelId: DRAW_CHANNEL_ID,
-            drawChannelCode: 'TEST-CHANNEL',
-            drawChannelLabel: 'Canal test',
+function stubDraw(page: import('@playwright/test').Page, drawId: string, status: 'OPEN' | 'CLOSED') {
+  // Intercept the draw detail endpoint — exact path, no sub-paths (top-selections etc.)
+  return page.route(
+    new RegExp(`/api/v1/admin/draws/${drawId}(?:\\?|$)`),
+    route => {
+      if (route.request().resourceType() === 'document') { route.continue(); return; }
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'SUCCESS',
+          data: {
+            id: drawId,
+            tenantId: 'stub-tenant',
+            channel: { id: DRAW_CHANNEL_ID, code: 'TEST-MIDDAY', name: 'Test Midday' },
+            slot: {
+              id: 'slot-1',
+              key: 'MIDDAY',
+              label: 'Midday',
+              timezone: 'America/Port-au-Prince',
+              drawTime: '12:00',
+            },
             drawDate: '2026-08-12',
-            status: salesStatus,
-            scheduledAt: '2026-08-12T14:00:00Z',
-            openedAt: salesStatus === 'OPEN' ? '2026-08-12T08:00:00Z' : null,
-            closedAt: salesStatus === 'CLOSED' ? '2026-08-12T12:00:00Z' : null,
-            result: null,
+            scheduledAt: '2026-08-12T17:00:00Z',
+            cutoffAt: '2026-08-12T16:45:00Z',
+            status,
+            active: status === 'OPEN',
+            lastResult: null,
           },
-          topSelections: [],
-          effectiveLimits: [],
-          exposureAlerts: [],
-        },
-        notices: [],
-      }),
-    }),
+          notices: [],
+        }),
+      });
+    },
   );
 }
 
@@ -59,7 +66,7 @@ test.describe('Draw detail — Bloke nimero button', () => {
   });
 
   test('draw OPEN — "Bloke nimero" button is visible in the header', async ({ page }) => {
-    await stubDrawOverview(page, OPEN_DRAW_ID, 'OPEN');
+    await stubDraw(page, OPEN_DRAW_ID, 'OPEN');
     await page.goto(`/app/admin/draws/${OPEN_DRAW_ID}`);
 
     const btn = page.locator('button, [role="button"]', { hasText: /bloke nimero/i });
@@ -69,7 +76,7 @@ test.describe('Draw detail — Bloke nimero button', () => {
   test('draw OPEN — clicking Bloke nimero opens a dialog without a draw picker', async ({
     page,
   }) => {
-    await stubDrawOverview(page, OPEN_DRAW_ID, 'OPEN');
+    await stubDraw(page, OPEN_DRAW_ID, 'OPEN');
     await page.goto(`/app/admin/draws/${OPEN_DRAW_ID}`);
 
     const btn = page.locator('button, [role="button"]', { hasText: /bloke nimero/i });
@@ -83,7 +90,7 @@ test.describe('Draw detail — Bloke nimero button', () => {
   });
 
   test('draw CLOSED — "Bloke nimero" button is absent', async ({ page }) => {
-    await stubDrawOverview(page, CLOSED_DRAW_ID, 'CLOSED');
+    await stubDraw(page, CLOSED_DRAW_ID, 'CLOSED');
     await page.goto(`/app/admin/draws/${CLOSED_DRAW_ID}`);
 
     // Wait for the page to load before asserting absence
