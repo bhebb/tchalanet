@@ -76,8 +76,9 @@ export class AdminDrawChannelDetailPage {
   readonly identity = computed(() => {
     const channel = this.channel();
     if (!channel) return null;
+    const providerCode = providerCodeFromChannel(channel.code);
     return consoleDrawIdentity({
-      providerCode: channel.resultProvider ?? providerCodeFromChannel(channel.code),
+      providerCode,
       channelCode: channel.code,
       channelName: channel.name,
       slotKey: channel.resultSlotKey ?? channel.code,
@@ -107,7 +108,6 @@ export class AdminDrawChannelDetailPage {
     if (!channel) return [];
     return [
       channel.code,
-      channel.timezone,
       channel.active
         ? this.t('admin.drawChannels.list.status.active')
         : this.t('admin.drawChannels.list.status.inactive'),
@@ -203,7 +203,7 @@ export class AdminDrawChannelDetailPage {
       },
       {
         label: this.t('admin.drawChannels.config.result.source.label'),
-        value: this.resultSourceLabel(channel.defaultSource, channel.resultProvider),
+        value: this.resultSourceLabel(channel.defaultSource, identity?.providerName),
       },
       {
         label: this.t('admin.drawChannels.config.result.providerSlot'),
@@ -213,11 +213,6 @@ export class AdminDrawChannelDetailPage {
           channel.resultSlotKey?.trim() ||
           '—',
         code: true,
-      },
-      {
-        label: this.t('admin.drawChannels.detail.fields.resultSlotId'),
-        value: channel.resultSlotId?.trim() || '—',
-        code: Boolean(channel.resultSlotId?.trim()),
       },
       {
         label: this.t('admin.drawChannels.config.result.openDays'),
@@ -239,14 +234,6 @@ export class AdminDrawChannelDetailPage {
       {
         label: this.t('admin.drawChannels.config.timezone'),
         value: channel.timezone ?? '—',
-      },
-      {
-        label: this.t('admin.drawChannels.config.drawTime'),
-        value: normalizeTime(channel.drawTime) || '—',
-      },
-      {
-        label: this.t('admin.drawChannels.config.salesOpenTime'),
-        value: normalizeTime(channel.salesOpenTime) || '—',
       },
       {
         label: this.t('admin.drawChannels.config.salesCloseTime'),
@@ -324,10 +311,7 @@ export class AdminDrawChannelDetailPage {
 
   channelDescription(channel: DrawChannelDetailView | null): string {
     if (!channel) return '';
-    return this.t('admin.drawChannels.detail.description', {
-      code: channel.code,
-      timezone: channel.timezone ?? '—',
-    });
+    return this.identity()?.providerName ?? channel.timezone ?? '';
   }
 
   private salesStopLabel(channel: DrawChannelDetailView): string {
@@ -365,10 +349,10 @@ export class AdminDrawChannelDetailPage {
 
   private resultSourceLabel(
     source: DrawChannelSource | null | undefined,
-    provider: string | null | undefined,
+    providerLabel: string | null | undefined,
   ): string {
     if (source === 'MANUAL') return this.t('admin.drawChannels.config.result.source.manual');
-    const label = provider?.trim() || '—';
+    const label = providerLabel?.trim() || '—';
     return this.t('admin.drawChannels.config.result.source.provider', { provider: label });
   }
   private t(key: string, params?: Record<string, string | number>): string {
@@ -426,7 +410,9 @@ function formatDrawTimeForSalesNote(value: string, language: string | undefined)
 }
 
 function providerCodeFromChannel(channelCode: string): string {
-  return channelCode.trim().split(/[_-]/)[0]?.toUpperCase() || channelCode;
+  const parts = channelCode.trim().split(/[_-]/).filter(Boolean);
+  if (parts[0]?.toUpperCase() === 'HT' && parts[1]) return parts[1].toUpperCase();
+  return parts[0]?.toUpperCase() || channelCode;
 }
 
 function expandResultSlotDays(value: string | null | undefined): readonly DrawChannelWeekDay[] {

@@ -643,7 +643,6 @@
         },
         "fields": {
           "provider": "Fournisseur",
-          "resultSlotId": "ID source résultat",
           "salesStop": "Règle de fermeture",
           "sortOrder": "Ordre d'affichage"
         },

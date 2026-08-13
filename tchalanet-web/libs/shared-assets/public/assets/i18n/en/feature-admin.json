@@ -1813,7 +1813,6 @@
         },
         "fields": {
           "provider": "Source",
-          "resultSlotId": "Result source ID",
           "salesStop": "Sales closing rule",
           "sortOrder": "Display order"
         },
