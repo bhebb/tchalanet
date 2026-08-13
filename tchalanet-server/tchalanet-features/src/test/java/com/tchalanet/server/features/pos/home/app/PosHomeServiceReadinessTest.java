@@ -48,19 +48,59 @@ class PosHomeServiceReadinessTest {
 
   private static TchRequestContext ctx(TenantId tenantId) {
     return new TchRequestContext(
-        "tenant", tenantId.value(), "tenant", tenantId.value(),
-        null, Set.of(), Set.of(), null, "request-id", null, null,
-        false, null, "active", null, null, tenantId,
-        ZoneId.of("America/Port-au-Prince"), null, null, null,
-        null, Set.of(), Set.of(), null);
+        "tenant",
+        tenantId.value(),
+        "tenant",
+        tenantId.value(),
+        null,
+        Set.of(),
+        Set.of(),
+        null,
+        "request-id",
+        null,
+        null,
+        false,
+        null,
+        "active",
+        null,
+        null,
+        tenantId,
+        ZoneId.of("America/Port-au-Prince"),
+        null,
+        null,
+        null,
+        null,
+        Set.of(),
+        Set.of(),
+        null);
   }
 
   private static TchRequestContext ctxWithTerminal(TenantId tenantId, SellerTerminalId terminalId) {
     return new TchRequestContext(
-        "tenant", tenantId.value(), "tenant", tenantId.value(),
-        null, Set.of(), Set.of(), null, "request-id", null, null,
-        false, null, "active", null, null, tenantId,
-        ZoneId.of("America/Port-au-Prince"), null, null, null,
-        terminalId, Set.of(), Set.of(), null);
+        "tenant",
+        tenantId.value(),
+        "tenant",
+        tenantId.value(),
+        null,
+        Set.of(),
+        Set.of(),
+        null,
+        "request-id",
+        null,
+        null,
+        false,
+        null,
+        "active",
+        null,
+        null,
+        tenantId,
+        ZoneId.of("America/Port-au-Prince"),
+        null,
+        null,
+        null,
+        terminalId,
+        Set.of(),
+        Set.of(),
+        null);
   }
 }

@@ -35,9 +35,29 @@ class TenantAdminDrawOverviewServiceTest {
 
     var drawSummary =
         new DrawSummary(
-            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.OPEN, null, null, null, null,
-            null, null, channelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
-            null, null, null, null, true, null);
+            drawId,
+            tenantId,
+            LocalDate.of(2026, 7, 19),
+            DrawStatus.OPEN,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            channelId,
+            "GA_EVE",
+            "Georgia Eve",
+            LocalTime.NOON,
+            "UTC",
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null);
 
     var topSelItem =
         new DrawTopSelectionsView.SelectionItem(1, "42", "BORLETTE", "MATCH_1_2D", null, 15, 7500);
@@ -92,9 +112,29 @@ class TenantAdminDrawOverviewServiceTest {
 
     var drawSummary =
         new DrawSummary(
-            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.OPEN, null, null, null, null,
-            null, null, channelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
-            null, null, null, null, true, null);
+            drawId,
+            tenantId,
+            LocalDate.of(2026, 7, 19),
+            DrawStatus.OPEN,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            channelId,
+            "GA_EVE",
+            "Georgia Eve",
+            LocalTime.NOON,
+            "UTC",
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null);
 
     var queryBus = mock(QueryBus.class);
     when(queryBus.ask(any()))
@@ -120,9 +160,29 @@ class TenantAdminDrawOverviewServiceTest {
 
     var drawSummary =
         new DrawSummary(
-            drawId, tenantId, drawDate, DrawStatus.CLOSED, null, null, null, null,
-            null, null, channelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
-            null, null, null, null, true, null);
+            drawId,
+            tenantId,
+            drawDate,
+            DrawStatus.CLOSED,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            channelId,
+            "GA_EVE",
+            "Georgia Eve",
+            LocalTime.NOON,
+            "UTC",
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null);
 
     var topSelItem =
         new DrawTopSelectionsView.SelectionItem(1, "07", "BORLETTE", "MATCH_1_2D", null, 8, 4000);

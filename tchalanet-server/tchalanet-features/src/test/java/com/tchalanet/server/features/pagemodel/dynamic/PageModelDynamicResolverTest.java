@@ -70,8 +70,7 @@ class PageModelDynamicResolverTest {
     var payload = resolver.resolve(pageModel(), "fr", null);
 
     assertThat(payload.errors()).isEmpty();
-    assertThat(payload.widgets())
-        .containsEntry("dashboard.tenantAdmin.commission", "the-data");
+    assertThat(payload.widgets()).containsEntry("dashboard.tenantAdmin.commission", "the-data");
   }
 
   @Test

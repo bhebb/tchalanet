@@ -124,7 +124,9 @@ public class PosDrawsService {
     boolean isOpen = draw.status() == DrawStatus.OPEN;
 
     var scope = LimitScopeRef.sellerTerminal(sellerTerminalId);
-    var alertsView = queryBus.ask(new GetExposureAlertsOverviewQuery(tenantId, drawId, scope, EXPOSURE_ALERTS_LIMIT));
+    var alertsView =
+        queryBus.ask(
+            new GetExposureAlertsOverviewQuery(tenantId, drawId, scope, EXPOSURE_ALERTS_LIMIT));
 
     List<PosDrawDetailResponse.ExposureAlertItem> alertItems;
     List<PosDrawDetailResponse.TopSelectionItem> topSelections;

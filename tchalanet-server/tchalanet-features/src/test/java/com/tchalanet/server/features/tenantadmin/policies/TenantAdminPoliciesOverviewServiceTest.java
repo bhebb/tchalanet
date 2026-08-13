@@ -48,8 +48,7 @@ class TenantAdminPoliciesOverviewServiceTest {
             null);
 
     var assignmentsView =
-        new ListLimitAssignmentsView(
-            LimitScopeQueryRef.tenant(tenantId), List.of(assignment));
+        new ListLimitAssignmentsView(LimitScopeQueryRef.tenant(tenantId), List.of(assignment));
 
     var queryBus = mock(QueryBus.class);
     when(queryBus.ask(any())).thenReturn(List.of(ruleSpec)).thenReturn(assignmentsView);
@@ -91,13 +90,7 @@ class TenantAdminPoliciesOverviewServiceTest {
 
     var disabledAssignment =
         new ListLimitAssignmentsView.Item(
-            assignmentId,
-            RuleKey.MAX_STAKE_PER_LINE,
-            false,
-            BreachOutcome.BLOCK,
-            null,
-            null,
-            null);
+            assignmentId, RuleKey.MAX_STAKE_PER_LINE, false, BreachOutcome.BLOCK, null, null, null);
 
     var assignmentsView =
         new ListLimitAssignmentsView(

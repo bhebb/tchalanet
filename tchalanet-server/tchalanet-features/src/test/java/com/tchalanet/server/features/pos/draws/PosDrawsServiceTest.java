@@ -225,9 +225,29 @@ class PosDrawsServiceTest {
 
     var drawSummary =
         new DrawSummary(
-            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.OPEN, null, null, null, null,
-            null, null, drawChannelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
-            null, null, null, null, true, null);
+            drawId,
+            tenantId,
+            LocalDate.of(2026, 7, 19),
+            DrawStatus.OPEN,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            drawChannelId,
+            "GA_EVE",
+            "Georgia Eve",
+            LocalTime.NOON,
+            "UTC",
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null);
 
     var alertItem =
         new ExposureAlertItemView(
@@ -264,9 +284,29 @@ class PosDrawsServiceTest {
 
     var drawSummary =
         new DrawSummary(
-            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.OPEN, null, null, null, null,
-            null, null, drawChannelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
-            null, null, null, null, true, null);
+            drawId,
+            tenantId,
+            LocalDate.of(2026, 7, 19),
+            DrawStatus.OPEN,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            drawChannelId,
+            "GA_EVE",
+            "Georgia Eve",
+            LocalTime.NOON,
+            "UTC",
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null);
 
     var queryBus = mock(QueryBus.class);
     when(queryBus.ask(any())).thenReturn(drawSummary).thenReturn(null);
@@ -289,9 +329,29 @@ class PosDrawsServiceTest {
 
     var drawSummary =
         new DrawSummary(
-            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.CLOSED, null, null, null, null,
-            null, null, drawChannelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
-            null, null, null, null, true, null);
+            drawId,
+            tenantId,
+            LocalDate.of(2026, 7, 19),
+            DrawStatus.CLOSED,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            drawChannelId,
+            "GA_EVE",
+            "Georgia Eve",
+            LocalTime.NOON,
+            "UTC",
+            true,
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            null);
 
     var alertItem =
         new ExposureAlertItemView(
@@ -344,8 +404,7 @@ class PosDrawsServiceTest {
         null);
   }
 
-  private static TchRequestContext ctxWithTerminal(
-      TenantId tenantId, SellerTerminalId terminalId) {
+  private static TchRequestContext ctxWithTerminal(TenantId tenantId, SellerTerminalId terminalId) {
     return new TchRequestContext(
         "tenant",
         tenantId.value(),
