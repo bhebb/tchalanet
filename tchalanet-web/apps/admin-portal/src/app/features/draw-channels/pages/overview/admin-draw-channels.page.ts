@@ -232,13 +232,7 @@ export class AdminDrawChannelsPage implements OnInit {
 
   channelTitle(row: DrawChannelListRow): string {
     const slotLabel = row.slot.label.trim();
-    if (slotLabel.toLowerCase().startsWith(`${row.providerLabel.toLowerCase()} · `)) {
-      return slotLabel;
-    }
-    if (slotLabel.toLowerCase() === row.providerLabel.toLowerCase()) {
-      return row.providerLabel;
-    }
-    return `${row.providerLabel} · ${slotLabel}`;
+    return slotLabel || row.providerLabel;
   }
 
   private resultMode(mode: DrawResultAcquisitionView['mode']): DrawChannelListRow['resultMode'] {

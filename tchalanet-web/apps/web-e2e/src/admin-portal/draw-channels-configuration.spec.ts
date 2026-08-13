@@ -34,7 +34,7 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await expect(firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ })).toBeVisible();
 
     const attentionCard = page.locator('.dc-page__channel-card--attention').filter({
-      hasText: /California|Florid|Florida/,
+      hasText: /California/,
     });
     await expect(attentionCard.first()).toBeVisible();
     await expect(attentionCard.first()).toContainText(/Aucun jeu|Pa gen jwèt|No games/);

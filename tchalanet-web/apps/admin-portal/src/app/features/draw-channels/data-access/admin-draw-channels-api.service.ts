@@ -145,7 +145,7 @@ export class AdminDrawChannelsApiService {
     return {
       channelId: channel.id,
       slotKey: identity.slotKey ?? channel.channelCode,
-      label: identity.channelName ?? channel.channelName ?? channel.channelCode,
+      label: channel.channelName ?? identity.channelName ?? channel.channelCode,
       enabled: channel.active,
       resultSlotActive: channel.resultSlotActive,
       drawTime: channel.drawTime,
