@@ -20,6 +20,8 @@ interface TenantDrawChannelSummary {
   readonly timezone: string;
   readonly active: boolean;
   readonly resultSlotActive?: boolean;
+  readonly offeredGameCount?: number;
+  readonly saleReadyGameCount?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -148,6 +150,8 @@ export class AdminDrawChannelsApiService {
       resultSlotActive: channel.resultSlotActive,
       drawTime: channel.drawTime,
       cutoffTime: channel.cutoffTime,
+      offeredGameCount: channel.offeredGameCount,
+      saleReadyGameCount: channel.saleReadyGameCount,
     };
   }
 }

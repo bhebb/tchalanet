@@ -292,6 +292,69 @@ const limitAssignmentsStub = [
   },
 ];
 
+const drawChannelsStub = [
+  {
+    id: 'channel-ht-1000',
+    channelCode: 'HT_TX_1000',
+    channelName: 'HT · 1000',
+    drawTime: '10:00:00',
+    cutoffTime: '09:55:00',
+    timezone: 'America/Port-au-Prince',
+    active: true,
+    resultSlotActive: true,
+    saleReadyGameCount: 6,
+    offeredGameCount: 6,
+  },
+  {
+    id: 'channel-ga-evening',
+    channelCode: 'HT_GA_EVE',
+    channelName: 'Georgia · Aswè',
+    drawTime: '18:59:00',
+    cutoffTime: '18:54:00',
+    timezone: 'America/Port-au-Prince',
+    active: true,
+    resultSlotActive: true,
+    saleReadyGameCount: 4,
+    offeredGameCount: 4,
+  },
+  {
+    id: 'channel-ca-evening',
+    channelCode: 'HT_CA_EVE',
+    channelName: 'California · Aswè',
+    drawTime: '21:00:00',
+    cutoffTime: '20:55:00',
+    timezone: 'America/Port-au-Prince',
+    active: true,
+    resultSlotActive: true,
+    saleReadyGameCount: 0,
+    offeredGameCount: 0,
+  },
+  {
+    id: 'channel-ny-evening',
+    channelCode: 'HT_NY_EVE',
+    channelName: 'New York · Aswè',
+    drawTime: '22:30:00',
+    cutoffTime: '22:25:00',
+    timezone: 'America/Port-au-Prince',
+    active: false,
+    resultSlotActive: true,
+    saleReadyGameCount: 4,
+    offeredGameCount: 4,
+  },
+  {
+    id: 'channel-fl-evening',
+    channelCode: 'HT_FL_EVE',
+    channelName: 'Florida · Aswè',
+    drawTime: '19:00:00',
+    cutoffTime: '18:55:00',
+    timezone: 'America/Port-au-Prince',
+    active: true,
+    resultSlotActive: false,
+    saleReadyGameCount: 4,
+    offeredGameCount: 4,
+  },
+];
+
 const sellerReportStub = {
   analytics: {
     available: true,
@@ -841,6 +904,15 @@ export class ApiStub {
         overrideActive = false;
         await json(r, envelope(null));
       },
+    );
+  }
+
+  /** Deterministic draw-channel configuration data for mobile/desktop UX checks. */
+  async adminDrawChannels(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.apiRoute(/\/tenant\/draw-channels(?:\?|$)/, r =>
+      json(r, envelope(drawChannelsStub)),
     );
   }
 
