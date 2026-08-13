@@ -6,6 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { consoleDrawIdentity } from '@tch/web/console';
 
@@ -13,6 +14,7 @@ import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channe
 import {
   DrawChannelDetailView,
   DrawChannelSource,
+  DrawChannelWeekDay,
   UpdateTenantDrawChannelRequest,
 } from '../../data-access/admin-draw-channels.models';
 
@@ -23,7 +25,9 @@ interface DrawChannelConfigDialogData {
 }
 
 interface DrawChannelConfigForm {
+  readonly salesOpenTime: string;
   readonly cutoffSec: number | null;
+  readonly daysOfWeek: readonly DrawChannelWeekDay[];
   readonly active: boolean;
 }
 
@@ -39,6 +43,7 @@ interface DrawChannelConfigForm {
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    MatSelectModule,
     TranslatePipe,
   ],
   templateUrl: './draw-channel-config.dialog.html',
@@ -56,9 +61,12 @@ export class DrawChannelConfigDialog {
   readonly detail = signal<DrawChannelDetailView | null>(null);
   readonly title = this.data.label;
   readonly mode = this.data.mode;
+  readonly weekDays = DAY_ORDER;
 
   readonly form = signal<DrawChannelConfigForm>({
+    salesOpenTime: '00:00',
     cutoffSec: null,
+    daysOfWeek: [],
     active: false,
   });
 
@@ -73,7 +81,9 @@ export class DrawChannelConfigDialog {
       next: detail => {
         this.detail.set(detail);
         this.form.set({
+          salesOpenTime: normalizeTime(detail.salesOpenTime) || '00:00',
           cutoffSec: detail.cutoffSec ?? null,
+          daysOfWeek: detail.daysOfWeek ?? expandResultSlotDays(detail.resultSlotDaysOfWeek),
           active: detail.active,
         });
         this.loading.set(false);
@@ -107,6 +117,10 @@ export class DrawChannelConfigDialog {
 
   salesOpenTimeLabel(detail: DrawChannelDetailView): string {
     return normalizeTime(detail.salesOpenTime) || '—';
+  }
+
+  dayLabelKey(day: DrawChannelWeekDay): string {
+    return `admin.drawChannels.days.${day}`;
   }
 
   timezoneLabel(detail: DrawChannelDetailView): string {
@@ -155,25 +169,89 @@ export class DrawChannelConfigDialog {
     if (!detail || this.saving() || this.mode === 'details') return;
     const form = this.form();
     const request: UpdateTenantDrawChannelRequest = {
+      salesOpenTime: form.salesOpenTime || null,
       cutoffSec: form.cutoffSec,
+      daysOfWeek: form.daysOfWeek,
       active: form.active,
     };
 
     this.saving.set(true);
     this.errorKey.set(null);
-    this.api.updateChannel(this.data.channelId, request, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.dialogRef.close(true);
-      },
-      error: () => {
-        this.errorKey.set('admin.drawChannels.config.error.save');
-        this.saving.set(false);
-      },
-    });
+    this.api
+      .updateChannel(this.data.channelId, request, { suppressShellFeedback: true })
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.dialogRef.close(true);
+        },
+        error: () => {
+          this.errorKey.set('admin.drawChannels.config.error.save');
+          this.saving.set(false);
+        },
+      });
   }
 }
 
 function normalizeTime(value: string | null | undefined): string {
   return value ? value.slice(0, 5) : '';
+}
+
+const DAY_ORDER: readonly DrawChannelWeekDay[] = [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+];
+
+const DAY_TOKEN_TO_CODE: Record<string, DrawChannelWeekDay> = {
+  MON: 'MONDAY',
+  TUE: 'TUESDAY',
+  WED: 'WEDNESDAY',
+  THU: 'THURSDAY',
+  FRI: 'FRIDAY',
+  SAT: 'SATURDAY',
+  SUN: 'SUNDAY',
+};
+
+function expandResultSlotDays(value: string | null | undefined): readonly DrawChannelWeekDay[] {
+  const source = value?.trim().toUpperCase();
+  if (!source || source === 'MON-SUN') return DAY_ORDER;
+
+  const days = new Set<DrawChannelWeekDay>();
+  for (const part of source.split(',')) {
+    const token = part.trim();
+    if (!token) continue;
+    if (token.includes('-')) {
+      const [start, end] = token.split('-').map(segment => segment.trim());
+      for (const day of daysInRange(start, end)) days.add(day);
+    } else {
+      const day = dayToken(token);
+      if (day) days.add(day);
+    }
+  }
+  return DAY_ORDER.filter(day => days.has(day));
+}
+
+function dayToken(token: string): DrawChannelWeekDay | null {
+  return DAY_TOKEN_TO_CODE[token.slice(0, 3)] ?? null;
+}
+
+function daysInRange(
+  startToken: string | undefined,
+  endToken: string | undefined,
+): readonly DrawChannelWeekDay[] {
+  const start = dayToken(startToken ?? '');
+  const end = dayToken(endToken ?? '');
+  if (!start || !end) return [];
+  const startIndex = DAY_ORDER.indexOf(start);
+  const endIndex = DAY_ORDER.indexOf(end);
+  const result: DrawChannelWeekDay[] = [];
+  for (let index = startIndex; ; index = (index + 1) % DAY_ORDER.length) {
+    result.push(DAY_ORDER[index]);
+    if (index === endIndex) break;
+  }
+  return result;
 }

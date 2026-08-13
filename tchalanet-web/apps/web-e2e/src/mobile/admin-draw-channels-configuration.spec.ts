@@ -32,10 +32,16 @@ test.describe('Admin draw-channel configuration — mobile', () => {
     await expect(firstCard).toContainText('09:55');
     await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
     await expect(firstCard).not.toContainText(/Jeux|Jwèt|Games/);
-    await expect(firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ })).toBeVisible();
-    await expect(firstCard.getByRole('button', { name: /Voir détails|Gade detay|View details/ })).toBeVisible();
+    await expect(
+      firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }),
+    ).toBeVisible();
+    await expect(
+      firstCard.getByRole('button', { name: /Voir détails|Gade detay|View details/ }),
+    ).toBeVisible();
 
-    const configureButton = firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ });
+    const configureButton = firstCard.getByRole('button', {
+      name: /Configurer|Konfigire|Configure/,
+    });
     const buttonBox = await configureButton.boundingBox();
     expect(buttonBox).not.toBeNull();
     if (!buttonBox) return;
@@ -49,10 +55,14 @@ test.describe('Admin draw-channel configuration — mobile', () => {
     await configureButton.click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('heading', { name: /Vente|Vant|Sales/ })).toBeVisible();
-    await expect(dialog.getByRole('heading', { name: /Informations système|Enfòmasyon sistèm|System information/ })).toBeVisible();
+    await expect(
+      dialog.getByRole('heading', {
+        name: /Informations système|Enfòmasyon sistèm|System information/,
+      }),
+    ).toBeVisible();
     await expect(dialog).toContainText(/Automatique|Otomatik|Automatic/);
     await expect(dialog).toContainText('Texas');
-    await expect(dialog).toContainText('05:30');
+    await expect(dialog).toContainText('00:00');
     await expect(dialog).toContainText(/Tous les jours|Chak jou|Every day/);
   });
 });

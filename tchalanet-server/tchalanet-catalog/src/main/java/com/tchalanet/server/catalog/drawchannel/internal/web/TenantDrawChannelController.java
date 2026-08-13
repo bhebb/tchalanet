@@ -83,6 +83,7 @@ public class TenantDrawChannelController {
             req.label() == null ? existing.label() : req.label(),
             req.timezone() == null ? existing.timezone() : req.timezone(),
             req.drawTime() == null ? existing.drawTime() : req.drawTime(),
+            req.salesOpenTime() == null ? existing.salesOpenTime() : req.salesOpenTime(),
             req.cutoffSec() == null ? existing.cutoffSec() : req.cutoffSec(),
             req.daysOfWeek() == null ? existing.daysOfWeek() : req.daysOfWeek(),
             req.active() == null ? existing.active() : req.active(),

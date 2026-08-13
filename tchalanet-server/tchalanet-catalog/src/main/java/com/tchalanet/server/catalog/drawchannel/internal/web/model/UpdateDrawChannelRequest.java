@@ -15,6 +15,7 @@ public record UpdateDrawChannelRequest(
     String label,
     ZoneId timezone,
     LocalTime drawTime,
+    LocalTime salesOpenTime,
     Integer cutoffSec,
     List<DayOfWeek> daysOfWeek,
     boolean active,

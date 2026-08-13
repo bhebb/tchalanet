@@ -1660,7 +1660,7 @@
         "active": "Channel active for this operator",
         "sales": {
           "title": "Sales",
-          "description": "Choose whether this operator can sell on this draw channel and how long before the draw sales should close."
+          "description": "Choose whether this operator can sell on this draw channel, when sales open, which days are sold, and how long before the draw sales should close."
         },
         "system": {
           "title": "System information",

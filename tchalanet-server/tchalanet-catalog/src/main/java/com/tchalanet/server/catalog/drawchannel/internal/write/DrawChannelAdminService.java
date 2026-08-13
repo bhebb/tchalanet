@@ -73,6 +73,7 @@ public class DrawChannelAdminService {
     existing.setName(dto.getName());
     existing.setTimezone(dto.getTimezone());
     existing.setDrawTime(dto.getDrawTime());
+    existing.setSalesOpenTime(dto.getSalesOpenTime());
     existing.setCutoffSec(dto.getCutoffSec());
     existing.setDaysOfWeek(dto.getDaysOfWeek());
     existing.setActive(dto.isActive());
@@ -161,6 +162,7 @@ public class DrawChannelAdminService {
     e.setName(v.name());
     e.setTimezone(v.timezone() == null ? null : v.timezone().toString());
     e.setDrawTime(v.drawTime());
+    e.setSalesOpenTime(v.salesOpenTime());
     e.setCutoffSec(v.cutoffSec() == null ? 120 : v.cutoffSec());
     // daysOfWeek now List<DayOfWeek> -> format to string
     e.setDaysOfWeek(com.tchalanet.server.common.time.DaysOfWeekFormatter.format(v.daysOfWeek()));

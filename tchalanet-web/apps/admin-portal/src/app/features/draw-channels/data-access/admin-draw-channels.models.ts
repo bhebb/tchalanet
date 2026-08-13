@@ -89,6 +89,7 @@ export interface UpdateTenantDrawChannelRequest {
   readonly label?: string | null;
   readonly timezone?: string | null;
   readonly drawTime?: string | null;
+  readonly salesOpenTime?: string | null;
   readonly cutoffSec?: number | null;
   readonly daysOfWeek?: readonly DrawChannelWeekDay[] | null;
   readonly active?: boolean;

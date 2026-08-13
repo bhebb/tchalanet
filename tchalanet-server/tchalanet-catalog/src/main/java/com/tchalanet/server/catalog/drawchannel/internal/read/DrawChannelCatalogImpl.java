@@ -82,7 +82,9 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
   @Override
   @Cacheable(value = DrawChannelCacheNames.BY_ID, key = "#tenantId.value() + ':' + #id.value()")
   public Optional<DrawChannelView> findById(TenantId tenantId, DrawChannelId id) {
-    return repository.findById(id.value()).map(entity -> toViewWithResultSlot(mapper.toView(entity)));
+    return repository
+        .findById(id.value())
+        .map(entity -> toViewWithResultSlot(mapper.toView(entity)));
   }
 
   @Override
@@ -347,8 +349,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
 
   private DrawSource sourceMode(JsonNode sourceCfg) {
     JsonNode sourceMode = sourceCfg == null ? null : sourceCfg.get("source_mode");
-    String value =
-        sourceMode == null || sourceMode.isNull() ? null : sourceMode.asText("").trim();
+    String value = sourceMode == null || sourceMode.isNull() ? null : sourceMode.asText("").trim();
     if (value == null || value.isBlank()) {
       return DrawSource.EXTERNAL;
     }

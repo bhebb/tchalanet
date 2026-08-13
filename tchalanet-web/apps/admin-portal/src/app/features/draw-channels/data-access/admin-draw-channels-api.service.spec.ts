@@ -40,7 +40,10 @@ describe('AdminDrawChannelsApiService', () => {
         reason: null,
       },
     });
-    expect(providers[0].slots.map(slot => slot.channelId)).toEqual(['channel-active', 'channel-inactive']);
+    expect(providers[0].slots.map(slot => slot.channelId)).toEqual([
+      'channel-active',
+      'channel-inactive',
+    ]);
     expect(providers[0].slots[0]).toMatchObject({
       channelId: 'channel-active',
       label: 'New York · Evening',
@@ -59,6 +62,7 @@ describe('AdminDrawChannelsApiService', () => {
       name: 'Haiti · Evening',
       timezone: 'America/Port-au-Prince',
       drawTime: '20:00',
+      salesOpenTime: '00:00',
       cutoffSec: 300,
       daysOfWeek: ['MONDAY'],
       active: true,
@@ -98,6 +102,7 @@ describe('AdminDrawChannelsApiService', () => {
           name: 'Haiti · Evening',
           timezone: 'America/Port-au-Prince',
           drawTime: '20:00',
+          salesOpenTime: '00:00',
           cutoffSec: 300,
           daysOfWeek: ['MONDAY', 'TUESDAY'],
           active: true,
@@ -115,6 +120,7 @@ describe('AdminDrawChannelsApiService', () => {
         name: 'Haiti · Evening',
         timezone: 'America/Port-au-Prince',
         drawTime: '20:00',
+        salesOpenTime: '00:00',
         cutoffSec: 300,
         daysOfWeek: ['MONDAY', 'TUESDAY'],
         active: true,

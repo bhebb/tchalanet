@@ -490,7 +490,7 @@
         "active": "Canal actif pour cet espace",
         "sales": {
           "title": "Vente",
-          "description": "Choisissez si ce santral peut vendre sur ce canal et combien de temps avant le tirage les ventes doivent fermer."
+          "description": "Choisissez si ce santral peut vendre sur ce canal, l'heure d'ouverture des ventes, les jours vendus et combien de temps avant le tirage les ventes doivent fermer."
         },
         "system": {
           "title": "Informations système",
