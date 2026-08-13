@@ -1,6 +1,13 @@
 import { SlicePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -72,6 +79,7 @@ export class AdminDrawChannelsPage implements OnInit {
   private readonly api = inject(AdminDrawChannelsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private handledDeepLinkKey: string | null = null;
 
@@ -192,13 +200,11 @@ export class AdminDrawChannelsPage implements OnInit {
   }
 
   openChannelDetails(slot: DrawChannelSlotConfigView): void {
-    this.openChannelDialog(slot, 'details');
+    if (!slot.channelId) return;
+    void this.router.navigate(['/app/admin/draw-channels', slot.channelId]);
   }
 
-  private openChannelDialog(
-    slot: DrawChannelSlotConfigView,
-    mode: 'configure' | 'details',
-  ): void {
+  private openChannelDialog(slot: DrawChannelSlotConfigView, mode: 'configure' | 'details'): void {
     if (!slot.channelId) return;
     this.dialog
       .open(DrawChannelConfigDialog, {
@@ -233,7 +239,8 @@ export class AdminDrawChannelsPage implements OnInit {
   rowMessageLabelKey(row: DrawChannelListRow): string {
     if (!row.slot.enabled) return 'admin.drawChannels.list.message.inactive';
     if (!row.slot.drawTime) return 'admin.drawChannels.list.message.missingSchedule';
-    if (row.slot.resultSlotActive === false) return 'admin.drawChannels.list.message.sourceInactive';
+    if (row.slot.resultSlotActive === false)
+      return 'admin.drawChannels.list.message.sourceInactive';
     return 'admin.drawChannels.list.message.active';
   }
 
@@ -297,16 +304,18 @@ export class AdminDrawChannelsPage implements OnInit {
     const deepLinkKey = `${providerParam ?? ''}:${slotParam ?? ''}`;
     if (this.handledDeepLinkKey === deepLinkKey) return;
 
-    const provider = providers.find(p =>
-      !providerParam ||
-      p.providerCode.toLowerCase() === providerParam ||
-      p.providerLabel.toLowerCase().includes(providerParam)
+    const provider = providers.find(
+      p =>
+        !providerParam ||
+        p.providerCode.toLowerCase() === providerParam ||
+        p.providerLabel.toLowerCase().includes(providerParam),
     );
-    const slot = provider?.slots.find(s =>
-      !slotParam ||
-      s.slotKey.toLowerCase() === slotParam ||
-      s.channelId?.toLowerCase() === slotParam ||
-      s.label.toLowerCase().includes(slotParam)
+    const slot = provider?.slots.find(
+      s =>
+        !slotParam ||
+        s.slotKey.toLowerCase() === slotParam ||
+        s.channelId?.toLowerCase() === slotParam ||
+        s.label.toLowerCase().includes(slotParam),
     );
 
     if (providerParam) this.searchQuery.set(provider?.providerLabel ?? providerParam);
@@ -347,7 +356,10 @@ function dayToken(token: string): DayCode | null {
   return DAY_TOKEN_TO_CODE[token.slice(0, 3)] ?? null;
 }
 
-function daysInRange(startToken: string | undefined, endToken: string | undefined): readonly DayCode[] {
+function daysInRange(
+  startToken: string | undefined,
+  endToken: string | undefined,
+): readonly DayCode[] {
   const start = dayToken(startToken ?? '');
   const end = dayToken(endToken ?? '');
   if (!start || !end) return [];

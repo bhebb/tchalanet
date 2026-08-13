@@ -1,0 +1,81 @@
+<tch-console-entity-detail
+  [title]="title()"
+  [description]="description()"
+  [state]="pageState()"
+  [loadingLabel]="'admin.drawChannels.config.loading' | translate"
+  [error]="error()"
+  [meta]="meta()"
+  [actions]="actions()"
+  (retry)="load()"
+  (action)="onDetailAction($event)"
+>
+  @if (channel(); as d) {
+  <ng-container main>
+    <tch-admin-section-card
+      [title]="'admin.drawChannels.detail.sales.title' | translate"
+      icon="point_of_sale"
+    >
+      <div class="dc-detail__section-head">
+        <div>
+          <p class="dc-detail__eyebrow">
+            {{ 'admin.drawChannels.detail.sales.eyebrow' | translate }}
+          </p>
+          <h2>{{ 'admin.drawChannels.detail.sales.heading' | translate }}</h2>
+        </div>
+        <tch-admin-status-pill [label]="statusLabel()" [tone]="statusTone()" />
+      </div>
+      <tch-console-facts [facts]="salesFacts()" />
+    </tch-admin-section-card>
+
+    <tch-admin-section-card
+      [title]="'admin.drawChannels.detail.draw.title' | translate"
+      icon="event"
+    >
+      <tch-console-facts [facts]="drawFacts()" />
+    </tch-admin-section-card>
+
+    <tch-admin-section-card
+      [title]="'admin.drawChannels.config.result.title' | translate"
+      icon="fact_check"
+    >
+      <tch-console-facts [facts]="resultFacts()" />
+      <p class="dc-detail__readonly">
+        {{ 'admin.drawChannels.config.result.readonly' | translate }}
+      </p>
+    </tch-admin-section-card>
+
+    <tch-admin-section-card
+      [title]="'admin.drawChannels.detail.links.title' | translate"
+      icon="link"
+    >
+      <div class="dc-detail__links">
+        <button mat-stroked-button type="button" (click)="openConfig()">
+          <mat-icon aria-hidden="true">settings</mat-icon>
+          {{ 'admin.drawChannels.actions.configure' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="openGeneratedDraws()">
+          <mat-icon aria-hidden="true">event</mat-icon>
+          {{ 'admin.drawChannels.actions.viewGeneratedDraws' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="load()">
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+          {{ 'admin.drawChannels.actions.refresh' | translate }}
+        </button>
+      </div>
+    </tch-admin-section-card>
+  </ng-container>
+
+  <ng-container aside>
+    <tch-identity-card
+      variant="compact"
+      [eyebrow]="'admin.drawChannels.detail.aside.eyebrow' | translate"
+      [title]="title()"
+      [code]="d.code"
+      [status]="statusLabel()"
+      [statusTone]="statusTone()"
+      icon="event"
+      [meta]="asideMeta()"
+    />
+  </ng-container>
+  }
+</tch-console-entity-detail>

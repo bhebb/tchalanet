@@ -1790,7 +1790,37 @@
         "configure": "Configure",
         "configureChannel": "Configure channel",
         "configureGameOffer": "Configure channel games",
-        "viewGeneratedDraws": "View draws"
+        "viewGeneratedDraws": "View draws",
+        "viewDetails": "View details"
+      },
+      "detail": {
+        "titleFallback": "Draw channel details",
+        "description": "{{code}} · {{timezone}}",
+        "sales": {
+          "title": "Sales",
+          "eyebrow": "Operator configuration",
+          "heading": "Selling availability"
+        },
+        "draw": {
+          "title": "Draw"
+        },
+        "links": {
+          "title": "Operational actions"
+        },
+        "aside": {
+          "eyebrow": "CHANNEL TRACKING"
+        },
+        "fields": {
+          "salesStop": "Sales closing rule",
+          "sortOrder": "Display order"
+        },
+        "actions": {
+          "back": "Back"
+        },
+        "error": {
+          "missingTitle": "Draw channel not found",
+          "missingMessage": "No draw channel identifier was provided."
+        }
       },
       "readiness": {
         "ready": "Ready for sale",

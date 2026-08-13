@@ -1790,7 +1790,37 @@
         "configure": "Konfigire",
         "configureChannel": "Konfigire kanal la",
         "configureGameOffer": "Konfigire jwèt kanal la",
-        "viewGeneratedDraws": "Gade tiraj yo"
+        "viewGeneratedDraws": "Gade tiraj yo",
+        "viewDetails": "Gade detay"
+      },
+      "detail": {
+        "titleFallback": "Detay kanal tiraj",
+        "description": "{{code}} · {{timezone}}",
+        "sales": {
+          "title": "Vant",
+          "eyebrow": "Konfigirasyon santral",
+          "heading": "Disponibilite pou vann"
+        },
+        "draw": {
+          "title": "Tiraj"
+        },
+        "links": {
+          "title": "Aksyon operasyon"
+        },
+        "aside": {
+          "eyebrow": "SUIVI KANAL"
+        },
+        "fields": {
+          "salesStop": "Règ fèmti vant",
+          "sortOrder": "Lòd afichaj"
+        },
+        "actions": {
+          "back": "Retounen"
+        },
+        "error": {
+          "missingTitle": "Kanal tiraj la pa jwenn",
+          "missingMessage": "Pa gen idantifyan kanal tiraj ki te bay."
+        }
       },
       "readiness": {
         "ready": "Pare pou vant",

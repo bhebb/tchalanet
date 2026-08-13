@@ -620,7 +620,37 @@
         "configure": "Configurer",
         "configureChannel": "Configurer le canal",
         "configureGameOffer": "Configurer les jeux du canal",
-        "viewGeneratedDraws": "Voir les tirages"
+        "viewGeneratedDraws": "Voir les tirages",
+        "viewDetails": "Voir les détails"
+      },
+      "detail": {
+        "titleFallback": "Détails du canal de tirage",
+        "description": "{{code}} · {{timezone}}",
+        "sales": {
+          "title": "Vente",
+          "eyebrow": "Configuration tenant",
+          "heading": "Disponibilité de vente"
+        },
+        "draw": {
+          "title": "Tirage"
+        },
+        "links": {
+          "title": "Actions opérationnelles"
+        },
+        "aside": {
+          "eyebrow": "SUIVI DU CANAL"
+        },
+        "fields": {
+          "salesStop": "Règle de fermeture",
+          "sortOrder": "Ordre d'affichage"
+        },
+        "actions": {
+          "back": "Retour"
+        },
+        "error": {
+          "missingTitle": "Canal de tirage introuvable",
+          "missingMessage": "Aucun identifiant de canal de tirage n’a été fourni."
+        }
       },
       "readiness": {
         "ready": "Prêt pour la vente",
