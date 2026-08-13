@@ -26,6 +26,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
@@ -37,6 +38,20 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
   private static final JsonMapper JSON = JsonMapper.builder().build();
   private static final ZoneId TENANT_ZONE = ZoneId.of("America/Port-au-Prince");
   private static final Instant SALES_NOW = Instant.now();
+
+  @BeforeEach
+  void cleanLimitState() {
+    // Wipe limit assignments and exposure accumulated by other test classes (shared DB container).
+    // draw_exposure and limit_assignment both use tenant-scoped RLS, so DELETE WHERE TRUE
+    // inside a tenant context removes only this tenant's rows.
+    withContext(
+        tenantAdminContext,
+        () -> {
+          jdbc.update("DELETE FROM draw_exposure WHERE TRUE");
+          jdbc.update("DELETE FROM limit_assignment WHERE TRUE");
+          return null;
+        });
+  }
 
   @Test
   @DisplayName("Cas 1 — block selection rejects sale and does not persist a ticket")
