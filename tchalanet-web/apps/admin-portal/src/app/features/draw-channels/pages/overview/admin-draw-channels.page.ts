@@ -45,7 +45,6 @@ interface DrawChannelListRow {
   readonly slot: DrawChannelSlotConfigView;
   readonly resultMode: 'AUTO' | 'MANUAL' | 'UNCONFIGURED';
   readonly status: 'active' | 'attention' | 'inactive';
-  readonly gameCount: number | null;
 }
 
 @Component({
@@ -107,14 +106,12 @@ export class AdminDrawChannelsPage implements OnInit {
     this.allProviders()
       .flatMap(provider =>
         provider.slots.map(slot => {
-          const gameCount = slot.saleReadyGameCount ?? slot.offeredGameCount ?? null;
           return {
             providerCode: provider.providerCode,
             providerLabel: provider.providerLabel,
             slot,
             resultMode: this.resultMode(provider.resultAcquisition.mode),
-            status: this.channelStatus(slot, gameCount),
-            gameCount,
+            status: this.channelStatus(slot),
           };
         }),
       )
@@ -223,7 +220,6 @@ export class AdminDrawChannelsPage implements OnInit {
   rowMessageLabelKey(row: DrawChannelListRow): string {
     if (!row.slot.enabled) return 'admin.drawChannels.list.message.inactive';
     if (!row.slot.drawTime) return 'admin.drawChannels.list.message.missingSchedule';
-    if (row.gameCount === 0) return 'admin.drawChannels.list.message.noGames';
     if (row.slot.resultSlotActive === false) return 'admin.drawChannels.list.message.sourceInactive';
     return 'admin.drawChannels.list.message.active';
   }
@@ -253,12 +249,9 @@ export class AdminDrawChannelsPage implements OnInit {
     return 'UNCONFIGURED';
   }
 
-  private channelStatus(
-    slot: DrawChannelSlotConfigView,
-    gameCount: number | null,
-  ): DrawChannelListRow['status'] {
+  private channelStatus(slot: DrawChannelSlotConfigView): DrawChannelListRow['status'] {
     if (!slot.enabled) return 'inactive';
-    if (!slot.drawTime || slot.resultSlotActive === false || gameCount === 0) return 'attention';
+    if (!slot.drawTime || slot.resultSlotActive === false) return 'attention';
     return 'active';
   }
 

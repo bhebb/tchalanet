@@ -1611,17 +1611,15 @@
           "action": "Aksyon"
         },
         "resultMode": {
-          "AUTO": "Otomatik",
-          "MANUAL": "Manyèl",
-          "UNCONFIGURED": "Pou defini"
+          "AUTO": "Rezilta: otomatik",
+          "MANUAL": "Rezilta: manyèl",
+          "UNCONFIGURED": "Rezilta: pou defini"
         },
         "status": {
           "active": "Aktif",
           "attention": "Atansyon",
           "inactive": "Inaktif"
         },
-        "gamesCount": "{{count}} jwèt",
-        "gamesUnknown": "Jwèt —",
         "days": {
           "label": "Jou ouvè: {{value}}",
           "everyDay": "Chak jou"

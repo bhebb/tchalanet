@@ -31,6 +31,7 @@ test.describe('Admin draw-channel configuration — mobile', () => {
     await expect(firstCard).toContainText('10:00');
     await expect(firstCard).toContainText('09:55');
     await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
+    await expect(firstCard).not.toContainText(/Jeux|Jwèt|Games/);
     await expect(firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ })).toBeVisible();
 
     const configureButton = firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ });

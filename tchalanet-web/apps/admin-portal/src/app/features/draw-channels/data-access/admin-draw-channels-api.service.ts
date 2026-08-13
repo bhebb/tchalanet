@@ -21,8 +21,6 @@ interface TenantDrawChannelSummary {
   readonly daysOfWeek?: string | null;
   readonly active: boolean;
   readonly resultSlotActive?: boolean;
-  readonly offeredGameCount?: number;
-  readonly saleReadyGameCount?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -152,8 +150,6 @@ export class AdminDrawChannelsApiService {
       drawTime: channel.drawTime,
       cutoffTime: channel.cutoffTime,
       daysOfWeek: channel.daysOfWeek,
-      offeredGameCount: channel.offeredGameCount,
-      saleReadyGameCount: channel.saleReadyGameCount,
     };
   }
 }

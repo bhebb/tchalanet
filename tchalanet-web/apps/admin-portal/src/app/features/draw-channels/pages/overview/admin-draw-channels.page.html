@@ -116,13 +116,6 @@
 
             <div class="dc-page__card-state">
               <span>{{ resultModeLabelKey(row.resultMode) | translate }}</span>
-              <span>
-                @if (row.gameCount !== null) {
-                  {{ 'admin.drawChannels.list.gamesCount' | translate: { count: row.gameCount } }}
-                } @else {
-                  {{ 'admin.drawChannels.list.gamesUnknown' | translate }}
-                }
-              </span>
             </div>
 
             <div class="dc-page__card-schedule">

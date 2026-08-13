@@ -1611,17 +1611,15 @@
           "action": "Action"
         },
         "resultMode": {
-          "AUTO": "Automatic",
-          "MANUAL": "Manual",
-          "UNCONFIGURED": "To define"
+          "AUTO": "Results: automatic",
+          "MANUAL": "Results: manual",
+          "UNCONFIGURED": "Results: to define"
         },
         "status": {
           "active": "Active",
           "attention": "Needs attention",
           "inactive": "Inactive"
         },
-        "gamesCount": "{{count}} game(s)",
-        "gamesUnknown": "Games —",
         "days": {
           "label": "Open days: {{value}}",
           "everyDay": "Every day"

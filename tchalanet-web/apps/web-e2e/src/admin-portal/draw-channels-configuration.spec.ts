@@ -33,13 +33,13 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await expect(firstCard).toContainText('10:00');
     await expect(firstCard).toContainText('09:55');
     await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
-    await expect(firstCard).toContainText(/6 jeu|6 jwèt|6 game/);
+    await expect(firstCard).not.toContainText(/Jeux|Jwèt|Games/);
     await expect(firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ })).toBeVisible();
 
     const attentionCard = page.locator('.dc-page__channel-card--attention').filter({
-      hasText: /California/,
+      hasText: /Florida/,
     });
     await expect(attentionCard.first()).toBeVisible();
-    await expect(attentionCard.first()).toContainText(/Aucun jeu|Pa gen jwèt|No games/);
+    await expect(attentionCard.first()).toContainText(/source|sous|Sous/);
   });
 });

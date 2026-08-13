@@ -441,17 +441,15 @@
           "action": "Action"
         },
         "resultMode": {
-          "AUTO": "Automatique",
-          "MANUAL": "Manuel",
-          "UNCONFIGURED": "À définir"
+          "AUTO": "Résultats : automatique",
+          "MANUAL": "Résultats : manuel",
+          "UNCONFIGURED": "Résultats : à définir"
         },
         "status": {
           "active": "Actif",
           "attention": "Attention",
           "inactive": "Inactif"
         },
-        "gamesCount": "{{count}} jeu(x)",
-        "gamesUnknown": "Jeux —",
         "days": {
           "label": "Jours ouverts : {{value}}",
           "everyDay": "Tous les jours"
