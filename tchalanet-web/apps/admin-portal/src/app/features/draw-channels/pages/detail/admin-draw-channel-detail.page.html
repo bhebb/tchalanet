@@ -63,6 +63,17 @@
         </button>
       </div>
     </tch-admin-section-card>
+
+    @if (channelId) {
+      <tch-admin-limits-section
+        targetType="DRAW_CHANNEL"
+        [targetId]="channelId"
+        inheritedTargetType="TENANT"
+        [inheritedScopeLabel]="'admin.limits.section.scope.tenant' | translate"
+        [sectionTitle]="'drawChannel.limitsSection.title' | translate"
+        [defaultExpandedGroups]="['VENTE', 'RESTRICTIONS']"
+      />
+    }
     }
   </ng-container>
 
