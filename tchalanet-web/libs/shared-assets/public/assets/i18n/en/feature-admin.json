@@ -1619,6 +1619,15 @@
           "active": "Active",
           "attention": "Needs attention",
           "inactive": "Inactive"
+        },
+        "gamesCount": "{{count}} game(s)",
+        "gamesUnknown": "Games —",
+        "message": {
+          "active": "This channel is available for sales.",
+          "inactive": "This channel is not active for sales.",
+          "missingSchedule": "The draw time needs to be configured.",
+          "noGames": "No games are available on this draw.",
+          "sourceInactive": "The result source needs to be checked."
         }
       },
       "empty": {

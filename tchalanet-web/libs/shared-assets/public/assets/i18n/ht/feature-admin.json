@@ -1619,6 +1619,15 @@
           "active": "Aktif",
           "attention": "Atansyon",
           "inactive": "Inaktif"
+        },
+        "gamesCount": "{{count}} jwèt",
+        "gamesUnknown": "Jwèt —",
+        "message": {
+          "active": "Kanal sa a disponib pou vann.",
+          "inactive": "Kanal sa a pa aktif pou vann.",
+          "missingSchedule": "Lè tiraj la bezwen konfigire.",
+          "noGames": "Pa gen jwèt ki disponib sou tiraj sa a.",
+          "sourceInactive": "Sous rezilta a bezwen verifye."
         }
       },
       "empty": {

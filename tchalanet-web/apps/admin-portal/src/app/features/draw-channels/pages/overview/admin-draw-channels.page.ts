@@ -7,12 +7,15 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import {
+  AdminEmptyStateComponent,
+  AdminPageShellComponent,
+  AdminRefreshButtonComponent,
+} from '@tch/ui/console';
+import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
 import { consoleLotteryProviderLogoUrl } from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
-import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminRefreshButtonComponent } from '@tch/ui/console';
-import { AdminEmptyStateComponent } from '@tch/ui/console';
 
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
@@ -56,6 +59,7 @@ interface DrawChannelListRow {
     TranslatePipe,
     AdminPageShellComponent,
     AdminRefreshButtonComponent,
+    AdminStatusPillComponent,
     AdminEmptyStateComponent,
     TchErrorPanel,
     TchSectionError,
@@ -104,11 +108,11 @@ export class AdminDrawChannelsPage implements OnInit {
       provider.slots.map(slot => {
         const gameCount = slot.saleReadyGameCount ?? slot.offeredGameCount ?? null;
         return {
-          providerCode:  provider.providerCode,
+          providerCode: provider.providerCode,
           providerLabel: provider.providerLabel,
           slot,
-          resultMode:    this.resultMode(provider.resultAcquisition.mode),
-          status:        this.channelStatus(slot, gameCount),
+          resultMode: this.resultMode(provider.resultAcquisition.mode),
+          status: this.channelStatus(slot, gameCount),
           gameCount,
         };
       }),
@@ -204,12 +208,37 @@ export class AdminDrawChannelsPage implements OnInit {
     return `admin.drawChannels.list.status.${status}`;
   }
 
+  rowStatusTone(status: DrawChannelListRow['status']): AdminStatusTone {
+    if (status === 'active') return 'success';
+    if (status === 'attention') return 'warning';
+    return 'neutral';
+  }
+
   resultModeLabelKey(mode: DrawChannelListRow['resultMode']): string {
     return `admin.drawChannels.list.resultMode.${mode}`;
   }
 
+  rowMessageLabelKey(row: DrawChannelListRow): string {
+    if (!row.slot.enabled) return 'admin.drawChannels.list.message.inactive';
+    if (!row.slot.drawTime) return 'admin.drawChannels.list.message.missingSchedule';
+    if (row.gameCount === 0) return 'admin.drawChannels.list.message.noGames';
+    if (row.slot.resultSlotActive === false) return 'admin.drawChannels.list.message.sourceInactive';
+    return 'admin.drawChannels.list.message.active';
+  }
+
   providerLogoUrl(row: DrawChannelListRow): string | null {
     return consoleLotteryProviderLogoUrl(row.providerCode);
+  }
+
+  channelTitle(row: DrawChannelListRow): string {
+    const slotLabel = row.slot.label.trim();
+    if (slotLabel.toLowerCase().startsWith(`${row.providerLabel.toLowerCase()} · `)) {
+      return slotLabel;
+    }
+    if (slotLabel.toLowerCase() === row.providerLabel.toLowerCase()) {
+      return row.providerLabel;
+    }
+    return `${row.providerLabel} · ${slotLabel}`;
   }
 
   private resultMode(mode: DrawResultAcquisitionView['mode']): DrawChannelListRow['resultMode'] {

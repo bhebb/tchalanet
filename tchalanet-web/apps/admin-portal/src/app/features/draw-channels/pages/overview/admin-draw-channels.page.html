@@ -92,22 +92,40 @@
         @for (row of filteredRows(); track row.providerCode + ':' + row.slot.slotKey) {
           @let slot = row.slot;
           <article class="dc-page__channel-card dc-page__channel-card--{{ row.status }}">
-            <div class="dc-page__channel-main">
-              <span class="dc-page__logo" aria-hidden="true">
-                @if (providerLogoUrl(row); as logo) {
-                  <img [src]="logo" [alt]="row.providerLabel" />
+            <header class="dc-page__card-header">
+              <div class="dc-page__channel-main">
+                <span class="dc-page__logo" aria-hidden="true">
+                  @if (providerLogoUrl(row); as logo) {
+                    <img [src]="logo" [alt]="row.providerLabel" />
+                  } @else {
+                    <span>{{ row.providerCode | slice:0:2 }}</span>
+                  }
+                </span>
+
+                <div class="dc-page__identity">
+                  <p class="dc-page__name">{{ channelTitle(row) }}</p>
+                  <p class="dc-page__meta">{{ slot.slotKey }}</p>
+                </div>
+              </div>
+
+              <tch-admin-status-pill
+                [label]="rowStatusLabelKey(row.status) | translate"
+                [tone]="rowStatusTone(row.status)"
+              />
+            </header>
+
+            <div class="dc-page__card-state">
+              <span>{{ resultModeLabelKey(row.resultMode) | translate }}</span>
+              <span>
+                @if (row.gameCount !== null) {
+                  {{ 'admin.drawChannels.list.gamesCount' | translate: { count: row.gameCount } }}
                 } @else {
-                  <span>{{ row.providerCode | slice:0:2 }}</span>
+                  {{ 'admin.drawChannels.list.gamesUnknown' | translate }}
                 }
               </span>
-
-              <div class="dc-page__identity">
-                <p class="dc-page__name">{{ row.providerLabel }} · {{ slot.label }}</p>
-                <p class="dc-page__meta">{{ slot.slotKey }}</p>
-              </div>
             </div>
 
-            <div class="dc-page__schedule">
+            <div class="dc-page__card-schedule">
               <p class="dc-page__time">
                 <span>{{ 'admin.drawChannels.slots.drawTimeLabel' | translate }}</span>
                 <strong>
@@ -127,23 +145,7 @@
               </p>
             </div>
 
-            <div class="dc-page__facts">
-              <span>
-                <small>{{ 'admin.drawChannels.list.columns.results' | translate }}</small>
-                {{ resultModeLabelKey(row.resultMode) | translate }}
-              </span>
-              <span>
-                <small>{{ 'admin.drawChannels.list.columns.games' | translate }}</small>
-                @if (row.gameCount !== null) {
-                  {{ row.gameCount }}
-                } @else {
-                  —
-                }
-              </span>
-              <span class="dc-page__status dc-page__status--{{ row.status }}">
-                {{ rowStatusLabelKey(row.status) | translate }}
-              </span>
-            </div>
+            <p class="dc-page__message">{{ rowMessageLabelKey(row) | translate }}</p>
 
             <div class="dc-page__channel-action">
               <button

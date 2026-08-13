@@ -449,6 +449,15 @@
           "active": "Actif",
           "attention": "Attention",
           "inactive": "Inactif"
+        },
+        "gamesCount": "{{count}} jeu(x)",
+        "gamesUnknown": "Jeux —",
+        "message": {
+          "active": "Ce canal est disponible à la vente.",
+          "inactive": "Ce canal n'est pas actif pour la vente.",
+          "missingSchedule": "L'heure du tirage doit être configurée.",
+          "noGames": "Aucun jeu n'est disponible sur ce tirage.",
+          "sourceInactive": "La source de résultats doit être vérifiée."
         }
       },
       "empty": {
