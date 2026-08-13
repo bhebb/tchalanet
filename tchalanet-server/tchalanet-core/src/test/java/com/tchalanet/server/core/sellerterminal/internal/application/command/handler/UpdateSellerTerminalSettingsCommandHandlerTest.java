@@ -29,10 +29,12 @@ class UpdateSellerTerminalSettingsCommandHandlerTest {
   @Test
   void allowsTerminalSettingsUpdatesWithoutHumanActor() {
     var handler = new UpdateSellerTerminalSettingsCommandHandler(settingsPort);
-    var receipt = new SellerTerminalReceiptSettingsView(true, 1, true, "AUTO", "RECEIPT_58MM", null);
+    var receipt =
+        new SellerTerminalReceiptSettingsView(true, 1, true, "AUTO", "RECEIPT_58MM", null);
     var notifications = new SellerTerminalNotificationSettingsView(true, false);
     var command =
-        new UpdateSellerTerminalSettingsCommand(TENANT_ID, TERMINAL_ID, receipt, notifications, null);
+        new UpdateSellerTerminalSettingsCommand(
+            TENANT_ID, TERMINAL_ID, receipt, notifications, null);
 
     assertThatCode(() -> handler.handle(command)).doesNotThrowAnyException();
 
