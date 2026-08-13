@@ -649,7 +649,7 @@
         "fields": {
           "provider": "Fournisseur",
           "salesStop": "Règle de fermeture",
-          "sortOrder": "Ordre d'affichage"
+          "sortOrder": "Ordre d’affichage"
         },
         "actions": {
           "back": "Retour"
