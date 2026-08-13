@@ -3,9 +3,9 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.api.query.EffectiveLimitsForDrawView;
 import com.tchalanet.server.core.limitpolicy.api.query.GetEffectiveLimitsForDrawQuery;
-import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
 import com.tchalanet.server.core.limitpolicy.internal.domain.resolver.LimitResolver;
 import java.time.Clock;
