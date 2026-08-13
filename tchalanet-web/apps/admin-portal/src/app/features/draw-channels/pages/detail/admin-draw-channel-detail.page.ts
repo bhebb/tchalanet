@@ -1,11 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import {
   AdminSectionCardComponent,
   AdminStatusPillComponent,
@@ -21,7 +20,8 @@ import {
   type ConsoleRowAction,
   consoleDrawIdentity,
 } from '@tch/web/console';
-import { resolveErrorFeedbackCopy, toErrorViewModel, type ErrorViewModel } from '@tch/web/errors';
+import { resourceErrorVm } from '@tch/web/async';
+import { type ErrorViewModel } from '@tch/web/errors';
 
 import { DrawChannelConfigDialog } from '../../components/draw-channel-config-dialog/draw-channel-config.dialog';
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
@@ -57,9 +57,32 @@ export class AdminDrawChannelDetailPage {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  readonly pageState = signal<PageState>('loading');
-  readonly channel = signal<DrawChannelDetailView | null>(null);
-  readonly error = signal<ErrorViewModel | null>(null);
+  private readonly channelId = this.route.snapshot.paramMap.get('id');
+  readonly channelResource = this.api.getChannelDetailResource(() => this.channelId, {
+    suppressShellFeedback: true,
+  });
+  private readonly resourceError = resourceErrorVm(
+    this.channelResource,
+    'admin.drawChannels.detail',
+  );
+  readonly pageState = computed<PageState>(() => {
+    if (!this.channelId) return 'error';
+    const status = this.channelResource.status();
+    if (status === 'error') return 'error';
+    if (status === 'resolved' || status === 'local' || status === 'reloading') return 'ready';
+    return 'loading';
+  });
+  readonly channel = computed(() => this.channelResource.value() ?? null);
+  readonly error = computed<ErrorViewModel | null>(() => {
+    if (!this.channelId) {
+      return {
+        title: this.t('admin.drawChannels.detail.error.missingTitle'),
+        message: this.t('admin.drawChannels.detail.error.missingMessage'),
+        severity: 'error',
+      };
+    }
+    return this.resourceError();
+  });
 
   readonly title = computed(() => this.channelTitle(this.channel()));
   readonly description = computed(() => this.channelDescription(this.channel()));
@@ -201,34 +224,8 @@ export class AdminDrawChannelDetailPage {
     ];
   });
 
-  constructor() {
-    this.load();
-  }
-
   load(): void {
-    const channelId = this.route.snapshot.paramMap.get('id');
-    if (!channelId) {
-      this.pageState.set('error');
-      this.error.set({
-        title: this.t('admin.drawChannels.detail.error.missingTitle'),
-        message: this.t('admin.drawChannels.detail.error.missingMessage'),
-        severity: 'error',
-      });
-      return;
-    }
-
-    this.pageState.set('loading');
-    this.error.set(null);
-    this.api.getChannelDetail(channelId, { suppressShellFeedback: true }).subscribe({
-      next: channel => {
-        this.channel.set(channel);
-        this.pageState.set('ready');
-      },
-      error: err => {
-        this.error.set(this.errorViewModel(err));
-        this.pageState.set('error');
-      },
-    });
+    this.channelResource.reload();
   }
 
   onDetailAction(event: ConsoleEntityDetailActionEvent): void {
@@ -340,14 +337,6 @@ export class AdminDrawChannelDetailPage {
     const label = provider?.trim() || '—';
     return this.t('admin.drawChannels.config.result.source.provider', { provider: label });
   }
-
-  private errorViewModel(err: unknown): ErrorViewModel {
-    const problem = mapHttpErrorToProblemDetail(err);
-    const normalized = webAppErrorFromProblemDetail(problem, 'admin.drawChannels.detail', 'page');
-    const copy = resolveErrorFeedbackCopy(normalized, key => this.t(key));
-    return toErrorViewModel(normalized, copy);
-  }
-
   private t(key: string, params?: Record<string, string | number>): string {
     return this.translate.instant(key, params);
   }

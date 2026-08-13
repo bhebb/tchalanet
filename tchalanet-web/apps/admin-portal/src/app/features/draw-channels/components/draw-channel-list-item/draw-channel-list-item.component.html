@@ -1,0 +1,110 @@
+@let r = row();
+@let slot = r.slot;
+
+<article class="dc-channel-card dc-channel-card--{{ r.status }}">
+  <header class="dc-channel-card__header">
+    <div class="dc-channel-card__main">
+      <span class="dc-channel-card__logo" aria-hidden="true">
+        @if (providerLogoUrl(); as logo) {
+          <img [src]="logo" [alt]="r.providerLabel" />
+        } @else {
+          <span>{{ r.providerCode | slice: 0 : 2 }}</span>
+        }
+      </span>
+
+      <div class="dc-channel-card__identity">
+        <p class="dc-channel-card__name">{{ channelTitle(r) }}</p>
+        <p class="dc-channel-card__meta">{{ slot.slotKey }}</p>
+      </div>
+    </div>
+
+    <div class="dc-channel-card__state-control">
+      @if (r.status === 'attention') {
+        <tch-admin-status-pill
+          [label]="statusLabelKey(r.status) | translate"
+          [tone]="statusTone(r.status)"
+        />
+      }
+      <mat-slide-toggle
+        class="dc-channel-card__active-toggle"
+        [checked]="slot.enabled"
+        [disabled]="!slot.channelId || saving()"
+        [attr.aria-label]="
+          (slot.enabled
+            ? 'admin.drawChannels.slots.toggle.disable'
+            : 'admin.drawChannels.slots.toggle.enable'
+          ) | translate
+        "
+        (change)="toggleEnabled.emit($event.checked)"
+      >
+        {{
+          (slot.enabled
+            ? 'admin.drawChannels.slots.saleEnabled'
+            : 'admin.drawChannels.slots.saleDisabled'
+          ) | translate
+        }}
+      </mat-slide-toggle>
+    </div>
+  </header>
+
+  <div class="dc-channel-card__state">
+    <span>{{ resultModeLabelKey(r.resultMode) | translate }}</span>
+  </div>
+
+  <div class="dc-channel-card__schedule">
+    <p class="dc-channel-card__time">
+      <span>{{ 'admin.drawChannels.slots.drawTimeLabel' | translate }}:</span>
+      <strong>
+        @if (slot.drawTime) {
+          {{ slot.drawTime | slice: 0 : 5 }}
+        } @else {
+          —
+        }
+      </strong>
+    </p>
+    <div class="dc-channel-card__cutoff-row">
+      <p class="dc-channel-card__cutoff">
+        @if (slot.cutoffTime) {
+          {{
+            'admin.drawChannels.slots.cutoffTime'
+              | translate: { value: (slot.cutoffTime | slice: 0 : 5) }
+          }}
+        } @else {
+          {{ 'admin.drawChannels.salesCutoffMissing' | translate }}
+        }
+      </p>
+      <button
+        mat-icon-button
+        type="button"
+        class="dc-channel-card__cutoff-edit"
+        [disabled]="!slot.channelId"
+        [attr.aria-label]="'common.edit' | translate"
+        (click)="configure.emit(slot)"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+      </button>
+    </div>
+    <p class="dc-channel-card__days">
+      {{
+        'admin.drawChannels.list.days.label'
+          | translate: { value: daysOfWeekLabel(slot.daysOfWeek) }
+      }}
+    </p>
+  </div>
+
+  <p class="dc-channel-card__message">{{ messageLabelKey(r) | translate }}</p>
+
+  <div class="dc-channel-card__actions">
+    <button
+      mat-stroked-button
+      [disabled]="!slot.channelId || saving()"
+      (click)="configure.emit(slot)"
+    >
+      {{ 'admin.drawChannels.actions.configure' | translate }}
+    </button>
+    <button mat-button [disabled]="!slot.channelId" (click)="details.emit(slot)">
+      <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+      {{ 'admin.drawChannels.actions.viewDetails' | translate }}
+    </button>
+  </div>
+</article>

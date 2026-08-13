@@ -1,57 +1,48 @@
-import { SlicePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { TchNotice } from '@tch/ui/components';
 import {
   AdminEmptyStateComponent,
   AdminPageShellComponent,
   AdminRefreshButtonComponent,
 } from '@tch/ui/console';
-import { AdminStatusPillComponent, AdminStatusTone } from '@tch/ui/console';
-import { consoleLotteryProviderLogoUrl } from '@tch/web/console';
-import { resolveErrorFeedbackCopy } from '@tch/web/errors';
-import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+  tchMutation,
+} from '@tch/web/async';
 
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
-  DrawChannelProviderView,
-  DrawChannelSlotConfigView,
+  type DrawChannelProviderView,
+  type DrawChannelSlotConfigView,
 } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelsSummaryComponent } from '../../components/draw-channels-summary/draw-channels-summary.component';
 import { DrawChannelConfigDialog } from '../../components/draw-channel-config-dialog/draw-channel-config.dialog';
-
-export function adminDrawChannelsErrorView(
-  err: unknown,
-  translate: (key: string) => string,
-): ErrorViewModel {
-  const problem = mapHttpErrorToProblemDetail(err);
-  const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.draw_channels', 'page');
-  const copy = resolveErrorFeedbackCopy(normalized, translate);
-  return toErrorViewModel(normalized, copy);
-}
+import {
+  DrawChannelListItemComponent,
+  type DrawChannelListItemView,
+  type DrawChannelListResultMode,
+  type DrawChannelListStatus,
+} from '../../components/draw-channel-list-item/draw-channel-list-item.component';
 
 type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive' | 'error';
-type PageState = 'loading' | 'ready' | 'error';
 
-interface DrawChannelListRow {
-  readonly providerCode: string;
-  readonly providerLabel: string;
+interface ToggleChannelInput {
   readonly slot: DrawChannelSlotConfigView;
-  readonly resultMode: 'AUTO' | 'MANUAL' | 'UNCONFIGURED';
-  readonly status: 'active' | 'attention' | 'inactive';
+  readonly enabled: boolean;
 }
 
 @Component({
@@ -60,22 +51,21 @@ interface DrawChannelListRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    SlicePipe,
     MatButtonModule,
-    MatSlideToggleModule,
     TranslatePipe,
     AdminPageShellComponent,
     AdminRefreshButtonComponent,
-    AdminStatusPillComponent,
     AdminEmptyStateComponent,
-    TchErrorPanel,
-    TchSectionError,
+    TchNotice,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     DrawChannelsSummaryComponent,
+    DrawChannelListItemComponent,
   ],
   templateUrl: './admin-draw-channels.page.html',
   styleUrls: ['./admin-draw-channels.page.scss'],
 })
-export class AdminDrawChannelsPage implements OnInit {
+export class AdminDrawChannelsPage {
   private readonly api = inject(AdminDrawChannelsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly route = inject(ActivatedRoute);
@@ -83,35 +73,23 @@ export class AdminDrawChannelsPage implements OnInit {
   private readonly translate = inject(TranslateService);
   private handledDeepLinkKey: string | null = null;
 
-  readonly pageState = signal<PageState>('loading');
-  readonly pageError = signal<ErrorViewModel | null>(null);
-  readonly actionNotice = signal<string | null>(null);
-  readonly allProviders = signal<DrawChannelProviderView[]>([]);
-  readonly savingChannelId = signal<string | null>(null);
+  readonly providersResource = this.api.getDrawChannelProvidersResource({
+    suppressShellFeedback: true,
+  });
+  readonly providersError = resourceErrorVm(this.providersResource, 'admin.setup.draw_channels');
+  readonly allProviders = computed(() => this.providersResource.value() ?? []);
   readonly activeFilter = signal<ActiveFilter>('all');
   readonly searchQuery = signal<string>('');
-
-  readonly filteredProviders = computed(() => {
-    const filter = this.activeFilter();
-    const query = this.searchQuery().trim().toLowerCase();
-    return this.allProviders()
-      .filter(p => {
-        if (filter === 'active') return p.tenantStatus === 'ACTIVE';
-        if (filter === 'todo')
-          return p.tenantStatus === 'INACTIVE' || p.tenantStatus === 'NEEDS_CONFIG';
-        if (filter === 'inactive') return p.tenantStatus === 'INACTIVE';
-        if (filter === 'error') return p.resultAcquisition.sourceStatus === 'ERROR';
-        return true;
-      })
-      .filter(
-        p =>
-          !query ||
-          p.providerLabel.toLowerCase().includes(query) ||
-          p.providerCode.toLowerCase().includes(query),
-      );
+  readonly toggleChannel = tchMutation<ToggleChannelInput, unknown>({
+    run: input =>
+      this.api.setChannelActive(input.slot.channelId ?? '', input.enabled, {
+        suppressShellFeedback: true,
+      }),
+    source: 'admin.setup.draw_channels.toggle',
+    onSuccess: () => this.load(true),
   });
 
-  readonly channelRows = computed<DrawChannelListRow[]>(() =>
+  readonly channelRows = computed<DrawChannelListItemView[]>(() =>
     this.allProviders()
       .flatMap(provider =>
         provider.slots.map(slot => {
@@ -157,42 +135,21 @@ export class AdminDrawChannelsPage implements OnInit {
     { key: 'error', labelKey: 'admin.drawChannels.filters.sourceError' },
   ];
 
-  ngOnInit(): void {
-    this.load();
+  constructor() {
+    effect(() => {
+      const providers = this.providersResource.value();
+      if (providers) this.handleDeepLinkedChannel(providers);
+    });
   }
 
-  load(): void {
-    this.pageState.set('loading');
-    this.pageError.set(null);
-    this.actionNotice.set(null);
-    this.api.getDrawChannelProviders({ suppressShellFeedback: true }).subscribe({
-      next: data => {
-        this.allProviders.set(data);
-        this.pageState.set('ready');
-        this.handleDeepLinkedChannel(data);
-      },
-      error: (err: unknown) => {
-        this.pageError.set(this.errorViewModel(err));
-        this.pageState.set('error');
-      },
-    });
+  load(preserveActionFeedback = false): void {
+    if (!preserveActionFeedback) this.toggleChannel.clearFeedback();
+    this.providersResource.reload();
   }
 
   toggleChannelEnabled(slot: DrawChannelSlotConfigView, enabled: boolean): void {
-    if (!slot.channelId || this.savingChannelId()) return;
-    this.savingChannelId.set(slot.channelId);
-    this.actionNotice.set(null);
-    this.api.setChannelActive(slot.channelId, enabled, { suppressShellFeedback: true }).subscribe({
-      next: () => {
-        this.savingChannelId.set(null);
-        this.load();
-      },
-      error: (err: unknown) => {
-        this.savingChannelId.set(null);
-        this.pageError.set(this.errorViewModel(err));
-        this.pageState.set('error');
-      },
-    });
+    if (!slot.channelId) return;
+    this.toggleChannel.execute({ slot, enabled }, { key: slot.channelId });
   }
 
   openChannelConfig(slot: DrawChannelSlotConfigView): void {
@@ -204,6 +161,10 @@ export class AdminDrawChannelsPage implements OnInit {
     void this.router.navigate(['/app/admin/draw-channels', slot.channelId]);
   }
 
+  channelSaving(slot: DrawChannelSlotConfigView): boolean {
+    return !!slot.channelId && this.toggleChannel.pending(slot.channelId);
+  }
+
   private openChannelDialog(slot: DrawChannelSlotConfigView, mode: 'configure' | 'details'): void {
     if (!slot.channelId) return;
     this.dialog
@@ -213,8 +174,8 @@ export class AdminDrawChannelsPage implements OnInit {
           label: slot.label,
           mode,
         },
-        maxWidth: mode === 'details' ? '680px' : '640px',
-        width: mode === 'details' ? 'min(680px, 96vw)' : 'min(640px, 96vw)',
+        maxWidth: '640px',
+        width: 'min(640px, 96vw)',
       })
       .afterClosed()
       .subscribe(saved => {
@@ -222,78 +183,17 @@ export class AdminDrawChannelsPage implements OnInit {
       });
   }
 
-  rowStatusLabelKey(status: DrawChannelListRow['status']): string {
-    return `admin.drawChannels.list.status.${status}`;
-  }
-
-  rowStatusTone(status: DrawChannelListRow['status']): AdminStatusTone {
-    if (status === 'active') return 'success';
-    if (status === 'attention') return 'warning';
-    return 'neutral';
-  }
-
-  resultModeLabelKey(mode: DrawChannelListRow['resultMode']): string {
-    return `admin.drawChannels.list.resultMode.${mode}`;
-  }
-
-  rowMessageLabelKey(row: DrawChannelListRow): string {
-    if (!row.slot.enabled) return 'admin.drawChannels.list.message.inactive';
-    if (!row.slot.drawTime) return 'admin.drawChannels.list.message.missingSchedule';
-    if (row.slot.resultSlotActive === false)
-      return 'admin.drawChannels.list.message.sourceInactive';
-    return 'admin.drawChannels.list.message.active';
-  }
-
-  channelTitle(row: DrawChannelListRow): string {
-    const slotLabel = row.slot.label.trim();
-    return slotLabel || row.providerLabel;
-  }
-
-  providerLogoUrl(row: DrawChannelListRow): string | null {
-    return consoleLotteryProviderLogoUrl(row.providerCode);
-  }
-
-  daysOfWeekLabel(daysOfWeek: string | null | undefined): string {
-    const parts = this.expandDaysOfWeek(daysOfWeek);
-    if (parts.length === 0 || parts.length === 7) {
-      return this.translate.instant('admin.drawChannels.list.days.everyDay');
-    }
-    return parts
-      .map(day => this.translate.instant(`admin.drawChannels.daysShort.${day}`))
-      .join(', ');
-  }
-
-  private slotResultMode(slot: DrawChannelSlotConfigView): DrawChannelListRow['resultMode'] {
+  private slotResultMode(slot: DrawChannelSlotConfigView): DrawChannelListResultMode {
     if (slot.resultSlotActive === false) return 'UNCONFIGURED';
     if (slot.defaultSource === 'MANUAL') return 'MANUAL';
     if (slot.defaultSource) return 'AUTO';
     return 'UNCONFIGURED';
   }
 
-  private channelStatus(slot: DrawChannelSlotConfigView): DrawChannelListRow['status'] {
+  private channelStatus(slot: DrawChannelSlotConfigView): DrawChannelListStatus {
     if (!slot.enabled) return 'inactive';
     if (!slot.drawTime || slot.resultSlotActive === false) return 'attention';
     return 'active';
-  }
-
-  private expandDaysOfWeek(daysOfWeek: string | null | undefined): readonly string[] {
-    const value = daysOfWeek?.trim().toUpperCase();
-    if (!value) return [];
-    if (value === 'MON-SUN') return DAY_ORDER;
-
-    const days = new Set<string>();
-    for (const part of value.split(',')) {
-      const trimmed = part.trim();
-      if (!trimmed) continue;
-      if (trimmed.includes('-')) {
-        const [start, end] = trimmed.split('-').map(token => token.trim());
-        for (const day of daysInRange(start, end)) days.add(day);
-      } else {
-        const day = dayToken(trimmed);
-        if (day) days.add(day);
-      }
-    }
-    return DAY_ORDER.filter(day => days.has(day));
   }
 
   private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {
@@ -324,56 +224,9 @@ export class AdminDrawChannelsPage implements OnInit {
     this.handledDeepLinkKey = deepLinkKey;
     queueMicrotask(() => this.openChannelConfig(slot));
   }
-
-  private errorViewModel(err: unknown): ErrorViewModel {
-    return adminDrawChannelsErrorView(err, key => this.translate.instant(key));
-  }
 }
 
-const DAY_ORDER = [
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-  'SUNDAY',
-] as const;
-
-type DayCode = (typeof DAY_ORDER)[number];
-
-const DAY_TOKEN_TO_CODE: Record<string, DayCode> = {
-  MON: 'MONDAY',
-  TUE: 'TUESDAY',
-  WED: 'WEDNESDAY',
-  THU: 'THURSDAY',
-  FRI: 'FRIDAY',
-  SAT: 'SATURDAY',
-  SUN: 'SUNDAY',
-};
-
-function dayToken(token: string): DayCode | null {
-  return DAY_TOKEN_TO_CODE[token.slice(0, 3)] ?? null;
-}
-
-function daysInRange(
-  startToken: string | undefined,
-  endToken: string | undefined,
-): readonly DayCode[] {
-  const start = dayToken(startToken ?? '');
-  const end = dayToken(endToken ?? '');
-  if (!start || !end) return [];
-  const startIndex = DAY_ORDER.indexOf(start);
-  const endIndex = DAY_ORDER.indexOf(end);
-  const result: DayCode[] = [];
-  for (let index = startIndex; ; index = (index + 1) % DAY_ORDER.length) {
-    result.push(DAY_ORDER[index]);
-    if (index === endIndex) break;
-  }
-  return result;
-}
-
-function compareDrawChannelRows(a: DrawChannelListRow, b: DrawChannelListRow): number {
+function compareDrawChannelRows(a: DrawChannelListItemView, b: DrawChannelListItemView): number {
   const byActive = Number(b.slot.enabled) - Number(a.slot.enabled);
   if (byActive !== 0) return byActive;
   const byTime = (a.slot.drawTime ?? '').localeCompare(b.slot.drawTime ?? '');

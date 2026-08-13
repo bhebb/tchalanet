@@ -11,8 +11,13 @@
     <span>{{ 'admin.drawChannels.config.code' | translate }}: <strong>{{ d.code }}</strong></span>
   </div>
 
-  @if (errorKey(); as key) {
-  <p class="dc-config__error">{{ key | translate }}</p>
+  @if (error(); as err) {
+  <tch-section-error
+    class="dc-config__error"
+    [title]="err.title"
+    [message]="err.message"
+    [severity]="err.severity"
+  />
   }
 
   <div class="dc-config__body" [class.dc-config__body--details]="mode === 'details'">
@@ -139,8 +144,13 @@
       <p>{{ 'admin.drawChannels.config.system.readonly' | translate }}</p>
     </aside>
   </div>
-  } @else if (errorKey(); as key) {
-  <p class="dc-config__error">{{ key | translate }}</p>
+  } @else if (error(); as err) {
+  <tch-section-error
+    class="dc-config__error"
+    [title]="err.title"
+    [message]="err.message"
+    [severity]="err.severity"
+  />
   }
 </mat-dialog-content>
 

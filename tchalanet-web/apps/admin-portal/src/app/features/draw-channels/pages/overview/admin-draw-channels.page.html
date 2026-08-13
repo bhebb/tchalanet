@@ -9,77 +9,72 @@
     </a>
     <tch-admin-refresh-button
       [label]="'admin.drawChannels.actions.refresh' | translate"
-      [disabled]="pageState() === 'loading'"
-      [busy]="pageState() === 'loading'"
+      [disabled]="providersResource.status() === 'loading' || providersResource.status() === 'reloading'"
+      [busy]="providersResource.status() === 'loading' || providersResource.status() === 'reloading'"
       (refreshRequested)="load()"
     />
   </div>
 
-  @if (actionNotice(); as notice) {
-    <tch-section-error
-      feedback
-      class="dc-page__notice"
-      [title]="'admin.drawChannels.notice.title' | translate"
-      [message]="notice"
-      severity="info"
-    />
-  }
-
-  @if (pageState() === 'loading') {
-    <section class="dc-page__skeleton-grid" [attr.aria-label]="'admin.drawChannels.loading' | translate">
-      @for (_ of [0, 1, 2, 3]; track _) {
-        <div class="dc-page__skeleton-card">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      }
-    </section>
-  } @else if (pageState() === 'error') {
-    @if (pageError(); as errorVm) {
-      <tch-error-panel
-        [title]="errorVm.title"
-        [message]="errorVm.message"
-        [showRetry]="true"
-        [retryLabel]="'common.retry' | translate"
-        (retry)="load()"
-      />
-    }
+  @if (toggleChannel.feedback(); as feedback) { @if (feedback.kind === 'error') {
+  <tch-notice feedback type="error" class="dc-page__notice" [focusOnRender]="true">
+    {{ feedback.vm?.message }}
+  </tch-notice>
   } @else {
+  <tch-notice feedback type="success" class="dc-page__notice" [focusOnRender]="true">
+    {{ 'admin.drawChannels.notice.channelSaved' | translate }}
+  </tch-notice>
+  } }
 
-    <!-- KPI summary -->
-    <tch-draw-channels-summary [providers]="allProviders()" />
+  <tch-async-view
+    [resource]="providersResource"
+    [error]="providersError()"
+    [loadingLabel]="'admin.drawChannels.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="load()"
+  >
+    <tch-admin-empty-state
+      empty
+      icon="confirmation_number"
+      [title]="'admin.drawChannels.empty.title' | translate"
+      [message]="'admin.drawChannels.empty.none' | translate"
+    />
 
-    <!-- Filter bar -->
-    <div class="dc-page__filters">
-      <div class="dc-page__filter-chips">
-        @for (f of filters; track f.key) {
+    <ng-template tchAsyncReady>
+      <!-- KPI summary -->
+      <tch-draw-channels-summary [providers]="allProviders()" />
+
+      <!-- Filter bar -->
+      <div class="dc-page__filters">
+        <div class="dc-page__filter-chips">
+          @for (f of filters; track f.key) {
           <button
             class="dc-page__chip"
             [class.dc-page__chip--active]="activeFilter() === f.key"
             (click)="activeFilter.set(f.key)"
-          >{{ f.labelKey | translate }}</button>
-        }
+          >
+            {{ f.labelKey | translate }}
+          </button>
+          }
+        </div>
+        <label class="dc-page__search-wrap">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input
+            class="dc-page__search"
+            type="search"
+            [placeholder]="'admin.drawChannels.search.placeholder' | translate"
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
+          />
+        </label>
       </div>
-      <label class="dc-page__search-wrap">
-        <span class="material-symbols-outlined" aria-hidden="true">search</span>
-        <input
-          class="dc-page__search"
-          type="search"
-          [placeholder]="'admin.drawChannels.search.placeholder' | translate"
-          [value]="searchQuery()"
-          (input)="searchQuery.set($any($event.target).value)"
-        />
-      </label>
-    </div>
 
-    <!-- Results count -->
-    <p class="dc-page__count">
-      {{ 'admin.drawChannels.channelResultsCount' | translate: { count: filteredRows().length } }}
-    </p>
+      <!-- Results count -->
+      <p class="dc-page__count">
+        {{ 'admin.drawChannels.channelResultsCount' | translate: { count: filteredRows().length } }}
+      </p>
 
-    <!-- Draw channel list -->
-    @if (filteredRows().length === 0) {
+      <!-- Draw channel list -->
+      @if (filteredRows().length === 0) {
       <tch-admin-empty-state
         icon="confirmation_number"
         [title]="'admin.drawChannels.empty.title' | translate"
@@ -87,112 +82,22 @@
           ? 'admin.drawChannels.empty.filtered'
           : 'admin.drawChannels.empty.none') | translate"
       />
-    } @else {
-      <section class="dc-page__channel-list" [attr.aria-label]="'admin.drawChannels.list.title' | translate">
+      } @else {
+      <section
+        class="dc-page__channel-list"
+        [attr.aria-label]="'admin.drawChannels.list.title' | translate"
+      >
         @for (row of filteredRows(); track row.providerCode + ':' + row.slot.slotKey) {
-          @let slot = row.slot;
-          <article class="dc-page__channel-card dc-page__channel-card--{{ row.status }}">
-            <header class="dc-page__card-header">
-              <div class="dc-page__channel-main">
-                <span class="dc-page__logo" aria-hidden="true">
-                  @if (providerLogoUrl(row); as logo) {
-                    <img [src]="logo" [alt]="row.providerLabel" />
-                  } @else {
-                    <span>{{ row.providerCode | slice:0:2 }}</span>
-                  }
-                </span>
-
-                <div class="dc-page__identity">
-                  <p class="dc-page__name">{{ channelTitle(row) }}</p>
-                  <p class="dc-page__meta">{{ slot.slotKey }}</p>
-                </div>
-              </div>
-
-              <div class="dc-page__state-control">
-                @if (row.status === 'attention') {
-                  <tch-admin-status-pill
-                    [label]="rowStatusLabelKey(row.status) | translate"
-                    [tone]="rowStatusTone(row.status)"
-                  />
-                }
-                <mat-slide-toggle
-                  class="dc-page__active-toggle"
-                  [checked]="slot.enabled"
-                  [disabled]="!slot.channelId || savingChannelId() === slot.channelId"
-                  [attr.aria-label]="(slot.enabled
-                    ? 'admin.drawChannels.slots.toggle.disable'
-                    : 'admin.drawChannels.slots.toggle.enable') | translate"
-                  (change)="toggleChannelEnabled(slot, $event.checked)"
-                >
-                  {{ (slot.enabled
-                    ? 'admin.drawChannels.slots.saleEnabled'
-                    : 'admin.drawChannels.slots.saleDisabled') | translate }}
-                </mat-slide-toggle>
-              </div>
-            </header>
-
-            <div class="dc-page__card-state">
-              <span>{{ resultModeLabelKey(row.resultMode) | translate }}</span>
-            </div>
-
-            <div class="dc-page__card-schedule">
-              <p class="dc-page__time">
-                <span>{{ 'admin.drawChannels.slots.drawTimeLabel' | translate }}:</span>
-                <strong>
-                  @if (slot.drawTime) {
-                    {{ slot.drawTime | slice:0:5 }}
-                  } @else {
-                    —
-                  }
-                </strong>
-              </p>
-              <div class="dc-page__cutoff-row">
-                <p class="dc-page__cutoff">
-                  @if (slot.cutoffTime) {
-                    {{ 'admin.drawChannels.slots.cutoffTime' | translate: { value: (slot.cutoffTime | slice:0:5) } }}
-                  } @else {
-                    {{ 'admin.drawChannels.salesCutoffMissing' | translate }}
-                  }
-                </p>
-                <button
-                  mat-icon-button
-                  type="button"
-                  class="dc-page__cutoff-edit"
-                  [disabled]="!slot.channelId"
-                  [attr.aria-label]="'common.edit' | translate"
-                  (click)="openChannelConfig(slot)"
-                >
-                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
-                </button>
-              </div>
-              <p class="dc-page__days">
-                {{ 'admin.drawChannels.list.days.label' | translate: { value: daysOfWeekLabel(slot.daysOfWeek) } }}
-              </p>
-            </div>
-
-            <p class="dc-page__message">{{ rowMessageLabelKey(row) | translate }}</p>
-
-            <div class="dc-page__channel-action">
-              <button
-                mat-stroked-button
-                [disabled]="!slot.channelId || savingChannelId() === slot.channelId"
-                (click)="openChannelConfig(slot)"
-              >
-                {{ 'admin.drawChannels.actions.configure' | translate }}
-              </button>
-              <button
-                mat-button
-                [disabled]="!slot.channelId"
-                (click)="openChannelDetails(slot)"
-              >
-                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-                {{ 'admin.drawChannels.actions.viewDetails' | translate }}
-              </button>
-            </div>
-          </article>
+        <tch-draw-channel-list-item
+          [row]="row"
+          [saving]="channelSaving(row.slot)"
+          (configure)="openChannelConfig($event)"
+          (details)="openChannelDetails($event)"
+          (toggleEnabled)="toggleChannelEnabled(row.slot, $event)"
+        />
         }
       </section>
-    }
-
-  }
+      }
+    </ng-template>
+  </tch-async-view>
 </tch-admin-page-shell>

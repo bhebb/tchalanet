@@ -470,7 +470,8 @@
       "notice": {
         "title": "Action non disponible",
         "configureUnavailable": "La configuration directe de {{provider}} sera bientôt disponible.",
-        "saved": "Configuration de {{provider}} enregistrée."
+        "saved": "Configuration de {{provider}} enregistrée.",
+        "channelSaved": "Configuration du canal de tirage enregistrée."
       },
       "config": {
         "title": "Configurer {{name}}",

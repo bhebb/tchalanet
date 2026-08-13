@@ -8,7 +8,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TchSectionError } from '@tch/ui/components';
 import { consoleDrawIdentity } from '@tch/web/console';
+import { presentApiError, type ErrorViewModel } from '@tch/web/errors';
 
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
@@ -45,6 +47,7 @@ interface DrawChannelConfigForm {
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    TchSectionError,
     TranslatePipe,
   ],
   templateUrl: './draw-channel-config.dialog.html',
@@ -58,7 +61,7 @@ export class DrawChannelConfigDialog {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
-  readonly errorKey = signal<string | null>(null);
+  readonly error = signal<ErrorViewModel | null>(null);
   readonly detail = signal<DrawChannelDetailView | null>(null);
   readonly title = this.data.label;
   readonly mode = this.data.mode;
@@ -120,7 +123,7 @@ export class DrawChannelConfigDialog {
 
   load(): void {
     this.loading.set(true);
-    this.errorKey.set(null);
+    this.error.set(null);
     this.api.getChannelDetail(this.data.channelId, { suppressShellFeedback: true }).subscribe({
       next: detail => {
         this.detail.set(detail);
@@ -134,8 +137,8 @@ export class DrawChannelConfigDialog {
         });
         this.loading.set(false);
       },
-      error: () => {
-        this.errorKey.set('admin.drawChannels.config.error.load');
+      error: err => {
+        this.error.set(this.errorViewModel(err, 'admin.drawChannels.config.load'));
         this.loading.set(false);
       },
     });
@@ -220,7 +223,7 @@ export class DrawChannelConfigDialog {
     };
 
     this.saving.set(true);
-    this.errorKey.set(null);
+    this.error.set(null);
     this.api
       .updateChannel(this.data.channelId, request, { suppressShellFeedback: true })
       .subscribe({
@@ -228,11 +231,18 @@ export class DrawChannelConfigDialog {
           this.saving.set(false);
           this.dialogRef.close(true);
         },
-        error: () => {
-          this.errorKey.set('admin.drawChannels.config.error.save');
+        error: err => {
+          this.error.set(this.errorViewModel(err, 'admin.drawChannels.config.save'));
           this.saving.set(false);
         },
       });
+  }
+
+  private errorViewModel(err: unknown, source: string): ErrorViewModel {
+    return presentApiError(err, key => this.translate.instant(key), {
+      source,
+      surface: 'section',
+    }).viewModel;
   }
 }
 

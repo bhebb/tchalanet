@@ -25,11 +25,11 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await expect(page.getByRole('heading', { name: /Canaux de tirage|Kanal tiraj/ })).toBeVisible();
     await expect(page.getByText(/5 canal|5 kanal|5 draw channel/)).toBeVisible();
 
-    const firstCard = page.locator('.dc-page__channel-card').first();
+    const firstCard = page.locator('.dc-channel-card').first();
     await expect(firstCard).toContainText('Texas · 1000');
     await expect(firstCard).not.toContainText('Haïti');
     await expect(firstCard).not.toContainText('HT · HT · 1000');
-    await expect(firstCard.locator('.dc-page__logo img')).toBeVisible();
+    await expect(firstCard.locator('.dc-channel-card__logo img')).toBeVisible();
     await expect(firstCard).toContainText('10:00');
     await expect(firstCard).toContainText('09:55');
     await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
@@ -55,16 +55,19 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await page.keyboard.press('Escape');
 
     await firstCard.getByRole('button', { name: /Voir détails|Gade detay|View details/ }).click();
-    const detailsDialog = page.getByRole('dialog');
+    await expect(page).toHaveURL(/\/app\/admin\/draw-channels\/channel-ht-1000$/);
     await expect(
-      detailsDialog.getByRole('heading', {
-        name: /Informations système|Enfòmasyon sistèm|System information/,
-      }),
+      page.getByTestId('admin-page-header').getByRole('heading', { name: /Texas · 1000/ }),
     ).toBeVisible();
-    await expect(detailsDialog.getByRole('heading', { name: /Vente|Vant|Sales/ })).toBeHidden();
-    await page.keyboard.press('Escape');
+    const detailContent = page.locator('tch-console-entity-detail');
+    await expect(detailContent.getByRole('heading', { name: /Tirage|Tiraj|Draw/ })).toBeVisible();
+    await expect(
+      detailContent.getByRole('heading', { name: /Résultats|Rezilta|Results/ }),
+    ).toBeVisible();
+    await expect(detailContent.getByRole('heading', { name: /Vente|Vant|Sales/ })).toBeVisible();
+    await page.goBack();
 
-    const attentionCard = page.locator('.dc-page__channel-card--attention').filter({
+    const attentionCard = page.locator('.dc-channel-card--attention').filter({
       hasText: /Florida/,
     });
     await expect(attentionCard.first()).toBeVisible();

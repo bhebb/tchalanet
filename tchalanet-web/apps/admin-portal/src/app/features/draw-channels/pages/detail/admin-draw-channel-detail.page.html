@@ -9,8 +9,8 @@
   (retry)="load()"
   (action)="onDetailAction($event)"
 >
-  @if (channel(); as d) {
   <ng-container main>
+    @if (channel(); as d) {
     <tch-admin-section-card
       [title]="'admin.drawChannels.detail.sales.title' | translate"
       icon="point_of_sale"
@@ -63,9 +63,11 @@
         </button>
       </div>
     </tch-admin-section-card>
+    }
   </ng-container>
 
   <ng-container aside>
+    @if (channel(); as d) {
     <tch-identity-card
       variant="compact"
       [eyebrow]="'admin.drawChannels.detail.aside.eyebrow' | translate"
@@ -76,6 +78,6 @@
       icon="event"
       [meta]="asideMeta()"
     />
+    }
   </ng-container>
-  }
 </tch-console-entity-detail>

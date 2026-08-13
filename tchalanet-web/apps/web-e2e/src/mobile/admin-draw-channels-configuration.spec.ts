@@ -22,12 +22,12 @@ test.describe('Admin draw-channel configuration — mobile', () => {
   test('keeps each draw-channel card readable without horizontal scrolling', async ({ page }) => {
     await page.goto('/app/admin/draw-channels');
 
-    const firstCard = page.locator('.dc-page__channel-card').first();
+    const firstCard = page.locator('.dc-channel-card').first();
     await expect(firstCard).toBeVisible();
     await expect(firstCard).toContainText('Texas · 1000');
     await expect(firstCard).not.toContainText('Haïti');
     await expect(firstCard).not.toContainText('HT · HT · 1000');
-    await expect(firstCard.locator('.dc-page__logo img')).toBeVisible();
+    await expect(firstCard.locator('.dc-channel-card__logo img')).toBeVisible();
     await expect(firstCard).toContainText('10:00');
     await expect(firstCard).toContainText('09:55');
     await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
@@ -44,8 +44,7 @@ test.describe('Admin draw-channel configuration — mobile', () => {
     });
     const buttonBox = await configureButton.boundingBox();
     expect(buttonBox).not.toBeNull();
-    if (!buttonBox) return;
-    expect(buttonBox.height).toBeGreaterThanOrEqual(40);
+    expect(buttonBox?.height ?? 0).toBeGreaterThanOrEqual(40);
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

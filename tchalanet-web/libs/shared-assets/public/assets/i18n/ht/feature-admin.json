@@ -1640,7 +1640,8 @@
       "notice": {
         "title": "Aksyon pa disponib",
         "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap disponib byento.",
-        "saved": "Konfigirasyon {{provider}} anrejistre."
+        "saved": "Konfigirasyon {{provider}} anrejistre.",
+        "channelSaved": "Kanal tiraj la anrejistre."
       },
       "config": {
         "title": "Konfigire {{name}}",

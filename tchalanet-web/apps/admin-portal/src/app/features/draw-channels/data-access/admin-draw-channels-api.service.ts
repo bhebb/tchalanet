@@ -42,6 +42,22 @@ export class AdminDrawChannelsApiService {
       .pipe(map(channels => this.toProviders(channels)));
   }
 
+  getDrawChannelProvidersResource(options?: TchRequestOptions) {
+    return this.backend.getResource<DrawChannelProviderView[], TenantDrawChannelSummary[]>(
+      () => ({
+        path: '/tenant/draw-channels',
+        options: {
+          ...options,
+          params: {
+            ...(isRecordParams(options?.params) ? options.params : {}),
+            activeOnly: 'false',
+          },
+        },
+      }),
+      channels => this.toProviders(channels),
+    );
+  }
+
   setChannelActive(
     channelId: string,
     active: boolean,
@@ -58,9 +74,26 @@ export class AdminDrawChannelsApiService {
     channelId: string,
     options?: TchRequestOptions,
   ): Observable<DrawChannelDetailView> {
-    return this.backend.get<DrawChannelDetailView>(
-      `/tenant/draw-channels/${channelId}`,
-      options,
+    return this.backend
+      .get<DrawChannelDetailView>(`/tenant/draw-channels/${channelId}`, options)
+      .pipe(map(channel => this.toChannelDetail(channel)));
+  }
+
+  getChannelDetailResource(
+    channelId: () => string | null | undefined,
+    options?: TchRequestOptions,
+  ) {
+    return this.backend.getResource<DrawChannelDetailView>(
+      () => {
+        const id = channelId();
+        return id
+          ? {
+              path: `/tenant/draw-channels/${id}`,
+              options,
+            }
+          : undefined;
+      },
+      channel => this.toChannelDetail(channel),
     );
   }
 
@@ -69,11 +102,9 @@ export class AdminDrawChannelsApiService {
     request: UpdateTenantDrawChannelRequest,
     options?: TchRequestOptions,
   ): Observable<DrawChannelDetailView> {
-    return this.backend.put<DrawChannelDetailView>(
-      `/tenant/draw-channels/${channelId}`,
-      request,
-      options,
-    );
+    return this.backend
+      .put<DrawChannelDetailView>(`/tenant/draw-channels/${channelId}`, request, options)
+      .pipe(map(channel => this.toChannelDetail(channel)));
   }
 
   private toProviders(channels: readonly TenantDrawChannelSummary[]): DrawChannelProviderView[] {
@@ -83,7 +114,10 @@ export class AdminDrawChannelsApiService {
         channelCode: channel.channelCode,
         channelName: channel.channelName,
       });
-      const providerCode = identity.providerCode ?? providerCodeFromChannel(channel.channelCode) ?? channel.channelCode;
+      const providerCode =
+        identity.providerCode ??
+        providerCodeFromChannel(channel.channelCode) ??
+        channel.channelCode;
       groups.set(providerCode, [...(groups.get(providerCode) ?? []), channel]);
     }
 
@@ -102,7 +136,11 @@ export class AdminDrawChannelsApiService {
   ): DrawChannelProviderView {
     const slots = channels
       .map(channel => this.toSlot(providerCode, channel))
-      .sort((a, b) => Number(b.enabled) - Number(a.enabled) || (a.drawTime ?? '').localeCompare(b.drawTime ?? ''));
+      .sort(
+        (a, b) =>
+          Number(b.enabled) - Number(a.enabled) ||
+          (a.drawTime ?? '').localeCompare(b.drawTime ?? ''),
+      );
     const activeChannelCount = slots.filter(slot => slot.enabled).length;
     const tenantStatus = activeChannelCount > 0 ? 'ACTIVE' : 'INACTIVE';
     const identity = consoleDrawIdentity({ providerCode });
@@ -128,7 +166,8 @@ export class AdminDrawChannelsApiService {
           tenantStatus === 'ACTIVE'
             ? 'admin.drawChannels.readiness.ready'
             : 'admin.drawChannels.readiness.todo',
-        reason: tenantStatus === 'ACTIVE' ? null : 'admin.drawChannels.readiness.reason.noActiveChannels',
+        reason:
+          tenantStatus === 'ACTIVE' ? null : 'admin.drawChannels.readiness.reason.noActiveChannels',
       },
     };
   }
@@ -157,13 +196,38 @@ export class AdminDrawChannelsApiService {
     };
   }
 
-  private providerResultMode(slots: readonly DrawChannelSlotConfigView[]): DrawResultAcquisitionView['mode'] {
+  private toChannelDetail(channel: DrawChannelDetailView): DrawChannelDetailView {
+    if (!channel.resultProvider) return channel;
+
+    const identity = consoleDrawIdentity({
+      providerCode: channel.resultProvider,
+      channelCode: channel.code,
+      channelName: channel.name,
+      slotKey: channel.resultSlotKey,
+      slotLabel: channel.label,
+      localTimeLabel: channel.drawTime,
+    });
+
+    return {
+      ...channel,
+      label: identity.channelName ?? channel.label ?? channel.name,
+      name: identity.channelName ?? channel.name,
+      resultProvider: identity.providerCode ?? channel.resultProvider,
+      resultSlotKey: identity.slotKey ?? channel.resultSlotKey,
+    };
+  }
+
+  private providerResultMode(
+    slots: readonly DrawChannelSlotConfigView[],
+  ): DrawResultAcquisitionView['mode'] {
     const activeSlots = slots.filter(slot => slot.enabled);
     if (activeSlots.length === 0) return 'UNCONFIGURED';
     return activeSlots.every(slot => slot.defaultSource === 'MANUAL') ? 'MANUAL' : 'AUTO';
   }
 
-  private providerResultSource(slots: readonly DrawChannelSlotConfigView[]): DrawResultAcquisitionView['source'] {
+  private providerResultSource(
+    slots: readonly DrawChannelSlotConfigView[],
+  ): DrawResultAcquisitionView['source'] {
     const source = slots.find(slot => slot.enabled && slot.defaultSource)?.defaultSource;
     if (!source) return null;
     return source === 'MANUAL' ? 'MANUAL' : 'API';
