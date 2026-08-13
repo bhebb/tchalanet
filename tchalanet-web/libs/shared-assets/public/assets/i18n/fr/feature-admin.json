@@ -503,7 +503,7 @@
         },
         "system": {
           "title": "Informations système",
-          "readonly": "Ces informations viennent du catalogue plateforme. L’admin tenant ne les modifie pas ici."
+          "readonly": "Ces informations sont fournies par Tchalanet. Elles sont en lecture seule ici."
         },
         "error": {
           "load": "Impossible de charger la configuration du canal.",
@@ -525,10 +525,10 @@
           "openDays": "Jours ouverts",
           "projection": {
             "label": "Conversion Haïti",
-            "active": "Active",
+            "active": "Activée",
             "inactive": "À vérifier"
           },
-          "readonly": "La source de résultat vient du catalogue plateforme. L’admin tenant ne peut pas la modifier ici."
+          "readonly": "La manière de recevoir les résultats est définie par Tchalanet. Elle est en lecture seule ici."
         },
         "source": {
           "SYSTEM": "Système",
@@ -629,7 +629,7 @@
         "description": "{{code}} · {{timezone}}",
         "sales": {
           "title": "Vente",
-          "eyebrow": "Configuration tenant",
+          "eyebrow": "Paramètres de vente",
           "heading": "Disponibilité de vente"
         },
         "draw": {
@@ -695,7 +695,7 @@
         "intro": {
           "aria": "Paramètres de vente du jeu",
           "title": "Paramètres utilisés dans la vente",
-          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes globaux restent gérés dans le catalogue plateforme."
+          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes de référence restent gérés par Tchalanet."
         },
         "sell": {
           "title": "Vendre ce jeu",
@@ -1415,18 +1415,35 @@
         "saleDisabled": "Vente du jeu : désactivée",
         "posVisible": "Visible sur POS",
         "posHidden": "Masqué POS",
+        "posYes": "Oui",
+        "posNo": "Non",
+        "saleEnabledShort": "En vente",
+        "saleDisabledShort": "Non vendu",
         "stakeUnavailable": "Mise indisponible",
         "stakeConfigured": "Mise configurée",
         "stakeRange": "Mises : {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Mise non configurée",
         "notConfigured": "Non configuré",
         "pricingMissing": "Barème non configuré",
+        "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} option(s) de barème",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
-        "availabilityReview": "Disponibilité : vérifier les tirages",
+        "availabilityReview": "Vérifier les tirages",
+        "availabilityUnavailable": "Indisponible sur les tirages",
         "standardPricingProfile": "Barème standard",
+        "fact": {
+          "pos": "POS",
+          "stakes": "Mises",
+          "payouts": "Barème",
+          "availability": "Disponible"
+        },
+        "toggle": {
+          "enable": "Activer la vente de ce jeu",
+          "disable": "Désactiver la vente de ce jeu"
+        },
         "action": {
           "configure": "Configurer",
+          "complete": "Compléter",
           "disable": "Désactiver",
           "activate": "Activer",
           "reactivate": "Réactiver",

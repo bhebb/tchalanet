@@ -181,6 +181,71 @@ const subscriptionStub = {
 const gamesPricingStub = {
   games: [
     {
+      gameCode: 'HT_BOLET',
+      tenantGameId: { value: 'game-bolet' },
+      catalogName: 'Bolèt',
+      displayName: 'Bolèt',
+      enabled: true,
+      visibleInPos: true,
+      minStake: 1,
+      maxStake: 1000000,
+      limits: {
+        configured: true,
+        assignments: [
+          { ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW', params: { valueCents: 500000 } },
+        ],
+      },
+      pricing: {
+        configured: true,
+        entries: [
+          {
+            betType: 'BORLETTE',
+            betOption: null,
+            pricingVariantCode: 'BORLETTE_STANDARD',
+            odds: 50,
+            payoutRuleType: 'STAKE_MULTIPLIER',
+            fixedAmount: null,
+          },
+        ],
+      },
+    },
+    {
+      gameCode: 'HT_LOTO4',
+      tenantGameId: { value: 'game-loto4' },
+      catalogName: 'Loto 4 chif',
+      displayName: 'Loto 4 chif',
+      enabled: true,
+      visibleInPos: true,
+      minStake: 1,
+      maxStake: 1000000,
+      limits: { configured: true, assignments: [] },
+      pricing: { configured: false, entries: [] },
+    },
+    {
+      gameCode: 'HT_LOTO5',
+      tenantGameId: { value: 'game-loto5' },
+      catalogName: 'Loto 5 chif',
+      displayName: 'Loto 5 chif',
+      enabled: false,
+      visibleInPos: false,
+      minStake: 1,
+      maxStake: 1000000,
+      limits: { configured: true, assignments: [] },
+      pricing: {
+        configured: true,
+        entries: [
+          {
+            betType: 'LOTO5',
+            betOption: null,
+            pricingVariantCode: 'LOTO5_STANDARD',
+            odds: 5000,
+            payoutRuleType: 'STAKE_MULTIPLIER',
+            fixedAmount: null,
+          },
+        ],
+      },
+    },
+    {
       gameCode: 'HT_MARYAJ_GRATIS',
       tenantGameId: { value: 'game-maryaj-gratis' },
       catalogName: 'Maryaj gratis',

@@ -1,13 +1,13 @@
 @use 'breakpoints' as ui;
 
-.dc-channel-card {
+.gp-game-card {
   align-items: stretch;
   background: var(--tch-color-surface-container-lowest, #fff);
   border: 1px solid var(--tch-color-outline-variant, #c7c5d0);
   border-radius: var(--tch-radius-lg, 0.75rem);
   box-shadow: var(--tch-elevation-1, 0 1px 3px rgba(0, 0, 0, 0.08));
   display: grid;
-  gap: 0.625rem;
+  gap: 0.75rem;
   min-width: 0;
   padding: 0.75rem;
 
@@ -20,7 +20,8 @@
       color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 72%, transparent);
   }
 
-  &--inactive {
+  &--inactive,
+  &--unavailable {
     opacity: 0.72;
   }
 
@@ -31,87 +32,6 @@
     gap: 0.75rem;
     justify-content: space-between;
     min-width: 0;
-  }
-
-  &__state-control {
-    align-items: center;
-    display: inline-flex;
-    flex: 0 0 auto;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-
-  &__sale-toggle {
-    align-items: center;
-    background: transparent;
-    border: 0;
-    color: var(--tch-color-on-surface-variant, #46464f);
-    cursor: pointer;
-    display: inline-flex;
-    gap: 0.4rem;
-    min-height: 2.75rem;
-    min-width: 7.25rem;
-    padding: 0;
-
-    &:disabled {
-      cursor: default;
-      opacity: 0.56;
-    }
-  }
-
-  &__sale-toggle-track {
-    align-items: center;
-    background: var(--tch-color-surface-container-highest, #e6e0e9);
-    border: 1px solid var(--tch-color-outline, #79747e);
-    border-radius: 999px;
-    display: inline-flex;
-    flex: 0 0 auto;
-    height: 2rem;
-    padding: 0.125rem;
-    transition:
-      background 160ms ease,
-      border-color 160ms ease;
-    width: 3.5rem;
-  }
-
-  &__sale-toggle-thumb {
-    align-items: center;
-    background: var(--tch-color-outline, #79747e);
-    border-radius: 999px;
-    color: var(--tch-color-primary, #1b185a);
-    display: flex;
-    height: 1.5rem;
-    justify-content: center;
-    transform: translateX(0);
-    transition:
-      background 160ms ease,
-      transform 160ms ease,
-      width 160ms ease;
-    width: 1.5rem;
-
-    .material-symbols-outlined {
-      font-size: 1rem;
-    }
-  }
-
-  &__sale-toggle-label {
-    font-size: var(--tch-font-size-label-sm, 0.6875rem);
-    font-weight: var(--tch-weight-semibold, 600);
-    line-height: 1.15;
-    text-align: start;
-  }
-
-  &__sale-toggle--on {
-    .dc-channel-card__sale-toggle-track {
-      background: var(--tch-color-primary, #1b185a);
-      border-color: var(--tch-color-primary, #1b185a);
-    }
-
-    .dc-channel-card__sale-toggle-thumb {
-      background: var(--tch-color-on-primary, #fff);
-      transform: translateX(1.5rem);
-    }
   }
 
   &__main {
@@ -152,11 +72,7 @@
   }
 
   &__name,
-  &__meta,
-  &__time,
-  &__cutoff,
-  &__days,
-  &__message {
+  &__meta {
     margin: 0;
   }
 
@@ -167,75 +83,125 @@
     line-height: 1.25;
   }
 
-  &__meta,
-  &__cutoff,
-  &__days {
+  &__meta {
     color: var(--tch-color-on-surface-variant, #46464f);
     font-size: var(--tch-font-size-label-sm, 0.6875rem);
   }
 
-  &__state {
+  &__state-control {
     align-items: center;
-    display: flex;
+    display: inline-flex;
+    flex: 0 0 auto;
     flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
 
-    span {
-      color: var(--tch-color-on-surface-variant, #46464f);
-      font-size: var(--tch-font-size-body-sm, 0.8125rem);
-      font-weight: var(--tch-weight-semibold, 600);
+  &__sale-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    cursor: pointer;
+    display: inline-flex;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    min-width: 6.75rem;
+    padding: 0;
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.56;
     }
   }
 
-  &__schedule {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-
-  &__cutoff-row {
+  &__sale-toggle-track {
     align-items: center;
+    background: var(--tch-color-surface-container-highest, #e6e0e9);
+    border: 1px solid var(--tch-color-outline, #79747e);
+    border-radius: 999px;
     display: inline-flex;
-    gap: 0.25rem;
-    min-width: 0;
+    flex: 0 0 auto;
+    height: 2rem;
+    padding: 0.125rem;
+    transition:
+      background 160ms ease,
+      border-color 160ms ease;
+    width: 3.5rem;
   }
 
-  &__cutoff-edit {
-    --mdc-icon-button-state-layer-size: 1.875rem;
-    color: var(--tch-color-primary);
-    flex: 0 0 auto;
-    height: 1.875rem;
-    padding: 0;
-    width: 1.875rem;
+  &__sale-toggle-thumb {
+    align-items: center;
+    background: var(--tch-color-outline, #79747e);
+    border-radius: 999px;
+    color: var(--tch-color-primary, #1b185a);
+    display: flex;
+    height: 1.5rem;
+    justify-content: center;
+    transform: translateX(0);
+    transition:
+      background 160ms ease,
+      transform 160ms ease;
+    width: 1.5rem;
 
     .material-symbols-outlined {
       font-size: 1rem;
     }
   }
 
-  &__time {
-    align-items: baseline;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem;
+  &__sale-toggle-label {
+    font-size: var(--tch-font-size-label-sm, 0.6875rem);
+    font-weight: var(--tch-weight-semibold, 600);
+    line-height: 1.15;
+    text-align: start;
+  }
 
-    span {
-      color: var(--tch-color-on-surface-variant, #46464f);
-      font-size: var(--tch-font-size-label-sm, 0.6875rem);
-      font-weight: var(--tch-weight-semibold, 600);
+  &__sale-toggle--on {
+    .gp-game-card__sale-toggle-track {
+      background: var(--tch-color-primary, #1b185a);
+      border-color: var(--tch-color-primary, #1b185a);
     }
 
-    strong {
-      color: var(--tch-color-on-surface, #1a1c1e);
-      font-size: clamp(1.25rem, 5vw, 1.6rem);
-      font-weight: var(--tch-weight-bold, 700);
-      line-height: 1.05;
+    .gp-game-card__sale-toggle-thumb {
+      background: var(--tch-color-on-primary, #fff);
+      transform: translateX(1.5rem);
     }
   }
 
-  &__message {
-    color: var(--tch-color-on-surface-variant, #46464f);
+  &__facts {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  &__fact {
+    display: grid;
+    gap: 0.125rem;
+
+    dt {
+      color: var(--tch-color-on-surface-variant, #46464f);
+      font-size: var(--tch-font-size-label-sm, 0.6875rem);
+      font-weight: var(--tch-weight-semibold, 600);
+      margin: 0;
+    }
+
+    dd {
+      color: var(--tch-color-on-surface, #1a1c1e);
+      font-size: var(--tch-font-size-body-sm, 0.8125rem);
+      font-weight: var(--tch-weight-semibold, 600);
+      margin: 0;
+    }
+  }
+
+  &__error {
+    background: color-mix(in oklab, var(--tch-color-error, #ba1a1a) 9%, transparent);
+    border: 1px solid color-mix(in oklab, var(--tch-color-error, #ba1a1a) 34%, transparent);
+    border-radius: var(--tch-radius-md, 0.5rem);
+    color: var(--tch-color-error, #ba1a1a);
+    display: grid;
     font-size: var(--tch-font-size-body-sm, 0.8125rem);
+    gap: 0.125rem;
+    padding: 0.625rem 0.75rem;
   }
 
   &__actions {
@@ -249,11 +215,9 @@
 }
 
 @include ui.up(expanded) {
-  .dc-channel-card {
+  .gp-game-card {
     align-items: center;
-    grid-template-columns:
-      minmax(16rem, 1.5fr) minmax(7rem, 0.55fr) minmax(13rem, 1fr) minmax(12rem, 1fr)
-      auto;
+    grid-template-columns: minmax(15rem, 1.2fr) minmax(8rem, 0.65fr) minmax(30rem, 2fr) auto;
     padding: 0.9rem 1rem;
 
     &__header {
@@ -265,9 +229,17 @@
       justify-content: flex-start;
     }
 
+    &__facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
     &__actions {
       display: flex;
       justify-content: flex-end;
+    }
+
+    &__error {
+      grid-column: 1 / -1;
     }
   }
 }

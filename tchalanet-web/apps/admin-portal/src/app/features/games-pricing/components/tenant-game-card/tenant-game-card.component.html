@@ -1,5 +1,101 @@
-<tch-console-game-card
-  [row]="card()"
-  [actionError]="actionError()"
-  (rowAction)="onCardAction($event)"
-/>
+@let g = game();
+
+<article class="gp-game-card gp-game-card--{{ cardStatus(g) }}">
+  <header class="gp-game-card__header">
+    <div class="gp-game-card__main">
+      <span class="gp-game-card__logo" aria-hidden="true">
+        @if (logoUrl(); as logo) {
+          <img [src]="logo" [alt]="g.gameName" />
+        } @else {
+          <span>{{ logoText() }}</span>
+        }
+      </span>
+
+      <div class="gp-game-card__identity">
+        <p class="gp-game-card__name">{{ g.gameName }}</p>
+        <p class="gp-game-card__meta">{{ g.gameCode }}</p>
+      </div>
+    </div>
+
+    <div class="gp-game-card__state-control">
+      <tch-admin-status-pill
+        [label]="statusLabelKey(g) | translate"
+        [tone]="cardStatusTone(g)"
+      />
+      <button
+        type="button"
+        class="gp-game-card__sale-toggle"
+        [class.gp-game-card__sale-toggle--on]="saleEnabled(g)"
+        [disabled]="g.tenantStatus === 'UNAVAILABLE' || saving()"
+        [attr.aria-pressed]="saleEnabled(g)"
+        [attr.aria-label]="
+          (saleEnabled(g)
+            ? 'admin.gamesPricing.card.toggle.disable'
+            : 'admin.gamesPricing.card.toggle.enable'
+          ) | translate
+        "
+        (click)="onToggle(!saleEnabled(g))"
+      >
+        <span class="gp-game-card__sale-toggle-track" aria-hidden="true">
+          <span class="gp-game-card__sale-toggle-thumb">
+            @if (saleEnabled(g)) {
+              <span class="material-symbols-outlined">check</span>
+            }
+          </span>
+        </span>
+        <span class="gp-game-card__sale-toggle-label">
+          {{
+            (saleEnabled(g)
+              ? 'admin.gamesPricing.card.saleEnabledShort'
+              : 'admin.gamesPricing.card.saleDisabledShort'
+            ) | translate
+          }}
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <dl class="gp-game-card__facts">
+    <div class="gp-game-card__fact">
+      <dt>{{ 'admin.gamesPricing.card.fact.pos' | translate }}</dt>
+      <dd>{{ posLabelKey(g) | translate }}</dd>
+    </div>
+    <div class="gp-game-card__fact">
+      <dt>{{ 'admin.gamesPricing.card.fact.stakes' | translate }}</dt>
+      <dd>{{ stakeLabel(g) }}</dd>
+    </div>
+    <div class="gp-game-card__fact">
+      <dt>{{ 'admin.gamesPricing.card.fact.payouts' | translate }}</dt>
+      <dd>{{ pricingLabel(g) }}</dd>
+    </div>
+    <div class="gp-game-card__fact">
+      <dt>{{ 'admin.gamesPricing.card.fact.availability' | translate }}</dt>
+      <dd>{{ availabilityLabelKey(g) | translate }}</dd>
+    </div>
+  </dl>
+
+  @if (actionError(); as error) {
+    <div class="gp-game-card__error" role="alert">
+      <strong>{{ error.title }}</strong>
+      <span>{{ error.message }}</span>
+    </div>
+  }
+
+  <div class="gp-game-card__actions">
+    <button
+      mat-stroked-button
+      [disabled]="g.tenantStatus === 'UNAVAILABLE' || saving()"
+      (click)="onConfigure()"
+    >
+      {{ configureLabelKey(g) | translate }}
+    </button>
+    <button
+      mat-button
+      [disabled]="g.tenantStatus === 'UNAVAILABLE'"
+      (click)="onAvailability()"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">rule_settings</span>
+      {{ 'admin.gamesPricing.card.action.availability' | translate }}
+    </button>
+  </div>
+</article>

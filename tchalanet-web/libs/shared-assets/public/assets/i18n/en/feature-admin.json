@@ -742,18 +742,35 @@
         "saleDisabled": "Sell this game: disabled",
         "posVisible": "Visible on POS",
         "posHidden": "Hidden on POS",
+        "posYes": "Yes",
+        "posNo": "No",
+        "saleEnabledShort": "On sale",
+        "saleDisabledShort": "Not sold",
         "stakeUnavailable": "Stake unavailable",
         "stakeConfigured": "Stake configured",
         "stakeRange": "Stakes: {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Stake not configured",
         "notConfigured": "Not configured",
         "pricingMissing": "Pricing not configured",
+        "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} pricing option(s)",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
-        "availabilityReview": "Availability: review draws",
+        "availabilityReview": "Review draws",
+        "availabilityUnavailable": "Unavailable on draws",
         "standardPricingProfile": "Standard pricing",
+        "fact": {
+          "pos": "POS",
+          "stakes": "Stakes",
+          "payouts": "Payouts",
+          "availability": "Available"
+        },
+        "toggle": {
+          "enable": "Enable game sales",
+          "disable": "Disable game sales"
+        },
         "action": {
           "configure": "Configure",
+          "complete": "Complete setup",
           "disable": "Disable",
           "activate": "Activate",
           "reactivate": "Reactivate",
@@ -1673,7 +1690,7 @@
         },
         "system": {
           "title": "System information",
-          "readonly": "This information comes from the platform catalog. Operator admins cannot edit it here."
+          "readonly": "This information is provided by Tchalanet. It is read-only here."
         },
         "error": {
           "load": "The channel configuration could not be loaded.",
@@ -1695,10 +1712,10 @@
           "openDays": "Open days",
           "projection": {
             "label": "Haiti conversion",
-            "active": "Active",
+            "active": "Enabled",
             "inactive": "Needs review"
           },
-          "readonly": "The result source comes from the platform catalog. Tenant admins cannot edit it here."
+          "readonly": "How results are received is defined by Tchalanet. It is read-only here."
         },
         "source": {
           "SYSTEM": "System",
@@ -1865,7 +1882,7 @@
         "intro": {
           "aria": "Game sales settings",
           "title": "Settings used for sales",
-          "message": "These values control POS display and accepted stakes for this operator. Global payouts and pricing remain managed in the platform catalog."
+          "message": "These values control POS display and accepted stakes for this operator. Reference payouts and pricing remain managed by Tchalanet."
         },
         "sell": {
           "title": "Sell this game",

@@ -742,18 +742,35 @@
         "saleDisabled": "Vann jwèt sa a: dezaktive",
         "posVisible": "Vizib sou POS",
         "posHidden": "Kache sou POS",
+        "posYes": "Wi",
+        "posNo": "Non",
+        "saleEnabledShort": "An vant",
+        "saleDisabledShort": "Pa vann",
         "stakeUnavailable": "Miz pa disponib",
         "stakeConfigured": "Miz konfigire",
         "stakeRange": "Miz: {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Miz pa konfigire",
         "notConfigured": "Pa konfigire",
         "pricingMissing": "Barèm pa konfigire",
+        "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} opsyon barèm",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
-        "availabilityReview": "Disponibilite: verifye tiraj yo",
+        "availabilityReview": "Verifye tiraj yo",
+        "availabilityUnavailable": "Pa disponib sou tiraj yo",
         "standardPricingProfile": "Barèm estanda",
+        "fact": {
+          "pos": "POS",
+          "stakes": "Miz",
+          "payouts": "Barèm",
+          "availability": "Disponib"
+        },
+        "toggle": {
+          "enable": "Aktive vant jwèt sa a",
+          "disable": "Dezaktive vant jwèt sa a"
+        },
         "action": {
           "configure": "Konfigire",
+          "complete": "Konplete",
           "disable": "Dezaktive",
           "activate": "Aktive",
           "reactivate": "Reaktive",
@@ -1673,7 +1690,7 @@
         },
         "system": {
           "title": "Enfòmasyon sistèm",
-          "readonly": "Enfòmasyon sa yo soti nan katalòg platfòm nan. Admin santral la pa modifye yo isit la."
+          "readonly": "Tchalanet bay enfòmasyon sa yo. Yo an lekti sèlman isit la."
         },
         "error": {
           "load": "Nou pa kapab chaje konfigirasyon kanal la.",
@@ -1695,10 +1712,10 @@
           "openDays": "Jou ouvè",
           "projection": {
             "label": "Konvèsyon Ayiti",
-            "active": "Aktif",
+            "active": "Aktive",
             "inactive": "Pou verifye"
           },
-          "readonly": "Sous rezilta a soti nan katalòg platfòm nan. Admin santral la pa ka modifye li isit la."
+          "readonly": "Tchalanet defini jan rezilta yo antre. Li an lekti sèlman isit la."
         },
         "source": {
           "SYSTEM": "Sistèm",

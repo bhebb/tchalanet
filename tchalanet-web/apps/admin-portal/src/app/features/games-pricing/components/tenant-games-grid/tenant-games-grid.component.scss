@@ -1,11 +1,5 @@
-@use 'breakpoints' as ui;
-
 .tenant-games-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-
-  @include ui.up(expanded) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }

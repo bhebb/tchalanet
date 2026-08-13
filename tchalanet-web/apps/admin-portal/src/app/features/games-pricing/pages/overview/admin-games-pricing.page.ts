@@ -84,6 +84,15 @@ export class AdminGamesPricingPage {
   readonly matrixSummary = computed(() => this.buildOverviewSummary(this.games()));
   readonly issues = computed(() => this.buildOverviewIssues(this.games()));
   readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
+  readonly savingGames = computed<ReadonlySet<string>>(() => {
+    const pending = new Set<string>();
+    for (const game of this.games()) {
+      if (this.enableGame.pending(game.gameCode) || this.disableGame.pending(game.gameCode)) {
+        pending.add(game.gameCode);
+      }
+    }
+    return pending;
+  });
   readonly enableGame = tchMutation<string, void>({
     run: gameCode => this.api.enableGame(gameCode, { suppressShellFeedback: true }),
     source: 'admin.setup.games_pricing.enable',
