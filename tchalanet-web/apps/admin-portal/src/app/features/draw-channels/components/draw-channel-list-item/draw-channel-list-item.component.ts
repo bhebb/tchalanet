@@ -1,7 +1,6 @@
 import { SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AdminStatusPillComponent, type AdminStatusTone } from '@tch/ui/console';
@@ -24,13 +23,7 @@ export interface DrawChannelListItemView {
   selector: 'tch-draw-channel-list-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    SlicePipe,
-    MatButtonModule,
-    MatSlideToggleModule,
-    TranslatePipe,
-    AdminStatusPillComponent,
-  ],
+  imports: [SlicePipe, MatButtonModule, TranslatePipe, AdminStatusPillComponent],
   templateUrl: './draw-channel-list-item.component.html',
   styleUrls: ['./draw-channel-list-item.component.scss'],
 })

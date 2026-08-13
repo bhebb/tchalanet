@@ -9,13 +9,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchSectionError } from '@tch/ui/components';
-import { consoleDrawIdentity } from '@tch/web/console';
 import { presentApiError, type ErrorViewModel } from '@tch/web/errors';
 
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
   DrawChannelDetailView,
-  DrawChannelSource,
   DrawChannelWeekDay,
   UpdateTenantDrawChannelRequest,
 } from '../../data-access/admin-draw-channels.models';
@@ -23,7 +21,6 @@ import {
 interface DrawChannelConfigDialogData {
   readonly channelId: string;
   readonly label: string;
-  readonly mode: 'configure' | 'details';
 }
 
 interface DrawChannelConfigForm {
@@ -64,7 +61,6 @@ export class DrawChannelConfigDialog {
   readonly error = signal<ErrorViewModel | null>(null);
   readonly detail = signal<DrawChannelDetailView | null>(null);
   readonly title = this.data.label;
-  readonly mode = this.data.mode;
   readonly supportedWeekDays = computed(() =>
     expandResultSlotDays(this.detail()?.resultSlotDaysOfWeek),
   );
@@ -149,47 +145,11 @@ export class DrawChannelConfigDialog {
   }
 
   titleKey(): string {
-    return this.mode === 'details'
-      ? 'admin.drawChannels.config.detailsTitle'
-      : 'admin.drawChannels.config.title';
-  }
-
-  drawTimeLabel(detail: DrawChannelDetailView): string {
-    return normalizeTime(detail.drawTime) || '—';
-  }
-
-  salesOpenTimeLabel(detail: DrawChannelDetailView): string {
-    return normalizeTime(detail.salesOpenTime) || '—';
+    return 'admin.drawChannels.config.title';
   }
 
   dayLabelKey(day: DrawChannelWeekDay): string {
     return `admin.drawChannels.days.${day}`;
-  }
-
-  timezoneLabel(detail: DrawChannelDetailView): string {
-    return detail.timezone?.trim() || '—';
-  }
-
-  resultModeKey(source: DrawChannelSource | null | undefined): string {
-    return source === 'MANUAL'
-      ? 'admin.drawChannels.config.result.mode.manual'
-      : 'admin.drawChannels.config.result.mode.automatic';
-  }
-
-  resultSourceKey(source: DrawChannelSource | null | undefined): string {
-    return source === 'MANUAL'
-      ? 'admin.drawChannels.config.result.source.manual'
-      : 'admin.drawChannels.config.result.source.provider';
-  }
-
-  resultProviderLabel(detail: DrawChannelDetailView): string {
-    const provider = detail.resultProvider?.trim();
-    if (!provider) return '—';
-    return consoleDrawIdentity({ providerCode: provider }).providerName ?? provider;
-  }
-
-  resultSlotLabel(detail: DrawChannelDetailView): string {
-    return detail.resultProviderSlotCode?.trim() || detail.resultSlotKey?.trim() || '—';
   }
 
   resultDaysLabel(detail: DrawChannelDetailView): string {
@@ -204,15 +164,9 @@ export class DrawChannelConfigDialog {
     return days.map(day => this.translate.instant(this.dayLabelKey(day))).join(', ');
   }
 
-  resultProjectionKey(detail: DrawChannelDetailView): string {
-    return detail.resultSlotActive === false
-      ? 'admin.drawChannels.config.result.projection.inactive'
-      : 'admin.drawChannels.config.result.projection.active';
-  }
-
   save(): void {
     const detail = this.detail();
-    if (!detail || this.saving() || this.mode === 'details' || !this.canSave()) return;
+    if (!detail || this.saving() || !this.canSave()) return;
     const form = this.form();
     const request: UpdateTenantDrawChannelRequest = {
       salesOpenTime: form.salesOpenTime || null,

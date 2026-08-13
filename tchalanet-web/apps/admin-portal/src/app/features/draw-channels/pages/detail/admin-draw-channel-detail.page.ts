@@ -73,6 +73,22 @@ export class AdminDrawChannelDetailPage {
     return 'loading';
   });
   readonly channel = computed(() => this.channelResource.value() ?? null);
+  readonly identity = computed(() => {
+    const channel = this.channel();
+    if (!channel) return null;
+    return consoleDrawIdentity({
+      providerCode: channel.resultProvider ?? providerCodeFromChannel(channel.code),
+      channelCode: channel.code,
+      channelName: channel.name,
+      slotKey: channel.resultSlotKey ?? channel.code,
+      slotLabel: channel.resultProviderSlotCode ?? channel.label ?? channel.name,
+      localTimeLabel: channel.drawTime ?? undefined,
+    });
+  });
+  readonly logoUrl = computed(() => this.identity()?.providerLogoUrl ?? null);
+  readonly logoText = computed(
+    () => this.identity()?.logoText ?? providerCodeFromChannel(this.channel()?.code ?? ''),
+  );
   readonly error = computed<ErrorViewModel | null>(() => {
     if (!this.channelId) {
       return {
@@ -156,8 +172,13 @@ export class AdminDrawChannelDetailPage {
   readonly drawFacts = computed<readonly ConsoleFact[]>(() => {
     const channel = this.channel();
     if (!channel) return [];
+    const identity = this.identity();
     return [
       { label: this.t('admin.drawChannels.config.code'), value: channel.code, code: true },
+      {
+        label: this.t('admin.drawChannels.detail.fields.provider'),
+        value: identity?.providerName ?? providerCodeFromChannel(channel.code),
+      },
       { label: this.t('admin.drawChannels.config.name'), value: channel.name },
       { label: this.t('admin.drawChannels.config.period'), value: channel.period ?? '—' },
       {
@@ -174,6 +195,7 @@ export class AdminDrawChannelDetailPage {
   readonly resultFacts = computed<readonly ConsoleFact[]>(() => {
     const channel = this.channel();
     if (!channel) return [];
+    const identity = this.identity();
     return [
       {
         label: this.t('admin.drawChannels.config.result.mode.label'),
@@ -185,8 +207,17 @@ export class AdminDrawChannelDetailPage {
       },
       {
         label: this.t('admin.drawChannels.config.result.providerSlot'),
-        value: channel.resultProviderSlotCode?.trim() || channel.resultSlotKey?.trim() || '—',
+        value:
+          channel.resultProviderSlotCode?.trim() ||
+          identity?.slotLabel ||
+          channel.resultSlotKey?.trim() ||
+          '—',
         code: true,
+      },
+      {
+        label: this.t('admin.drawChannels.detail.fields.resultSlotId'),
+        value: channel.resultSlotId?.trim() || '—',
+        code: Boolean(channel.resultSlotId?.trim()),
       },
       {
         label: this.t('admin.drawChannels.config.result.openDays'),
@@ -206,8 +237,16 @@ export class AdminDrawChannelDetailPage {
     if (!channel) return [];
     return [
       {
+        label: this.t('admin.drawChannels.config.timezone'),
+        value: channel.timezone ?? '—',
+      },
+      {
         label: this.t('admin.drawChannels.config.drawTime'),
         value: normalizeTime(channel.drawTime) || '—',
+      },
+      {
+        label: this.t('admin.drawChannels.config.salesOpenTime'),
+        value: normalizeTime(channel.salesOpenTime) || '—',
       },
       {
         label: this.t('admin.drawChannels.config.salesCloseTime'),
@@ -250,7 +289,6 @@ export class AdminDrawChannelDetailPage {
         data: {
           channelId: channel.id,
           label: this.channelTitle(channel),
-          mode: 'configure',
         },
         maxWidth: '640px',
         width: 'min(640px, 96vw)',
@@ -279,13 +317,9 @@ export class AdminDrawChannelDetailPage {
 
   channelTitle(channel: DrawChannelDetailView | null): string {
     if (!channel) return this.t('admin.drawChannels.detail.titleFallback');
-    const identity = consoleDrawIdentity({
-      channelCode: channel.code,
-      channelName: channel.name,
-      localTimeLabel: channel.drawTime ?? undefined,
-    });
+    const identity = this.identity();
     const label = channel.label?.trim();
-    return identity.channelName ?? (label || channel.name);
+    return identity?.channelName ?? (label || channel.name);
   }
 
   channelDescription(channel: DrawChannelDetailView | null): string {

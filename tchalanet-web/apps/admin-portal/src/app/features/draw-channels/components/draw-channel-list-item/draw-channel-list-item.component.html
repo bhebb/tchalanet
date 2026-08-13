@@ -25,25 +25,36 @@
           [tone]="statusTone(r.status)"
         />
       }
-      <mat-slide-toggle
-        class="dc-channel-card__active-toggle"
-        [checked]="slot.enabled"
+      <button
+        type="button"
+        class="dc-channel-card__sale-toggle"
+        [class.dc-channel-card__sale-toggle--on]="slot.enabled"
         [disabled]="!slot.channelId || saving()"
+        [attr.aria-pressed]="slot.enabled"
         [attr.aria-label]="
           (slot.enabled
             ? 'admin.drawChannels.slots.toggle.disable'
             : 'admin.drawChannels.slots.toggle.enable'
           ) | translate
         "
-        (change)="toggleEnabled.emit($event.checked)"
+        (click)="toggleEnabled.emit(!slot.enabled)"
       >
-        {{
-          (slot.enabled
-            ? 'admin.drawChannels.slots.saleEnabled'
-            : 'admin.drawChannels.slots.saleDisabled'
-          ) | translate
-        }}
-      </mat-slide-toggle>
+        <span class="dc-channel-card__sale-toggle-track" aria-hidden="true">
+          <span class="dc-channel-card__sale-toggle-thumb">
+            @if (slot.enabled) {
+              <span class="material-symbols-outlined">check</span>
+            }
+          </span>
+        </span>
+        <span class="dc-channel-card__sale-toggle-label">
+          {{
+            (slot.enabled
+              ? 'admin.drawChannels.slots.saleEnabled'
+              : 'admin.drawChannels.slots.saleDisabled'
+            ) | translate
+          }}
+        </span>
+      </button>
     </div>
   </header>
 

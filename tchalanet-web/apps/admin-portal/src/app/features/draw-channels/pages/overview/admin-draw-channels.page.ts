@@ -153,7 +153,7 @@ export class AdminDrawChannelsPage {
   }
 
   openChannelConfig(slot: DrawChannelSlotConfigView): void {
-    this.openChannelDialog(slot, 'configure');
+    this.openChannelDialog(slot);
   }
 
   openChannelDetails(slot: DrawChannelSlotConfigView): void {
@@ -165,14 +165,13 @@ export class AdminDrawChannelsPage {
     return !!slot.channelId && this.toggleChannel.pending(slot.channelId);
   }
 
-  private openChannelDialog(slot: DrawChannelSlotConfigView, mode: 'configure' | 'details'): void {
+  private openChannelDialog(slot: DrawChannelSlotConfigView): void {
     if (!slot.channelId) return;
     this.dialog
       .open(DrawChannelConfigDialog, {
         data: {
           channelId: slot.channelId,
           label: slot.label,
-          mode,
         },
         maxWidth: '640px',
         width: 'min(640px, 96vw)',

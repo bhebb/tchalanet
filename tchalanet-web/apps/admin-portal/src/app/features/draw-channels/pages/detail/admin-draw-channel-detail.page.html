@@ -68,6 +68,15 @@
 
   <ng-container aside>
     @if (channel(); as d) {
+    <div class="dc-detail__logo-card" data-testid="draw-channel-detail-logo">
+      <span class="dc-detail__logo" aria-hidden="true">
+        @if (logoUrl(); as logo) {
+        <img [src]="logo" [alt]="title()" />
+        } @else {
+        <span>{{ logoText() }}</span>
+        }
+      </span>
+    </div>
     <tch-identity-card
       variant="compact"
       [eyebrow]="'admin.drawChannels.detail.aside.eyebrow' | translate"

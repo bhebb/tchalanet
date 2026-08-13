@@ -20,129 +20,82 @@
   />
   }
 
-  <div class="dc-config__body" [class.dc-config__body--details]="mode === 'details'">
-    @if (mode === 'configure') {
-    <div class="dc-config__form">
-      <section class="dc-config__panel">
-        <h3>{{ 'admin.drawChannels.config.sales.title' | translate }}</h3>
-        <p>{{ 'admin.drawChannels.config.sales.description' | translate }}</p>
+  <div class="dc-config__form">
+    <section class="dc-config__panel">
+      <h3>{{ 'admin.drawChannels.config.sales.title' | translate }}</h3>
+      <p>{{ 'admin.drawChannels.config.sales.description' | translate }}</p>
 
-        <mat-checkbox [checked]="form().active" (change)="patchForm({ active: $event.checked })">
-          {{ 'admin.drawChannels.config.active' | translate }}
-        </mat-checkbox>
+      <mat-checkbox [checked]="form().active" (change)="patchForm({ active: $event.checked })">
+        {{ 'admin.drawChannels.config.active' | translate }}
+      </mat-checkbox>
 
-        <div class="dc-config__grid">
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'admin.drawChannels.config.salesOpenTime' | translate }}</mat-label>
-            <input
-              matInput
-              type="time"
-              [value]="form().salesOpenTime"
-              (input)="patchForm({ salesOpenTime: $any($event.target).value })"
-            />
-            @if (salesOpenAfterDraw()) {
-            <mat-hint class="dc-config__warning">
-              {{ 'admin.drawChannels.config.warning.salesOpenAfterDraw' | translate }}
-            </mat-hint>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'admin.drawChannels.config.salesCloseTime' | translate }}</mat-label>
-            <input
-              matInput
-              type="time"
-              [value]="form().salesCloseTime"
-              (input)="patchForm({ salesCloseTime: $any($event.target).value })"
-            />
-            @if (salesCloseAtDrawTime()) {
-            <mat-hint class="dc-config__warning">
-              {{ 'admin.drawChannels.config.warning.salesCloseAtDraw' | translate }}
-            </mat-hint>
-            } @else if (salesCloseAfterDraw()) {
-            <mat-hint class="dc-config__warning">
-              {{ 'admin.drawChannels.config.warning.salesCloseAfterDraw' | translate }}
-            </mat-hint>
-            } @else if (salesStopNote(); as note) {
-            <mat-hint>
-              {{ 'admin.drawChannels.config.salesStopBeforeDraw' | translate: { minutes:
-              note.minutes, drawTime: note.drawTime } }}
-            </mat-hint>
-            }
-          </mat-form-field>
-        </div>
-
-        <mat-form-field appearance="outline" class="dc-config__full">
-          <mat-label>{{ 'admin.drawChannels.config.daysOfWeek' | translate }}</mat-label>
-          <mat-select
-            multiple
-            [value]="form().daysOfWeek"
-            (selectionChange)="patchForm({ daysOfWeek: $event.value })"
-          >
-            @for (day of supportedWeekDays(); track day) {
-            <mat-option [value]="day">{{ dayLabelKey(day) | translate }}</mat-option>
-            }
-          </mat-select>
-          <mat-hint>
-            {{ 'admin.drawChannels.config.openDaysHint' | translate: { days: resultDaysLabel(d) } }}
-          </mat-hint>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="dc-config__full">
-          <mat-label>{{ 'admin.drawChannels.config.notes' | translate }}</mat-label>
-          <textarea
+      <div class="dc-config__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'admin.drawChannels.config.salesOpenTime' | translate }}</mat-label>
+          <input
             matInput
-            rows="3"
-            [value]="form().notes"
-            (input)="patchForm({ notes: $any($event.target).value })"
-          ></textarea>
+            type="time"
+            [value]="form().salesOpenTime"
+            (input)="patchForm({ salesOpenTime: $any($event.target).value })"
+          />
+          @if (salesOpenAfterDraw()) {
+          <mat-hint class="dc-config__warning">
+            {{ 'admin.drawChannels.config.warning.salesOpenAfterDraw' | translate }}
+          </mat-hint>
+          }
         </mat-form-field>
-      </section>
-    </div>
-    }
 
-    <aside class="dc-config__result-panel" aria-labelledby="draw-channel-result-title">
-      <h3 id="draw-channel-result-title">
-        {{ 'admin.drawChannels.config.system.title' | translate }}
-      </h3>
-      <dl>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.drawTime' | translate }}</dt>
-          <dd>{{ drawTimeLabel(d) }}</dd>
-        </div>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.salesOpenTime' | translate }}</dt>
-          <dd>{{ salesOpenTimeLabel(d) }}</dd>
-        </div>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.timezone' | translate }}</dt>
-          <dd>{{ timezoneLabel(d) }}</dd>
-        </div>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.result.openDays' | translate }}</dt>
-          <dd>{{ resultDaysLabel(d) }}</dd>
-        </div>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.result.mode.label' | translate }}</dt>
-          <dd>{{ resultModeKey(d.defaultSource) | translate }}</dd>
-        </div>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.result.source.label' | translate }}</dt>
-          <dd>
-            {{ resultSourceKey(d.defaultSource) | translate: { provider: resultProviderLabel(d) } }}
-          </dd>
-        </div>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.result.providerSlot' | translate }}</dt>
-          <dd>{{ resultSlotLabel(d) }}</dd>
-        </div>
-        <div>
-          <dt>{{ 'admin.drawChannels.config.result.projection.label' | translate }}</dt>
-          <dd>{{ resultProjectionKey(d) | translate }}</dd>
-        </div>
-      </dl>
-      <p>{{ 'admin.drawChannels.config.system.readonly' | translate }}</p>
-    </aside>
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'admin.drawChannels.config.salesCloseTime' | translate }}</mat-label>
+          <input
+            matInput
+            type="time"
+            [value]="form().salesCloseTime"
+            (input)="patchForm({ salesCloseTime: $any($event.target).value })"
+          />
+          @if (salesCloseAtDrawTime()) {
+          <mat-hint class="dc-config__warning">
+            {{ 'admin.drawChannels.config.warning.salesCloseAtDraw' | translate }}
+          </mat-hint>
+          } @else if (salesCloseAfterDraw()) {
+          <mat-hint class="dc-config__warning">
+            {{ 'admin.drawChannels.config.warning.salesCloseAfterDraw' | translate }}
+          </mat-hint>
+          } @else if (salesStopNote(); as note) {
+          <mat-hint>
+            {{ 'admin.drawChannels.config.salesStopBeforeDraw' | translate: { minutes: note.minutes,
+            drawTime: note.drawTime } }}
+          </mat-hint>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="dc-config__full">
+        <mat-label>{{ 'admin.drawChannels.config.daysOfWeek' | translate }}</mat-label>
+        <mat-select
+          multiple
+          [value]="form().daysOfWeek"
+          (selectionChange)="patchForm({ daysOfWeek: $event.value })"
+        >
+          @for (day of supportedWeekDays(); track day) {
+          <mat-option [value]="day">{{ dayLabelKey(day) | translate }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>
+          {{ 'admin.drawChannels.config.openDaysHint' | translate: { days: resultDaysLabel(d) } }}
+        </mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="dc-config__full">
+        <mat-label>{{ 'admin.drawChannels.config.notes' | translate }}</mat-label>
+        <textarea
+          matInput
+          rows="3"
+          [value]="form().notes"
+          (input)="patchForm({ notes: $any($event.target).value })"
+        ></textarea>
+      </mat-form-field>
+    </section>
   </div>
   } @else if (error(); as err) {
   <tch-section-error
@@ -155,9 +108,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  @if (mode === 'details') {
-  <button mat-flat-button mat-dialog-close>{{ 'common.close' | translate }}</button>
-  } @else {
   <button mat-button mat-dialog-close [disabled]="saving()">
     {{ 'common.cancel' | translate }}
   </button>
@@ -169,5 +119,4 @@
   >
     {{ (saving() ? 'common.saving' : 'common.save') | translate }}
   </button>
-  }
 </mat-dialog-actions>

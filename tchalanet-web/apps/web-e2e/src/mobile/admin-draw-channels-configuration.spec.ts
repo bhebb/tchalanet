@@ -58,10 +58,11 @@ test.describe('Admin draw-channel configuration — mobile', () => {
       dialog.getByRole('heading', {
         name: /Informations système|Enfòmasyon sistèm|System information/,
       }),
-    ).toBeVisible();
-    await expect(dialog).toContainText(/Automatique|Otomatik|Automatic/);
+    ).toHaveCount(0);
     await expect(dialog).toContainText('Texas');
-    await expect(dialog).toContainText('00:00');
+    await expect(
+      dialog.getByLabel(/Ouverture des ventes|Lè tiraj sa louvri|Sales open/),
+    ).toHaveValue('00:00');
     await expect(dialog).toContainText(/Tous les jours|Chak jou|Every day/);
   });
 });

@@ -47,10 +47,11 @@ test.describe('Admin draw-channel configuration — desktop', () => {
       dialog.getByRole('heading', {
         name: /Informations système|Enfòmasyon sistèm|System information/,
       }),
-    ).toBeVisible();
-    await expect(dialog).toContainText(/Automatique|Otomatik|Automatic/);
+    ).toHaveCount(0);
     await expect(dialog).toContainText('Texas');
-    await expect(dialog).toContainText('00:00');
+    await expect(
+      dialog.getByLabel(/Ouverture des ventes|Lè tiraj sa louvri|Sales open/),
+    ).toHaveValue('00:00');
     await expect(dialog).toContainText(/Tous les jours|Chak jou|Every day/);
     await page.keyboard.press('Escape');
 
@@ -60,11 +61,13 @@ test.describe('Admin draw-channel configuration — desktop', () => {
       page.getByTestId('admin-page-header').getByRole('heading', { name: /Texas · 1000/ }),
     ).toBeVisible();
     const detailContent = page.locator('tch-console-entity-detail');
+    await expect(page.getByTestId('draw-channel-detail-logo').locator('img')).toBeVisible();
     await expect(detailContent.getByRole('heading', { name: /Tirage|Tiraj|Draw/ })).toBeVisible();
     await expect(
       detailContent.getByRole('heading', { name: /Résultats|Rezilta|Results/ }),
     ).toBeVisible();
     await expect(detailContent.getByRole('heading', { name: /Vente|Vant|Sales/ })).toBeVisible();
+    await expect(detailContent).toContainText(/Source|Sous|Fournisseur/);
     await page.goBack();
 
     const attentionCard = page.locator('.dc-channel-card--attention').filter({
