@@ -3,14 +3,13 @@ import { SlicePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe } from '@ngx-translate/core';
-import { TchDrawLabel } from '@tch/ui/components';
 import { DrawChannelSlotConfigView } from '../../data-access/admin-draw-channels.models';
 
 @Component({
   selector: 'tch-draw-channel-slot-row',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SlicePipe, MatButtonModule, MatSlideToggleModule, TranslatePipe, TchDrawLabel],
+  imports: [SlicePipe, MatButtonModule, MatSlideToggleModule, TranslatePipe],
   templateUrl: './draw-channel-slot-row.component.html',
   styleUrls: ['./draw-channel-slot-row.component.scss'],
 })

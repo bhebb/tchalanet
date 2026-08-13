@@ -1688,6 +1688,12 @@
           "disabled": "Inaktif"
         },
         "cutoffTime": "Vant fèmen {{value}}",
+        "drawTimeLabel": "Lè tiraj",
+        "salesCloseLabel": "Fèmti vant",
+        "catalogLabel": "Katalòg",
+        "saleEnabled": "An vant",
+        "saleDisabled": "Dezaktive",
+        "saleToggleLabel": "Vann sou tiraj sa a",
         "platformActive": "Disponib nan katalòg",
         "platformInactive": "Dezaktive nan katalòg",
         "toggle": {

@@ -1688,6 +1688,12 @@
           "disabled": "Inactive"
         },
         "cutoffTime": "Sales close {{value}}",
+        "drawTimeLabel": "Draw time",
+        "salesCloseLabel": "Sales close",
+        "catalogLabel": "Catalog",
+        "saleEnabled": "Selling",
+        "saleDisabled": "Disabled",
+        "saleToggleLabel": "Sell on this draw",
         "platformActive": "Available in catalog",
         "platformInactive": "Disabled in catalog",
         "toggle": {

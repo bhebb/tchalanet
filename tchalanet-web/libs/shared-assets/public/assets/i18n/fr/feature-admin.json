@@ -518,6 +518,12 @@
           "disabled": "Inactif"
         },
         "cutoffTime": "Fermeture {{value}}",
+        "drawTimeLabel": "Heure du tirage",
+        "salesCloseLabel": "Fermeture vente",
+        "catalogLabel": "Catalogue",
+        "saleEnabled": "En vente",
+        "saleDisabled": "Désactivé",
+        "saleToggleLabel": "Vendre sur ce tirage",
         "platformActive": "Disponible au catalogue",
         "platformInactive": "Désactivé au catalogue",
         "toggle": {
