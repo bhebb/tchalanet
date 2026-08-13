@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PosDrawsService {
 
+  private static final int EXPOSURE_ALERTS_LIMIT = 10;
+
   private final QueryBus queryBus;
   private final DrawChannelCatalog drawChannelCatalog;
   private final TenantGameApi tenantGameApi;
@@ -122,7 +124,7 @@ public class PosDrawsService {
     boolean isOpen = draw.status() == DrawStatus.OPEN;
 
     var scope = LimitScopeRef.sellerTerminal(sellerTerminalId);
-    var alertsView = queryBus.ask(new GetExposureAlertsOverviewQuery(tenantId, drawId, scope, 10));
+    var alertsView = queryBus.ask(new GetExposureAlertsOverviewQuery(tenantId, drawId, scope, EXPOSURE_ALERTS_LIMIT));
 
     List<PosDrawDetailResponse.ExposureAlertItem> alertItems;
     List<PosDrawDetailResponse.TopSelectionItem> topSelections;

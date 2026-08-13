@@ -15,6 +15,7 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
 import com.tchalanet.server.catalog.drawchannel.api.model.GameSummaryView;
 import com.tchalanet.server.catalog.game.api.GameCatalog;
+import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
@@ -26,14 +27,20 @@ import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
 import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
+import com.tchalanet.server.core.draw.api.model.DrawStatus;
 import com.tchalanet.server.core.draw.api.query.CashierNextDrawView;
+import com.tchalanet.server.core.draw.api.query.DrawSummary;
+import com.tchalanet.server.core.limitpolicy.api.query.ExposureAlertItemView;
+import com.tchalanet.server.core.limitpolicy.api.query.ExposureAlertsOverviewView;
 import com.tchalanet.server.platform.tenant.api.model.TenantBusinessDayView;
 import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRefView;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -209,6 +216,105 @@ class PosDrawsServiceTest {
         GameId.of(UUID.randomUUID()), code, code, "HAITI", null, 2, 5, null, true, 1, null, null);
   }
 
+  @Test
+  void getDetailReturnsExposureAlertsAndTopSelectionsWhenAlertViewPresent() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var terminalId = SellerTerminalId.of(UUID.randomUUID());
+    var drawId = DrawId.of(UUID.randomUUID());
+    var drawChannelId = DrawChannelId.of(UUID.randomUUID());
+
+    var drawSummary =
+        new DrawSummary(
+            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.OPEN, null, null, null, null,
+            null, null, drawChannelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
+            null, null, null, null, true, null);
+
+    var alertItem =
+        new ExposureAlertItemView(
+            BetType.MATCH_1_2D,
+            "42",
+            BigDecimal.valueOf(500),
+            10,
+            BigDecimal.valueOf(1000),
+            BigDecimal.valueOf(0.5));
+    var alertsView =
+        new ExposureAlertsOverviewView(tenantId, drawId, "terminal", List.of(alertItem));
+
+    var queryBus = mock(QueryBus.class);
+    when(queryBus.ask(any())).thenReturn(drawSummary).thenReturn(alertsView);
+
+    var service = new PosDrawsService(queryBus, null, null, null, null, null);
+    var result = service.getDetail(ctxWithTerminal(tenantId, terminalId), drawId);
+
+    assertThat(result.drawId()).isEqualTo(drawId.value());
+    assertThat(result.exposure().active()).isTrue();
+    assertThat(result.exposure().limitConfigured()).isTrue();
+    assertThat(result.exposure().alerts()).hasSize(1);
+    assertThat(result.exposure().alerts().getFirst().selectionKey()).isEqualTo("42");
+    assertThat(result.topSelections()).hasSize(1);
+    assertThat(result.topSelections().getFirst().selectionKey()).isEqualTo("42");
+  }
+
+  @Test
+  void getDetailReturnsEmptyExposureWhenAlertsViewNull() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var terminalId = SellerTerminalId.of(UUID.randomUUID());
+    var drawId = DrawId.of(UUID.randomUUID());
+    var drawChannelId = DrawChannelId.of(UUID.randomUUID());
+
+    var drawSummary =
+        new DrawSummary(
+            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.OPEN, null, null, null, null,
+            null, null, drawChannelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
+            null, null, null, null, true, null);
+
+    var queryBus = mock(QueryBus.class);
+    when(queryBus.ask(any())).thenReturn(drawSummary).thenReturn(null);
+
+    var service = new PosDrawsService(queryBus, null, null, null, null, null);
+    var result = service.getDetail(ctxWithTerminal(tenantId, terminalId), drawId);
+
+    assertThat(result.exposure().active()).isTrue();
+    assertThat(result.exposure().limitConfigured()).isFalse();
+    assertThat(result.exposure().alerts()).isEmpty();
+    assertThat(result.topSelections()).isEmpty();
+  }
+
+  @Test
+  void getDetailMarksExposureInactiveWhenDrawClosed() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var terminalId = SellerTerminalId.of(UUID.randomUUID());
+    var drawId = DrawId.of(UUID.randomUUID());
+    var drawChannelId = DrawChannelId.of(UUID.randomUUID());
+
+    var drawSummary =
+        new DrawSummary(
+            drawId, tenantId, LocalDate.of(2026, 7, 19), DrawStatus.CLOSED, null, null, null, null,
+            null, null, drawChannelId, "GA_EVE", "Georgia Eve", LocalTime.NOON, "UTC", true, null,
+            null, null, null, null, true, null);
+
+    var alertItem =
+        new ExposureAlertItemView(
+            BetType.MATCH_1_2D,
+            "07",
+            BigDecimal.valueOf(200),
+            5,
+            BigDecimal.valueOf(500),
+            BigDecimal.valueOf(0.4));
+    var alertsView =
+        new ExposureAlertsOverviewView(tenantId, drawId, "terminal", List.of(alertItem));
+
+    var queryBus = mock(QueryBus.class);
+    when(queryBus.ask(any())).thenReturn(drawSummary).thenReturn(alertsView);
+
+    var service = new PosDrawsService(queryBus, null, null, null, null, null);
+    var result = service.getDetail(ctxWithTerminal(tenantId, terminalId), drawId);
+
+    assertThat(result.exposure().active()).isFalse();
+    assertThat(result.exposure().limitConfigured()).isTrue();
+    assertThat(result.exposure().alerts()).hasSize(1);
+  }
+
   private static TchRequestContext ctx(TenantId tenantId) {
     return new TchRequestContext(
         "tenant",
@@ -233,6 +339,36 @@ class PosDrawsServiceTest {
         null,
         null,
         null,
+        Set.of(),
+        Set.of(),
+        null);
+  }
+
+  private static TchRequestContext ctxWithTerminal(
+      TenantId tenantId, SellerTerminalId terminalId) {
+    return new TchRequestContext(
+        "tenant",
+        tenantId.value(),
+        "tenant",
+        tenantId.value(),
+        null,
+        Set.of(),
+        Set.of(),
+        null,
+        "request-id",
+        null,
+        null,
+        false,
+        null,
+        "active",
+        null,
+        null,
+        tenantId,
+        ZoneId.of("America/Port-au-Prince"),
+        null,
+        null,
+        null,
+        terminalId,
         Set.of(),
         Set.of(),
         null);

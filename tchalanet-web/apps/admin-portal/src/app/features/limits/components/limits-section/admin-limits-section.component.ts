@@ -2,7 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  OnChanges,
+  ResourceRef,
   computed,
   inject,
   input,
@@ -10,11 +10,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
-import { forkJoin } from 'rxjs';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { TchLoading, TchSectionError } from '@tch/ui/components';
+import { TchSectionError } from '@tch/ui/components';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import {
   LimitBlockAssignment,
@@ -22,10 +20,11 @@ import {
   LimitGroup,
   LimitPolicyBlockComponent,
   LimitPolicyEditRequest,
+  LpbLabels,
 } from '@tch/ui/console';
-import { resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
+import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 
-import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
+import { AdminLimitsApi, CombinedLimitData } from '../../data-access/admin-limits-api.service';
 import type {
   LimitAssignmentItem,
   LimitRuleSpec,
@@ -39,34 +38,41 @@ import { UpsertLimitDialogComponent } from '../upsert-limit-dialog/upsert-limit-
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    TchLoading,
+    TranslatePipe,
     TchSectionError,
+    TchAsyncViewComponent,
+    TchAsyncReadyDirective,
     AdminSectionCardComponent,
     LimitPolicyBlockComponent,
   ],
   template: `
     <tch-admin-section-card [title]="sectionTitle()" icon="shield">
-      @if (loading()) {
-        <tch-loading label="Chargement des limites..." />
-      } @else if (loadError()) {
-        <tch-section-error
-          title="Erreur de chargement"
-          [message]="loadError()!"
-        />
-      } @else {
-        <tch-limit-policy-block
-          [specs]="filteredSpecs()"
-          [assignments]="assignments()"
-          [inheritedAssignments]="inheritedAssignments()"
-          [inheritedScopeLabel]="inheritedScopeLabel()"
-          [defaultExpandedGroups]="defaultExpandedGroups()"
-          (editRequested)="onEdit($event)"
-          (deleteRequested)="onDelete($event)"
-        />
-      }
+      <tch-async-view
+        [resource]="combinedResource"
+        [error]="loadError()"
+        [loadingLabel]="'admin.limits.common.loading' | translate"
+        [retryLabel]="'common.retry' | translate"
+        (retry)="combinedResource.reload()"
+      >
+        <ng-template tchAsyncReady>
+          @if (combinedResource.value(); as data) {
+            <tch-limit-policy-block
+              [specs]="filterSpecs(data.specs)"
+              [assignments]="asBlockAssignments(data.assignments)"
+              [inheritedAssignments]="data.inheritedAssignments ? asBlockAssignments(data.inheritedAssignments) : null"
+              [inheritedScopeLabel]="inheritedScopeLabel()"
+              [defaultExpandedGroups]="defaultExpandedGroups()"
+              [groupLabels]="lpbGroupLabels()"
+              [labels]="lpbLabels()"
+              (editRequested)="onEdit($event)"
+              (deleteRequested)="onDelete($event)"
+            />
+          }
+        </ng-template>
+      </tch-async-view>
       @if (actionError()) {
         <tch-section-error
-          title="Erreur"
+          [title]="'admin.limits.section.actionError' | translate"
           [message]="actionError()!"
           severity="error"
         />
@@ -74,7 +80,7 @@ import { UpsertLimitDialogComponent } from '../upsert-limit-dialog/upsert-limit-
     </tch-admin-section-card>
   `,
 })
-export class AdminLimitsSectionComponent implements OnChanges {
+export class AdminLimitsSectionComponent {
   private readonly api = inject(AdminLimitsApi);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
@@ -84,73 +90,44 @@ export class AdminLimitsSectionComponent implements OnChanges {
   readonly targetId = input<string | null>(null);
   readonly inheritedTargetType = input<TargetType | null>(null);
   readonly inheritedTargetId = input<string | null>(null);
-  readonly inheritedScopeLabel = input('tenant');
+  readonly inheritedScopeLabel = input<string>();
   readonly allowedRuleKeys = input<RuleKey[] | null>(null);
   readonly defaultExpandedGroups = input<LimitGroup[]>([]);
-  readonly sectionTitle = input('Limites');
+  readonly sectionTitle = input.required<string>();
 
-  readonly loading = signal(false);
-  readonly loadError = signal<string | null>(null);
   readonly actionError = signal<string | null>(null);
 
-  private readonly allSpecs = signal<LimitRuleSpec[]>([]);
-  readonly assignments = signal<LimitBlockAssignment[]>([]);
-  readonly inheritedAssignments = signal<LimitBlockAssignment[] | null>(null);
+  readonly combinedResource: ResourceRef<CombinedLimitData | undefined> =
+    this.api.combinedLimitsResource({
+      targetType: this.targetType,
+      targetId: this.targetId,
+      inheritedTargetType: this.inheritedTargetType,
+      inheritedTargetId: this.inheritedTargetId,
+    });
 
-  readonly filteredSpecs = computed<LimitBlockSpec[]>(() => {
-    const allowed = this.allowedRuleKeys();
-    const specs = this.allSpecs();
-    return allowed ? specs.filter(s => allowed.includes(s.ruleKey)) : specs;
-  });
+  readonly loadError = resourceErrorVm(this.combinedResource, 'admin.limits.section');
 
-  ngOnChanges(): void {
-    this.load();
+  readonly lpbGroupLabels = computed<Record<LimitGroup, string>>(() => ({
+    VENTE: this.translate.instant('admin.limits.blockComponent.group.vente'),
+    RESTRICTIONS: this.translate.instant('admin.limits.blockComponent.group.restrictions'),
+    EXPOSITION: this.translate.instant('admin.limits.blockComponent.group.exposition'),
+  }));
+
+  readonly lpbLabels = computed<LpbLabels>(() => ({
+    unconfigured: this.translate.instant('admin.limits.blockComponent.unconfigured'),
+    configured: this.translate.instant('admin.limits.blockComponent.configured'),
+    inheritedFrom: this.translate.instant('admin.limits.blockComponent.inheritedFrom'),
+    editAria: this.translate.instant('admin.limits.blockComponent.editAria'),
+    deleteAria: this.translate.instant('admin.limits.blockComponent.deleteAria'),
+  }));
+
+  asBlockAssignments(items: LimitAssignmentItem[]): LimitBlockAssignment[] {
+    return items as unknown as LimitBlockAssignment[];
   }
 
-  private load(): void {
-    this.loading.set(true);
-    this.loadError.set(null);
-
-    const target = this.targetType();
-    const targetId = this.targetId() ?? undefined;
-    const inheritedType = this.inheritedTargetType();
-    const inheritedId = this.inheritedTargetId() ?? undefined;
-
-    if (inheritedType) {
-      forkJoin([
-        this.api.listRules(),
-        this.api.listAssignments(target, targetId),
-        this.api.listAssignments(inheritedType, inheritedId),
-      ])
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: ([specs, current, inherited]) => {
-            this.allSpecs.set(specs);
-            this.assignments.set(current.items as LimitBlockAssignment[]);
-            this.inheritedAssignments.set(inherited.items as LimitBlockAssignment[]);
-            this.loading.set(false);
-          },
-          error: (err: unknown) => {
-            this.loadError.set(this.resolveError(err));
-            this.loading.set(false);
-          },
-        });
-    } else {
-      forkJoin([this.api.listRules(), this.api.listAssignments(target, targetId)])
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: ([specs, current]) => {
-            this.allSpecs.set(specs);
-            this.assignments.set(current.items as LimitBlockAssignment[]);
-            this.inheritedAssignments.set(null);
-            this.loading.set(false);
-          },
-          error: (err: unknown) => {
-            this.loadError.set(this.resolveError(err));
-            this.loading.set(false);
-          },
-        });
-    }
+  filterSpecs(specs: LimitRuleSpec[]): LimitBlockSpec[] {
+    const allowed = this.allowedRuleKeys();
+    return (allowed ? specs.filter(s => allowed.includes(s.ruleKey)) : specs) as LimitBlockSpec[];
   }
 
   onEdit(req: LimitPolicyEditRequest): void {
@@ -168,7 +145,7 @@ export class AdminLimitsSectionComponent implements OnChanges {
     dialogRef.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-        if (result) this.load();
+        if (result) this.combinedResource.reload();
       });
   }
 
@@ -177,15 +154,8 @@ export class AdminLimitsSectionComponent implements OnChanges {
     this.api.deleteAssignment(assignmentId, { suppressShellFeedback: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.load(),
-        error: (err: unknown) => this.actionError.set(this.resolveError(err)),
+        next: () => this.combinedResource.reload(),
+        error: () => this.actionError.set(this.translate.instant('admin.limits.section.actionError')),
       });
-  }
-
-  private resolveError(err: unknown): string {
-    const problem = mapHttpErrorToProblemDetail(err);
-    const normalized = webAppErrorFromProblemDetail(problem, 'admin.limits.section', 'section');
-    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-    return toErrorViewModel(normalized, copy).message;
   }
 }

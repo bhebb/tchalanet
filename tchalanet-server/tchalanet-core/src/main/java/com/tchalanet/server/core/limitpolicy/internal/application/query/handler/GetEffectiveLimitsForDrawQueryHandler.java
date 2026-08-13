@@ -6,6 +6,7 @@ import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
 import com.tchalanet.server.core.limitpolicy.api.query.EffectiveLimitsForDrawView;
 import com.tchalanet.server.core.limitpolicy.api.query.GetEffectiveLimitsForDrawQuery;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
+import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.domain.resolver.LimitResolver;
 import java.time.Clock;
 import java.util.List;
@@ -48,17 +49,12 @@ public class GetEffectiveLimitsForDrawQueryHandler
     return new EffectiveLimitsForDrawView(rules);
   }
 
-  private String scopeName(com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef scope) {
+  private String scopeName(LimitScopeRef scope) {
     return switch (scope) {
-      case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.TenantScope ignored ->
-          "TENANT";
-      case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.DrawChannelScope ignored ->
-          "DRAW_CHANNEL";
-      case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.SellerTerminalScope
-              ignored ->
-          "SELLER_TERMINAL";
-      case com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef.AgentScope ignored ->
-          "AGENT";
+      case LimitScopeRef.TenantScope ignored -> "TENANT";
+      case LimitScopeRef.DrawChannelScope ignored -> "DRAW_CHANNEL";
+      case LimitScopeRef.SellerTerminalScope ignored -> "SELLER_TERMINAL";
+      case LimitScopeRef.AgentScope ignored -> "AGENT";
     };
   }
 }

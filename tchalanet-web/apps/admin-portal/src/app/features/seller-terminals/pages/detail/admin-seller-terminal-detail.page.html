@@ -111,8 +111,8 @@
             targetType="SELLER_TERMINAL"
             [targetId]="sellerTerminalId"
             inheritedTargetType="TENANT"
-            inheritedScopeLabel="tenant"
-            sectionTitle="Limites vendeur"
+            [inheritedScopeLabel]="'admin.limits.section.scope.tenant' | translate"
+            [sectionTitle]="'sellerTerminal.limitsSection.title' | translate"
             [allowedRuleKeys]="['MAX_STAKE_PER_LINE', 'MAX_LINES_PER_TICKET', 'MAX_STAKE_PER_TICKET']"
           />
         }

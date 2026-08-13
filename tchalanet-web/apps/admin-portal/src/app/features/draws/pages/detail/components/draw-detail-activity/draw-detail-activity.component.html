@@ -104,7 +104,7 @@
 
   @if (view().exposureAlerts?.length && view().exposureLimitConfigured) {
     <div class="draw-detail-activity__exposure">
-      <p class="draw-detail-activity__eyebrow">Numéros à risque</p>
+      <p class="draw-detail-activity__eyebrow">{{ 'admin.drawActivity.exposureEyebrow' | translate }}</p>
       <ul class="draw-detail-activity__exposure-list">
         @for (alert of view().exposureAlerts!; track alert.selectionKey) {
           <li class="draw-detail-activity__exposure-item">

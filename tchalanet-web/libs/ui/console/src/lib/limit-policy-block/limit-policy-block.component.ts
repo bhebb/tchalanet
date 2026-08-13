@@ -33,6 +33,14 @@ export interface LimitPolicyEditRequest {
   inheritedAssignment: LimitBlockAssignment | null;
 }
 
+export interface LpbLabels {
+  unconfigured: string;
+  configured: string;
+  inheritedFrom: string;
+  editAria: string;
+  deleteAria: string;
+}
+
 interface GroupRow {
   spec: LimitBlockSpec;
   assignment: LimitBlockAssignment | null;
@@ -56,17 +64,14 @@ const GROUP_RULES: Record<LimitGroup, string[]> = {
   ],
 };
 
-const GROUP_LABELS: Record<LimitGroup, string> = {
-  VENTE: 'Vente',
-  RESTRICTIONS: 'Restrictions',
-  EXPOSITION: 'Exposition',
-};
-
 const GROUPS: LimitGroup[] = ['VENTE', 'RESTRICTIONS', 'EXPOSITION'];
 
-function formatAssignmentParams(assignment: LimitBlockAssignment): string {
+function formatAssignmentParams(
+  assignment: LimitBlockAssignment,
+  configuredLabel: string,
+): string {
   const p = assignment.params as Record<string, unknown> | null;
-  if (!p) return 'Configuré';
+  if (!p) return configuredLabel;
   const centsKey = Object.keys(p).find(k => k.toLowerCase().includes('cents'));
   if (centsKey) {
     const val = p[centsKey];
@@ -86,7 +91,7 @@ function formatAssignmentParams(assignment: LimitBlockAssignment): string {
     const val = p[selKey];
     if (Array.isArray(val) && val.length > 0) return val.join(', ');
   }
-  return 'Configuré';
+  return configuredLabel;
 }
 
 @Component({
@@ -94,244 +99,38 @@ function formatAssignmentParams(assignment: LimitBlockAssignment): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatButtonModule, MatIconModule],
-  template: `
-    <div class="lpb">
-      @for (group of sections(); track group.id) {
-        <div class="lpb__group">
-          <button
-            type="button"
-            class="lpb__group-header"
-            [attr.aria-expanded]="isExpanded(group.id)"
-            (click)="toggleGroup(group.id)"
-          >
-            <span class="lpb__group-label">{{ group.label }}</span>
-            <span class="lpb__group-count">
-              {{ activeCount(group) }}/{{ group.rows.length }}
-            </span>
-            <mat-icon class="lpb__group-chevron" aria-hidden="true">
-              {{ isExpanded(group.id) ? 'expand_less' : 'expand_more' }}
-            </mat-icon>
-          </button>
-
-          @if (isExpanded(group.id)) {
-            <div class="lpb__group-body">
-              @for (row of group.rows; track row.spec.ruleKey) {
-                <div class="lpb__row" [class.lpb__row--active]="row.assignment !== null">
-                  <div class="lpb__row-info">
-                    <span class="lpb__row-label">{{ row.spec.label || row.spec.ruleKey }}</span>
-                    @if (row.assignment !== null) {
-                      <span class="lpb__row-value">{{ row.displayValue }}</span>
-                    } @else if (row.inheritedAssignment !== null) {
-                      <span class="lpb__row-inherited">
-                        Hérite du {{ inheritedScopeLabel() }} · {{ row.inheritedDisplayValue }}
-                      </span>
-                    } @else {
-                      <span class="lpb__row-empty">Non configuré</span>
-                    }
-                  </div>
-                  <div class="lpb__row-actions">
-                    <button
-                      type="button"
-                      mat-icon-button
-                      class="lpb__action-btn"
-                      [attr.aria-label]="'Modifier ' + row.spec.label"
-                      (click)="onEdit(row)"
-                    >
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    @if (row.assignment !== null) {
-                      <button
-                        type="button"
-                        mat-icon-button
-                        class="lpb__action-btn lpb__action-btn--delete"
-                        [attr.aria-label]="'Supprimer ' + row.spec.label"
-                        (click)="onDelete(row)"
-                      >
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      }
-    </div>
-  `,
-  styles: [
-    `
-      @use 'breakpoints' as ui;
-
-      :host {
-        display: block;
-      }
-
-      .lpb {
-        display: flex;
-        flex-direction: column;
-        gap: 0;
-      }
-
-      /* ─── Group ─────────────────────────────────────────────────────────── */
-
-      .lpb__group {
-        border: 1px solid var(--tch-color-outline-variant, #c8c5d0);
-        border-radius: var(--tch-radius-lg, 0.75rem);
-        overflow: hidden;
-        margin-bottom: 0.5rem;
-      }
-
-      .lpb__group-header {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        background: var(--tch-color-surface-container-low, #f4f3f7);
-        border: none;
-        cursor: pointer;
-        text-align: start;
-        transition: background 150ms ease;
-      }
-
-      .lpb__group-header:hover {
-        background: var(--tch-color-surface-container, #eeedf1);
-      }
-
-      .lpb__group-label {
-        flex: 1;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--tch-color-on-surface, #1a1c1e);
-      }
-
-      .lpb__group-count {
-        font-size: 0.75rem;
-        color: var(--tch-color-on-surface-variant, #46464f);
-        font-variant-numeric: tabular-nums;
-      }
-
-      .lpb__group-chevron {
-        font-size: 1.125rem;
-        color: var(--tch-color-on-surface-variant, #46464f);
-        flex-shrink: 0;
-      }
-
-      /* ─── Rows ───────────────────────────────────────────────────────────── */
-
-      .lpb__group-body {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .lpb__row {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.625rem 1rem;
-        border-top: 1px solid var(--tch-color-outline-variant, #c8c5d0);
-        background: var(--tch-color-surface, #fffbff);
-        min-height: 3.5rem;
-      }
-
-      .lpb__row--active {
-        background: var(--tch-color-surface, #fffbff);
-      }
-
-      .lpb__row-info {
-        flex: 1;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.125rem;
-      }
-
-      .lpb__row-label {
-        font-size: 0.8125rem;
-        font-weight: 500;
-        color: var(--tch-color-on-surface, #1a1c1e);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .lpb__row-value {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--tch-color-primary, #745b00);
-        font-variant-numeric: tabular-nums;
-      }
-
-      .lpb__row-inherited {
-        font-size: 0.75rem;
-        color: var(--tch-color-on-surface-variant, #46464f);
-        font-style: italic;
-      }
-
-      .lpb__row-empty {
-        font-size: 0.75rem;
-        color: var(--tch-color-outline, #787680);
-      }
-
-      .lpb__row-actions {
-        display: flex;
-        gap: 0;
-        flex-shrink: 0;
-      }
-
-      .lpb__action-btn {
-        width: 2rem;
-        height: 2rem;
-        font-size: 1rem;
-        color: var(--tch-color-on-surface-variant, #46464f);
-      }
-
-      .lpb__action-btn--delete {
-        color: var(--tch-color-error, #ba1a1a);
-      }
-
-      /* ─── Responsive: 2-column grid from 600dp ───────────────────────────── */
-
-      @include ui.up(medium) {
-        .lpb__group-body {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-        }
-
-        .lpb__row {
-          border-top: 1px solid var(--tch-color-outline-variant, #c8c5d0);
-        }
-
-        .lpb__row:nth-child(odd) {
-          border-right: 1px solid var(--tch-color-outline-variant, #c8c5d0);
-        }
-      }
-    `,
-  ],
+  templateUrl: './limit-policy-block.component.html',
+  styleUrl: './limit-policy-block.component.scss',
 })
 export class LimitPolicyBlockComponent {
-  readonly specs = input<LimitBlockSpec[]>([]);
-  readonly assignments = input<LimitBlockAssignment[]>([]);
-  readonly inheritedAssignments = input<LimitBlockAssignment[] | null>(null);
-  readonly inheritedScopeLabel = input<string>('tenant');
-  readonly defaultExpandedGroups = input<LimitGroup[]>([]);
+  readonly specs = input.required<LimitBlockSpec[]>();
+  readonly assignments = input.required<LimitBlockAssignment[]>();
+  readonly inheritedAssignments = input<LimitBlockAssignment[] | null>();
+  readonly inheritedScopeLabel = input<string>();
+  readonly defaultExpandedGroups = input<LimitGroup[]>();
+  readonly groupLabels = input.required<Record<LimitGroup, string>>();
+  readonly labels = input.required<LpbLabels>();
 
   readonly editRequested = output<LimitPolicyEditRequest>();
   readonly deleteRequested = output<string>();
 
-  private readonly expandedState = signal<Set<LimitGroup>>(new Set());
+  private readonly userToggles = signal<Set<LimitGroup>>(new Set());
+
+  private readonly expandedState = computed<Set<LimitGroup>>(() => {
+    const result = new Set(this.defaultExpandedGroups() ?? []);
+    for (const g of this.userToggles()) {
+      if (result.has(g)) result.delete(g);
+      else result.add(g);
+    }
+    return result;
+  });
 
   readonly sections = computed<GroupSection[]>(() => {
     const specs = this.specs();
     const assignments = this.assignments();
     const inherited = this.inheritedAssignments() ?? [];
-    const defaultExpanded = this.defaultExpandedGroups();
-
-    // Initialize expanded state lazily from defaultExpandedGroups
-    if (this.expandedState().size === 0 && defaultExpanded.length > 0) {
-      this.expandedState.set(new Set(defaultExpanded));
-    }
+    const gl = this.groupLabels();
+    const configuredLabel = this.labels().configured;
 
     const assignmentMap = new Map(assignments.map(a => [a.ruleKey, a]));
     const inheritedMap = new Map(inherited.map(a => [a.ruleKey, a]));
@@ -349,15 +148,17 @@ export class LimitPolicyBlockComponent {
             spec,
             assignment,
             inheritedAssignment,
-            displayValue: assignment ? formatAssignmentParams(assignment) : null,
+            displayValue: assignment
+              ? formatAssignmentParams(assignment, configuredLabel)
+              : null,
             inheritedDisplayValue: inheritedAssignment
-              ? formatAssignmentParams(inheritedAssignment)
+              ? formatAssignmentParams(inheritedAssignment, configuredLabel)
               : null,
           } satisfies GroupRow;
         })
         .filter((r): r is GroupRow => r !== null);
 
-      return { id: groupId, label: GROUP_LABELS[groupId], rows };
+      return { id: groupId, label: gl[groupId], rows };
     }).filter(g => g.rows.length > 0);
   });
 
@@ -370,13 +171,10 @@ export class LimitPolicyBlockComponent {
   }
 
   toggleGroup(groupId: LimitGroup): void {
-    this.expandedState.update(set => {
+    this.userToggles.update(set => {
       const next = new Set(set);
-      if (next.has(groupId)) {
-        next.delete(groupId);
-      } else {
-        next.add(groupId);
-      }
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
       return next;
     });
   }

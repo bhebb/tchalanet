@@ -1,96 +1,83 @@
 <tch-admin-dialog-shell
   [title]="'admin.limits.blockNumber.title' | translate"
-  [description]="'admin.limits.blockNumber.description' | translate"
+  [description]="'admin.limits.blockNumber.quickDescription' | translate"
   icon="block"
 >
-  @if (errorMessage(); as msg) {
-    <tch-section-error
-      [title]="'admin.limits.blockNumber.errorTitle' | translate"
-      [message]="msg"
-    />
-  }
-
-  <div class="bnq-dialog__body">
-
-    <!-- Draw selector -->
-    @if (loadingDraws()) {
-      <div class="bnq-dialog__loading">
-        <mat-spinner diameter="20" />
-        <span>{{ 'admin.limits.blockNumber.loadingDraws' | translate }}</span>
-      </div>
-    } @else if (openDraws().length === 0) {
-      <p class="bnq-dialog__no-draws">{{ 'admin.limits.blockNumber.noOpenDraws' | translate }}</p>
-    } @else {
-      <mat-form-field appearance="outline" class="bnq-dialog__field">
-        <mat-label>{{ 'admin.limits.blockNumber.drawLabel' | translate }}</mat-label>
-        <mat-select
-          [value]="selectedDrawId()"
-          (selectionChange)="selectedDrawId.set($event.value)"
-        >
-          @for (draw of openDraws(); track draw.id) {
-            <mat-option [value]="draw.id">{{ drawLabel(draw) }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    }
-
-    <!-- Number chips -->
-    <mat-form-field appearance="outline" class="bnq-dialog__field">
-      <mat-label>{{ 'admin.limits.blockNumber.numbersLabel' | translate }}</mat-label>
-      <mat-chip-grid #chipGrid>
-        @for (n of numbers(); track n) {
-          <mat-chip (removed)="removeNumber(n)">
-            {{ n }}
-            <button matChipRemove [attr.aria-label]="'admin.limits.blockNumber.removeNumber' | translate: { number: n }">
-              <span class="material-symbols-outlined">cancel</span>
-            </button>
-          </mat-chip>
-        }
-        <input
-          [placeholder]="'admin.limits.blockNumber.numberPlaceholder' | translate"
-          [matChipInputFor]="chipGrid"
-          [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
-          (matChipInputTokenEnd)="addNumber($event)"
+  <div class="bnqd">
+    @if (saveMutation.feedback(); as fb) {
+      @if (fb.kind === 'error' && fb.vm) {
+        <tch-section-error
+          [title]="fb.vm.title"
+          [message]="fb.vm.message"
+          severity="error"
         />
-      </mat-chip-grid>
-      <mat-hint>{{ 'admin.limits.blockNumber.numberHint' | translate }}</mat-hint>
-    </mat-form-field>
-
-    @if (numbers().length === 0) {
-      <p class="bnq-dialog__field-error">{{ 'admin.limits.blockNumber.numberRequired' | translate }}</p>
+      }
     }
 
-    <!-- Duration -->
-    <div class="bnq-dialog__duration">
-      <p class="bnq-dialog__duration-label">{{ 'admin.limits.blockNumber.durationLabel' | translate }}</p>
-      <mat-button-toggle-group
-        [value]="duration()"
-        (change)="duration.set($event.value)"
-        class="bnq-dialog__duration-toggle"
+    <div class="bnqd__scope">
+      <p class="bnqd__scope-label">{{ 'admin.limits.blockNumber.scopeLabel' | translate }}</p>
+      <mat-radio-group
+        [ngModel]="scope()"
+        (ngModelChange)="setScope($event)"
+        class="bnqd__radio-group"
       >
-        <mat-button-toggle value="today">{{ 'admin.limits.blockNumber.durationToday' | translate }}</mat-button-toggle>
-        <mat-button-toggle value="permanent">{{ 'admin.limits.blockNumber.durationPermanent' | translate }}</mat-button-toggle>
-      </mat-button-toggle-group>
+        <mat-radio-button value="TENANT" class="bnqd__radio">
+          <span class="bnqd__radio-title">{{ 'admin.limits.blockNumber.scopeTenant' | translate }}</span>
+          <span class="bnqd__radio-hint">{{ 'admin.limits.blockNumber.scopeTenantHint' | translate }}</span>
+        </mat-radio-button>
+        <mat-radio-button value="DRAW_CHANNEL" class="bnqd__radio">
+          <span class="bnqd__radio-title">{{ 'admin.limits.blockNumber.scopeChannel' | translate }}</span>
+          <span class="bnqd__radio-hint">{{ 'admin.limits.blockNumber.scopeChannelHint' | translate }}</span>
+        </mat-radio-button>
+      </mat-radio-group>
     </div>
 
+    @if (scope() === 'DRAW_CHANNEL') {
+      <tch-active-draw-channel-select
+        [preselectedId]="preselectedChannelId()"
+        (channelChange)="onChannelChange($event)"
+      />
+    }
+
+    <p class="bnqd__help">{{ 'admin.limits.blockNumber.numberHint' | translate }}</p>
+
+    <mat-form-field appearance="outline" class="bnqd__field">
+      <mat-label>{{ 'admin.limits.blockNumber.numbersLabel' | translate }}</mat-label>
+      <mat-chip-grid #chipGrid [attr.aria-label]="'admin.limits.blockNumber.numbersLabel' | translate">
+        @for (num of selections(); track num) {
+          <mat-chip-row (removed)="removeNumber(num)">
+            {{ num }}
+            <button
+              matChipRemove
+              [attr.aria-label]="'admin.limits.blockNumber.removeNumber' | translate: { number: num }"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">cancel</span>
+            </button>
+          </mat-chip-row>
+        }
+      </mat-chip-grid>
+      <input
+        [placeholder]="'admin.limits.blockNumber.numberPlaceholder' | translate"
+        [matChipInputFor]="chipGrid"
+        [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+        (matChipInputTokenEnd)="addNumber($event)"
+      />
+    </mat-form-field>
   </div>
 
-  <mat-dialog-actions align="end">
-    <button mat-stroked-button mat-dialog-close type="button">
-      {{ 'common.cancel' | translate }}
-    </button>
-    <button
-      mat-flat-button
-      color="warn"
-      type="button"
-      [disabled]="!canSave"
-      (click)="save()"
-    >
-      @if (saving()) {
-        {{ 'admin.limits.blockNumber.saving' | translate }}
-      } @else {
-        {{ 'admin.limits.blockNumber.confirm' | translate }}
-      }
-    </button>
-  </mat-dialog-actions>
+  <button actions mat-button mat-dialog-close [disabled]="saveMutation.pending()">
+    {{ 'admin.limits.blockNumber.cancel' | translate }}
+  </button>
+  <button
+    actions
+    mat-flat-button
+    color="primary"
+    [disabled]="saveMutation.pending() || !canSave()"
+    (click)="save()"
+  >
+    @if (saveMutation.pending()) {
+      <span class="material-symbols-outlined spin" aria-hidden="true">progress_activity</span>
+    }
+    {{ 'admin.limits.blockNumber.confirm' | translate }}
+  </button>
 </tch-admin-dialog-shell>
