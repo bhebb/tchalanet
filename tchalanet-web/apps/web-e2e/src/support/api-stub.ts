@@ -181,6 +181,71 @@ const subscriptionStub = {
 const gamesPricingStub = {
   games: [
     {
+      gameCode: 'HT_BOLET',
+      tenantGameId: { value: 'game-bolet' },
+      catalogName: 'Bolèt',
+      displayName: 'Bolèt',
+      enabled: true,
+      visibleInPos: true,
+      minStake: 1,
+      maxStake: 1000000,
+      limits: {
+        configured: true,
+        assignments: [
+          { ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW', params: { valueCents: 500000 } },
+        ],
+      },
+      pricing: {
+        configured: true,
+        entries: [
+          {
+            betType: 'BORLETTE',
+            betOption: null,
+            pricingVariantCode: 'BORLETTE_STANDARD',
+            odds: 50,
+            payoutRuleType: 'STAKE_MULTIPLIER',
+            fixedAmount: null,
+          },
+        ],
+      },
+    },
+    {
+      gameCode: 'HT_LOTO4',
+      tenantGameId: { value: 'game-loto4' },
+      catalogName: 'Loto 4 chif',
+      displayName: 'Loto 4 chif',
+      enabled: true,
+      visibleInPos: true,
+      minStake: 1,
+      maxStake: 1000000,
+      limits: { configured: true, assignments: [] },
+      pricing: { configured: false, entries: [] },
+    },
+    {
+      gameCode: 'HT_LOTO5',
+      tenantGameId: { value: 'game-loto5' },
+      catalogName: 'Loto 5 chif',
+      displayName: 'Loto 5 chif',
+      enabled: false,
+      visibleInPos: false,
+      minStake: 1,
+      maxStake: 1000000,
+      limits: { configured: true, assignments: [] },
+      pricing: {
+        configured: true,
+        entries: [
+          {
+            betType: 'LOTO5',
+            betOption: null,
+            pricingVariantCode: 'LOTO5_STANDARD',
+            odds: 5000,
+            payoutRuleType: 'STAKE_MULTIPLIER',
+            fixedAmount: null,
+          },
+        ],
+      },
+    },
+    {
       gameCode: 'HT_MARYAJ_GRATIS',
       tenantGameId: { value: 'game-maryaj-gratis' },
       catalogName: 'Maryaj gratis',
@@ -289,6 +354,104 @@ const limitAssignmentsStub = [
     params: { valueCents: 25000 },
     startsAt: null,
     endsAt: null,
+  },
+];
+
+const drawChannelsStub = [
+  {
+    id: 'channel-ht-1000',
+    channelCode: 'HT_TX_1000',
+    channelName: 'HT · 1000',
+    drawTime: '10:00:00',
+    salesOpenTime: '00:00:00',
+    cutoffTime: '09:55:00',
+    timezone: 'America/Port-au-Prince',
+    daysOfWeek: 'MON-SUN',
+    active: true,
+    resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'HT_TX_1000',
+    resultProvider: 'TX',
+    resultProviderSlotCode: '1000',
+    resultSlotDaysOfWeek: 'MON-SUN',
+    saleReadyGameCount: 6,
+    offeredGameCount: 6,
+  },
+  {
+    id: 'channel-ga-evening',
+    channelCode: 'HT_GA_EVE',
+    channelName: 'Georgia · Aswè',
+    drawTime: '18:59:00',
+    salesOpenTime: '00:00:00',
+    cutoffTime: '18:54:00',
+    timezone: 'America/Port-au-Prince',
+    daysOfWeek: 'MON-SAT',
+    active: true,
+    resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'GA_EVE',
+    resultProvider: 'GA',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'MON-SAT',
+    saleReadyGameCount: 4,
+    offeredGameCount: 4,
+  },
+  {
+    id: 'channel-ca-evening',
+    channelCode: 'HT_CA_EVE',
+    channelName: 'California · Aswè',
+    drawTime: '21:00:00',
+    salesOpenTime: '00:00:00',
+    cutoffTime: '20:55:00',
+    timezone: 'America/Port-au-Prince',
+    daysOfWeek: 'MON-FRI',
+    active: true,
+    resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'CA_EVE',
+    resultProvider: 'CA',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'MON-FRI',
+    saleReadyGameCount: 0,
+    offeredGameCount: 0,
+  },
+  {
+    id: 'channel-ny-evening',
+    channelCode: 'HT_NY_EVE',
+    channelName: 'New York · Aswè',
+    drawTime: '22:30:00',
+    salesOpenTime: '00:00:00',
+    cutoffTime: '22:25:00',
+    timezone: 'America/Port-au-Prince',
+    daysOfWeek: 'MON-SUN',
+    active: false,
+    resultSlotActive: true,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'NY_EVE',
+    resultProvider: 'NY',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'MON-SUN',
+    saleReadyGameCount: 4,
+    offeredGameCount: 4,
+  },
+  {
+    id: 'channel-fl-evening',
+    channelCode: 'HT_FL_EVE',
+    channelName: 'Florida · Aswè',
+    drawTime: '19:00:00',
+    salesOpenTime: '00:00:00',
+    cutoffTime: '18:55:00',
+    timezone: 'America/Port-au-Prince',
+    daysOfWeek: 'SAT,SUN',
+    active: true,
+    resultSlotActive: false,
+    defaultSource: 'EXTERNAL',
+    resultSlotKey: 'FL_EVE',
+    resultProvider: 'FL',
+    resultProviderSlotCode: 'EVE',
+    resultSlotDaysOfWeek: 'SAT,SUN',
+    saleReadyGameCount: 4,
+    offeredGameCount: 4,
   },
 ];
 
@@ -844,6 +1007,47 @@ export class ApiStub {
     );
   }
 
+  /** Deterministic draw-channel configuration data for mobile/desktop UX checks. */
+  async adminDrawChannels(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.apiRoute(/\/tenant\/draw-channels\/[^/?]+(?:\?|$)/, async r => {
+      const url = new URL(r.request().url());
+      const id = url.pathname.split('/').pop();
+      const channel = drawChannelsStub.find(item => item.id === id) ?? drawChannelsStub[0];
+      await json(
+        r,
+        envelope({
+          id: channel.id,
+          code: channel.channelCode,
+          name: channel.channelName,
+          label: channel.channelName,
+          timezone: channel.timezone,
+          drawTime: channel.drawTime,
+          salesOpenTime: channel.salesOpenTime,
+          cutoffSec: 300,
+          daysOfWeek: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'],
+          active: channel.active,
+          sortOrder: 1,
+          period: null,
+          flags: {},
+          notes: null,
+          resultSlotId: `slot-${channel.id}`,
+          defaultSource: channel.defaultSource,
+          resultSlotKey: channel.resultSlotKey,
+          resultProvider: channel.resultProvider,
+          resultProviderSlotCode: channel.resultProviderSlotCode,
+          resultSlotDaysOfWeek: channel.resultSlotDaysOfWeek,
+          resultSlotActive: channel.resultSlotActive,
+        }),
+      );
+    });
+
+    await this.apiRoute(/\/tenant\/draw-channels(?:\?|$)/, r =>
+      json(r, envelope(drawChannelsStub)),
+    );
+  }
+
   /** Inject a blocking failure for the terminal detail resource. */
   async adminSellerTerminalDetailError(): Promise<void> {
     if (!this.enabled) return;
@@ -939,6 +1143,47 @@ export class ApiStub {
           },
         ],
       }),
+    );
+  }
+
+  /** Return a ready setup where POS/printing remains an operational recommendation. */
+  async adminSetupPrintingMissingOperational(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.apiRoute(/\/admin\/overview(?:\?|$)/, r =>
+      json(
+        r,
+        envelope({
+          ...adminOverviewStub,
+          status: 'READY',
+          missingCount: 0,
+          sections: adminOverviewStub.sections.map(section =>
+            section.id === 'settings'
+              ? {
+                  ...section,
+                  status: 'READY',
+                  issues: [
+                    {
+                      key: 'settings.print.paper_size_missing',
+                      messageKey: 'settings.print.paper_size_missing',
+                      route: '/app/admin/company/settings/config#print',
+                    },
+                  ],
+                }
+              : section.id === 'draws' || section.id === 'generated_draws'
+                ? { ...section, status: 'READY', issues: [] }
+                : section,
+          ),
+          setup: {
+            totalSteps: 5,
+            completedSteps: 5,
+            status: 'COMPLETE',
+            canCreateSellerTerminal: true,
+            blockingSteps: [],
+            nextRecommendedStep: null,
+          },
+        }),
+      ),
     );
   }
 

@@ -3,6 +3,7 @@ package com.tchalanet.server.core.draw.internal.application.command.handler;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelCalendarRow;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawSource;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.CommandHandler;
 import com.tchalanet.server.common.stereotype.TchTx;
 import com.tchalanet.server.common.stereotype.UseCase;
@@ -27,6 +28,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +44,7 @@ public class GenerateDrawsForRangeCommandHandler
   private static final int MAX_RANGE_DAYS = 31;
 
   private final DrawChannelCatalog drawChannelCatalog;
+  private final ResultSlotCatalog resultSlotCatalog;
   private final DrawLifecyclePort drawLifecyclePort;
   private final ResultSlotCalendarReaderPort resultSlotCalendarReader;
   private final IdGenerator idGenerator;
@@ -52,7 +55,12 @@ public class GenerateDrawsForRangeCommandHandler
   public GenerateDrawsForRangeResult handle(GenerateDrawsForRangeCommand command) {
     validate(command);
 
-    var channels = drawChannelCatalog.listCalendarRows(command.tenantId(), true, null);
+    var activeResultSlotIds = new HashSet<ResultSlotId>();
+    resultSlotCatalog.listActive().forEach(slot -> activeResultSlotIds.add(slot.id()));
+    var channels =
+        drawChannelCatalog.listCalendarRows(command.tenantId(), true, null).stream()
+            .filter(row -> activeResultSlotIds.contains(row.resultSlotId()))
+            .toList();
 
     if (channels.isEmpty()) {
       log.info(

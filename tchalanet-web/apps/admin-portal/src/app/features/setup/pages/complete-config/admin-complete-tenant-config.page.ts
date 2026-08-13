@@ -49,6 +49,7 @@ interface SetupChecklistCardViewModel {
   readonly badgeKind: SetupChecklistBadgeKind;
   readonly body: string;
   readonly bodyVariant: SetupChecklistBodyVariant;
+  readonly statusLabelKey?: string;
   readonly ctaKey: string;
   readonly route: string;
   readonly queryParams?: Record<string, string>;
@@ -62,6 +63,13 @@ interface SetupPageErrorViewModel {
   readonly title: string;
   readonly message: string;
 }
+
+interface SetupSettingsTarget {
+  readonly route: string;
+  readonly fragment?: string;
+}
+
+const TENANT_SETTINGS_CONFIG_ROUTE = '/app/admin/company/settings/config';
 
 @Component({
   selector: 'tch-admin-complete-tenant-config-page',
@@ -115,15 +123,18 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly terminalBlockingSteps = computed<readonly string[]>(() => {
     if (this.canCreateSellerTerminal()) return [];
 
-    const requiredMissing = this.setupCards()
-      .filter(card => card.badgeKind !== 'optional' && card.status === 'MISSING')
+    const requiredMissing = this.requiredSetupCards()
+      .filter(
+        card =>
+          isReadinessCardBlocking(card.badgeKind) && card.status === 'MISSING',
+      )
       .map(card => card.id);
     const backendBlocking = (this.setup()?.blockingSteps ?? []).map(step => step.toLowerCase());
 
     return this.normalizeBlockingSteps([...requiredMissing, ...backendBlocking]);
   });
 
-  readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
+  readonly requiredSetupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
     const h = this.header();
     const identityStatus = this.sectionStatus('identity');
     const addressStatus = this.sectionStatus('address');
@@ -148,7 +159,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
     const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
     const settingsTarget = this.settingsTarget();
-    const subscription = this.subscription();
 
     const cards: SetupChecklistCardViewModel[] = [
       {
@@ -225,6 +235,31 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         sectionErrorTargets: ['admin.setup.generatedDraws'],
       },
     );
+
+    return cards;
+  });
+
+  readonly operationalSetupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
+    const gamesStatus = this.sectionStatus('games_pricing');
+    const subscription = this.subscription();
+    const cards: SetupChecklistCardViewModel[] = [
+      {
+        id: 'pos_printing',
+        icon: 'print',
+        titleKey: 'admin.setup.section.posPrinting',
+        status: this.posPrintingStatus(),
+        badgeKind: 'operational',
+        body: this.translate.instant('admin.setup.section.posPrintingDesc'),
+        bodyVariant: 'default',
+        statusLabelKey: this.posPrintingStatusLabelKey(),
+        ctaKey: 'admin.setup.section.posPrintingCta',
+        route: '/app/admin/company/settings/config',
+        queryParams: { from: 'setup' },
+        fragment: 'print',
+        emphasizeMissing: false,
+        sectionErrorTargets: ['admin.setup.pos_printing'],
+      },
+    ];
 
     if (this.maryajGratisEnabled()) {
       cards.push({
@@ -309,6 +344,11 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     return cards;
   });
 
+  readonly setupCards = computed<readonly SetupChecklistCardViewModel[]>(() => [
+    ...this.requiredSetupCards(),
+    ...this.operationalSetupCards(),
+  ]);
+
   readonly loading = computed(() => this.pageState() === 'loading');
   readonly error = computed(() => (this.pageState() === 'error' ? this.pageError() : null));
 
@@ -368,27 +408,16 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     );
   }
 
-  private settingsTarget(): { route: string; fragment?: string } {
-    const issue = this.sectionMap()
-      .get('settings')
-      ?.issues?.find(item => item.messageKey?.startsWith('settings.'));
-    const reason = issue?.messageKey ?? '';
-    if (reason.startsWith('settings.print.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'print' };
-    }
-    if (reason.startsWith('settings.send.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'send' };
-    }
-    if (reason.startsWith('settings.calendar.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'calendar' };
-    }
-    if (reason.startsWith('settings.locale.')) {
-      return { route: '/app/admin/company/settings/config', fragment: 'languages' };
-    }
-    if (reason.startsWith('settings.identity.') || reason.startsWith('settings.defaults.')) {
-      return { route: '/app/admin/company/settings/config' };
-    }
-    return { route: '/app/admin/company/settings/config' };
+  private settingsTarget(): SetupSettingsTarget {
+    return setupSettingsTarget(this.sectionMap().get('settings'));
+  }
+
+  private posPrintingStatus(): SetupChecklistStatus {
+    return setupPosPrintingStatus(this.sectionMap().get('settings'));
+  }
+
+  private posPrintingStatusLabelKey(): string {
+    return setupPosPrintingStatusLabelKey(this.posPrintingStatus());
   }
 
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {
@@ -463,4 +492,59 @@ export function adminSetupSectionError(
     title: copy.title,
     message: copy.message,
   };
+}
+
+export function isReadinessCardBlocking(kind: SetupChecklistBadgeKind): boolean {
+  return kind === 'required' || kind === 'blocking';
+}
+
+export function setupSettingsTarget(
+  settings: { readonly issues?: readonly { readonly messageKey?: string | null }[] } | undefined,
+): SetupSettingsTarget {
+  const reason =
+    settings?.issues?.find(
+      item =>
+        item.messageKey?.startsWith('settings.') &&
+        !item.messageKey.startsWith('settings.print.'),
+    )?.messageKey ??
+    settings?.issues?.find(item => item.messageKey?.startsWith('settings.'))?.messageKey ??
+    '';
+  return setupSettingsTargetFromReason(reason);
+}
+
+export function setupSettingsTargetFromReason(reason: string): SetupSettingsTarget {
+  if (reason.startsWith('settings.print.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'print' };
+  }
+  if (reason.startsWith('settings.send.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'send' };
+  }
+  if (reason.startsWith('settings.calendar.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'calendar' };
+  }
+  if (reason.startsWith('settings.locale.')) {
+    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'languages' };
+  }
+  return { route: TENANT_SETTINGS_CONFIG_ROUTE };
+}
+
+export function setupPosPrintingStatus(
+  settings: { readonly issues?: readonly { readonly messageKey?: string | null }[] } | undefined,
+): SetupChecklistStatus {
+  if (!settings) return 'UNKNOWN';
+
+  const hasPrintIssue =
+    settings.issues?.some(item => item.messageKey?.startsWith('settings.print.')) ?? false;
+  return hasPrintIssue ? 'MISSING' : 'READY';
+}
+
+export function setupPosPrintingStatusLabelKey(status: SetupChecklistStatus): string {
+  switch (status) {
+    case 'READY':
+      return 'admin.setup.operationalStatus.configured';
+    case 'MISSING':
+      return 'admin.setup.operationalStatus.notConfigured';
+    default:
+      return 'admin.setup.operationalStatus.recommended';
+  }
 }

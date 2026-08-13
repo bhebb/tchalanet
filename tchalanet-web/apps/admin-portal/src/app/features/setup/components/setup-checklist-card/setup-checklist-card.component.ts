@@ -26,6 +26,7 @@ export class SetupChecklistCardComponent {
   readonly badgeKind = input.required<SetupChecklistBadgeKind>();
   readonly body = input.required<string>();
   readonly bodyVariant = input<SetupChecklistBodyVariant>('default');
+  readonly statusLabelKey = input<string | undefined>(undefined);
   readonly ctaKey = input.required<string>();
   readonly route = input.required<string>();
   readonly fragment = input<string | undefined>(undefined);

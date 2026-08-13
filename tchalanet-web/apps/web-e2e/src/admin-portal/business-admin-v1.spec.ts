@@ -25,6 +25,16 @@ test.describe('Admin business V1 — setup, Maryaj gratis, limits, reports', () 
     await adminSetupPage.expectReadinessCards();
   });
 
+  test('setup keeps missing printing operational when sales readiness is complete', async ({
+    adminSetupPage,
+    apiStub,
+  }) => {
+    await apiStub.adminSetupPrintingMissingOperational();
+    await adminSetupPage.goto();
+
+    await adminSetupPage.expectReadySetupWithOperationalPrintingIssue();
+  });
+
   test('Maryaj gratis renders config panels and saves seller-selection changes', async ({ adminMaryajGratisPage }) => {
     await adminMaryajGratisPage.goto();
 

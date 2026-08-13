@@ -1,5 +1,6 @@
 package com.tchalanet.server.features.pos.games;
 
+import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
 import com.tchalanet.server.catalog.game.api.model.GameCode;
@@ -16,14 +17,21 @@ import org.springframework.stereotype.Service;
 public class PosGamesService {
 
   private final TenantGameApi tenantGameApi;
+  private final GameCatalog gameCatalog;
 
-  public PosGamesService(TenantGameApi tenantGameApi) {
+  public PosGamesService(TenantGameApi tenantGameApi, GameCatalog gameCatalog) {
     this.tenantGameApi = tenantGameApi;
+    this.gameCatalog = gameCatalog;
   }
 
   public List<PosGameOptionResponse> listAvailable(TenantId tenantId) {
+    var activeGameCodes =
+        gameCatalog.listActive().stream()
+            .map(game -> game.code().toUpperCase())
+            .collect(java.util.stream.Collectors.toSet());
     return tenantGameApi.listGames(tenantId).stream()
         .filter(game -> game.enabled() && game.visibleInPos())
+        .filter(game -> activeGameCodes.contains(game.gameCode().toUpperCase()))
         .filter(game -> !GameCode.HT_MARYAJ_GRATIS.name().equals(game.gameCode()))
         .sorted(Comparator.comparingInt(game -> game.displayOrder()))
         .flatMap(game -> toOptions(tenantId, game.gameCode()).stream())

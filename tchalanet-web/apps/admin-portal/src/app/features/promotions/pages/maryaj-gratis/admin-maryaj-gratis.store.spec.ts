@@ -180,6 +180,7 @@ function maryajGame(): TenantGamePricingView {
     gameName: 'Maryaj gratis',
     catalogStatus: 'AVAILABLE',
     tenantStatus: 'ACTIVE',
+    visibleInPos: true,
     pricingProfileLabel: null,
     odds: [],
     oddsGroups: [],

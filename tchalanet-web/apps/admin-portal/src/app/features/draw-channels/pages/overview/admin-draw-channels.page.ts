@@ -1,45 +1,49 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
-import { TchErrorPanel, TchSectionError } from '@tch/ui/components';
-import { resolveErrorFeedbackCopy } from '@tch/web/errors';
-import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
-import { AdminPageShellComponent } from '@tch/ui/console';
-import { AdminRefreshButtonComponent } from '@tch/ui/console';
-import { AdminEmptyStateComponent } from '@tch/ui/console';
+import { TchConfirmDialog, type TchConfirmDialogData, TchNotice } from '@tch/ui/components';
+import {
+  AdminEmptyStateComponent,
+  AdminPageShellComponent,
+  AdminRefreshButtonComponent,
+} from '@tch/ui/console';
+import {
+  TchAsyncReadyDirective,
+  TchAsyncViewComponent,
+  resourceErrorVm,
+  tchMutation,
+} from '@tch/web/async';
 
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
-  DrawChannelProviderView,
-  DrawChannelSlotConfigView,
+  type DrawChannelProviderView,
+  type DrawChannelSlotConfigView,
 } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelsSummaryComponent } from '../../components/draw-channels-summary/draw-channels-summary.component';
-import { DrawChannelProviderCardComponent } from '../../components/draw-channel-provider-card/draw-channel-provider-card.component';
-import { DrawChannelConfigDialog } from '../../components/dialogs/draw-channel-config.dialog';
-
-export function adminDrawChannelsErrorView(
-  err: unknown,
-  translate: (key: string) => string,
-): ErrorViewModel {
-  const problem = mapHttpErrorToProblemDetail(err);
-  const normalized = webAppErrorFromProblemDetail(problem, 'admin.setup.draw_channels', 'page');
-  const copy = resolveErrorFeedbackCopy(normalized, translate);
-  return toErrorViewModel(normalized, copy);
-}
+import { DrawChannelConfigDialog } from '../../components/draw-channel-config-dialog/draw-channel-config.dialog';
+import {
+  DrawChannelListItemComponent,
+  type DrawChannelListItemView,
+  type DrawChannelListResultMode,
+  type DrawChannelListStatus,
+} from '../../components/draw-channel-list-item/draw-channel-list-item.component';
 
 type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive' | 'error';
-type PageState = 'loading' | 'ready' | 'error';
+
+interface ToggleChannelInput {
+  readonly slot: DrawChannelSlotConfigView;
+  readonly enabled: boolean;
+}
 
 @Component({
   selector: 'tch-admin-draw-channels-page',
@@ -48,51 +52,78 @@ type PageState = 'loading' | 'ready' | 'error';
   imports: [
     RouterLink,
     MatButtonModule,
-    MatDialogModule,
     TranslatePipe,
     AdminPageShellComponent,
     AdminRefreshButtonComponent,
     AdminEmptyStateComponent,
-    TchErrorPanel,
-    TchSectionError,
+    TchNotice,
+    TchAsyncReadyDirective,
+    TchAsyncViewComponent,
     DrawChannelsSummaryComponent,
-    DrawChannelProviderCardComponent,
+    DrawChannelListItemComponent,
   ],
   templateUrl: './admin-draw-channels.page.html',
   styleUrls: ['./admin-draw-channels.page.scss'],
 })
-export class AdminDrawChannelsPage implements OnInit {
+export class AdminDrawChannelsPage {
   private readonly api = inject(AdminDrawChannelsApiService);
-  private readonly route = inject(ActivatedRoute);
   private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
-  private pendingConfigure: { providerCode: string; slotKey: string | null } | null = null;
+  private handledDeepLinkKey: string | null = null;
 
-  readonly pageState = signal<PageState>('loading');
-  readonly pageError = signal<ErrorViewModel | null>(null);
-  readonly actionNotice = signal<string | null>(null);
-  readonly allProviders = signal<DrawChannelProviderView[]>([]);
-  readonly savingSlot = signal<{ providerCode: string; slotKey: string } | null>(null);
+  readonly providersResource = this.api.getDrawChannelProvidersResource({
+    suppressShellFeedback: true,
+  });
+  readonly providersError = resourceErrorVm(this.providersResource, 'admin.setup.draw_channels');
+  readonly allProviders = computed(() => this.providersResource.value() ?? []);
   readonly activeFilter = signal<ActiveFilter>('all');
   readonly searchQuery = signal<string>('');
+  readonly toggleChannel = tchMutation<ToggleChannelInput, unknown>({
+    run: input =>
+      this.api.setChannelActive(input.slot.channelId ?? '', input.enabled, {
+        suppressShellFeedback: true,
+      }),
+    source: 'admin.setup.draw_channels.toggle',
+    onSuccess: () => this.load(true),
+  });
 
-  readonly filteredProviders = computed(() => {
+  readonly channelRows = computed<DrawChannelListItemView[]>(() =>
+    this.allProviders()
+      .flatMap(provider =>
+        provider.slots.map(slot => {
+          return {
+            providerCode: provider.providerCode,
+            providerLabel: provider.providerLabel,
+            slot,
+            resultMode: this.slotResultMode(slot),
+            status: this.channelStatus(slot),
+          };
+        }),
+      )
+      .sort(compareDrawChannelRows),
+  );
+
+  readonly filteredRows = computed(() => {
     const filter = this.activeFilter();
     const query = this.searchQuery().trim().toLowerCase();
-    return this.allProviders()
-      .filter(p => {
-        if (filter === 'active') return p.tenantStatus === 'ACTIVE';
-        if (filter === 'todo')
-          return p.tenantStatus === 'INACTIVE' || p.tenantStatus === 'NEEDS_CONFIG';
-        if (filter === 'inactive') return p.tenantStatus === 'INACTIVE';
-        if (filter === 'error') return p.resultAcquisition.sourceStatus === 'ERROR';
+
+    return this.channelRows()
+      .filter(row => {
+        if (filter === 'active') return row.status === 'active';
+        if (filter === 'todo') return row.status === 'attention';
+        if (filter === 'inactive') return row.status === 'inactive';
+        if (filter === 'error') return row.slot.resultSlotActive === false;
         return true;
       })
       .filter(
-        p =>
+        row =>
           !query ||
-          p.providerLabel.toLowerCase().includes(query) ||
-          p.providerCode.toLowerCase().includes(query),
+          row.providerLabel.toLowerCase().includes(query) ||
+          row.providerCode.toLowerCase().includes(query) ||
+          row.slot.label.toLowerCase().includes(query) ||
+          row.slot.slotKey.toLowerCase().includes(query),
       );
   });
 
@@ -104,114 +135,128 @@ export class AdminDrawChannelsPage implements OnInit {
     { key: 'error', labelKey: 'admin.drawChannels.filters.sourceError' },
   ];
 
-  ngOnInit(): void {
-    const providerCode = this.route.snapshot.queryParamMap.get('provider');
-    if (providerCode) {
-      this.pendingConfigure = {
-        providerCode,
-        slotKey: this.route.snapshot.queryParamMap.get('slot'),
-      };
-      this.searchQuery.set(providerCode);
+  constructor() {
+    effect(() => {
+      const providers = this.providersResource.value();
+      if (providers) this.handleDeepLinkedChannel(providers);
+    });
+  }
+
+  load(preserveActionFeedback = false): void {
+    if (!preserveActionFeedback) this.toggleChannel.clearFeedback();
+    this.providersResource.reload();
+  }
+
+  toggleChannelEnabled(slot: DrawChannelSlotConfigView, enabled: boolean): void {
+    if (!slot.channelId) return;
+    if (!enabled) {
+      this.confirmDisableChannel(slot);
+      return;
     }
-    this.load();
+    this.toggleChannel.execute({ slot, enabled }, { key: slot.channelId });
   }
 
-  load(): void {
-    this.pageState.set('loading');
-    this.pageError.set(null);
-    this.actionNotice.set(null);
-    this.api.getDrawChannelProviders().subscribe({
-      next: data => {
-        this.allProviders.set(data);
-        this.pageState.set('ready');
-        this.openPendingConfigure(data);
-      },
-      error: (err: unknown) => {
-        this.pageError.set(this.errorViewModel(err));
-        this.pageState.set('error');
-      },
-    });
+  openChannelConfig(slot: DrawChannelSlotConfigView): void {
+    this.openChannelDialog(slot);
   }
 
-  onConfigure(provider: DrawChannelProviderView): void {
-    this.openConfigDialog(provider, null);
+  openChannelDetails(slot: DrawChannelSlotConfigView): void {
+    if (!slot.channelId) return;
+    void this.router.navigate(['/app/admin/draw-channels', slot.channelId]);
   }
 
-  onConfigureSlot(provider: DrawChannelProviderView, slot: DrawChannelSlotConfigView): void {
-    this.openConfigDialog(provider, slot);
+  channelSaving(slot: DrawChannelSlotConfigView): boolean {
+    return !!slot.channelId && this.toggleChannel.pending(slot.channelId);
   }
 
-  onToggleSlotEnabled(
-    provider: DrawChannelProviderView,
-    slot: DrawChannelSlotConfigView,
-    enabled: boolean,
-  ): void {
-    this.savingSlot.set({ providerCode: provider.providerCode, slotKey: slot.slotKey });
-    this.actionNotice.set(null);
-    const request = {
-      enabled: provider.tenantStatus === 'ACTIVE' || provider.tenantStatus === 'NEEDS_CONFIG',
-      resultAcquisitionMode: provider.resultAcquisition.mode,
-      defaultSalesCutoffMinutes: provider.defaultSalesCutoffMinutes,
-      slots: provider.slots.map(s =>
-        s.slotKey === slot.slotKey
-          ? { slotKey: s.slotKey, enabled, drawTime: s.drawTime, salesCutoffMinutes: s.salesCutoffMinutes }
-          : { slotKey: s.slotKey, enabled: s.enabled, drawTime: s.drawTime, salesCutoffMinutes: s.salesCutoffMinutes },
-      ),
-    };
-    this.api.updateDrawChannelProviderConfig(provider.providerCode, request, { suppressShellFeedback: true }).subscribe({
-      next: updated => {
-        this.savingSlot.set(null);
-        this.allProviders.update(current =>
-          current.map(item => item.providerCode === updated.providerCode ? updated : item),
-        );
-        this.actionNotice.set(
-          this.translate.instant('admin.drawChannels.notice.saved', { provider: updated.providerLabel }),
-        );
-      },
-      error: (err: unknown) => {
-        this.savingSlot.set(null);
-        this.pageError.set(this.errorViewModel(err));
-      },
-    });
-  }
-
-  private errorViewModel(err: unknown): ErrorViewModel {
-    return adminDrawChannelsErrorView(err, key => this.translate.instant(key));
-  }
-
-  private openPendingConfigure(providers: readonly DrawChannelProviderView[]): void {
-    const pending = this.pendingConfigure;
-    if (!pending) return;
-    this.pendingConfigure = null;
-    const provider = providers.find(item => item.providerCode === pending.providerCode);
-    if (!provider) return;
-    const slot = pending.slotKey
-      ? (provider.slots.find(item => item.slotKey === pending.slotKey) ?? null)
-      : null;
-    this.openConfigDialog(provider, slot);
-  }
-
-  private openConfigDialog(
-    provider: DrawChannelProviderView,
-    slot: DrawChannelSlotConfigView | null,
-  ): void {
+  private openChannelDialog(slot: DrawChannelSlotConfigView): void {
+    if (!slot.channelId) return;
     this.dialog
       .open(DrawChannelConfigDialog, {
-        width: 'min(760px, calc(100vw - 2rem))',
-        maxWidth: 'calc(100vw - 2rem)',
-        data: { provider, slot },
+        data: {
+          channelId: slot.channelId,
+          label: slot.label,
+        },
+        maxWidth: '640px',
+        width: 'min(640px, 96vw)',
       })
       .afterClosed()
-      .subscribe((updated: DrawChannelProviderView | undefined) => {
-        if (!updated) return;
-        this.allProviders.update(current =>
-          current.map(item => (item.providerCode === updated.providerCode ? updated : item)),
-        );
-        this.actionNotice.set(
-          this.translate.instant('admin.drawChannels.notice.saved', {
-            provider: updated.providerLabel,
-          }),
-        );
+      .subscribe(saved => {
+        if (saved === true) this.load();
       });
   }
+
+  private confirmDisableChannel(slot: DrawChannelSlotConfigView): void {
+    const channelId = slot.channelId;
+    if (!channelId) return;
+    this.dialog
+      .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
+        data: {
+          title: this.translate.instant('admin.drawChannels.confirm.disableTitle', {
+            name: slot.label,
+          }),
+          message: this.translate.instant('admin.drawChannels.confirm.disableMessage'),
+          confirmLabel: this.translate.instant('admin.drawChannels.confirm.disableAction'),
+          cancelLabel: this.translate.instant('common.cancel'),
+          destructive: true,
+          icon: 'block',
+        },
+      })
+      .afterClosed()
+      .subscribe(result => {
+        if (result?.confirmed) {
+          this.toggleChannel.execute({ slot, enabled: false }, { key: channelId });
+        }
+      });
+  }
+
+  private slotResultMode(slot: DrawChannelSlotConfigView): DrawChannelListResultMode {
+    if (slot.resultSlotActive === false) return 'UNCONFIGURED';
+    if (slot.defaultSource === 'MANUAL') return 'MANUAL';
+    if (slot.defaultSource) return 'AUTO';
+    return 'UNCONFIGURED';
+  }
+
+  private channelStatus(slot: DrawChannelSlotConfigView): DrawChannelListStatus {
+    if (!slot.enabled) return 'inactive';
+    if (!slot.drawTime || slot.resultSlotActive === false) return 'attention';
+    return 'active';
+  }
+
+  private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {
+    const providerParam = this.route.snapshot.queryParamMap.get('provider')?.trim().toLowerCase();
+    const slotParam = this.route.snapshot.queryParamMap.get('slot')?.trim().toLowerCase();
+    if (!providerParam && !slotParam) return;
+
+    const deepLinkKey = `${providerParam ?? ''}:${slotParam ?? ''}`;
+    if (this.handledDeepLinkKey === deepLinkKey) return;
+
+    const provider = providers.find(
+      p =>
+        !providerParam ||
+        p.providerCode.toLowerCase() === providerParam ||
+        p.providerLabel.toLowerCase().includes(providerParam),
+    );
+    const slot = provider?.slots.find(
+      s =>
+        !slotParam ||
+        s.slotKey.toLowerCase() === slotParam ||
+        s.channelId?.toLowerCase() === slotParam ||
+        s.label.toLowerCase().includes(slotParam),
+    );
+
+    if (providerParam) this.searchQuery.set(provider?.providerLabel ?? providerParam);
+    if (!slot) return;
+
+    this.handledDeepLinkKey = deepLinkKey;
+    queueMicrotask(() => this.openChannelConfig(slot));
+  }
+}
+
+function compareDrawChannelRows(a: DrawChannelListItemView, b: DrawChannelListItemView): number {
+  const byActive = Number(b.slot.enabled) - Number(a.slot.enabled);
+  if (byActive !== 0) return byActive;
+  const byTime = (a.slot.drawTime ?? '').localeCompare(b.slot.drawTime ?? '');
+  if (byTime !== 0) return byTime;
+  return (a.slot.label || a.providerLabel).localeCompare(b.slot.label || b.providerLabel);
 }

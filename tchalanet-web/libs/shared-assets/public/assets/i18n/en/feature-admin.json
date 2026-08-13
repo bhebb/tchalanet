@@ -166,10 +166,6 @@
     },
     "setup": {
       "backToSetup": "Back to setup",
-      "progress": {
-        "title": "{{completed}} / {{total}} required steps completed",
-        "subtitle": "Setup readiness"
-      },
       "advancedSettings": {
         "title": "Advanced settings",
         "description": "Configure advanced settings for your operator.",
@@ -181,6 +177,16 @@
       "required": "Required",
       "blocking": "Blocking",
       "blockedBy": "Blocked by:",
+      "requiredSetupTitle": "Required to sell",
+      "requiredSetupDescription": "These items must be ready before sales can start.",
+      "operationalSetupTitle": "Operational setup",
+      "operationalSetupDescription": "These items do not block selling, but they improve control and daily operation.",
+      "operationalStatus": {
+        "configured": "Configured",
+        "notConfigured": "Not configured",
+        "recommended": "Recommended",
+        "notEnabled": "Not enabled"
+      },
       "section": {
         "identity": "Identity",
         "address": "Address",
@@ -213,6 +219,9 @@
         "limits": "Sales limits",
         "limitsDesc": "Sales limits applied to your operator.",
         "limitsCta": "Configure limits",
+        "posPrinting": "POS & printing",
+        "posPrintingDesc": "Configure receipts, PDFs, and default printing settings.",
+        "posPrintingCta": "Configure printing",
         "settings": "Operator settings",
         "settingsDesc": "Customize the language and receipt (display name, messages) for your operator.",
         "settingsCta": "Configure settings",
@@ -228,6 +237,12 @@
         "sellerTerminalReady": "Sellers ready"
       },
       "description": "Follow the steps to configure your operator and make it operational.",
+      "progress": {
+        "title": "{{completed}} / {{total}} required steps completed",
+        "subtitle": "Setup readiness",
+        "readyToSell": "Ready to sell.",
+        "notReadyToSell": "Not ready to sell yet · {{count}} blocking item(s)."
+      },
       "status": {
         "notStarted": "Not started",
         "inProgress": "In progress",
@@ -711,29 +726,65 @@
       "readiness": {
         "READY": "Ready",
         "TODO": "Needs setup",
-        "BLOCKED": "Unavailable"
+        "BLOCKED": "Unavailable",
+        "reason": {
+          "missingStakeOrPricing": "Stake limits or pricing are missing."
+        }
       },
       "card": {
         "unavailable": "Coming soon",
         "blockers": "To resolve",
         "readyChecks": "Checks",
+        "businessSetup": "Sales setup",
+        "saleSetup": "Ready to sell",
         "systemGame": "System game · {{name}}",
+        "saleActive": "Sell this game: active",
+        "saleDisabled": "Sell this game: disabled",
+        "posVisible": "On sales device",
+        "posHidden": "Hidden on sales device",
+        "posYes": "Yes",
+        "posNo": "No",
+        "saleEnabledShort": "On sale",
+        "saleDisabledShort": "Not sold",
         "stakeUnavailable": "Stake unavailable",
         "stakeConfigured": "Stake configured",
+        "stakeRange": "Stakes: {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Stake not configured",
+        "notConfigured": "Not configured",
         "pricingMissing": "Pricing not configured",
+        "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} pricing option(s)",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "availabilityReview": "Available for sale",
+        "availabilityNeedsConfig": "Review before sale",
+        "availabilityUnavailable": "Unavailable on draws",
         "standardPricingProfile": "Standard pricing",
+        "fact": {
+          "pos": "Sales device",
+          "stakes": "Stakes",
+          "payouts": "Payouts",
+          "availability": "Available"
+        },
+        "toggle": {
+          "enable": "Enable game sales",
+          "disable": "Disable game sales"
+        },
         "action": {
           "configure": "Configure",
+          "complete": "Complete setup",
           "disable": "Disable",
           "activate": "Activate",
           "reactivate": "Reactivate",
           "edit": "Edit",
           "unavailable": "Unavailable",
-          "maryaj": "Configure free Maryaj"
+          "maryaj": "Configure free Maryaj",
+          "availability": "Draw availability"
         }
+      },
+      "confirm": {
+        "disableTitle": "Disable {{name}}?",
+        "disableMessage": "Sellers will not be able to sell this game after this change.",
+        "disableAction": "Disable"
       }
     },
     "maryajGratis": {
@@ -1110,13 +1161,17 @@
           "notConfigured": "Not configured"
         },
         "offeredCount": "{{active}} active game(s) out of {{offered}} offered",
+        "activeGamesLabel": "Active games",
+        "offeredGamesLabel": "Offered games",
+        "availableGamesLabel": "Can add",
         "channelMissing": "Missing channel",
         "channelInactive": "Inactive channel"
       },
       "channel": {
         "label": "Channel",
+        "settingsTitle": "Draw settings",
         "salesOpen": "Sales open: {{value}}",
-        "cutoff": "Cutoff: {{seconds}}s before draw",
+        "cutoff": "Sales stop {{minutes}} minute(s) before {{drawTime}}.",
         "activeGames": "{{count}} active game(s)",
         "availableToAdd": "{{count}} game(s) available to add",
         "dependsOnAnother": "Depends on another channel",
@@ -1127,7 +1182,8 @@
       },
       "section": {
         "offered": "Active offer on this channel",
-        "available": "Games available to add"
+        "available": "Games available to add",
+        "noOfferedGames": "No game is currently sold on this draw. Add a game below to make it available to sellers."
       },
       "game": {
         "status": {
@@ -1534,7 +1590,7 @@
     },
     "drawChannels": {
       "title": "Draw channels",
-      "description": "Configure providers, result sources, and active draw slots for this operator.",
+      "description": "Configure lottery sources, result sources, and active draw times for this operator.",
       "status": {
         "active": "Active",
         "needsConfig": "Needs setup",
@@ -1542,10 +1598,17 @@
         "unavailable": "Unavailable"
       },
       "summary": {
-        "availableStates": "Providers",
-        "activeStates": "Active providers",
+        "availableStates": "Lottery sources",
+        "activeStates": "Active sources",
         "activeChannels": "Active slots",
         "todo": "Needs setup"
+      },
+      "profile": {
+        "haitiLottery": "Haiti Lottery profile"
+      },
+      "facts": {
+        "activeChannels": "active channels",
+        "totalChannels": "configured channels"
       },
       "filters": {
         "all": "All",
@@ -1555,25 +1618,129 @@
         "sourceError": "Source error"
       },
       "search": {
-        "placeholder": "Search provider..."
+        "placeholder": "Search source..."
       },
       "loading": "Loading draw channels...",
-      "resultsCount": "{{count}} provider(s) shown",
+      "resultsCount": "{{count}} source(s) shown",
+      "channelResultsCount": "{{count}} draw channel(s) shown",
+      "list": {
+        "title": "Draw channel list",
+        "columns": {
+          "draw": "Draw",
+          "schedule": "Schedule",
+          "results": "Results",
+          "games": "Games",
+          "status": "Status",
+          "action": "Action"
+        },
+        "resultMode": {
+          "AUTO": "Results: automatic",
+          "MANUAL": "Results: manual",
+          "UNCONFIGURED": "Results: to define"
+        },
+        "status": {
+          "active": "Active",
+          "attention": "Needs attention",
+          "inactive": "Inactive"
+        },
+        "days": {
+          "label": "Open days: {{value}}",
+          "everyDay": "Every day"
+        },
+        "message": {
+          "active": "Available for sale",
+          "inactive": "Not available for sale",
+          "missingSchedule": "The draw time needs to be configured.",
+          "noGames": "No games are available on this draw.",
+          "sourceInactive": "The result source needs to be checked."
+        }
+      },
       "empty": {
-        "title": "No provider",
-        "filtered": "Change the filter or search to show providers.",
-        "none": "No provider is available for this operator."
+        "title": "No source",
+        "filtered": "Change the filter or search to show sources.",
+        "none": "No lottery source is available for this operator."
       },
       "notice": {
         "title": "Action unavailable",
-        "configureUnavailable": "Direct configuration for {{provider}} will be enabled with the backend endpoint.",
-        "saved": "{{provider}} configuration saved."
+        "configureUnavailable": "Direct configuration for {{provider}} will be available soon.",
+        "saved": "{{provider}} configuration saved.",
+        "channelSaved": "Draw channel settings saved."
+      },
+      "confirm": {
+        "disableTitle": "Disable {{name}}?",
+        "disableMessage": "The operator will not be able to sell tickets on this draw channel after this change.",
+        "disableAction": "Disable"
       },
       "config": {
-        "title": "Configure {{provider}}",
+        "title": "Configure {{name}}",
+        "detailsTitle": "{{name}} details",
+        "loading": "Loading channel configuration...",
+        "code": "Channel code",
+        "name": "Draw channel name",
+        "timezone": "Timezone",
+        "drawTime": "Draw time",
+        "salesOpenTime": "Sales open",
+        "salesCloseTime": "Sales close",
+        "cutoffSec": "Sales close before draw (seconds)",
+        "daysOfWeek": "Open days",
+        "openDaysHint": "The result slot is open: {{days}}",
+        "salesStopBeforeDraw": "This draw stops selling tickets {{minutes}} minutes before {{drawTime}}.",
+        "defaultSource": "Default result source",
+        "noSource": "No source configured",
+        "period": "Period",
+        "notes": "Notes",
+        "active": "Channel active for this operator",
+        "sales": {
+          "title": "Sales",
+          "description": "Choose whether this operator can sell on this draw channel, when sales open, which days are sold, and how long before the draw sales should close."
+        },
+        "warning": {
+          "salesOpenAfterDraw": "Sales opening must be before or at the draw time.",
+          "salesCloseAtDraw": "Sales cannot close exactly at draw time. Choose an earlier time.",
+          "salesCloseAfterDraw": "Sales closing must be before the draw time."
+        },
+        "system": {
+          "title": "System information",
+          "readonly": "This information is provided by Tchalanet. It is read-only here."
+        },
+        "error": {
+          "load": "The channel configuration could not be loaded.",
+          "save": "The channel configuration could not be saved."
+        },
+        "result": {
+          "title": "Results",
+          "mode": {
+            "label": "Mode",
+            "automatic": "Automatic",
+            "manual": "Manual"
+          },
+          "source": {
+            "label": "Source",
+            "provider": "{{provider}}",
+            "manual": "Manual entry"
+          },
+          "providerSlot": "Official draw",
+          "openDays": "Open days",
+          "projection": {
+            "label": "Haiti conversion",
+            "active": "Enabled",
+            "inactive": "Needs review"
+          },
+          "readonly": "How results are received is defined by Tchalanet. It is read-only here."
+        },
+        "source": {
+          "SYSTEM": "System",
+          "AUTO": "Automatic",
+          "EXTERNAL": "External",
+          "US_LOTTERY": "US Lottery",
+          "NY_OPEN_DATA": "NY Open Data",
+          "FL_APIM": "Florida APIM",
+          "MANUAL": "Manual",
+          "ADMIN_OVERRIDE": "Admin override"
+        },
         "description": "Adjust result mode, sales hours, and active draw slots.",
         "section": {
-          "provider": "Provider",
+          "provider": "Lottery source",
           "slots": "Slots"
         },
         "field": {
@@ -1590,15 +1757,34 @@
           "UNCONFIGURED": "To define"
         }
       },
+      "days": {
+        "MONDAY": "Monday",
+        "TUESDAY": "Tuesday",
+        "WEDNESDAY": "Wednesday",
+        "THURSDAY": "Thursday",
+        "FRIDAY": "Friday",
+        "SATURDAY": "Saturday",
+        "SUNDAY": "Sunday"
+      },
+      "daysShort": {
+        "MONDAY": "Mon",
+        "TUESDAY": "Tue",
+        "WEDNESDAY": "Wed",
+        "THURSDAY": "Thu",
+        "FRIDAY": "Fri",
+        "SATURDAY": "Sat",
+        "SUNDAY": "Sun"
+      },
       "sourceError": {
         "title": "Result source unavailable",
-        "message": "Sales can remain available, but automatic results for this provider need review."
+        "message": "Sales can remain available, but automatic results for this source need review."
       },
       "acquisition": {
         "auto": "Automatic acquisition",
         "manual": "Manual entry",
         "unconfigured": "Result mode to define",
         "error": "Source error",
+        "disabled": "Not available",
         "last": "Last",
         "next": "Next",
         "lastManualEntry": "Last manual entry"
@@ -1611,6 +1797,15 @@
           "needsConfig": "Needs setup",
           "disabled": "Inactive"
         },
+        "cutoffTime": "Sales close: {{value}}",
+        "drawTimeLabel": "Draw time",
+        "salesCloseLabel": "Sales close",
+        "catalogLabel": "Catalog",
+        "saleEnabled": "Selling",
+        "saleDisabled": "Disabled",
+        "saleToggleLabel": "Sell on this draw",
+        "platformActive": "Available in catalog",
+        "platformInactive": "Disabled in catalog",
         "toggle": {
           "enable": "Enable this slot",
           "disable": "Disable this slot"
@@ -1623,12 +1818,50 @@
         "refresh": "Refresh",
         "configure": "Configure",
         "configureChannel": "Configure channel",
-        "configureGameOffer": "Configure channel games"
+        "configureGameOffer": "Configure channel games",
+        "viewGeneratedDraws": "View draws",
+        "viewDetails": "View details"
+      },
+      "detail": {
+        "titleFallback": "Draw channel details",
+        "description": "{{code}} · {{timezone}}",
+        "sales": {
+          "title": "Sales",
+          "eyebrow": "Operator configuration",
+          "heading": "Selling availability"
+        },
+        "draw": {
+          "title": "Draw"
+        },
+        "links": {
+          "title": "Operational actions"
+        },
+        "aside": {
+          "eyebrow": "CHANNEL TRACKING"
+        },
+        "fields": {
+          "provider": "Source",
+          "salesStop": "Sales closing rule",
+          "sortOrder": "Display order"
+        },
+        "actions": {
+          "back": "Back"
+        },
+        "error": {
+          "missingTitle": "Draw channel not found",
+          "missingMessage": "No draw channel identifier was provided."
+        }
       },
       "readiness": {
         "ready": "Ready for sale",
         "todo": "Incomplete configuration",
-        "sourceWarning": "Sales configured · Source needs review"
+        "sourceWarning": "Sales configured · Source needs review",
+        "reason": {
+          "noActiveChannels": "No draw time is active for this source.",
+          "noChannels": "No draw time is configured for this source.",
+          "noGames": "Channels exist, but no game is available for sale.",
+          "reviewCoverage": "Review games, POS visibility, and limits."
+        }
       }
     },
     "games": {
@@ -1660,7 +1893,22 @@
         "intro": {
           "aria": "Game sales settings",
           "title": "Settings used for sales",
-          "message": "These values control POS display and accepted stakes for this operator. Global payouts and pricing remain managed in the platform catalog."
+          "message": "These values control POS display and accepted stakes for this operator. Reference payouts and pricing remain managed by Tchalanet."
+        },
+        "sell": {
+          "title": "Sell this game",
+          "description": "Control whether sellers can use this game in POS.",
+          "visibleInPosHelp": "Show this game as a choice when a seller creates a ticket."
+        },
+        "stakes": {
+          "title": "Stakes",
+          "description": "Set the minimum and maximum amount a seller can accept for this game."
+        },
+        "availability": {
+          "title": "Availability",
+          "description": "Use draw availability to decide where this game can be sold.",
+          "enabledHelp": "Allow this game to participate in sales availability rules.",
+          "review": "Review draw availability"
         },
         "field": {
           "displayName": "POS display name",
@@ -1676,6 +1924,13 @@
           "title": "Payout odds",
           "description": "Summary of the operator pricing applied at sale time.",
           "clearPricing": "Clear pricing rule"
+        },
+        "payouts": {
+          "title": "Payouts",
+          "description": "Configure how much the customer can win for each supported option."
+        },
+        "advanced": {
+          "title": "Advanced options"
         },
         "salesOptions": {
           "title": "Advanced sales modes",
@@ -1750,7 +2005,7 @@
       },
       "filters": {
         "search": "Search",
-        "searchPlaceholder": "Search provider, slot...",
+        "searchPlaceholder": "Search source or draw time...",
         "status": "Status",
         "reset": "Reset",
         "draw": "Draw",

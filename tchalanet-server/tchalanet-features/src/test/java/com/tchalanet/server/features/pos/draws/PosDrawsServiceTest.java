@@ -13,6 +13,9 @@ import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelGameView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSearchCriteria;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelSummaryView;
 import com.tchalanet.server.catalog.drawchannel.api.model.DrawChannelView;
+import com.tchalanet.server.catalog.drawchannel.api.model.GameSummaryView;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
+import com.tchalanet.server.catalog.game.api.model.GameView;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotView;
 import com.tchalanet.server.common.bus.Query;
@@ -21,12 +24,16 @@ import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.common.types.id.DrawChannelId;
 import com.tchalanet.server.common.types.id.DrawId;
+import com.tchalanet.server.common.types.id.GameId;
 import com.tchalanet.server.common.types.id.ResultSlotId;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.common.web.paging.TchPageRequest;
 import com.tchalanet.server.core.draw.api.query.CashierNextDrawView;
 import com.tchalanet.server.platform.tenant.api.model.TenantBusinessDayView;
+import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
+import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRefView;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -49,6 +56,8 @@ class PosDrawsServiceTest {
     var scheduledAt = Instant.parse("2026-07-19T22:59:00Z");
     var queryBus = mock(QueryBus.class);
     var drawChannelCatalog = mock(DrawChannelCatalog.class);
+    var tenantGameApi = mock(TenantGameApi.class);
+    var gameCatalog = mock(GameCatalog.class);
     var resultSlotCatalog = mock(ResultSlotCatalog.class);
     when(queryBus.ask(any()))
         .thenReturn(
@@ -65,7 +74,28 @@ class PosDrawsServiceTest {
                     scheduledAt,
                     scheduledAt.plusSeconds(900),
                     "OPEN")));
-    when(drawChannelCatalog.listChannelGames(tenantId)).thenReturn(List.of());
+    when(drawChannelCatalog.listChannelGames(tenantId))
+        .thenReturn(
+            List.of(
+                new ChannelGamesView(
+                    "GA_EVE",
+                    List.of(
+                        new GameSummaryView(
+                            TenantGameId.of(UUID.randomUUID()), "HT_BOLET", true, null)))));
+    when(tenantGameApi.listGames(tenantId))
+        .thenReturn(
+            List.of(
+                new TenantGameRefView(
+                    TenantGameId.of(UUID.randomUUID()),
+                    GameId.of(UUID.randomUUID()),
+                    "HT_BOLET",
+                    true,
+                    true,
+                    "Bòlèt",
+                    1,
+                    null,
+                    null)));
+    when(gameCatalog.listActive()).thenReturn(List.of(activeGame("HT_BOLET")));
     when(resultSlotCatalog.requireByKey("GA_EVE"))
         .thenReturn(
             new ResultSlotView(
@@ -83,6 +113,8 @@ class PosDrawsServiceTest {
         new PosDrawsService(
             queryBus,
             drawChannelCatalog,
+            tenantGameApi,
+            gameCatalog,
             resultSlotCatalog,
             new DrawChannelDisplayFormatter(),
             (id, date) -> new TenantBusinessDayView(id, date, true, null, null),
@@ -98,6 +130,57 @@ class PosDrawsServiceTest {
     assertThat(draw.localDate()).isEqualTo(LocalDate.of(2026, 7, 19));
     assertThat(draw.localTime()).isEqualTo(LocalTime.of(18, 59));
     assertThat(draw.localTimezone()).isEqualTo("America/Port-au-Prince");
+    assertThat(draw.gameCodes()).containsExactly("HT_BOLET");
+  }
+
+  @Test
+  void availableDrawsExcludeDrawsWithoutSellableGames() {
+    var tenantId = TenantId.of(UUID.randomUUID());
+    var slotId = ResultSlotId.of(UUID.randomUUID());
+    var scheduledAt = Instant.parse("2026-07-19T22:59:00Z");
+    var queryBus = mock(QueryBus.class);
+    var drawChannelCatalog = mock(DrawChannelCatalog.class);
+    var tenantGameApi = mock(TenantGameApi.class);
+    var gameCatalog = mock(GameCatalog.class);
+    var resultSlotCatalog = mock(ResultSlotCatalog.class);
+    when(queryBus.ask(any()))
+        .thenReturn(
+            List.of(
+                new CashierNextDrawView(
+                    DrawId.of(UUID.randomUUID()),
+                    DrawChannelId.of(UUID.randomUUID()),
+                    slotId,
+                    "GA_EVE",
+                    "GA_EVE",
+                    "Georgia",
+                    LocalDate.of(2026, 7, 19),
+                    LocalTime.of(18, 59),
+                    scheduledAt,
+                    scheduledAt.plusSeconds(900),
+                    "OPEN")));
+    when(drawChannelCatalog.listChannelGames(tenantId))
+        .thenReturn(
+            List.of(
+                new ChannelGamesView(
+                    "GA_EVE",
+                    List.of(
+                        new GameSummaryView(
+                            TenantGameId.of(UUID.randomUUID()), "HT_BOLET", true, null)))));
+    when(tenantGameApi.listGames(tenantId)).thenReturn(List.of());
+    when(gameCatalog.listActive()).thenReturn(List.of(activeGame("HT_BOLET")));
+
+    var service =
+        new PosDrawsService(
+            queryBus,
+            drawChannelCatalog,
+            tenantGameApi,
+            gameCatalog,
+            resultSlotCatalog,
+            new DrawChannelDisplayFormatter(),
+            (id, date) -> new TenantBusinessDayView(id, date, true, null, null),
+            new FixedTimeProvider(scheduledAt));
+
+    assertThat(service.listAvailable(ctx(tenantId), 24, 20)).isEmpty();
   }
 
   @Test
@@ -108,6 +191,8 @@ class PosDrawsServiceTest {
         new PosDrawsService(
             new FailingQueryBus(),
             new EmptyDrawChannelCatalog(),
+            mock(TenantGameApi.class),
+            mock(GameCatalog.class),
             mock(ResultSlotCatalog.class),
             new DrawChannelDisplayFormatter(),
             (id, date) ->
@@ -117,6 +202,11 @@ class PosDrawsServiceTest {
     var result = service.listAvailable(ctx(tenantId), 24, 20);
 
     assertThat(result).isEmpty();
+  }
+
+  private static GameView activeGame(String code) {
+    return new GameView(
+        GameId.of(UUID.randomUUID()), code, code, "HAITI", null, 2, 5, null, true, 1, null, null);
   }
 
   private static TchRequestContext ctx(TenantId tenantId) {

@@ -15,4 +15,5 @@ export class SetupProgressHeaderComponent {
   readonly total = input.required<number>();
   readonly pct = input.required<number>();
   readonly complete = input(false);
+  readonly blockingCount = input(0);
 }

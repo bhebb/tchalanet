@@ -23,6 +23,11 @@ public interface DrawChannelMapper {
   @Mapping(
       target = "defaultSource",
       expression = "java((com.tchalanet.server.catalog.drawchannel.api.model.DrawSource) null)")
+  @Mapping(target = "resultSlotKey", ignore = true)
+  @Mapping(target = "resultProvider", ignore = true)
+  @Mapping(target = "resultProviderSlotCode", ignore = true)
+  @Mapping(target = "resultSlotDaysOfWeek", ignore = true)
+  @Mapping(target = "resultSlotActive", ignore = true)
   DrawChannelView toView(DrawChannelEntity e);
 
   default DrawChannelView toDomain(DrawChannelEntity e) {
@@ -33,6 +38,9 @@ public interface DrawChannelMapper {
   @Mapping(target = "channelCode", expression = "java(e.getCode())")
   @Mapping(target = "channelName", expression = "java(e.getName())")
   @Mapping(target = "cutoffTime", expression = "java(e.getDrawTime())")
+  @Mapping(
+      target = "defaultSource",
+      expression = "java((com.tchalanet.server.catalog.drawchannel.api.model.DrawSource) null)")
   DrawChannelSummaryView toSummary(DrawChannelEntity e);
 
   List<DrawChannelSummaryView> toSummaries(List<DrawChannelEntity> list);

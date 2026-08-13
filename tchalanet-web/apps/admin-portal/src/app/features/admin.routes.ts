@@ -138,13 +138,7 @@ export const adminRoutes: Route[] = [
   { path: 'reports/today', redirectTo: 'reports/daily', pathMatch: 'full' },
   { path: 'reports/export', redirectTo: 'reports/daily', pathMatch: 'full' },
   // ── Tickets ────────────────────────────────────────────────────────────────
-  {
-    path: 'tickets/overview',
-    loadComponent: () =>
-      import('./sales-admin/pages/admin-tickets-overview/admin-tickets-overview.page').then(
-        m => m.AdminTicketsOverviewPage,
-      ),
-  },
+  { path: 'tickets/overview', redirectTo: 'tickets', pathMatch: 'full' },
   {
     path: 'tickets/verify',
     loadComponent: () =>

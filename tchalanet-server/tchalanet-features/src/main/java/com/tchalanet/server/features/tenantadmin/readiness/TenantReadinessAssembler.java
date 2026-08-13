@@ -78,6 +78,8 @@ public class TenantReadinessAssembler {
   private static final Set<String> NON_ROLLUP_SECTIONS =
       Set.of("subscription", "commission", "limits");
 
+  private static final String SETTINGS_PRINT_REASON_PREFIX = "settings.print.";
+
   /**
    * Required setup steps, grouped to match the admin setup checklist cards
    * (tenant-onboarding-console-rework-v1): identity + address are shown as one merged "Identité &
@@ -216,23 +218,14 @@ public class TenantReadinessAssembler {
         case "theme" -> status = themeStatus;
         case "promotions" -> status = promotionsStatus;
         case "settings" -> {
-          if (settingsReadiness == null) {
-            status = TenantReadinessStatus.UNKNOWN;
-          } else if (settingsReadiness.ready()) {
-            status = TenantReadinessStatus.READY;
+          status = settingsSectionStatus(settingsReadiness);
+          var reasonCodes = settingsBlockingReasonCodes(settingsReadiness);
+          if (status == TenantReadinessStatus.MISSING && reasonCodes.isEmpty()) {
+            issues.add(
+                new TenantReadinessIssue("settings", "readiness.settings.missing", d.route()));
           } else {
-            status = TenantReadinessStatus.MISSING;
-            var reasonCodes =
-                settingsReadiness.sections().stream()
-                    .flatMap(section -> section.blockingReasons().stream())
-                    .toList();
-            if (reasonCodes.isEmpty()) {
-              issues.add(
-                  new TenantReadinessIssue("settings", "readiness.settings.missing", d.route()));
-            } else {
-              reasonCodes.forEach(
-                  reason -> issues.add(new TenantReadinessIssue("settings", reason, d.route())));
-            }
+            reasonCodes.forEach(
+                reason -> issues.add(new TenantReadinessIssue("settings", reason, d.route())));
           }
         }
         case "subscription" -> {
@@ -333,6 +326,37 @@ public class TenantReadinessAssembler {
             .limit(Math.max(0, maxIssues))
             .toList();
     return new TenantReadinessSummary(view.status(), view.missingCount(), top);
+  }
+
+  static TenantReadinessStatus settingsSectionStatus(
+      TenantSettingsReadinessView settingsReadiness) {
+    if (settingsReadiness == null) {
+      return TenantReadinessStatus.UNKNOWN;
+    }
+    if (settingsReadiness.ready()) {
+      return TenantReadinessStatus.READY;
+    }
+
+    var reasonCodes = settingsBlockingReasonCodes(settingsReadiness);
+    if (reasonCodes.isEmpty()) {
+      return TenantReadinessStatus.MISSING;
+    }
+    return reasonCodes.stream().allMatch(TenantReadinessAssembler::isOperationalSettingsReason)
+        ? TenantReadinessStatus.READY
+        : TenantReadinessStatus.MISSING;
+  }
+
+  static List<String> settingsBlockingReasonCodes(TenantSettingsReadinessView settingsReadiness) {
+    if (settingsReadiness == null) {
+      return List.of();
+    }
+    return settingsReadiness.sections().stream()
+        .flatMap(section -> section.blockingReasons().stream())
+        .toList();
+  }
+
+  static boolean isOperationalSettingsReason(String reason) {
+    return reason != null && reason.startsWith(SETTINGS_PRINT_REASON_PREFIX);
   }
 
   // ---- section checks -------------------------------------------------------

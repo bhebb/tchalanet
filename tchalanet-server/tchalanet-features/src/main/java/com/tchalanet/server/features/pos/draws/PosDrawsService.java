@@ -3,6 +3,7 @@ package com.tchalanet.server.features.pos.draws;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.catalog.drawchannel.api.DrawChannelDisplayFormatter;
 import com.tchalanet.server.catalog.drawchannel.api.model.GameSummaryView;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
@@ -10,6 +11,7 @@ import com.tchalanet.server.common.time.TchTimeProvider;
 import com.tchalanet.server.core.draw.api.query.CashierNextDrawView;
 import com.tchalanet.server.core.draw.api.query.ListCashierNextDrawsQuery;
 import com.tchalanet.server.platform.tenant.api.TenantBusinessCalendarApi;
+import com.tchalanet.server.platform.tenantgame.api.TenantGameApi;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +26,8 @@ public class PosDrawsService {
 
   private final QueryBus queryBus;
   private final DrawChannelCatalog drawChannelCatalog;
+  private final TenantGameApi tenantGameApi;
+  private final GameCatalog gameCatalog;
   private final ResultSlotCatalog resultSlotCatalog;
   private final DrawChannelDisplayFormatter drawChannelDisplayFormatter;
   private final TenantBusinessCalendarApi tenantBusinessCalendarApi;
@@ -40,17 +44,35 @@ public class PosDrawsService {
       return List.of();
     }
 
+    var tenantId = ctx.effectiveTenantIdRequired();
+    var activeGameCodes =
+        gameCatalog.listActive().stream()
+            .map(game -> game.code().toUpperCase())
+            .collect(Collectors.toSet());
+    var tenantPosGameCodes =
+        tenantGameApi.listGames(tenantId).stream()
+            .filter(game -> game.enabled() && game.visibleInPos())
+            .map(game -> game.gameCode().toUpperCase())
+            .collect(Collectors.toSet());
+
     var gamesByChannelCode =
-        drawChannelCatalog.listChannelGames(ctx.effectiveTenantIdRequired()).stream()
+        drawChannelCatalog.listChannelGames(tenantId).stream()
             .collect(
                 Collectors.toMap(
                     cg -> cg.channelCode(),
-                    cg -> cg.games().stream().map(GameSummaryView::gameCode).toList(),
+                    cg ->
+                        cg.games().stream()
+                            .filter(GameSummaryView::enabled)
+                            .map(GameSummaryView::gameCode)
+                            .filter(gameCode -> activeGameCodes.contains(gameCode.toUpperCase()))
+                            .filter(gameCode -> tenantPosGameCodes.contains(gameCode.toUpperCase()))
+                            .toList(),
                     (a, b) -> a));
 
     var locale = ctx.locale() == null ? Locale.FRENCH : ctx.locale();
 
     return rows.stream()
+        .filter(d -> !gamesByChannelCode.getOrDefault(d.channelCode(), List.of()).isEmpty())
         .map(d -> toView(d, gamesByChannelCode, locale, ctx.tenantZoneId()))
         .toList();
   }

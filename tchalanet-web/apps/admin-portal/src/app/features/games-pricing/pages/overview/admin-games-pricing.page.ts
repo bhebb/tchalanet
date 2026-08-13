@@ -9,7 +9,7 @@ import type { ApiNotice, ApiResponse, ProblemDetail } from '@tch/api';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
-import { TchSectionError } from '@tch/ui/components';
+import { TchConfirmDialog, type TchConfirmDialogData, TchSectionError } from '@tch/ui/components';
 import {
   resourceErrorVm,
   tchMutation,
@@ -84,6 +84,15 @@ export class AdminGamesPricingPage {
   readonly matrixSummary = computed(() => this.buildOverviewSummary(this.games()));
   readonly issues = computed(() => this.buildOverviewIssues(this.games()));
   readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
+  readonly savingGames = computed<ReadonlySet<string>>(() => {
+    const pending = new Set<string>();
+    for (const game of this.games()) {
+      if (this.enableGame.pending(game.gameCode) || this.disableGame.pending(game.gameCode)) {
+        pending.add(game.gameCode);
+      }
+    }
+    return pending;
+  });
   readonly enableGame = tchMutation<string, void>({
     run: gameCode => this.api.enableGame(gameCode, { suppressShellFeedback: true }),
     source: 'admin.setup.games_pricing.enable',
@@ -142,7 +151,7 @@ export class AdminGamesPricingPage {
 
   onDisable(gameCode: string): void {
     this.clearActionError(gameCode);
-    this.disableGame.execute(gameCode, { key: gameCode });
+    this.confirmDisableGame(gameCode);
   }
 
   onConfigure(gameCode: string): void {
@@ -161,7 +170,7 @@ export class AdminGamesPricingPage {
       displayName: game.gameName,
       category: null,
       enabled: game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG',
-      visibleInPos: true,
+      visibleInPos: game.visibleInPos,
       displayOrder: 0,
       minStake: game.limits.minStake,
       maxStake: game.limits.maxStake,
@@ -196,6 +205,26 @@ export class AdminGamesPricingPage {
       ...current,
       [gameCode]: error,
     }));
+  }
+
+  private confirmDisableGame(gameCode: string): void {
+    const game = this.games().find(candidate => candidate.gameCode === gameCode);
+    const name = game?.gameName ?? gameCode;
+    this.dialog
+      .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
+        data: {
+          title: this.translate.instant('admin.gamesPricing.confirm.disableTitle', { name }),
+          message: this.translate.instant('admin.gamesPricing.confirm.disableMessage'),
+          confirmLabel: this.translate.instant('admin.gamesPricing.confirm.disableAction'),
+          cancelLabel: this.translate.instant('common.cancel'),
+          destructive: true,
+          icon: 'block',
+        },
+      })
+      .afterClosed()
+      .subscribe(result => {
+        if (result?.confirmed) this.disableGame.execute(gameCode, { key: gameCode });
+      });
   }
 
   private clearActionError(gameCode: string): void {

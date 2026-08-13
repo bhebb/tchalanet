@@ -1,167 +1,246 @@
-import { Injectable } from '@angular/core';
-import { Observable, delay, of } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
 
+import { TchBackendClient } from '@tch/api';
+import type { TchRequestOptions } from '@tch/api';
+import { consoleDrawIdentity } from '@tch/web/console';
 import {
-  DrawChannelSlotConfigView,
+  DrawChannelDetailView,
   DrawChannelProviderView,
-  DrawResultAcquisitionMode,
-  UpdateDrawChannelProviderConfigRequest,
-  UsLotteryProviderCode,
+  DrawChannelSource,
+  DrawChannelSlotConfigView,
+  DrawResultAcquisitionView,
+  UpdateTenantDrawChannelRequest,
 } from './admin-draw-channels.models';
 
-// TODO(backend): replace mock with real HTTP calls to /admin/draw-channels once endpoint is ready.
-// Expected backend shape: TenantDrawChannelProviderView[] grouped by provider/state.
-function slot(slotKey: string, label: string, drawTime: string, enabled = false): DrawChannelSlotConfigView {
-  return { slotKey, label, enabled, drawTime, salesCutoffMinutes: enabled ? 10 : null };
+interface TenantDrawChannelSummary {
+  readonly id: string;
+  readonly channelCode: string;
+  readonly channelName: string;
+  readonly drawTime: string;
+  readonly cutoffTime: string;
+  readonly timezone: string;
+  readonly daysOfWeek?: string | null;
+  readonly active: boolean;
+  readonly resultSlotActive?: boolean;
+  readonly defaultSource?: DrawChannelSource | null;
 }
-
-function inactiveProvider(
-  providerCode: UsLotteryProviderCode,
-  providerLabel: string,
-  timezone: string,
-  slots: readonly DrawChannelSlotConfigView[],
-  resultAcquisitionMode: DrawResultAcquisitionMode = 'UNCONFIGURED',
-): DrawChannelProviderView {
-  return {
-    providerCode,
-    providerLabel,
-    timezone,
-    tenantStatus: 'INACTIVE',
-    resultAcquisition: { mode: resultAcquisitionMode, sourceStatus: 'UNCONFIGURED' },
-    defaultSalesCutoffMinutes: null,
-    slots,
-    readiness: {
-      status: 'TODO',
-      label: 'Configuration incomplète',
-      reason: resultAcquisitionMode === 'UNCONFIGURED' ? 'Mode résultat non défini' : null,
-    },
-  };
-}
-
-const MOCK_PROVIDERS: DrawChannelProviderView[] = [
-  {
-    providerCode: 'NY',
-    providerLabel: 'New York',
-    timezone: 'America/New_York',
-    tenantStatus: 'ACTIVE',
-    resultAcquisition: {
-      mode: 'AUTO',
-      sourceStatus: 'OK',
-      source: 'RSS',
-      lastSyncAt: '14:04',
-      nextSyncAt: '22:30',
-    },
-    defaultSalesCutoffMinutes: 10,
-    slots: [
-      { slotKey: 'MIDDAY',  label: 'Midday',  enabled: true,  drawTime: '14:30', salesCutoffMinutes: 10 },
-      { slotKey: 'EVENING', label: 'Evening', enabled: true,  drawTime: '22:30', salesCutoffMinutes: 10 },
-    ],
-    readiness: { status: 'READY', label: 'Prêt pour la vente' },
-  },
-  {
-    providerCode: 'FL',
-    providerLabel: 'Florida',
-    timezone: 'America/New_York',
-    tenantStatus: 'ACTIVE',
-    resultAcquisition: {
-      mode: 'AUTO',
-      sourceStatus: 'OK',
-      source: 'API',
-      lastSyncAt: '13:50',
-      nextSyncAt: '22:45',
-    },
-    defaultSalesCutoffMinutes: 10,
-    slots: [
-      { slotKey: 'MIDDAY',  label: 'Midday',  enabled: true,  drawTime: '13:30', salesCutoffMinutes: 10 },
-      { slotKey: 'EVENING', label: 'Evening', enabled: true,  drawTime: '22:45', salesCutoffMinutes: 10 },
-    ],
-    readiness: { status: 'READY', label: 'Prêt pour la vente' },
-  },
-  inactiveProvider('GA', 'Georgia', 'America/New_York', [
-    slot('MIDDAY', 'Midday', '12:29'),
-    slot('EVENING', 'Evening', '18:59'),
-    slot('NIGHT', 'Night', '23:34'),
-  ]),
-  inactiveProvider('TX', 'Texas', 'America/Chicago', [
-    slot('MORNING', 'Morning', '10:00'),
-    slot('DAY', 'Day', '12:27'),
-    slot('EVENING', 'Evening', '18:00'),
-    slot('NIGHT', 'Night', '22:12'),
-  ]),
-  inactiveProvider('TN', 'Tennessee', 'America/Chicago', [
-    slot('MIDDAY', 'Midday', '12:29'),
-    slot('EVENING', 'Evening', '22:00'),
-  ], 'MANUAL'),
-  inactiveProvider('PA', 'Pennsylvania', 'America/New_York', [
-    slot('MIDDAY', 'Midday', '13:35'),
-    slot('EVENING', 'Evening', '19:00'),
-  ]),
-  inactiveProvider('NJ', 'New Jersey', 'America/New_York', [
-    slot('MIDDAY', 'Midday', '12:59'),
-    slot('EVENING', 'Evening', '22:57'),
-  ]),
-  inactiveProvider('CA', 'California', 'America/Los_Angeles', [
-    slot('MIDDAY', 'Midday', '13:00'),
-    slot('EVENING', 'Evening', '18:30'),
-  ]),
-  inactiveProvider('OH', 'Ohio', 'America/New_York', [
-    slot('MIDDAY', 'Midday', '12:29'),
-    slot('EVENING', 'Evening', '19:29'),
-  ]),
-  inactiveProvider('MI', 'Michigan', 'America/Detroit', [
-    slot('MIDDAY', 'Midday', '12:59'),
-    slot('EVENING', 'Evening', '19:29'),
-  ]),
-  inactiveProvider('IL', 'Illinois', 'America/Chicago', [
-    slot('MIDDAY', 'Midday', '12:40'),
-    slot('EVENING', 'Evening', '21:22'),
-  ], 'MANUAL'),
-  inactiveProvider('MO', 'Missouri', 'America/Chicago', [
-    slot('MIDDAY', 'Midday', '12:45'),
-    slot('EVENING', 'Evening', '21:00'),
-  ], 'MANUAL'),
-  inactiveProvider('MN', 'Minnesota', 'America/Chicago', [
-    slot('EVENING', 'Evening', '18:17'),
-  ], 'MANUAL'),
-];
 
 @Injectable({ providedIn: 'root' })
 export class AdminDrawChannelsApiService {
-  private providers: DrawChannelProviderView[] = [...MOCK_PROVIDERS];
+  private readonly backend = inject(TchBackendClient);
 
-  getDrawChannelProviders(): Observable<DrawChannelProviderView[]> {
-    return of(this.providers).pipe(delay(400));
+  getDrawChannelProviders(options?: TchRequestOptions): Observable<DrawChannelProviderView[]> {
+    return this.backend
+      .get<TenantDrawChannelSummary[]>('/tenant/draw-channels', {
+        ...options,
+        params: {
+          ...(isRecordParams(options?.params) ? options.params : {}),
+          activeOnly: 'false',
+        },
+      })
+      .pipe(map(channels => this.toProviders(channels)));
   }
 
-  updateDrawChannelProviderConfig(
-    providerCode: UsLotteryProviderCode,
-    request: UpdateDrawChannelProviderConfigRequest,
-    options?: { readonly suppressShellFeedback?: boolean },
-  ): Observable<DrawChannelProviderView> {
-    void options;
-    // TODO(backend): POST /admin/draw-channels/:providerCode/config
-    const provider = this.providers.find(item => item.providerCode === providerCode) ?? this.providers[0];
-    const updatedProvider: DrawChannelProviderView = {
-      ...provider,
-      tenantStatus: request.enabled ? 'ACTIVE' : 'INACTIVE',
-      resultAcquisition: {
-        ...provider.resultAcquisition,
-        mode: request.resultAcquisitionMode,
-      },
-      defaultSalesCutoffMinutes: request.defaultSalesCutoffMinutes ?? null,
-      slots: provider.slots.map(slot => {
-        const update = request.slots.find(item => item.slotKey === slot.slotKey);
-        return update
-          ? {
-              ...slot,
-              enabled: update.enabled,
-              drawTime: update.drawTime,
-              salesCutoffMinutes: update.salesCutoffMinutes,
-            }
-          : slot;
+  getDrawChannelProvidersResource(options?: TchRequestOptions) {
+    return this.backend.getResource<DrawChannelProviderView[], TenantDrawChannelSummary[]>(
+      () => ({
+        path: '/tenant/draw-channels',
+        options: {
+          ...options,
+          params: {
+            ...(isRecordParams(options?.params) ? options.params : {}),
+            activeOnly: 'false',
+          },
+        },
       }),
-    };
-    this.providers = this.providers.map(item => item.providerCode === providerCode ? updatedProvider : item);
-    return of(updatedProvider).pipe(delay(200));
+      channels => this.toProviders(channels),
+    );
   }
+
+  setChannelActive(
+    channelId: string,
+    active: boolean,
+    options?: TchRequestOptions,
+  ): Observable<unknown> {
+    return this.backend.patch<unknown>(
+      `/tenant/draw-channels/${channelId}/active`,
+      { active },
+      options,
+    );
+  }
+
+  getChannelDetail(
+    channelId: string,
+    options?: TchRequestOptions,
+  ): Observable<DrawChannelDetailView> {
+    return this.backend
+      .get<DrawChannelDetailView>(`/tenant/draw-channels/${channelId}`, options)
+      .pipe(map(channel => this.toChannelDetail(channel)));
+  }
+
+  getChannelDetailResource(
+    channelId: () => string | null | undefined,
+    options?: TchRequestOptions,
+  ) {
+    return this.backend.getResource<DrawChannelDetailView>(
+      () => {
+        const id = channelId();
+        return id
+          ? {
+              path: `/tenant/draw-channels/${id}`,
+              options,
+            }
+          : undefined;
+      },
+      channel => this.toChannelDetail(channel),
+    );
+  }
+
+  updateChannel(
+    channelId: string,
+    request: UpdateTenantDrawChannelRequest,
+    options?: TchRequestOptions,
+  ): Observable<DrawChannelDetailView> {
+    return this.backend
+      .put<DrawChannelDetailView>(`/tenant/draw-channels/${channelId}`, request, options)
+      .pipe(map(channel => this.toChannelDetail(channel)));
+  }
+
+  private toProviders(channels: readonly TenantDrawChannelSummary[]): DrawChannelProviderView[] {
+    const groups = new Map<string, TenantDrawChannelSummary[]>();
+    for (const channel of channels) {
+      const identity = consoleDrawIdentity({
+        channelCode: channel.channelCode,
+        channelName: channel.channelName,
+      });
+      const providerCode =
+        identity.providerCode ??
+        providerCodeFromChannel(channel.channelCode) ??
+        channel.channelCode;
+      groups.set(providerCode, [...(groups.get(providerCode) ?? []), channel]);
+    }
+
+    return Array.from(groups.entries())
+      .map(([providerCode, group]) => this.toProvider(providerCode, group))
+      .sort((a, b) => {
+        const byActive = Number(b.activeChannelCount ?? 0) - Number(a.activeChannelCount ?? 0);
+        if (byActive !== 0) return byActive;
+        return a.providerLabel.localeCompare(b.providerLabel);
+      });
+  }
+
+  private toProvider(
+    providerCode: string,
+    channels: readonly TenantDrawChannelSummary[],
+  ): DrawChannelProviderView {
+    const slots = channels
+      .map(channel => this.toSlot(providerCode, channel))
+      .sort(
+        (a, b) =>
+          Number(b.enabled) - Number(a.enabled) ||
+          (a.drawTime ?? '').localeCompare(b.drawTime ?? ''),
+      );
+    const activeChannelCount = slots.filter(slot => slot.enabled).length;
+    const tenantStatus = activeChannelCount > 0 ? 'ACTIVE' : 'INACTIVE';
+    const identity = consoleDrawIdentity({ providerCode });
+    const firstTimezone = channels.find(channel => channel.timezone)?.timezone ?? providerCode;
+
+    return {
+      providerCode,
+      providerLabel: identity.providerName ?? providerCode,
+      timezone: firstTimezone,
+      profileLabelKey: 'admin.drawChannels.profile.haitiLottery',
+      tenantStatus,
+      resultAcquisition: {
+        mode: this.providerResultMode(slots),
+        source: this.providerResultSource(slots),
+        sourceStatus: activeChannelCount > 0 ? 'OK' : 'UNCONFIGURED',
+      },
+      configuredChannelCount: slots.length,
+      activeChannelCount,
+      slots,
+      readiness: {
+        status: tenantStatus === 'ACTIVE' ? 'READY' : 'TODO',
+        label:
+          tenantStatus === 'ACTIVE'
+            ? 'admin.drawChannels.readiness.ready'
+            : 'admin.drawChannels.readiness.todo',
+        reason:
+          tenantStatus === 'ACTIVE' ? null : 'admin.drawChannels.readiness.reason.noActiveChannels',
+      },
+    };
+  }
+
+  private toSlot(
+    providerCode: string,
+    channel: TenantDrawChannelSummary,
+  ): DrawChannelSlotConfigView {
+    const identity = consoleDrawIdentity({
+      providerCode,
+      channelCode: channel.channelCode,
+      channelName: channel.channelName,
+      localTimeLabel: channel.drawTime,
+    });
+
+    return {
+      channelId: channel.id,
+      slotKey: identity.slotKey ?? channel.channelCode,
+      label: identity.channelName ?? channel.channelName ?? channel.channelCode,
+      enabled: channel.active,
+      resultSlotActive: channel.resultSlotActive,
+      drawTime: channel.drawTime,
+      cutoffTime: channel.cutoffTime,
+      daysOfWeek: channel.daysOfWeek,
+      defaultSource: channel.defaultSource,
+    };
+  }
+
+  private toChannelDetail(channel: DrawChannelDetailView): DrawChannelDetailView {
+    if (!channel.resultProvider) return channel;
+
+    const identity = consoleDrawIdentity({
+      providerCode: channel.resultProvider,
+      channelCode: channel.code,
+      channelName: channel.name,
+      slotKey: channel.resultSlotKey,
+      slotLabel: channel.label,
+      localTimeLabel: channel.drawTime,
+    });
+
+    return {
+      ...channel,
+      label: identity.channelName ?? channel.label ?? channel.name,
+      name: identity.channelName ?? channel.name,
+      resultProvider: identity.providerCode ?? channel.resultProvider,
+      resultSlotKey: identity.slotKey ?? channel.resultSlotKey,
+    };
+  }
+
+  private providerResultMode(
+    slots: readonly DrawChannelSlotConfigView[],
+  ): DrawResultAcquisitionView['mode'] {
+    const activeSlots = slots.filter(slot => slot.enabled);
+    if (activeSlots.length === 0) return 'UNCONFIGURED';
+    return activeSlots.every(slot => slot.defaultSource === 'MANUAL') ? 'MANUAL' : 'AUTO';
+  }
+
+  private providerResultSource(
+    slots: readonly DrawChannelSlotConfigView[],
+  ): DrawResultAcquisitionView['source'] {
+    const source = slots.find(slot => slot.enabled && slot.defaultSource)?.defaultSource;
+    if (!source) return null;
+    return source === 'MANUAL' ? 'MANUAL' : 'API';
+  }
+}
+
+function isRecordParams(
+  params: TchRequestOptions['params'] | undefined,
+): params is Record<string, string | readonly string[]> {
+  return params !== undefined && !(typeof params === 'object' && 'append' in params);
+}
+
+function providerCodeFromChannel(channelCode: string): string | null {
+  const prefix = channelCode.trim().split(/[_-]/)[0];
+  return prefix ? prefix.toUpperCase() : null;
 }

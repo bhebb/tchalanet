@@ -17,6 +17,7 @@ import {
 export class TenantGamesGridComponent {
   readonly games = input.required<readonly TenantGamePricingView[]>();
   readonly actionErrors = input<Readonly<Record<string, TenantGameCardError>>>({});
+  readonly savingGames = input<ReadonlySet<string>>(new Set<string>());
 
   readonly activate = output<string>();
   readonly disable = output<string>();
@@ -24,5 +25,9 @@ export class TenantGamesGridComponent {
 
   actionError(gameCode: string): TenantGameCardError | null {
     return this.actionErrors()[gameCode] ?? null;
+  }
+
+  saving(gameCode: string): boolean {
+    return this.savingGames().has(gameCode);
   }
 }

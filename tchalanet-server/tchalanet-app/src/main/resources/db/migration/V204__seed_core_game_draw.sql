@@ -347,7 +347,7 @@ WITH t AS (
              s.name,
              rs.timezone,
              rs.draw_time,
-             '05:30'::time AS sales_open_time,
+             '00:00'::time AS sales_open_time,
              s.cutoff_sec,
              s.days_of_week,
              s.active,

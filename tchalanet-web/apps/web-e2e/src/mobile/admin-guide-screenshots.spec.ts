@@ -20,8 +20,8 @@ const screenshotDir = join(
 );
 
 async function capture(page: import('@playwright/test').Page, name: string): Promise<void> {
-  await page.waitForLoadState('networkidle').catch(() => undefined);
-  await page.waitForTimeout(300);
+  await page.locator('body').waitFor({ state: 'visible' });
+  await page.evaluate(() => document.fonts.ready);
   await page.screenshot({
     path: join(screenshotDir, `${name}.png`),
     fullPage: false,

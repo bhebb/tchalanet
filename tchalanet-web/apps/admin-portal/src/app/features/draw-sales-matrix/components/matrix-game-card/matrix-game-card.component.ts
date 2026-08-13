@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { TchSectionError } from '@tch/ui/components';
 import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
@@ -32,6 +33,7 @@ export interface MatrixGameActionEvent {
   imports: [
     MatButtonModule,
     MatIconModule,
+    RouterLink,
     TranslatePipe,
     TchSectionError,
     TchStatusBadge,
@@ -43,8 +45,6 @@ export interface MatrixGameActionEvent {
   styleUrls: ['./matrix-game-card.component.scss'],
 })
 export class DrawSalesMatrixGameCardComponent {
-  private readonly translate = inject(TranslateService);
-
   readonly mode = input.required<MatrixGameCardMode>();
   readonly game = input.required<ChannelGameSetupView>();
   readonly channel = input<DrawChannelSetupView | null>(null);
@@ -76,35 +76,5 @@ export class DrawSalesMatrixGameCardComponent {
 
   protected warningLabelKey(warning: SetupWarning): string {
     return `admin.drawSalesMatrix.warning.${warning.code}`;
-  }
-
-  protected fallbackWarningLabel(warning: SetupWarning): string {
-    return warning.code;
-  }
-
-  protected stakeLabel(game: ChannelGameSetupView): string {
-    if (game.minStake === null || game.maxStake === null) {
-      return this.t('admin.drawSalesMatrix.game.stakeMissing');
-    }
-    return this.translate.instant('admin.drawSalesMatrix.game.stakeRangeShort', {
-      min: game.minStake,
-      max: game.maxStake,
-    });
-  }
-
-  protected limitsLabel(game: ChannelGameSetupView): string {
-    return game.limits.configured
-      ? this.t('admin.drawSalesMatrix.game.fact.limitsConfigured')
-      : this.t('admin.drawSalesMatrix.game.limitsMissing');
-  }
-
-  protected visibilityLabel(game: ChannelGameSetupView): string {
-    return game.visibleInPos
-      ? this.t('admin.drawSalesMatrix.game.fact.visibleInPos')
-      : this.t('admin.drawSalesMatrix.game.fact.hiddenInPos');
-  }
-
-  private t(key: string): string {
-    return this.translate.instant(key);
   }
 }

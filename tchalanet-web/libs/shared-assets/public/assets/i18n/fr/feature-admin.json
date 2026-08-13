@@ -172,9 +172,21 @@
       "required": "Requis",
       "blocking": "Bloquant",
       "blockedBy": "Bloqué par :",
+      "requiredSetupTitle": "Essentiel pour vendre",
+      "requiredSetupDescription": "Ces éléments doivent être prêts avant de démarrer la vente.",
+      "operationalSetupTitle": "Configuration opérationnelle",
+      "operationalSetupDescription": "Ces éléments ne bloquent pas la vente, mais améliorent le contrôle et l’exploitation.",
+      "operationalStatus": {
+        "configured": "Configuré",
+        "notConfigured": "Non configuré",
+        "recommended": "Recommandé",
+        "notEnabled": "Non activé"
+      },
       "progress": {
         "title": "{{completed}} / {{total}} étapes obligatoires terminées",
-        "subtitle": "Suivi de l'état de préparation"
+        "subtitle": "Suivi de l'état de préparation",
+        "readyToSell": "Prêt à vendre.",
+        "notReadyToSell": "Pas encore prêt à vendre · {{count}} élément(s) bloquant(s)."
       },
       "section": {
         "identity": "Identité",
@@ -208,6 +220,9 @@
         "limits": "Limites de vente",
         "limitsDesc": "Limites de vente appliquées à votre santral.",
         "limitsCta": "Configurer les limites",
+        "posPrinting": "POS et impression",
+        "posPrintingDesc": "Configurez les reçus, PDF et paramètres d’impression par défaut.",
+        "posPrintingCta": "Configurer l’impression",
         "settings": "Paramètres du santral",
         "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre santral.",
         "settingsCta": "Configurer les paramètres",
@@ -382,7 +397,7 @@
     },
     "drawChannels": {
       "title": "Canaux de tirage",
-      "description": "Configurez les providers, sources de résultats et créneaux de vente actifs pour votre espace.",
+      "description": "Configurez les fournisseurs de tirage, les sources de résultats et les heures de vente actives pour votre espace.",
       "status": {
         "active": "Actif",
         "needsConfig": "À configurer",
@@ -390,10 +405,17 @@
         "unavailable": "Non disponible"
       },
       "summary": {
-        "availableStates": "Providers",
-        "activeStates": "Providers actifs",
+        "availableStates": "Fournisseurs",
+        "activeStates": "Fournisseurs actifs",
         "activeChannels": "Créneaux actifs",
         "todo": "À configurer"
+      },
+      "profile": {
+        "haitiLottery": "Profil Haiti Lottery"
+      },
+      "facts": {
+        "activeChannels": "canaux actifs",
+        "totalChannels": "canaux configurés"
       },
       "filters": {
         "all": "Tous",
@@ -403,25 +425,129 @@
         "sourceError": "Erreur source"
       },
       "search": {
-        "placeholder": "Rechercher un provider..."
+        "placeholder": "Rechercher un fournisseur..."
       },
       "loading": "Chargement des canaux de tirage...",
-      "resultsCount": "{{count}} provider(s) affiché(s)",
+      "resultsCount": "{{count}} fournisseur(s) affiché(s)",
+      "channelResultsCount": "{{count}} canal(aux) de tirage affiché(s)",
+      "list": {
+        "title": "Liste des canaux de tirage",
+        "columns": {
+          "draw": "Tirage",
+          "schedule": "Horaire",
+          "results": "Résultats",
+          "games": "Jeux",
+          "status": "État",
+          "action": "Action"
+        },
+        "resultMode": {
+          "AUTO": "Résultats : automatique",
+          "MANUAL": "Résultats : manuel",
+          "UNCONFIGURED": "Résultats : à définir"
+        },
+        "status": {
+          "active": "Actif",
+          "attention": "Attention",
+          "inactive": "Inactif"
+        },
+        "days": {
+          "label": "Jours ouverts : {{value}}",
+          "everyDay": "Tous les jours"
+        },
+        "message": {
+          "active": "Disponible à la vente",
+          "inactive": "Non disponible à la vente",
+          "missingSchedule": "L'heure du tirage doit être configurée.",
+          "noGames": "Aucun jeu n'est disponible sur ce tirage.",
+          "sourceInactive": "La source de résultats doit être vérifiée."
+        }
+      },
       "empty": {
-        "title": "Aucun provider",
-        "filtered": "Modifiez le filtre ou la recherche pour afficher des providers.",
-        "none": "Aucun provider n'est disponible pour ce santral."
+        "title": "Aucun fournisseur",
+        "filtered": "Modifiez le filtre ou la recherche pour afficher des fournisseurs.",
+        "none": "Aucun fournisseur n'est disponible pour ce santral."
       },
       "notice": {
         "title": "Action non disponible",
-        "configureUnavailable": "La configuration directe de {{provider}} sera activée avec l'endpoint backend.",
-        "saved": "Configuration de {{provider}} enregistrée."
+        "configureUnavailable": "La configuration directe de {{provider}} sera bientôt disponible.",
+        "saved": "Configuration de {{provider}} enregistrée.",
+        "channelSaved": "Configuration du canal de tirage enregistrée."
+      },
+      "confirm": {
+        "disableTitle": "Désactiver {{name}} ?",
+        "disableMessage": "Le santral ne pourra plus vendre de tickets sur ce canal de tirage après ce changement.",
+        "disableAction": "Désactiver"
       },
       "config": {
-        "title": "Configurer {{provider}}",
+        "title": "Configurer {{name}}",
+        "detailsTitle": "Détails {{name}}",
+        "loading": "Chargement de la configuration du canal...",
+        "code": "Code du canal",
+        "name": "Nom du canal de tirage",
+        "timezone": "Fuseau horaire",
+        "drawTime": "Heure du tirage",
+        "salesOpenTime": "Ouverture des ventes",
+        "salesCloseTime": "Fermeture des ventes",
+        "cutoffSec": "Fermeture avant tirage (secondes)",
+        "daysOfWeek": "Jours ouverts",
+        "openDaysHint": "Le créneau de résultat est ouvert : {{days}}",
+        "salesStopBeforeDraw": "Ce tirage arrête de vendre des billets {{minutes}} minutes avant {{drawTime}}.",
+        "defaultSource": "Source résultat par défaut",
+        "noSource": "Aucune source configurée",
+        "period": "Période",
+        "notes": "Notes",
+        "active": "Canal actif pour cet espace",
+        "sales": {
+          "title": "Vente",
+          "description": "Choisissez si ce santral peut vendre sur ce canal, l'heure d'ouverture des ventes, les jours vendus et combien de temps avant le tirage les ventes doivent fermer."
+        },
+        "warning": {
+          "salesOpenAfterDraw": "L'ouverture des ventes doit être avant ou à l'heure du tirage.",
+          "salesCloseAtDraw": "Les ventes ne peuvent pas fermer exactement à l'heure du tirage. Choisissez une heure plus tôt.",
+          "salesCloseAfterDraw": "La fermeture des ventes doit être avant l'heure du tirage."
+        },
+        "system": {
+          "title": "Informations système",
+          "readonly": "Ces informations sont fournies par Tchalanet. Elles sont en lecture seule ici."
+        },
+        "error": {
+          "load": "Impossible de charger la configuration du canal.",
+          "save": "Impossible d'enregistrer la configuration du canal."
+        },
+        "result": {
+          "title": "Résultats",
+          "mode": {
+            "label": "Mode",
+            "automatic": "Automatique",
+            "manual": "Manuel"
+          },
+          "source": {
+            "label": "Source",
+            "provider": "{{provider}}",
+            "manual": "Saisie manuelle"
+          },
+          "providerSlot": "Tirage officiel",
+          "openDays": "Jours ouverts",
+          "projection": {
+            "label": "Conversion Haïti",
+            "active": "Activée",
+            "inactive": "À vérifier"
+          },
+          "readonly": "La manière de recevoir les résultats est définie par Tchalanet. Elle est en lecture seule ici."
+        },
+        "source": {
+          "SYSTEM": "Système",
+          "AUTO": "Automatique",
+          "EXTERNAL": "Externe",
+          "US_LOTTERY": "US Lottery",
+          "NY_OPEN_DATA": "NY Open Data",
+          "FL_APIM": "Florida APIM",
+          "MANUAL": "Manuel",
+          "ADMIN_OVERRIDE": "Correction admin"
+        },
         "description": "Réglez le mode résultat, les horaires de vente et les créneaux actifs.",
         "section": {
-          "provider": "Provider",
+          "provider": "Fournisseur",
           "slots": "Créneaux"
         },
         "field": {
@@ -438,15 +564,34 @@
           "UNCONFIGURED": "À définir"
         }
       },
+      "days": {
+        "MONDAY": "Lundi",
+        "TUESDAY": "Mardi",
+        "WEDNESDAY": "Mercredi",
+        "THURSDAY": "Jeudi",
+        "FRIDAY": "Vendredi",
+        "SATURDAY": "Samedi",
+        "SUNDAY": "Dimanche"
+      },
+      "daysShort": {
+        "MONDAY": "Lun",
+        "TUESDAY": "Mar",
+        "WEDNESDAY": "Mer",
+        "THURSDAY": "Jeu",
+        "FRIDAY": "Ven",
+        "SATURDAY": "Sam",
+        "SUNDAY": "Dim"
+      },
       "sourceError": {
         "title": "Source de résultats indisponible",
-        "message": "Les ventes restent disponibles, mais les résultats automatiques de ce provider sont à vérifier."
+        "message": "Les ventes restent disponibles, mais les résultats automatiques de ce fournisseur sont à vérifier."
       },
       "acquisition": {
         "auto": "Acquisition auto",
         "manual": "Saisie manuelle",
         "unconfigured": "Mode résultat à définir",
         "error": "Source en erreur",
+        "disabled": "Non disponible",
         "last": "Dernière",
         "next": "Prochaine",
         "lastManualEntry": "Dernière saisie"
@@ -459,6 +604,15 @@
           "needsConfig": "À configurer",
           "disabled": "Inactif"
         },
+        "cutoffTime": "Fermeture: {{value}}",
+        "drawTimeLabel": "Heure du tirage",
+        "salesCloseLabel": "Fermeture vente",
+        "catalogLabel": "Catalogue",
+        "saleEnabled": "En vente",
+        "saleDisabled": "Désactivé",
+        "saleToggleLabel": "Vendre sur ce tirage",
+        "platformActive": "Disponible au catalogue",
+        "platformInactive": "Désactivé au catalogue",
         "toggle": {
           "enable": "Activer ce créneau",
           "disable": "Désactiver ce créneau"
@@ -471,12 +625,50 @@
         "refresh": "Rafraîchir",
         "configure": "Configurer",
         "configureChannel": "Configurer le canal",
-        "configureGameOffer": "Configurer les jeux du canal"
+        "configureGameOffer": "Configurer les jeux du canal",
+        "viewGeneratedDraws": "Voir les tirages",
+        "viewDetails": "Voir les détails"
+      },
+      "detail": {
+        "titleFallback": "Détails du canal de tirage",
+        "description": "{{code}} · {{timezone}}",
+        "sales": {
+          "title": "Vente",
+          "eyebrow": "Paramètres de vente",
+          "heading": "Disponibilité de vente"
+        },
+        "draw": {
+          "title": "Tirage"
+        },
+        "links": {
+          "title": "Actions opérationnelles"
+        },
+        "aside": {
+          "eyebrow": "SUIVI DU CANAL"
+        },
+        "fields": {
+          "provider": "Fournisseur",
+          "salesStop": "Règle de fermeture",
+          "sortOrder": "Ordre d'affichage"
+        },
+        "actions": {
+          "back": "Retour"
+        },
+        "error": {
+          "missingTitle": "Canal de tirage introuvable",
+          "missingMessage": "Aucun identifiant de canal de tirage n’a été fourni."
+        }
       },
       "readiness": {
         "ready": "Prêt pour la vente",
         "todo": "Configuration incomplète",
-        "sourceWarning": "Vente configurée · Source à vérifier"
+        "sourceWarning": "Vente configurée · Source à vérifier",
+        "reason": {
+          "noActiveChannels": "Aucune heure de tirage n'est active pour ce fournisseur.",
+          "noChannels": "Aucune heure de tirage n'est configurée pour ce fournisseur.",
+          "noGames": "Les canaux existent, mais aucun jeu n'est disponible à la vente.",
+          "reviewCoverage": "Vérifiez les jeux, la visibilité POS et les limites."
+        }
       }
     },
     "games": {
@@ -508,7 +700,22 @@
         "intro": {
           "aria": "Paramètres de vente du jeu",
           "title": "Paramètres utilisés dans la vente",
-          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes globaux restent gérés dans le catalogue plateforme."
+          "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes de référence restent gérés par Tchalanet."
+        },
+        "sell": {
+          "title": "Vendre ce jeu",
+          "description": "Contrôlez si les vendeurs peuvent utiliser ce jeu dans le POS.",
+          "visibleInPosHelp": "Afficher ce jeu comme choix quand un vendeur crée un ticket."
+        },
+        "stakes": {
+          "title": "Mises",
+          "description": "Définissez le montant minimum et maximum accepté pour ce jeu."
+        },
+        "availability": {
+          "title": "Disponibilité",
+          "description": "Utilisez la disponibilité par tirage pour choisir où ce jeu peut être vendu.",
+          "enabledHelp": "Autoriser ce jeu à participer aux règles de disponibilité de vente.",
+          "review": "Vérifier la disponibilité par tirage"
         },
         "field": {
           "displayName": "Nom affiché au POS",
@@ -524,6 +731,13 @@
           "title": "Barème de gains",
           "description": "Résumé du barème du santral appliqué à la vente.",
           "clearPricing": "Supprimer le barème"
+        },
+        "payouts": {
+          "title": "Barèmes",
+          "description": "Configurez le montant que le client peut gagner pour chaque option supportée."
+        },
+        "advanced": {
+          "title": "Options avancées"
         },
         "salesOptions": {
           "title": "Modes de vente avancés",
@@ -598,7 +812,7 @@
       },
       "filters": {
         "search": "Recherche",
-        "searchPlaceholder": "Rechercher provider, slot...",
+        "searchPlaceholder": "Rechercher un fournisseur ou une heure de tirage...",
         "status": "Statut",
         "reset": "Réinitialiser",
         "draw": "Tirage",
@@ -1190,29 +1404,65 @@
       "readiness": {
         "READY": "Prêt",
         "TODO": "À configurer",
-        "BLOCKED": "Non disponible"
+        "BLOCKED": "Non disponible",
+        "reason": {
+          "missingStakeOrPricing": "Les limites de mise ou le barème sont manquants."
+        }
       },
       "card": {
         "unavailable": "Bientôt disponible",
         "blockers": "À traiter",
         "readyChecks": "Contrôles",
+        "businessSetup": "Configuration de vente",
+        "saleSetup": "Prêt à vendre",
         "systemGame": "Jeu système · {{name}}",
+        "saleActive": "Vente du jeu : active",
+        "saleDisabled": "Vente du jeu : désactivée",
+        "posVisible": "Sur appareil de vente",
+        "posHidden": "Masqué sur appareil de vente",
+        "posYes": "Oui",
+        "posNo": "Non",
+        "saleEnabledShort": "En vente",
+        "saleDisabledShort": "Non vendu",
         "stakeUnavailable": "Mise indisponible",
         "stakeConfigured": "Mise configurée",
+        "stakeRange": "Mises : {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Mise non configurée",
+        "notConfigured": "Non configuré",
         "pricingMissing": "Barème non configuré",
+        "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} option(s) de barème",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} option(s)",
+        "availabilityReview": "Disponible à la vente",
+        "availabilityNeedsConfig": "À vérifier avant vente",
+        "availabilityUnavailable": "Indisponible sur les tirages",
         "standardPricingProfile": "Barème standard",
+        "fact": {
+          "pos": "Appareil de vente",
+          "stakes": "Mises",
+          "payouts": "Barème",
+          "availability": "Disponible"
+        },
+        "toggle": {
+          "enable": "Activer la vente de ce jeu",
+          "disable": "Désactiver la vente de ce jeu"
+        },
         "action": {
           "configure": "Configurer",
+          "complete": "Compléter",
           "disable": "Désactiver",
           "activate": "Activer",
           "reactivate": "Réactiver",
           "edit": "Modifier",
           "unavailable": "Non disponible",
-          "maryaj": "Configurer Maryaj gratis"
+          "maryaj": "Configurer Maryaj gratis",
+          "availability": "Disponibilité par tirage"
         }
+      },
+      "confirm": {
+        "disableTitle": "Désactiver {{name}} ?",
+        "disableMessage": "Les vendeurs ne pourront plus vendre ce jeu après ce changement.",
+        "disableAction": "Désactiver"
       }
     },
     "maryajGratis": {
@@ -1589,13 +1839,17 @@
           "notConfigured": "Non configuré"
         },
         "offeredCount": "{{active}} jeu(x) actif(s) sur {{offered}} offert(s)",
+        "activeGamesLabel": "Jeux actifs",
+        "offeredGamesLabel": "Jeux offerts",
+        "availableGamesLabel": "À ajouter",
         "channelMissing": "Canal manquant",
         "channelInactive": "Canal inactif"
       },
       "channel": {
         "label": "Canal",
+        "settingsTitle": "Paramètres du tirage",
         "salesOpen": "Ouverture vente : {{value}}",
-        "cutoff": "Cutoff : {{seconds}}s avant le tirage",
+        "cutoff": "Ce tirage arrête la vente {{minutes}} minute(s) avant {{drawTime}}.",
         "activeGames": "{{count}} jeu(x) actif(s)",
         "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
         "dependsOnAnother": "Dépend d'un autre canal",
@@ -1606,7 +1860,8 @@
       },
       "section": {
         "offered": "Offre active sur ce canal",
-        "available": "Jeux disponibles à ajouter"
+        "available": "Jeux disponibles à ajouter",
+        "noOfferedGames": "Aucun jeu n'est vendu sur ce tirage pour le moment. Ajoutez un jeu ci-dessous pour le rendre disponible aux vendeurs."
       },
       "game": {
         "status": {

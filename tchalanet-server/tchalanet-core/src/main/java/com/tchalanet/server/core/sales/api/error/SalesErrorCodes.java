@@ -40,8 +40,11 @@ public class SalesErrorCodes {
       validation("sales.tenant_game_not_configured");
   public static final ErrorDescriptor TENANT_GAME_DISABLED =
       validation("sales.tenant_game_disabled");
+  public static final ErrorDescriptor GAME_INACTIVE = validation("sales.game_inactive");
   public static final ErrorDescriptor TENANT_GAME_NOT_VISIBLE_IN_POS =
       validation("sales.tenant_game_not_visible_in_pos");
+  public static final ErrorDescriptor GAME_NOT_AVAILABLE_ON_DRAW_CHANNEL =
+      validation("sales.game_not_available_on_draw_channel");
   public static final ErrorDescriptor INVALID_LINE_NUMBER = validation("sales.invalid_line_number");
   public static final ErrorDescriptor GAME_REQUIRED = validation("sales.game_required");
   public static final ErrorDescriptor BET_TYPE_REQUIRED = validation("sales.bet_type_required");
@@ -119,7 +122,9 @@ public class SalesErrorCodes {
         DUPLICATE_LINE_NUMBER,
         TENANT_GAME_NOT_CONFIGURED,
         TENANT_GAME_DISABLED,
+        GAME_INACTIVE,
         TENANT_GAME_NOT_VISIBLE_IN_POS,
+        GAME_NOT_AVAILABLE_ON_DRAW_CHANNEL,
         INVALID_LINE_NUMBER,
         GAME_REQUIRED,
         BET_TYPE_REQUIRED,

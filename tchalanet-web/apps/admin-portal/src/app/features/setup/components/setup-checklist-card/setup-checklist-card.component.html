@@ -12,6 +12,10 @@
     </span>
   </div>
 
+  @if (statusLabelKey(); as labelKey) {
+    <p class="setup__card-status-label">{{ labelKey | translate }}</p>
+  }
+
   @for (err of sectionErrors(); track err.target) {
     <tch-section-error
       class="setup__card-error"

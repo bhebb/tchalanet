@@ -6,10 +6,16 @@ import com.tchalanet.server.catalog.drawchannel.internal.cache.DrawChannelCacheN
 import com.tchalanet.server.catalog.drawchannel.internal.mapper.DrawChannelMapper;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelEntity;
 import com.tchalanet.server.catalog.drawchannel.internal.persistence.DrawChannelRepository;
+import com.tchalanet.server.catalog.resultslot.api.ResultSlotCatalog;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.common.time.DaysOfWeekParser;
 import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.ResultSlotId;
 import com.tchalanet.server.common.web.error.ProblemRest;
+import java.time.DayOfWeek;
 import java.time.Instant;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DrawChannelAdminService {
 
   private final DrawChannelRepository repository;
+  private final ResultSlotCatalog resultSlotCatalog;
   private final DrawChannelMapper mapper;
   private final JsonUtils jsonUtils;
 
@@ -73,6 +80,7 @@ public class DrawChannelAdminService {
     existing.setName(dto.getName());
     existing.setTimezone(dto.getTimezone());
     existing.setDrawTime(dto.getDrawTime());
+    existing.setSalesOpenTime(dto.getSalesOpenTime());
     existing.setCutoffSec(dto.getCutoffSec());
     existing.setDaysOfWeek(dto.getDaysOfWeek());
     existing.setActive(dto.isActive());
@@ -127,14 +135,27 @@ public class DrawChannelAdminService {
       },
       allEntries = true)
   public void disableChannel(DrawChannelId id) {
+    setChannelActive(id, false);
+  }
+
+  @Transactional
+  @CacheEvict(
+      cacheNames = {
+        DrawChannelCacheNames.BY_TENANT,
+        DrawChannelCacheNames.BY_ID,
+        DrawChannelCacheNames.BY_TENANT_GAME_MAP,
+        DrawChannelCacheNames.CALENDAR_ROWS
+      },
+      allEntries = true)
+  public DrawChannelView setChannelActive(DrawChannelId id, boolean active) {
     var existing =
         repository
             .findById(id.value())
             .orElseThrow(() -> new IllegalArgumentException("draw_channel_not_found: " + id));
     if (existing.getDeletedAt() != null) throw ProblemRest.of(DrawChannelErrorCodes.DELETED);
-    existing.setActive(false);
+    existing.setActive(active);
     existing.setUpdatedAt(Instant.now());
-    repository.save(existing);
+    return mapToView(repository.save(existing));
   }
 
   // mapping helpers
@@ -148,6 +169,7 @@ public class DrawChannelAdminService {
     e.setName(v.name());
     e.setTimezone(v.timezone() == null ? null : v.timezone().toString());
     e.setDrawTime(v.drawTime());
+    e.setSalesOpenTime(v.salesOpenTime());
     e.setCutoffSec(v.cutoffSec() == null ? 120 : v.cutoffSec());
     // daysOfWeek now List<DayOfWeek> -> format to string
     e.setDaysOfWeek(com.tchalanet.server.common.time.DaysOfWeekFormatter.format(v.daysOfWeek()));
@@ -189,6 +211,9 @@ public class DrawChannelAdminService {
             .findById(id.value())
             .orElseThrow(() -> new IllegalArgumentException("Draw channel not found: " + id));
     if (existing.getDeletedAt() != null) throw ProblemRest.of(DrawChannelErrorCodes.DELETED);
+    validateDaysSupportedByResultSlot(req.daysOfWeek(), existing);
+    validateSalesOpening(req);
+    validateSalesClosing(req);
 
     // Use mapper to update existing entity in-place (it ignores id/audit/flags)
     mapper.updateEntityFromRequest(req, existing);
@@ -203,6 +228,48 @@ public class DrawChannelAdminService {
     existing.setUpdatedAt(Instant.now());
     var saved = repository.save(existing);
     return mapToView(saved);
+  }
+
+  private void validateSalesOpening(
+      com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelRequest req) {
+    if (req.salesOpenTime() == null || req.drawTime() == null) return;
+    if (req.salesOpenTime().isAfter(req.drawTime())) {
+      throw ProblemRest.of(DrawChannelErrorCodes.SALES_OPEN_AFTER_DRAW_TIME);
+    }
+  }
+
+  private void validateSalesClosing(
+      com.tchalanet.server.catalog.drawchannel.internal.web.model.UpdateDrawChannelRequest req) {
+    if (req.cutoffSec() == null || req.drawTime() == null) return;
+    if (req.cutoffSec() <= 0 || req.cutoffSec() > req.drawTime().toSecondOfDay()) {
+      throw ProblemRest.of(DrawChannelErrorCodes.SALES_CLOSE_NOT_BEFORE_DRAW_TIME);
+    }
+  }
+
+  private void validateDaysSupportedByResultSlot(
+      List<DayOfWeek> requestedDays, DrawChannelEntity existing) {
+    if (requestedDays == null) return;
+    if (requestedDays.isEmpty()) {
+      throw ProblemRest.of(DrawChannelErrorCodes.DAYS_NOT_SUPPORTED_BY_RESULT_SLOT);
+    }
+
+    var resultSlot =
+        resultSlotCatalog
+            .findById(ResultSlotId.of(existing.getResultSlotId()))
+            .orElseThrow(
+                () -> ProblemRest.of(DrawChannelErrorCodes.DAYS_NOT_SUPPORTED_BY_RESULT_SLOT));
+    var supportedDays = supportedDays(resultSlot.daysOfWeek());
+    if (supportedDays.isEmpty() || !supportedDays.containsAll(requestedDays)) {
+      throw ProblemRest.of(DrawChannelErrorCodes.DAYS_NOT_SUPPORTED_BY_RESULT_SLOT);
+    }
+  }
+
+  private EnumSet<DayOfWeek> supportedDays(String daysOfWeek) {
+    try {
+      return EnumSet.copyOf(DaysOfWeekParser.parse(daysOfWeek));
+    } catch (RuntimeException ex) {
+      return EnumSet.noneOf(DayOfWeek.class);
+    }
   }
 
   /** Create from view: normalize flags and persist, returning the created View. */

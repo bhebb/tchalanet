@@ -14,6 +14,9 @@ import {
   AdminDrawSalesMatrixApi,
   SlotMatrixView,
   ChannelGameSetupView,
+  MatrixSummary,
+  ProviderMatrixView,
+  TenantDrawSalesMatrixView,
 } from '../data-access/admin-draw-sales-matrix-api.service';
 import {
   DrawSalesMatrixProviderListComponent,
@@ -56,6 +59,10 @@ export class AdminDrawSalesMatrixPage {
   readonly matrixResource = this.api.getMatrixResource({ suppressShellFeedback: true });
   readonly matrixError = resourceErrorVm(this.matrixResource, 'admin.setup.draw_sales_matrix');
   readonly matrix = computed(() => this.matrixResource.value() ?? null);
+  readonly activeMatrix = computed(() => {
+    const matrix = this.matrix();
+    return matrix ? activeOnlyMatrix(matrix) : null;
+  });
   readonly acting = signal<string | null>(null); // key = `${drawChannelId}:${tenantGameId}`
   readonly actionErrors = signal<Readonly<Record<string, ErrorViewModel>>>({});
   readonly actionNotices = signal<Readonly<Record<string, string>>>({});
@@ -221,4 +228,35 @@ export class AdminDrawSalesMatrixPage {
     const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
     return toErrorViewModel(normalized, copy);
   }
+}
+
+function activeOnlyMatrix(matrix: TenantDrawSalesMatrixView): TenantDrawSalesMatrixView {
+  const providers = matrix.providers
+    .map(provider => ({
+      ...provider,
+      slots: provider.slots.filter(slot => slot.channel?.active === true),
+    }))
+    .filter(provider => provider.slots.length > 0);
+
+  return {
+    providers,
+    summary: summarizeMatrix(providers),
+  };
+}
+
+function summarizeMatrix(providers: readonly ProviderMatrixView[]): MatrixSummary {
+  const slots = providers.flatMap(provider => provider.slots);
+  const games = slots.flatMap(slot => slot.games);
+
+  return {
+    providerCount: providers.length,
+    slotCount: slots.length,
+    configuredChannelCount: slots.filter(slot => slot.channel !== null).length,
+    activeChannelCount: slots.filter(slot => slot.channel?.active === true).length,
+    supportedTenantGameCount: new Set(games.map(game => game.tenantGameId.value)).size,
+    offeredChannelGameCount: games.filter(game => game.offeredOnChannel).length,
+    saleReadyChannelGameCount: games.filter(game => game.saleReady).length,
+    missingStakeConfigCount: games.filter(game => game.offeredOnChannel && (game.minStake === null || game.maxStake === null)).length,
+    missingLimitCount: games.filter(game => game.offeredOnChannel && !game.limits.configured).length,
+  };
 }

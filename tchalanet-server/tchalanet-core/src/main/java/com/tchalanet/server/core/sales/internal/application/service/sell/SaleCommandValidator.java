@@ -1,7 +1,10 @@
 package com.tchalanet.server.core.sales.internal.application.service.sell;
 
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
+import com.tchalanet.server.catalog.game.api.GameCatalog;
 import com.tchalanet.server.catalog.game.api.model.BetOption;
 import com.tchalanet.server.catalog.game.api.model.BetType;
+import com.tchalanet.server.common.types.id.TenantGameId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.error.ProblemRest;
 import com.tchalanet.server.core.sales.api.command.sell.SellTicketCommand;
@@ -16,6 +19,7 @@ import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameBetOpti
 import com.tchalanet.server.platform.tenantgame.api.model.view.TenantGameRefView;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,6 +30,8 @@ public class SaleCommandValidator {
 
   private final SelectionApi selectionApi;
   private final TenantGameApi tenantGameApi;
+  private final DrawChannelCatalog drawChannelCatalog;
+  private final GameCatalog gameCatalog;
 
   // -------------------------------------------------------------------------
   // Validation
@@ -57,6 +63,17 @@ public class SaleCommandValidator {
   public void validateTenantConfiguration(SellTicketCommand command, TenantId tenantId) {
     var gamesByCode = new HashMap<String, TenantGameRefView>();
     tenantGameApi.listGames(tenantId).forEach(game -> gamesByCode.put(game.gameCode(), game));
+    var activeCatalogGameCodes = new HashSet<String>();
+    gameCatalog.listActive().forEach(game -> activeCatalogGameCodes.add(game.code().toUpperCase()));
+    var gamesAvailableOnChannel = new HashSet<TenantGameId>();
+    drawChannelCatalog
+        .listGamesByChannel(tenantId, command.drawChannelId())
+        .forEach(
+            game -> {
+              if (game.enabled()) {
+                gamesAvailableOnChannel.add(game.tenantGameId());
+              }
+            });
 
     var configsByGame = new HashMap<String, TenantGameBetOptionConfigView>();
     for (var line : command.lines()) {
@@ -68,8 +85,14 @@ public class SaleCommandValidator {
       if (!tenantGame.enabled()) {
         throw ProblemRest.of(SalesErrorCodes.TENANT_GAME_DISABLED);
       }
+      if (!activeCatalogGameCodes.contains(gameCode)) {
+        throw ProblemRest.of(SalesErrorCodes.GAME_INACTIVE);
+      }
       if (!tenantGame.visibleInPos()) {
         throw ProblemRest.of(SalesErrorCodes.TENANT_GAME_NOT_VISIBLE_IN_POS);
+      }
+      if (!gamesAvailableOnChannel.contains(tenantGame.tenantGameId())) {
+        throw ProblemRest.of(SalesErrorCodes.GAME_NOT_AVAILABLE_ON_DRAW_CHANNEL);
       }
       validateTenantStake(line.stakeAmount(), tenantGame);
 

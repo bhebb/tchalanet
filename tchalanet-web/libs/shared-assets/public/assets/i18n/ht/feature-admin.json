@@ -166,10 +166,6 @@
     },
     "setup": {
       "backToSetup": "Retounen nan konfigirasyon",
-      "progress": {
-        "title": "{{completed}} / {{total}} etap obligatwa konplète",
-        "subtitle": "Swivi eta preparasyon an"
-      },
       "advancedSettings": {
         "title": "Paramèt avanse",
         "description": "Konfigire paramèt avanse santral la.",
@@ -181,6 +177,16 @@
       "required": "Obligatwa",
       "blocking": "Bloke",
       "blockedBy": "Bloke pa :",
+      "requiredSetupTitle": "Sa ki nesesè pou vann",
+      "requiredSetupDescription": "Eleman sa yo dwe pare avan vant lan ka kòmanse.",
+      "operationalSetupTitle": "Konfigirasyon operasyonèl",
+      "operationalSetupDescription": "Eleman sa yo pa bloke vant lan, men yo ede kontwòl ak travay chak jou.",
+      "operationalStatus": {
+        "configured": "Konfigire",
+        "notConfigured": "Pa konfigire",
+        "recommended": "Rekòmande",
+        "notEnabled": "Pa aktive"
+      },
       "section": {
         "identity": "Idantite",
         "address": "Adrès",
@@ -213,6 +219,9 @@
         "limits": "Limit vant",
         "limitsDesc": "Limit vant ki aplike sou santral ou an.",
         "limitsCta": "Konfigire limit yo",
+        "posPrinting": "POS ak enpresyon",
+        "posPrintingDesc": "Konfigire resi, PDF ak paramèt enpresyon pa defo.",
+        "posPrintingCta": "Konfigire enpresyon",
         "settings": "Paramèt santral la",
         "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
         "settingsCta": "Konfigire paramèt yo",
@@ -228,6 +237,12 @@
         "sellerTerminalReady": "Machann yo pare"
       },
       "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
+      "progress": {
+        "title": "{{completed}} / {{total}} etap obligatwa konplète",
+        "subtitle": "Swivi eta preparasyon an",
+        "readyToSell": "Pare pou vann.",
+        "notReadyToSell": "Poko pare pou vann · {{count}} eleman ki bloke."
+      },
       "status": {
         "notStarted": "Poko kòmanse",
         "inProgress": "An kou",
@@ -711,29 +726,65 @@
       "readiness": {
         "READY": "Pare",
         "TODO": "Pou konfigire",
-        "BLOCKED": "Pa disponib"
+        "BLOCKED": "Pa disponib",
+        "reason": {
+          "missingStakeOrPricing": "Limit miz yo oswa barèm nan manke."
+        }
       },
       "card": {
         "unavailable": "Ap vini",
         "blockers": "Pou regle",
         "readyChecks": "Kontwòl",
+        "businessSetup": "Konfigirasyon vant",
+        "saleSetup": "Pare pou vann",
         "systemGame": "Jwèt sistèm · {{name}}",
+        "saleActive": "Vann jwèt sa a: aktive",
+        "saleDisabled": "Vann jwèt sa a: dezaktive",
+        "posVisible": "Sou machin vant",
+        "posHidden": "Kache sou machin vant",
+        "posYes": "Wi",
+        "posNo": "Non",
+        "saleEnabledShort": "An vant",
+        "saleDisabledShort": "Pa vann",
         "stakeUnavailable": "Miz pa disponib",
         "stakeConfigured": "Miz konfigire",
+        "stakeRange": "Miz: {{min}}-{{max}} {{currency}}",
         "stakeMissing": "Miz pa konfigire",
+        "notConfigured": "Pa konfigire",
         "pricingMissing": "Barèm pa konfigire",
+        "maryajPricing": "Exact + Reverse",
         "pricingOptions": "{{count}} opsyon barèm",
         "pricingOptionsWithProfile": "{{profile}} · {{count}} opsyon",
+        "availabilityReview": "Disponib pou vann",
+        "availabilityNeedsConfig": "Pou verifye avan vant",
+        "availabilityUnavailable": "Pa disponib sou tiraj yo",
         "standardPricingProfile": "Barèm estanda",
+        "fact": {
+          "pos": "Machin vant",
+          "stakes": "Miz",
+          "payouts": "Barèm",
+          "availability": "Disponib"
+        },
+        "toggle": {
+          "enable": "Aktive vant jwèt sa a",
+          "disable": "Dezaktive vant jwèt sa a"
+        },
         "action": {
           "configure": "Konfigire",
+          "complete": "Konplete",
           "disable": "Dezaktive",
           "activate": "Aktive",
           "reactivate": "Reaktive",
           "edit": "Modifye",
           "unavailable": "Pa disponib",
-          "maryaj": "Konfigire Maryaj gratis"
+          "maryaj": "Konfigire Maryaj gratis",
+          "availability": "Disponiblite pa tiraj"
         }
+      },
+      "confirm": {
+        "disableTitle": "Dezaktive {{name}}?",
+        "disableMessage": "Vandè yo p ap ka vann jwèt sa a apre chanjman an.",
+        "disableAction": "Dezaktive"
       }
     },
     "maryajGratis": {
@@ -1110,13 +1161,17 @@
           "notConfigured": "Pa konfigire"
         },
         "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
+        "activeGamesLabel": "Jwèt aktif",
+        "offeredGamesLabel": "Jwèt yo ofri",
+        "availableGamesLabel": "Pou ajoute",
         "channelMissing": "Kanal manke",
         "channelInactive": "Kanal inaktif"
       },
       "channel": {
         "label": "Kanal tiraj",
+        "settingsTitle": "Paramèt tiraj",
         "salesOpen": "Ouvèti vant : {{value}}",
-        "cutoff": "Fèmti vant : {{seconds}}s avan tiraj la",
+        "cutoff": "Tiraj sa a sispann vann tikè {{minutes}} minit avan {{drawTime}}.",
         "activeGames": "{{count}} jwèt aktif",
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
         "dependsOnAnother": "Depann de yon lòt règ",
@@ -1127,7 +1182,8 @@
       },
       "section": {
         "offered": "Òf aktif sou règ sa a",
-        "available": "Jwèt disponib pou ajoute"
+        "available": "Jwèt disponib pou ajoute",
+        "noOfferedGames": "Pa gen jwèt k ap vann sou tiraj sa a pou kounye a. Ajoute yon jwèt anba a pou vandè yo ka vann li."
       },
       "game": {
         "status": {
@@ -1547,6 +1603,13 @@
         "activeChannels": "Lè aktif",
         "todo": "Pou konfigire"
       },
+      "profile": {
+        "haitiLottery": "Pwofil Haiti Lottery"
+      },
+      "facts": {
+        "activeChannels": "kanal aktif",
+        "totalChannels": "kanal konfigire"
+      },
       "filters": {
         "all": "Tout",
         "active": "Aktif",
@@ -1559,6 +1622,39 @@
       },
       "loading": "Chajman règ tiraj yo...",
       "resultsCount": "{{count}} founisè afiche",
+      "channelResultsCount": "{{count}} kanal tiraj afiche",
+      "list": {
+        "title": "Lis kanal tiraj",
+        "columns": {
+          "draw": "Tiraj",
+          "schedule": "Orè",
+          "results": "Rezilta",
+          "games": "Jwèt",
+          "status": "Eta",
+          "action": "Aksyon"
+        },
+        "resultMode": {
+          "AUTO": "Rezilta: otomatik",
+          "MANUAL": "Rezilta: manyèl",
+          "UNCONFIGURED": "Rezilta: pou defini"
+        },
+        "status": {
+          "active": "Aktif",
+          "attention": "Atansyon",
+          "inactive": "Inaktif"
+        },
+        "days": {
+          "label": "Jou ouvè: {{value}}",
+          "everyDay": "Chak jou"
+        },
+        "message": {
+          "active": "Disponib pou vann",
+          "inactive": "Pa disponib pou vann",
+          "missingSchedule": "Lè tiraj la bezwen konfigire.",
+          "noGames": "Pa gen jwèt ki disponib sou tiraj sa a.",
+          "sourceInactive": "Sous rezilta a bezwen verifye."
+        }
+      },
       "empty": {
         "title": "Pa gen founisè",
         "filtered": "Chanje filtè a oswa rechèch la pou montre founisè yo.",
@@ -1566,11 +1662,82 @@
       },
       "notice": {
         "title": "Aksyon pa disponib",
-        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap aktive ak pwen API sèvè a.",
-        "saved": "Konfigirasyon {{provider}} anrejistre."
+        "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap disponib byento.",
+        "saved": "Konfigirasyon {{provider}} anrejistre.",
+        "channelSaved": "Kanal tiraj la anrejistre."
+      },
+      "confirm": {
+        "disableTitle": "Dezaktive {{name}}?",
+        "disableMessage": "Santral la p ap ka vann tikè sou kanal tiraj sa a apre chanjman an.",
+        "disableAction": "Dezaktive"
       },
       "config": {
-        "title": "Konfigire {{provider}}",
+        "title": "Konfigire {{name}}",
+        "detailsTitle": "Detay {{name}}",
+        "loading": "Chajman konfigirasyon kanal la...",
+        "code": "Kòd kanal la",
+        "name": "Non jwèt tiraj la",
+        "timezone": "Zòn lè",
+        "drawTime": "Lè tiraj",
+        "salesOpenTime": "Lè tiraj sa louvri",
+        "salesCloseTime": "Lè tiraj sa fèmen",
+        "cutoffSec": "Fèmti vant anvan tiraj (segonn)",
+        "daysOfWeek": "Jou ouvè",
+        "openDaysHint": "Result slot la ouvè: {{days}}",
+        "salesStopBeforeDraw": "Tiraj sa a sispann vann tikè {{minutes}} minit avan {{drawTime}}.",
+        "defaultSource": "Sous rezilta pa defo",
+        "noSource": "Pa gen sous konfigire",
+        "period": "Peryòd",
+        "notes": "Nòt",
+        "active": "Kanal aktif pou santral sa a",
+        "sales": {
+          "title": "Vant",
+          "description": "Chwazi si santral la ka vann sou kanal sa a, lè vant ouvè, jou vant ouvè, epi konbyen tan anvan tiraj la vant dwe fèmen."
+        },
+        "warning": {
+          "salesOpenAfterDraw": "Lè vant ouvè a dwe avan oswa menm lè ak lè tiraj la.",
+          "salesCloseAtDraw": "Vant pa dwe fèmen menm lè ak tiraj la. Mete yon lè ki pi bonè.",
+          "salesCloseAfterDraw": "Lè vant fèmen an dwe avan lè tiraj la."
+        },
+        "system": {
+          "title": "Enfòmasyon sistèm",
+          "readonly": "Tchalanet bay enfòmasyon sa yo. Yo an lekti sèlman isit la."
+        },
+        "error": {
+          "load": "Nou pa kapab chaje konfigirasyon kanal la.",
+          "save": "Nou pa kapab anrejistre konfigirasyon kanal la."
+        },
+        "result": {
+          "title": "Rezilta",
+          "mode": {
+            "label": "Mòd",
+            "automatic": "Otomatik",
+            "manual": "Manyèl"
+          },
+          "source": {
+            "label": "Sous",
+            "provider": "{{provider}}",
+            "manual": "Antre manyèl"
+          },
+          "providerSlot": "Tiraj ofisyèl",
+          "openDays": "Jou ouvè",
+          "projection": {
+            "label": "Konvèsyon Ayiti",
+            "active": "Aktive",
+            "inactive": "Pou verifye"
+          },
+          "readonly": "Tchalanet defini jan rezilta yo antre. Li an lekti sèlman isit la."
+        },
+        "source": {
+          "SYSTEM": "Sistèm",
+          "AUTO": "Otomatik",
+          "EXTERNAL": "Ekstèn",
+          "US_LOTTERY": "US Lottery",
+          "NY_OPEN_DATA": "NY Open Data",
+          "FL_APIM": "Florida APIM",
+          "MANUAL": "Manyèl",
+          "ADMIN_OVERRIDE": "Koreksyon admin"
+        },
         "description": "Ajiste mòd rezilta, lè vant, ak lè tiraj aktif yo.",
         "section": {
           "provider": "Founisè",
@@ -1590,6 +1757,24 @@
           "UNCONFIGURED": "Pou defini"
         }
       },
+      "days": {
+        "MONDAY": "Lendi",
+        "TUESDAY": "Madi",
+        "WEDNESDAY": "Mèkredi",
+        "THURSDAY": "Jedi",
+        "FRIDAY": "Vandredi",
+        "SATURDAY": "Samdi",
+        "SUNDAY": "Dimanch"
+      },
+      "daysShort": {
+        "MONDAY": "Lun",
+        "TUESDAY": "Mar",
+        "WEDNESDAY": "Mèk",
+        "THURSDAY": "Je",
+        "FRIDAY": "Van",
+        "SATURDAY": "Sam",
+        "SUNDAY": "Dim"
+      },
       "sourceError": {
         "title": "Sous rezilta pa disponib",
         "message": "Vant yo ka rete disponib, men rezilta otomatik founisè sa a bezwen verifye."
@@ -1599,6 +1784,7 @@
         "manual": "Antre manyèl",
         "unconfigured": "Mòd rezilta pou defini",
         "error": "Erè sous",
+        "disabled": "Pa disponib",
         "last": "Dènye",
         "next": "Pwochen",
         "lastManualEntry": "Dènye antre manyèl"
@@ -1611,6 +1797,15 @@
           "needsConfig": "Pou konfigire",
           "disabled": "Inaktif"
         },
+        "cutoffTime": "Vant fèmen: {{value}}",
+        "drawTimeLabel": "Lè tiraj",
+        "salesCloseLabel": "Fèmti vant",
+        "catalogLabel": "Katalòg",
+        "saleEnabled": "An vant",
+        "saleDisabled": "Dezaktive",
+        "saleToggleLabel": "Vann sou tiraj sa a",
+        "platformActive": "Disponib nan katalòg",
+        "platformInactive": "Dezaktive nan katalòg",
         "toggle": {
           "enable": "Aktive lè tiraj sa a",
           "disable": "Dezaktive lè tiraj sa a"
@@ -1623,12 +1818,50 @@
         "refresh": "Rafrechi",
         "configure": "Konfigire",
         "configureChannel": "Konfigire kanal la",
-        "configureGameOffer": "Konfigire jwèt kanal la"
+        "configureGameOffer": "Konfigire jwèt kanal la",
+        "viewGeneratedDraws": "Gade tiraj yo",
+        "viewDetails": "Gade detay"
+      },
+      "detail": {
+        "titleFallback": "Detay kanal tiraj",
+        "description": "{{code}} · {{timezone}}",
+        "sales": {
+          "title": "Vant",
+          "eyebrow": "Konfigirasyon santral",
+          "heading": "Disponibilite pou vann"
+        },
+        "draw": {
+          "title": "Tiraj"
+        },
+        "links": {
+          "title": "Aksyon operasyon"
+        },
+        "aside": {
+          "eyebrow": "SUIVI KANAL"
+        },
+        "fields": {
+          "provider": "Founisè",
+          "salesStop": "Règ fèmti vant",
+          "sortOrder": "Lòd afichaj"
+        },
+        "actions": {
+          "back": "Retounen"
+        },
+        "error": {
+          "missingTitle": "Kanal tiraj la pa jwenn",
+          "missingMessage": "Pa gen idantifyan kanal tiraj ki te bay."
+        }
       },
       "readiness": {
         "ready": "Pare pou vant",
         "todo": "Konfigirasyon pa konplè",
-        "sourceWarning": "Vant konfigire · Sous pou verifye"
+        "sourceWarning": "Vant konfigire · Sous pou verifye",
+        "reason": {
+          "noActiveChannels": "Pa gen kanal tiraj ki aktif pou founisè sa a.",
+          "noChannels": "Pa gen kanal konfigire pou founisè sa a.",
+          "noGames": "Kanal yo la, men pa gen jwèt ki disponib pou vann.",
+          "reviewCoverage": "Verifye jwèt yo, vizibilite POS, ak limit yo."
+        }
       }
     },
     "games": {
@@ -1662,6 +1895,21 @@
           "title": "Paramèt ki itilize nan vant",
           "message": "Valè sa yo kontwole afichaj POS la ak miz santral la aksepte. Gany ak barèm global yo rete jere nan katalòg platfòm nan."
         },
+        "sell": {
+          "title": "Vann jwèt sa a",
+          "description": "Kontwole si vandè yo ka itilize jwèt sa a nan POS la.",
+          "visibleInPosHelp": "Montre jwèt sa a kòm yon chwa lè vandè a ap kreye yon tikè."
+        },
+        "stakes": {
+          "title": "Miz",
+          "description": "Mete kantite minimòm ak maksimòm vandè a ka aksepte pou jwèt sa a."
+        },
+        "availability": {
+          "title": "Disponibilite",
+          "description": "Sèvi ak disponiblite pa tiraj pou chwazi kote jwèt sa a ka vann.",
+          "enabledHelp": "Pèmèt jwèt sa a antre nan règ disponiblite pou vann.",
+          "review": "Verifye disponiblite pa tiraj"
+        },
         "field": {
           "displayName": "Non ki parèt nan POS",
           "minStake": "Miz minimòm pa liy",
@@ -1676,6 +1924,13 @@
           "title": "Barèm gain",
           "description": "Rezime barèm santral la ki aplike nan vant lan.",
           "clearPricing": "Efase règ barèm nan"
+        },
+        "payouts": {
+          "title": "Barèm",
+          "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte."
+        },
+        "advanced": {
+          "title": "Opsyon avanse"
         },
         "salesOptions": {
           "title": "Mòd vant avanse",
@@ -1750,7 +2005,7 @@
       },
       "filters": {
         "search": "Rechèch",
-        "searchPlaceholder": "Chèche provider, slot...",
+        "searchPlaceholder": "Chèche founisè oswa lè tiraj...",
         "status": "Estati",
         "reset": "Reyinisyalize",
         "draw": "Tiraj",

@@ -40,6 +40,7 @@ export interface TenantGamePricingView {
   readonly gameName: string;
   readonly catalogStatus: CatalogStatus;
   readonly tenantStatus: TenantGameStatus;
+  readonly visibleInPos: boolean;
   readonly pricingProfileLabel: string | null;
   readonly odds: readonly TenantGameOddView[];
   readonly oddsGroups: readonly TenantGameOddGroupView[];

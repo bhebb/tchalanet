@@ -138,7 +138,8 @@ export class AdminGamesPricingApiService {
       gameName: consoleGameName(row.gameCode, row.displayName || row.catalogName),
       catalogStatus: 'AVAILABLE',
       tenantStatus,
-      pricingProfileLabel: row.pricing.configured ? 'Barème standard' : null,
+      visibleInPos: row.visibleInPos,
+      pricingProfileLabel: row.pricing.configured ? 'admin.gamesPricing.card.standardPricingProfile' : null,
       odds,
       oddsGroups,
       limits,
@@ -185,10 +186,12 @@ export class AdminGamesPricingApiService {
   private oddValue(entry: BffPricingEntry): string {
     if (entry.payoutRuleType === 'FIXED_AMOUNT') {
       return entry.fixedAmount === null || entry.fixedAmount === undefined
-        ? 'Non configuré'
+        ? 'admin.gamesPricing.card.notConfigured'
         : `${entry.fixedAmount}`;
     }
-    return entry.odds === null || entry.odds === undefined ? 'Non configuré' : `×${entry.odds}`;
+    return entry.odds === null || entry.odds === undefined
+      ? 'admin.gamesPricing.card.notConfigured'
+      : `×${entry.odds}`;
   }
 
   private toOddsGroups(odds: readonly TenantGameOddView[]): TenantGameOddGroupView[] {
@@ -238,13 +241,17 @@ export class AdminGamesPricingApiService {
   private toReadiness(status: TenantGameStatus): TenantGamePricingView['readiness'] {
     switch (status) {
       case 'ACTIVE':
-        return { status: 'READY', label: 'Prêt', reason: null };
+        return { status: 'READY', label: 'admin.gamesPricing.readiness.READY', reason: null };
       case 'NEEDS_CONFIG':
-        return { status: 'TODO', label: 'À configurer', reason: 'Limites ou barème manquant' };
+        return {
+          status: 'TODO',
+          label: 'admin.gamesPricing.readiness.TODO',
+          reason: 'admin.gamesPricing.readiness.reason.missingStakeOrPricing',
+        };
       case 'INACTIVE':
-        return { status: 'TODO', label: 'Inactif', reason: null };
+        return { status: 'TODO', label: 'admin.gamesPricing.status.INACTIVE', reason: null };
       case 'UNAVAILABLE':
-        return { status: 'BLOCKED', label: 'Non disponible', reason: null };
+        return { status: 'BLOCKED', label: 'admin.gamesPricing.readiness.BLOCKED', reason: null };
     }
   }
 }

@@ -469,6 +469,10 @@
             "title": "Jwèt manke",
             "message": "Chwazi Borlette, Maryaj, Loto 3, Loto 4, oswa Loto 5 avan ou ajoute liy lan."
           },
+          "game_not_available_on_draw_channel": {
+            "title": "Jwèt la pa disponib pou tiraj sa a",
+            "message": "Chwazi yon jwèt ki disponib pou tiraj sa a oswa chwazi yon lòt tiraj."
+          },
           "bet_type_required": {
             "title": "Tip jwèt manke",
             "message": "Chwazi tip pari pou liy lan epi eseye ankò."
@@ -614,6 +618,10 @@
           "tenant_game_disabled": {
             "title": "Jwèt dezaktive",
             "message": "Jwèt sa a dezaktive pou espas sa a."
+          },
+          "game_inactive": {
+            "title": "Jwèt pa disponib",
+            "message": "Jwèt sa a pa aktif pou vann ankò. Chwazi yon lòt jwèt."
           },
           "tenant_game_not_visible_in_pos": {
             "title": "Jwèt pa disponib",

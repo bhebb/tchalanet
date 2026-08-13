@@ -1,0 +1,88 @@
+@use 'breakpoints' as ui;
+
+:host {
+  display: block;
+}
+
+.dc-config {
+  display: grid;
+  gap: 16px;
+  min-width: min(560px, 82vw);
+  padding-top: 4px;
+}
+
+.dc-config__loading {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  min-height: 104px;
+}
+
+.dc-config__readonly {
+  border: 1px solid var(--tch-color-outline-variant, #ddd);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.dc-config__error {
+  color: var(--tch-color-error, #b3261e);
+  font-weight: 600;
+  margin: 0;
+}
+
+.dc-config__warning {
+  color: var(--tch-color-error, #b3261e);
+  font-weight: 600;
+}
+
+.dc-config__form {
+  display: grid;
+  gap: 12px;
+}
+
+.dc-config__panel {
+  background: var(--tch-color-surface-container-lowest, #fff);
+  border: 1px solid var(--tch-color-outline-variant, #ddd);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.dc-config__panel h3,
+.dc-config__panel p {
+  margin: 0;
+}
+
+.dc-config__panel h3 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.dc-config__panel p {
+  color: var(--tch-color-on-surface-variant, #5f5a66);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.dc-config__grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dc-config__full {
+  width: 100%;
+}
+
+@include ui.down(expanded) {
+  .dc-config {
+    min-width: 0;
+  }
+
+  .dc-config__grid {
+    grid-template-columns: 1fr;
+  }
+}
