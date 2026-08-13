@@ -10,5 +10,6 @@ public record DrawChannelSummaryView(
     LocalTime drawTime,
     LocalTime cutoffTime,
     ZoneId timezone,
+    String daysOfWeek,
     boolean active,
     boolean resultSlotActive) {}

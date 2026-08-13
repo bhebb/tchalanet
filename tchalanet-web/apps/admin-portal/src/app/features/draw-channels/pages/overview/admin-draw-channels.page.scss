@@ -178,7 +178,8 @@
   &__name,
   &__meta,
   &__time,
-  &__cutoff {
+  &__cutoff,
+  &__days {
     margin: 0;
   }
 
@@ -190,7 +191,8 @@
   }
 
   &__meta,
-  &__cutoff {
+  &__cutoff,
+  &__days {
     color: var(--tch-color-on-surface-variant, #46464f);
     font-size: var(--tch-font-size-label-sm, 0.6875rem);
   }

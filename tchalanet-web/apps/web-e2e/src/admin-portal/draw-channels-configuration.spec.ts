@@ -26,10 +26,13 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await expect(page.getByText(/5 canal|5 kanal|5 draw channel/)).toBeVisible();
 
     const firstCard = page.locator('.dc-page__channel-card').first();
-    await expect(firstCard).toContainText('HT · 1000');
+    await expect(firstCard).toContainText('Texas · 1000');
+    await expect(firstCard).not.toContainText('Haïti');
     await expect(firstCard).not.toContainText('HT · HT · 1000');
+    await expect(firstCard.locator('.dc-page__logo img')).toBeVisible();
     await expect(firstCard).toContainText('10:00');
     await expect(firstCard).toContainText('09:55');
+    await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
     await expect(firstCard).toContainText(/6 jeu|6 jwèt|6 game/);
     await expect(firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ })).toBeVisible();
 

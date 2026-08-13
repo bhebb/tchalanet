@@ -292,6 +292,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         drawTime,
         cutoffTime,
         zone,
+        e.getDaysOfWeek(),
         e.isActive(),
         resultSlotActive);
   }

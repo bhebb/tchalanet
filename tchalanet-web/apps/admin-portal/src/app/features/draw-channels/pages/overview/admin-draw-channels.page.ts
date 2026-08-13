@@ -104,19 +104,21 @@ export class AdminDrawChannelsPage implements OnInit {
   });
 
   readonly channelRows = computed<DrawChannelListRow[]>(() =>
-    this.allProviders().flatMap(provider =>
-      provider.slots.map(slot => {
-        const gameCount = slot.saleReadyGameCount ?? slot.offeredGameCount ?? null;
-        return {
-          providerCode: provider.providerCode,
-          providerLabel: provider.providerLabel,
-          slot,
-          resultMode: this.resultMode(provider.resultAcquisition.mode),
-          status: this.channelStatus(slot, gameCount),
-          gameCount,
-        };
-      }),
-    ),
+    this.allProviders()
+      .flatMap(provider =>
+        provider.slots.map(slot => {
+          const gameCount = slot.saleReadyGameCount ?? slot.offeredGameCount ?? null;
+          return {
+            providerCode: provider.providerCode,
+            providerLabel: provider.providerLabel,
+            slot,
+            resultMode: this.resultMode(provider.resultAcquisition.mode),
+            status: this.channelStatus(slot, gameCount),
+            gameCount,
+          };
+        }),
+      )
+      .sort(compareDrawChannelRows),
   );
 
   readonly filteredRows = computed(() => {
@@ -226,13 +228,23 @@ export class AdminDrawChannelsPage implements OnInit {
     return 'admin.drawChannels.list.message.active';
   }
 
+  channelTitle(row: DrawChannelListRow): string {
+    const slotLabel = row.slot.label.trim();
+    return slotLabel || row.providerLabel;
+  }
+
   providerLogoUrl(row: DrawChannelListRow): string | null {
     return consoleLotteryProviderLogoUrl(row.providerCode);
   }
 
-  channelTitle(row: DrawChannelListRow): string {
-    const slotLabel = row.slot.label.trim();
-    return slotLabel || row.providerLabel;
+  daysOfWeekLabel(daysOfWeek: string | null | undefined): string {
+    const parts = this.expandDaysOfWeek(daysOfWeek);
+    if (parts.length === 0 || parts.length === 7) {
+      return this.translate.instant('admin.drawChannels.list.days.everyDay');
+    }
+    return parts
+      .map(day => this.translate.instant(`admin.drawChannels.daysShort.${day}`))
+      .join(', ');
   }
 
   private resultMode(mode: DrawResultAcquisitionView['mode']): DrawChannelListRow['resultMode'] {
@@ -248,6 +260,26 @@ export class AdminDrawChannelsPage implements OnInit {
     if (!slot.enabled) return 'inactive';
     if (!slot.drawTime || slot.resultSlotActive === false || gameCount === 0) return 'attention';
     return 'active';
+  }
+
+  private expandDaysOfWeek(daysOfWeek: string | null | undefined): readonly string[] {
+    const value = daysOfWeek?.trim().toUpperCase();
+    if (!value) return [];
+    if (value === 'MON-SUN') return DAY_ORDER;
+
+    const days = new Set<string>();
+    for (const part of value.split(',')) {
+      const trimmed = part.trim();
+      if (!trimmed) continue;
+      if (trimmed.includes('-')) {
+        const [start, end] = trimmed.split('-').map(token => token.trim());
+        for (const day of daysInRange(start, end)) days.add(day);
+      } else {
+        const day = dayToken(trimmed);
+        if (day) days.add(day);
+      }
+    }
+    return DAY_ORDER.filter(day => days.has(day));
   }
 
   private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {
@@ -280,4 +312,52 @@ export class AdminDrawChannelsPage implements OnInit {
   private errorViewModel(err: unknown): ErrorViewModel {
     return adminDrawChannelsErrorView(err, key => this.translate.instant(key));
   }
+}
+
+const DAY_ORDER = [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+] as const;
+
+type DayCode = (typeof DAY_ORDER)[number];
+
+const DAY_TOKEN_TO_CODE: Record<string, DayCode> = {
+  MON: 'MONDAY',
+  TUE: 'TUESDAY',
+  WED: 'WEDNESDAY',
+  THU: 'THURSDAY',
+  FRI: 'FRIDAY',
+  SAT: 'SATURDAY',
+  SUN: 'SUNDAY',
+};
+
+function dayToken(token: string): DayCode | null {
+  return DAY_TOKEN_TO_CODE[token.slice(0, 3)] ?? null;
+}
+
+function daysInRange(startToken: string | undefined, endToken: string | undefined): readonly DayCode[] {
+  const start = dayToken(startToken ?? '');
+  const end = dayToken(endToken ?? '');
+  if (!start || !end) return [];
+  const startIndex = DAY_ORDER.indexOf(start);
+  const endIndex = DAY_ORDER.indexOf(end);
+  const result: DayCode[] = [];
+  for (let index = startIndex; ; index = (index + 1) % DAY_ORDER.length) {
+    result.push(DAY_ORDER[index]);
+    if (index === endIndex) break;
+  }
+  return result;
+}
+
+function compareDrawChannelRows(a: DrawChannelListRow, b: DrawChannelListRow): number {
+  const byActive = Number(b.slot.enabled) - Number(a.slot.enabled);
+  if (byActive !== 0) return byActive;
+  const byTime = (a.slot.drawTime ?? '').localeCompare(b.slot.drawTime ?? '');
+  if (byTime !== 0) return byTime;
+  return (a.slot.label || a.providerLabel).localeCompare(b.slot.label || b.providerLabel);
 }

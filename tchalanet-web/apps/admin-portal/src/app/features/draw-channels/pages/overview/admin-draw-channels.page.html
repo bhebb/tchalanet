@@ -143,6 +143,9 @@
                   {{ 'admin.drawChannels.salesCutoffMissing' | translate }}
                 }
               </p>
+              <p class="dc-page__days">
+                {{ 'admin.drawChannels.list.days.label' | translate: { value: daysOfWeekLabel(slot.daysOfWeek) } }}
+              </p>
             </div>
 
             <p class="dc-page__message">{{ rowMessageLabelKey(row) | translate }}</p>

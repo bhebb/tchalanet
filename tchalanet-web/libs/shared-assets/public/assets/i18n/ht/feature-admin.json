@@ -1622,6 +1622,10 @@
         },
         "gamesCount": "{{count}} jwèt",
         "gamesUnknown": "Jwèt —",
+        "days": {
+          "label": "Jou ouvè: {{value}}",
+          "everyDay": "Chak jou"
+        },
         "message": {
           "active": "Kanal sa a disponib pou vann.",
           "inactive": "Kanal sa a pa aktif pou vann.",
@@ -1695,6 +1699,15 @@
         "FRIDAY": "Vandredi",
         "SATURDAY": "Samdi",
         "SUNDAY": "Dimanch"
+      },
+      "daysShort": {
+        "MONDAY": "Lun",
+        "TUESDAY": "Mar",
+        "WEDNESDAY": "Mèk",
+        "THURSDAY": "Je",
+        "FRIDAY": "Van",
+        "SATURDAY": "Sam",
+        "SUNDAY": "Dim"
       },
       "sourceError": {
         "title": "Sous rezilta pa disponib",

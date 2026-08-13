@@ -1622,6 +1622,10 @@
         },
         "gamesCount": "{{count}} game(s)",
         "gamesUnknown": "Games —",
+        "days": {
+          "label": "Open days: {{value}}",
+          "everyDay": "Every day"
+        },
         "message": {
           "active": "This channel is available for sales.",
           "inactive": "This channel is not active for sales.",
@@ -1695,6 +1699,15 @@
         "FRIDAY": "Friday",
         "SATURDAY": "Saturday",
         "SUNDAY": "Sunday"
+      },
+      "daysShort": {
+        "MONDAY": "Mon",
+        "TUESDAY": "Tue",
+        "WEDNESDAY": "Wed",
+        "THURSDAY": "Thu",
+        "FRIDAY": "Fri",
+        "SATURDAY": "Sat",
+        "SUNDAY": "Sun"
       },
       "sourceError": {
         "title": "Result source unavailable",

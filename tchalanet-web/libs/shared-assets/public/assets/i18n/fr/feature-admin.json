@@ -452,6 +452,10 @@
         },
         "gamesCount": "{{count}} jeu(x)",
         "gamesUnknown": "Jeux —",
+        "days": {
+          "label": "Jours ouverts : {{value}}",
+          "everyDay": "Tous les jours"
+        },
         "message": {
           "active": "Ce canal est disponible à la vente.",
           "inactive": "Ce canal n'est pas actif pour la vente.",
@@ -525,6 +529,15 @@
         "FRIDAY": "Vendredi",
         "SATURDAY": "Samedi",
         "SUNDAY": "Dimanche"
+      },
+      "daysShort": {
+        "MONDAY": "Lun",
+        "TUESDAY": "Mar",
+        "WEDNESDAY": "Mer",
+        "THURSDAY": "Jeu",
+        "FRIDAY": "Ven",
+        "SATURDAY": "Sam",
+        "SUNDAY": "Dim"
       },
       "sourceError": {
         "title": "Source de résultats indisponible",

@@ -24,10 +24,13 @@ test.describe('Admin draw-channel configuration — mobile', () => {
 
     const firstCard = page.locator('.dc-page__channel-card').first();
     await expect(firstCard).toBeVisible();
-    await expect(firstCard).toContainText('HT · 1000');
+    await expect(firstCard).toContainText('Texas · 1000');
+    await expect(firstCard).not.toContainText('Haïti');
     await expect(firstCard).not.toContainText('HT · HT · 1000');
+    await expect(firstCard.locator('.dc-page__logo img')).toBeVisible();
     await expect(firstCard).toContainText('10:00');
     await expect(firstCard).toContainText('09:55');
+    await expect(firstCard).toContainText(/Tous les jours|Chak jou|Every day/);
     await expect(firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ })).toBeVisible();
 
     const configureButton = firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ });

@@ -18,6 +18,7 @@ interface TenantDrawChannelSummary {
   readonly drawTime: string;
   readonly cutoffTime: string;
   readonly timezone: string;
+  readonly daysOfWeek?: string | null;
   readonly active: boolean;
   readonly resultSlotActive?: boolean;
   readonly offeredGameCount?: number;
@@ -81,7 +82,7 @@ export class AdminDrawChannelsApiService {
         channelCode: channel.channelCode,
         channelName: channel.channelName,
       });
-      const providerCode = providerCodeFromChannel(channel.channelCode) ?? identity.providerCode ?? channel.channelCode;
+      const providerCode = identity.providerCode ?? providerCodeFromChannel(channel.channelCode) ?? channel.channelCode;
       groups.set(providerCode, [...(groups.get(providerCode) ?? []), channel]);
     }
 
@@ -145,11 +146,12 @@ export class AdminDrawChannelsApiService {
     return {
       channelId: channel.id,
       slotKey: identity.slotKey ?? channel.channelCode,
-      label: channel.channelName ?? identity.channelName ?? channel.channelCode,
+      label: identity.channelName ?? channel.channelName ?? channel.channelCode,
       enabled: channel.active,
       resultSlotActive: channel.resultSlotActive,
       drawTime: channel.drawTime,
       cutoffTime: channel.cutoffTime,
+      daysOfWeek: channel.daysOfWeek,
       offeredGameCount: channel.offeredGameCount,
       saleReadyGameCount: channel.saleReadyGameCount,
     };
