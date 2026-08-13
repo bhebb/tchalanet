@@ -153,7 +153,11 @@
       "sell_this_draw": "Sell a ticket",
       "draw_empty": "No tickets for this draw on that day.",
       "pick_date": "Choose a date",
-      "other_date": "Another date"
+      "other_date": "Another date",
+      "hot_numbers": "Hot numbers",
+      "hot_numbers_error": "Unable to load hot numbers",
+      "hot_numbers_empty": "No sales for this draw yet",
+      "exposure_ratio": "{ratio}% of limit"
     },
     "tickets": {
       "history_title": "Ticket history",

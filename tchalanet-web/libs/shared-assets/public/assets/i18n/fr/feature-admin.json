@@ -649,7 +649,7 @@
         "fields": {
           "provider": "Fournisseur",
           "salesStop": "Règle de fermeture",
-          "sortOrder": "Ordre d'affichage"
+          "sortOrder": "Ordre d’affichage"
         },
         "actions": {
           "back": "Retour"
@@ -925,7 +925,8 @@
       "top5Closed": "Top 5 des sélections vendues",
       "loadingShort": "Chargement...",
       "loadSelectionsError": "Impossible de charger les sélections les plus jouées.",
-      "noSelections": "Aucune sélection vendue sur ce tirage pour le moment."
+      "noSelections": "Aucune sélection vendue sur ce tirage pour le moment.",
+      "exposureEyebrow": "Numéros à risque"
     },
     "pos": {
       "title": "Vente ticket",
@@ -1659,11 +1660,21 @@
         "confirm": "Bloquer",
         "saving": "Blocage en cours…",
         "errorTitle": "Erreur lors du blocage",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "quickDescription": "Ajoute les numéros sélectionnés à la liste de blocage.",
+        "scopeLabel": "Portée du blocage",
+        "scopeTenant": "Tout le santral",
+        "scopeTenantHint": "Bloque le numéro sur tous les canaux de tirage",
+        "scopeChannel": "Canal spécifique",
+        "scopeChannelHint": "Bloque le numéro sur un seul canal de tirage"
       },
       "number": {
         "actionsAria": "Actions rapides par numéro",
         "copy": "Pour les gains réels, utilisez les résultats et rapports; ici on bloque surtout les numéros et les mises vendues.",
+        "confirmDelete": {
+          "title": "Supprimer la règle",
+          "message": "Supprimer la règle « {{ rule }} » ? Cette action est irréversible."
+        },
         "actions": {
           "block": {
             "title": "Bloquer un numéro",
@@ -1808,6 +1819,25 @@
         "undefined": "Non défini",
         "edit": "Modifier",
         "delete": "Supprimer"
+      },
+      "blockComponent": {
+        "group": {
+          "vente": "Vente",
+          "restrictions": "Restrictions",
+          "exposition": "Exposition"
+        },
+        "unconfigured": "Non configuré",
+        "configured": "Configuré",
+        "inheritedFrom": "Hérite du",
+        "editAria": "Modifier",
+        "deleteAria": "Supprimer"
+      },
+      "section": {
+        "loadError": "Erreur de chargement des limites.",
+        "actionError": "Erreur lors de l'action.",
+        "scope": {
+          "tenant": "santral"
+        }
       }
     },
     "drawSalesMatrix": {
@@ -2401,7 +2431,41 @@
       "default_missing": "Taux de commission santral à configurer"
     },
     "limits": {
-      "empty": "Limites de vente à configurer"
+      "empty": "Limites de vente à configurer",
+      "limitsSection": {
+        "title": "Limites",
+        "descriptionInherit": "Les valeurs non configurées utilisent les valeurs du santral"
+      }
+    }
+  },
+  "tenantSetup": {
+    "limitsSection": {
+      "title": "Limites par défaut",
+      "descriptionInherit": "Ces limites s'appliquent à tous les canaux et vendeurs si non configurées séparément"
+    }
+  },
+  "drawChannel": {
+    "limitsSection": {
+      "title": "Limites du canal",
+      "descriptionInherit": "Les valeurs non configurées héritent du santral"
+    }
+  },
+  "sellerTerminal": {
+    "limitsSection": {
+      "title": "Limites vendeur",
+      "descriptionInherit": "Les valeurs non configurées héritent du santral"
+    }
+  },
+  "draws": {
+    "detail": {
+      "blockNumber": "Bloquer numéro",
+      "blockFromRisk": "Bloquer",
+      "hotNumbers": {
+        "title": "Numéros à risque",
+        "ratioColumn": "Ratio",
+        "empty": "Aucun numéro à risque pour ce tirage",
+        "notConfigured": "Limite d'exposition non configurée"
+      }
     }
   },
   "dashboard": {

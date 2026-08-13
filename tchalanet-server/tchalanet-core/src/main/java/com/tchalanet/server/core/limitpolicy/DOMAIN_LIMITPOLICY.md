@@ -903,3 +903,80 @@ LimitPolicy says:
 Autonomy says:
   “Can someone decide anyway?”
 ```
+
+## 38. Contextual BFF endpoints (V1)
+
+Deux BFF exposent des données LimitPolicy contextualisées — l'un pour l'admin, l'autre pour le POS.
+
+### 38.1 GET /admin/draws/{drawId}/overview (Admin BFF)
+
+Endpoint features.tenantadmin. Agrège en une seule réponse :
+
+- Metadata du draw
+- topSelections : top 5 sélections par mise totale sur ce tirage
+- effectiveLimits : résolution LimitResolver sur scopes TENANT + DRAW_CHANNEL uniquement
+- exposureAlerts : lignes draw_exposure avec ratio stakeTotal/limitCents
+
+Pourquoi pas SELLER_TERMINAL dans les scopes ?
+
+Le contexte admin n'est pas lié à un terminal spécifique.
+La requête admin ne porte pas de sellerTerminalId.
+Résoudre au niveau SELLER_TERMINAL sans terminal identifié n'aurait pas de sens.
+
+L'effectiveLimits retourné représente donc le plancher tenant + canal — la vue la plus large applicable sans contexte terminal.
+
+Format exposureAlerts :
+
+Chaque alerte contient : selectionKey, betType, stakeTotal, limitCents, ratio (stakeTotal / limitCents).
+
+Le ratio sert à l'UI pour coloriser les chips (< 0.5 vert, 0.5–0.79 orange, ≥ 0.8 rouge).
+
+### 38.2 GET /tenant/cashier/draws/{drawId}/detail (POS BFF)
+
+Endpoint features.cashier / features.pos. Acteur : SELLER_TERMINAL.
+
+Le sellerTerminalId est résolu depuis ctx.sellerTerminalIdRequired() — il vient du JWT Firebase.
+Il ne doit jamais passer par un query param.
+
+La résolution LimitPolicy inclut SELLER_TERMINAL car le sellerTerminalId est disponible dans le contexte.
+
+Retourne :
+
+- topSelections : top 5 sélections par mise totale sur ce tirage
+- exposureAlerts : sélections avec ratio ≥ 0.5 (visibilité vendeur des numéros chauds)
+
+### 38.3 ExposureProjectorAdapter — scopesFor()
+
+La méthode scopesFor() de ExposureProjectorAdapter ajoute SELLER_TERMINAL dans les scopes d'écriture quand sellerTerminalId != null dans le LimitContext.
+
+Résultat : draw_exposure contient des lignes pour TENANT + DRAW_CHANNEL + SELLER_TERMINAL (+ AGENT si agent présent).
+
+Cela garantit que :
+
+- La règle TENANT voit l'exposition totale du tenant
+- La règle DRAW_CHANNEL voit l'exposition sur ce canal
+- La règle SELLER_TERMINAL voit l'exposition de ce terminal
+
+## 39. Archive draw_exposure
+
+### 39.1 DrawExposureArchiveDatasetProvider
+
+Implémentation de ArchiveDatasetProvider pour les lignes draw_exposure.
+
+Déclenchement : archivage d'un draw (draw.status → ARCHIVED).
+
+Opération : hard delete des lignes draw_exposure associées au drawId.
+
+Le hard delete est volontaire — draw_exposure est une projection dérivée (section 29).
+Elle peut être reconstruite à partir des événements sources si nécessaire.
+
+### 39.2 Pourquoi archiver draw_exposure ?
+
+draw_exposure est interrogée à chaque évaluation runtime.
+
+Si les rows ne sont jamais purgées, la table grossit avec tous les draws historiques.
+
+Après archivage d'un draw, les règles stateful pour ce draw ne sont plus évaluées.
+Les lignes correspondantes n'ont donc plus de valeur opérationnelle.
+
+Le hard delete garantit que draw_exposure reste petite et performante.

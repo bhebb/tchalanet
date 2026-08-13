@@ -34,6 +34,7 @@ import {
   tchMutation,
 } from '@tch/web/async';
 import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { AdminLimitsSectionComponent } from '../../../limits/components/limits-section/admin-limits-section.component';
 import {
   TenantParametersApiService,
   TenantInternalConfig,
@@ -129,6 +130,7 @@ const CALENDAR_FIELD_TARGETS: Record<string, string> = {
     MatInputModule,
     MatSelectModule,
     MatTabsModule,
+    AdminLimitsSectionComponent,
   ],
   templateUrl: './admin-config.page.html',
   styleUrls: ['./admin-config.page.scss'],

@@ -475,6 +475,12 @@
           </div>
         </mat-tab>
       </mat-tab-group>
+
+      <tch-admin-limits-section
+        targetType="TENANT"
+        [sectionTitle]="'tenantSetup.limitsSection.title' | translate"
+        [defaultExpandedGroups]="['VENTE']"
+      />
     </ng-template>
   </tch-async-view>
 </tch-admin-page-shell>

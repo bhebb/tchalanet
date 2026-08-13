@@ -981,11 +981,21 @@
         "confirm": "Block",
         "saving": "Blocking…",
         "errorTitle": "Block failed",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "quickDescription": "Add the selected numbers to the block list.",
+        "scopeLabel": "Block scope",
+        "scopeTenant": "Entire operator",
+        "scopeTenantHint": "Blocks the number across all draw channels",
+        "scopeChannel": "Specific channel",
+        "scopeChannelHint": "Blocks the number for a single draw channel"
       },
       "number": {
         "actionsAria": "Quick actions by number",
         "copy": "For actual winnings, use results and reports; this area mainly blocks numbers and sold stakes.",
+        "confirmDelete": {
+          "title": "Delete rule",
+          "message": "Delete rule « {{ rule }} »? This action cannot be undone."
+        },
         "actions": {
           "block": {
             "title": "Block a number",
@@ -1130,6 +1140,25 @@
         "undefined": "Not defined",
         "edit": "Edit",
         "delete": "Delete"
+      },
+      "blockComponent": {
+        "group": {
+          "vente": "Sales",
+          "restrictions": "Restrictions",
+          "exposition": "Exposure"
+        },
+        "unconfigured": "Not configured",
+        "configured": "Configured",
+        "inheritedFrom": "Inherited from",
+        "editAria": "Edit",
+        "deleteAria": "Delete"
+      },
+      "section": {
+        "loadError": "Unable to load limits.",
+        "actionError": "Action failed.",
+        "scope": {
+          "tenant": "operator"
+        }
       }
     },
     "drawSalesMatrix": {
@@ -2118,7 +2147,8 @@
       "top5Closed": "Top 5 sold selections",
       "loadingShort": "Loading...",
       "loadSelectionsError": "Unable to load most played selections.",
-      "noSelections": "No selections sold on this draw yet."
+      "noSelections": "No selections sold on this draw yet.",
+      "exposureEyebrow": "Numbers at risk"
     },
     "pos": {
       "title": "Sell a ticket",
@@ -2401,7 +2431,41 @@
       "default_missing": "Operator commission rate needs configuration"
     },
     "limits": {
-      "empty": "Sales limits need configuration"
+      "empty": "Sales limits need configuration",
+      "limitsSection": {
+        "title": "Limits",
+        "descriptionInherit": "Unconfigured values use the operator defaults"
+      }
+    }
+  },
+  "tenantSetup": {
+    "limitsSection": {
+      "title": "Default limits",
+      "descriptionInherit": "These limits apply to all channels and sellers if not separately configured"
+    }
+  },
+  "drawChannel": {
+    "limitsSection": {
+      "title": "Channel limits",
+      "descriptionInherit": "Unconfigured values inherit from the operator"
+    }
+  },
+  "sellerTerminal": {
+    "limitsSection": {
+      "title": "Seller limits",
+      "descriptionInherit": "Unconfigured values inherit from the operator"
+    }
+  },
+  "draws": {
+    "detail": {
+      "blockNumber": "Block number",
+      "blockFromRisk": "Block",
+      "hotNumbers": {
+        "title": "Hot numbers",
+        "ratioColumn": "Ratio",
+        "empty": "No hot numbers for this draw",
+        "notConfigured": "Exposure limit not configured"
+      }
     }
   },
   "dashboard": {

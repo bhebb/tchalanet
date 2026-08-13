@@ -40,53 +40,57 @@
       <span class="material-symbols-outlined">info</span>
       {{ 'admin.limits.common.supportedRules' | translate }}
     </a>
-    <button mat-stroked-button (click)="load()" [disabled]="loading()">
+    <button mat-stroked-button (click)="dataResource.reload()" [disabled]="dataResource.isLoading()">
       <span class="material-symbols-outlined">refresh</span>
     </button>
   </div>
 
-  @if (loading()) {
-  <tch-loading [label]="'admin.limits.common.loading' | translate" />
-  } @else if (pageError(); as err) {
-  <tch-error-panel
-    [title]="err.title"
-    [message]="err.message"
-    [showRetry]="true"
+  <tch-async-view
+    [resource]="dataResource"
+    [error]="loadError()"
+    [loadingLabel]="'admin.limits.common.loading' | translate"
     [retryLabel]="'common.retry' | translate"
-    (retry)="load()"
-  />
-  } @else if (allRows().length === 0) {
-  <tch-admin-empty-state
-    icon="numbers"
-    [title]="'admin.limits.child.catalogEmptyTitle' | translate"
-    [message]="'admin.limits.child.catalogEmptyMessage' | translate"
-  />
-  } @else { @if (actionError(); as err) {
-  <tch-section-error
-    class="limits-child-page__action-feedback"
-    [title]="err.title"
-    [message]="err.message"
-    [severity]="err.severity"
-  />
-  } @else if (actionNotice()) {
-  <tch-section-error
-    class="limits-child-page__action-feedback"
-    [title]="'admin.limits.common.actionDone' | translate"
-    [message]="actionNotice()! | translate"
-    severity="info"
-  />
-  } @if (activeRows().length === 0) {
-  <tch-admin-empty-state
-    icon="numbers"
-    [title]="'admin.limits.child.noConfiguredTitle' | translate"
-    [message]="'admin.limits.child.noConfiguredNumber' | translate"
-  />
-  } @else {
-  <tch-limit-assignments-table
-    [rows]="activeRows()"
-    [canEdit]="true"
-    (upsert)="openUpsert($event)"
-    (delete)="confirmDelete($event)"
-  />
-  } }
+    (retry)="dataResource.reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (deleteAssignment.feedback(); as fb) {
+        @if (fb.kind === 'error' && fb.vm) {
+          <tch-section-error
+            class="limits-child-page__action-feedback"
+            [title]="fb.vm.title"
+            [message]="fb.vm.message"
+            [severity]="fb.vm.severity"
+          />
+        }
+      } @else if (actionNotice()) {
+        <tch-section-error
+          class="limits-child-page__action-feedback"
+          [title]="'admin.limits.common.actionDone' | translate"
+          [message]="actionNotice()! | translate"
+          severity="info"
+        />
+      }
+
+      @if (allRows().length === 0) {
+        <tch-admin-empty-state
+          icon="numbers"
+          [title]="'admin.limits.child.catalogEmptyTitle' | translate"
+          [message]="'admin.limits.child.catalogEmptyMessage' | translate"
+        />
+      } @else if (activeRows().length === 0) {
+        <tch-admin-empty-state
+          icon="numbers"
+          [title]="'admin.limits.child.noConfiguredTitle' | translate"
+          [message]="'admin.limits.child.noConfiguredNumber' | translate"
+        />
+      } @else {
+        <tch-limit-assignments-table
+          [rows]="activeRows()"
+          [canEdit]="true"
+          (upsert)="openUpsert($event)"
+          (delete)="confirmDelete($event)"
+        />
+      }
+    </ng-template>
+  </tch-async-view>
 </div>

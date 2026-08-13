@@ -12,6 +12,7 @@ import {
   TchIdentityCardComponent,
   type TchIdentityCardMeta,
 } from '@tch/ui/console';
+import { AdminLimitsSectionComponent } from '../../../limits/components/limits-section/admin-limits-section.component';
 import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 
 import {
@@ -50,6 +51,7 @@ import { SellerTerminalDialogResult } from '../list/dialogs/seller-terminal-dial
     TranslatePipe,
     MatButtonModule,
     MatIconModule,
+    AdminLimitsSectionComponent,
   ],
   templateUrl: './admin-seller-terminal-detail.page.html',
   styleUrls: ['./admin-seller-terminal-detail.page.scss'],

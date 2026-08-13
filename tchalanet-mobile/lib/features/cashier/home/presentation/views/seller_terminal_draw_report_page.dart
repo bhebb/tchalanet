@@ -5,9 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/i18n/i18n_models.dart';
 import '../../../../../core/i18n/i18n_repository.dart';
 import '../../../../../design_system/components/components.dart';
+import '../../../../../design_system/tokens/tch_colors.dart';
 import '../../../../../design_system/tokens/tch_radius.dart';
 import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../tickets/data/models/cashier_ticket_models.dart';
+import '../../data/models/pos_draw_detail_models.dart';
 import '../view_models/cashier_home_providers.dart';
 
 /// Per-draw drill-down of the seller report. Reached by tapping a draw, either
@@ -125,6 +127,8 @@ class SellerTerminalDrawReportPage extends ConsumerWidget {
                 localZone: localZone,
                 ticketsAsync: ticketsAsync,
                 translations: translations,
+                isOpen: isOpen,
+                drawId: drawId,
               ),
             );
           },
@@ -159,6 +163,8 @@ class _DrawReportBody extends StatelessWidget {
     required this.localZone,
     required this.ticketsAsync,
     required this.translations,
+    required this.isOpen,
+    required this.drawId,
   });
 
   final bool available;
@@ -173,6 +179,8 @@ class _DrawReportBody extends StatelessWidget {
   final String? localZone;
   final AsyncValue<List<CashierTicketSummaryView>> ticketsAsync;
   final I18nBundle translations;
+  final bool isOpen;
+  final String drawId;
 
   bool get _hasSchedule =>
       (providerSchedule != null && providerSchedule!.isNotEmpty) ||
@@ -261,6 +269,10 @@ class _DrawReportBody extends StatelessWidget {
         // seller's sales, not anything the seller takes home or owes. What is
         // theirs is above: what they sold, what they earn on it, and what they
         // must pay out.
+        if (isOpen) ...[
+          const SizedBox(height: TchSpacing.s24),
+          _DrawTopSelectionsBlock(drawId: drawId, translations: translations),
+        ],
         const SizedBox(height: TchSpacing.s24),
         Text(
           translations.translate('pos.reports.tickets'),
@@ -422,6 +434,183 @@ class _DrawReportTicketRow extends StatelessWidget {
             ticket.formattedAmount,
             style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrawTopSelectionsBlock extends ConsumerWidget {
+  const _DrawTopSelectionsBlock({
+    required this.drawId,
+    required this.translations,
+  });
+
+  final String drawId;
+  final I18nBundle translations;
+
+  Color _chipColor(double ratio) {
+    if (ratio >= 0.8) return TchColors.error;
+    if (ratio >= 0.5) return TchColors.warning;
+    return TchColors.success;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final detailAsync = ref.watch(posDrawDetailProvider(drawId));
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return detailAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: TchSpacing.s8),
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      ),
+      error: (_, _) => Text(
+        translations.translate('pos.reports.hot_numbers_error'),
+        style: textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+      ),
+      data: (detail) {
+        if (detail == null) return const SizedBox.shrink();
+        final selections = detail.topSelections;
+        final alerts = {
+          for (final a in detail.exposureAlerts ?? <PosDrawExposureAlert>[])
+            a.selectionKey: a,
+        };
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              translations.translate('pos.reports.hot_numbers'),
+              style: textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                letterSpacing: 0.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: TchSpacing.s12),
+            if (selections.isEmpty)
+              Text(
+                translations.translate('pos.reports.hot_numbers_empty'),
+                style: textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              )
+            else
+              Column(
+                children: [
+                  for (final sel in selections)
+                    _TopSelectionRow(
+                      selection: sel,
+                      alert: alerts[sel.selectionKey],
+                      chipColor: alerts[sel.selectionKey] != null
+                          ? _chipColor(alerts[sel.selectionKey]!.ratio)
+                          : null,
+                      ratioLabel: alerts[sel.selectionKey] != null
+                          ? translations
+                                .translate('pos.reports.exposure_ratio')
+                                .replaceAll(
+                                  '{ratio}',
+                                  (alerts[sel.selectionKey]!.ratio * 100)
+                                      .toStringAsFixed(0),
+                                )
+                          : null,
+                    ),
+                ],
+              ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _TopSelectionRow extends StatelessWidget {
+  const _TopSelectionRow({
+    required this.selection,
+    this.alert,
+    this.chipColor,
+    this.ratioLabel,
+  });
+
+  final PosDrawTopSelection selection;
+  final PosDrawExposureAlert? alert;
+  final Color? chipColor;
+  final String? ratioLabel;
+
+  static String _money(int cents) => (cents / 100.0).toStringAsFixed(2);
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: TchSpacing.s8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: TchSpacing.s16,
+        vertical: TchSpacing.s8,
+      ),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(TchRadius.md),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  selection.selectionKey,
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: scheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: TchSpacing.s4),
+                Text(
+                  // amount · count; neither part is a user-visible key
+                  [
+                    _money(selection.stakeTotalCents),
+                    selection.salesCount.toString(),
+                  ].join(' · '),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (chipColor != null && ratioLabel != null) ...[
+            const SizedBox(width: TchSpacing.s8),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: TchSpacing.s8,
+                vertical: TchSpacing.s4,
+              ),
+              decoration: BoxDecoration(
+                color: chipColor!.withAlpha(30),
+                borderRadius: BorderRadius.circular(TchRadius.sm),
+                border: Border.all(color: chipColor!.withAlpha(80)),
+              ),
+              child: Text(
+                ratioLabel!,
+                style: textTheme.labelSmall?.copyWith(
+                  color: chipColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

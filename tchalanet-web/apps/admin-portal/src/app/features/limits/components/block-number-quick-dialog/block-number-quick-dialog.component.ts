@@ -1,153 +1,129 @@
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import type { MatChipInputEvent } from '@angular/material/chips';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import type { MatChipInputEvent } from '@angular/material/chips';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchSectionError } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
-import { resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
-import { TranslateService } from '@ngx-translate/core';
+import { tchMutation } from '@tch/web/async';
 
-import { DrawAdminApi } from '../../../draws/data-access/draw-admin.api.service';
-import type { DrawSummary } from '../../../draws/data-access/draw-admin.api.service';
+import type { DrawChannelSummary } from '../../../draws/components/active-draw-channel-select/active-draw-channel-select.component';
+import { ActiveDrawChannelSelectComponent } from '../../../draws/components/active-draw-channel-select/active-draw-channel-select.component';
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { LimitRuleSpec } from '../../data-access/admin-limits.models';
-import { buildParams, detectParamSchema } from '../../data-access/admin-limits.models';
 
-type DurationMode = 'today' | 'permanent';
+export interface BlockNumberQuickDialogData {
+  /**
+   * When provided (e.g., opened from a draw detail page), the dialog pre-selects
+   * this draw channel and defaults to DRAW_CHANNEL scope.
+   * When absent, the dialog defaults to TENANT (global) scope.
+   */
+  readonly channelId?: string;
+}
+
+type Scope = 'TENANT' | 'DRAW_CHANNEL';
 
 @Component({
   selector: 'tch-block-number-quick-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FormsModule,
+    TranslatePipe,
+    ActiveDrawChannelSelectComponent,
     AdminDialogShellComponent,
     MatButtonModule,
-    MatButtonToggleModule,
     MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatProgressSpinnerModule,
-    MatSelectModule,
+    MatInputModule,
+    MatRadioModule,
     TchSectionError,
-    TranslatePipe,
   ],
   templateUrl: './block-number-quick-dialog.component.html',
+  styleUrl: './block-number-quick-dialog.component.scss',
 })
-export class BlockNumberQuickDialogComponent implements OnInit {
-  private readonly drawApi = inject(DrawAdminApi);
-  private readonly limitsApi = inject(AdminLimitsApi);
+export class BlockNumberQuickDialogComponent {
+  private readonly api = inject(AdminLimitsApi);
   private readonly dialogRef = inject(MatDialogRef<BlockNumberQuickDialogComponent>);
-  private readonly translate = inject(TranslateService);
+  private readonly data = inject<BlockNumberQuickDialogData>(MAT_DIALOG_DATA);
 
   readonly separatorKeyCodes = [ENTER, COMMA];
+  readonly selections = signal<string[]>([]);
 
-  spec: LimitRuleSpec | null = null;
+  // Always default to DRAW_CHANNEL. The user can switch to TENANT if needed.
+  readonly scope = signal<Scope>('DRAW_CHANNEL');
 
-  readonly loadingDraws = signal(true);
-  readonly openDraws = signal<DrawSummary[]>([]);
-  readonly selectedDrawId = signal<string | null>(null);
-  readonly numbers = signal<string[]>([]);
-  readonly duration = signal<DurationMode>('today');
-  readonly saving = signal(false);
-  readonly errorMessage = signal<string | null>(null);
+  // Channel pre-selected from the dialog's context (e.g., draw detail page).
+  readonly preselectedChannelId = signal<string | null>(this.data.channelId ?? null);
 
-  ngOnInit(): void {
-    this.drawApi.listDraws({ status: 'OPEN', size: 30 }).subscribe({
-      next: page => {
-        this.openDraws.set(page.items ?? []);
-        const first = (page.items ?? [])[0];
-        if (first) this.selectedDrawId.set(first.id);
-        this.loadingDraws.set(false);
-      },
-      error: () => {
-        this.loadingDraws.set(false);
-      },
-    });
+  // Channel chosen by the user in the picker (may be different from pre-selection).
+  readonly selectedChannel = signal<DrawChannelSummary | null>(null);
+
+  readonly canSave = computed(() => {
+    if (this.selections().length === 0) return false;
+    if (this.scope() === 'DRAW_CHANNEL') return this.selectedChannel() !== null;
+    return true;
+  });
+
+  readonly saveMutation = tchMutation<void, { id: { value: string } }>({
+    run: () => {
+      const isTenant = this.scope() === 'TENANT';
+      const targetId = isTenant ? undefined : (this.selectedChannel()?.id ?? undefined);
+      return this.api.upsertAssignment(
+        {
+          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
+          targetType: isTenant ? 'TENANT' : 'DRAW_CHANNEL',
+          ...(targetId ? { targetId } : {}),
+          enabled: true,
+          onBreach: 'BLOCK',
+          params: { selections: this.selections() },
+        },
+        { suppressShellFeedback: true },
+      );
+    },
+    source: 'admin.limits.blockNumber',
+    onSuccess: result => this.dialogRef.close(result),
+  });
+
+  setScope(scope: Scope): void {
+    this.scope.set(scope);
+    // Clearing the selection when switching to TENANT avoids stale channel state.
+    if (scope === 'TENANT') {
+      this.selectedChannel.set(null);
+    }
   }
 
-  drawLabel(draw: DrawSummary): string {
-    return `${draw.channel.name} ${draw.slot.label}`;
+  onChannelChange(channel: DrawChannelSummary | null): void {
+    this.selectedChannel.set(channel);
   }
 
   addNumber(event: MatChipInputEvent): void {
     const val = (event.value ?? '').trim();
-    if (val && !this.numbers().includes(val)) {
-      this.numbers.update(n => [...n, val]);
+    if (val && !this.selections().includes(val)) {
+      this.selections.update(s => [...s, val]);
     }
     event.chipInput?.clear();
   }
 
-  removeNumber(n: string): void {
-    this.numbers.update(list => list.filter(x => x !== n));
-  }
-
-  get canSave(): boolean {
-    return this.numbers().length > 0 && this.selectedDrawId() !== null && !this.saving();
+  removeNumber(num: string): void {
+    this.selections.update(s => s.filter(x => x !== num));
   }
 
   save(): void {
-    if (!this.canSave) return;
-
-    const draw = this.openDraws().find(d => d.id === this.selectedDrawId());
-    if (!draw) return;
-
-    const spec = this.spec;
-    const params = spec
-      ? buildParams(detectParamSchema(spec), spec.paramsTemplate, {
-          valueCentsHtg: 0,
-          maxCount: 0,
-          windowMinutes: 0,
-          betTypeCode: '',
-          selectionIds: this.numbers(),
-        })
-      : { selections: this.numbers() };
-
-    const endsAt = this.duration() === 'today' ? this.todayEnd() : null;
-
-    this.saving.set(true);
-    this.errorMessage.set(null);
-
-    this.limitsApi
-      .upsertAssignment(
-        {
-          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
-          targetType: 'DRAW_CHANNEL',
-          targetId: draw.channel.id,
-          enabled: true,
-          onBreach: 'BLOCK',
-          params,
-          startsAt: null,
-          endsAt,
-        },
-        { suppressShellFeedback: true },
-      )
-      .subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.dialogRef.close(true);
-        },
-        error: (err: unknown) => {
-          this.saving.set(false);
-          const problem = mapHttpErrorToProblemDetail(err);
-          const normalized = webAppErrorFromProblemDetail(problem, 'admin.limits.blockNumber', 'section');
-          const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
-          this.errorMessage.set(toErrorViewModel(normalized, copy).message);
-        },
-      });
-  }
-
-  private todayEnd(): string {
-    const d = new Date();
-    d.setHours(23, 59, 59, 999);
-    return d.toISOString();
+    if (!this.canSave() || this.saveMutation.pending()) return;
+    this.saveMutation.execute();
   }
 }

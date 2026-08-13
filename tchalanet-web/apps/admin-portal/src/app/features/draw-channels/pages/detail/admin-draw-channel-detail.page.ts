@@ -23,6 +23,7 @@ import {
 import { resourceErrorVm } from '@tch/web/async';
 import { type ErrorViewModel } from '@tch/web/errors';
 
+import { AdminLimitsSectionComponent } from '../../../limits/components/limits-section/admin-limits-section.component';
 import { DrawChannelConfigDialog } from '../../components/draw-channel-config-dialog/draw-channel-config.dialog';
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
@@ -46,6 +47,7 @@ type PageState = 'loading' | 'ready' | 'error';
     TchIdentityCardComponent,
     ConsoleEntityDetailComponent,
     ConsoleFactsComponent,
+    AdminLimitsSectionComponent,
   ],
   templateUrl: './admin-draw-channel-detail.page.html',
   styleUrls: ['./admin-draw-channel-detail.page.scss'],
@@ -57,7 +59,7 @@ export class AdminDrawChannelDetailPage {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  private readonly channelId = this.route.snapshot.paramMap.get('id');
+  readonly channelId = this.route.snapshot.paramMap.get('id');
   readonly channelResource = this.api.getChannelDetailResource(() => this.channelId, {
     suppressShellFeedback: true,
   });

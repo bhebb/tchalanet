@@ -233,32 +233,11 @@
                 "active_match": "exact"
               },
               {
-                "id": "limits-global",
-                "label_key": "nav.admin.limits_global",
-                "path": "/app/admin/limits/global",
-                "kind": "internal",
-                "icon": "tune"
-              },
-              {
                 "id": "limits-number",
                 "label_key": "nav.admin.limits_number",
                 "path": "/app/admin/limits/number",
                 "kind": "internal",
                 "icon": "pin"
-              },
-              {
-                "id": "limits-draw",
-                "label_key": "nav.admin.limits_draw",
-                "path": "/app/admin/limits/draw",
-                "kind": "internal",
-                "icon": "event"
-              },
-              {
-                "id": "limits-seller",
-                "label_key": "nav.admin.limits_seller",
-                "path": "/app/admin/limits/seller-terminal",
-                "kind": "internal",
-                "icon": "person"
               }
             ]
           },

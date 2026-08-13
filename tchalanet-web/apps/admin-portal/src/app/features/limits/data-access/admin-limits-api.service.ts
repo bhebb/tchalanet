@@ -1,9 +1,12 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, ResourceRef, Signal, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { TchBackendClient } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import type {
+  LimitAssignmentItem,
   LimitRuleSpec,
   ListLimitAssignmentsView,
   TargetType,
@@ -11,9 +14,16 @@ import type {
   UpsertLimitAssignmentRequest,
 } from './admin-limits.models';
 
+export interface CombinedLimitData {
+  specs: LimitRuleSpec[];
+  assignments: LimitAssignmentItem[];
+  inheritedAssignments: LimitAssignmentItem[] | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminLimitsApi {
   private readonly backend = inject(TchBackendClient);
+  private readonly injector = inject(Injector);
 
   listRules(options?: TchRequestOptions): Observable<LimitRuleSpec[]> {
     return this.backend.get<LimitRuleSpec[]>('/admin/policies/limits/rules', options);
@@ -42,6 +52,76 @@ export class AdminLimitsApi {
 
   deleteAssignment(id: string, options?: TchRequestOptions): Observable<unknown> {
     return this.backend.delete<unknown>(`/admin/policies/limits/assignments/${id}`, options);
+  }
+
+  /**
+   * Resource combinant règles + assignments pour un scope cible, avec héritage optionnel.
+   * Appelé lors de l'initialisation d'un composant (contexte d'injection) ; les InputSignal
+   * passés comme params pilotent le re-fetch automatique.
+   */
+  combinedLimitsResource(params: {
+    targetType: Signal<TargetType>;
+    targetId: Signal<string | null>;
+    inheritedTargetType: Signal<TargetType | null>;
+    inheritedTargetId: Signal<string | null>;
+  }): ResourceRef<CombinedLimitData | undefined> {
+    return rxResource<CombinedLimitData, readonly [TargetType, string | null, TargetType | null, string | null]>({
+      injector: this.injector,
+      params: () => [
+        params.targetType(),
+        params.targetId(),
+        params.inheritedTargetType(),
+        params.inheritedTargetId(),
+      ],
+      stream: ({ params: p }) => {
+        const [target, targetId, inheritedType, inheritedId] = p;
+        const opts: TchRequestOptions = { suppressShellFeedback: true };
+
+        if (inheritedType) {
+          return forkJoin([
+            this.listRules(opts),
+            this.listAssignments(target, targetId ?? undefined, opts),
+            this.listAssignments(inheritedType, inheritedId ?? undefined, opts),
+          ]).pipe(
+            map(([specs, current, inherited]) => ({
+              specs,
+              assignments: current.items,
+              inheritedAssignments: inherited.items,
+            })),
+          );
+        }
+
+        return forkJoin([
+          this.listRules(opts),
+          this.listAssignments(target, targetId ?? undefined, opts),
+        ]).pipe(
+          map(([specs, current]) => ({
+            specs,
+            assignments: current.items,
+            inheritedAssignments: null,
+          })),
+        );
+      },
+    });
+  }
+
+  /**
+   * Resource combinant règles + assignments TENANT (scope fixe, sans héritage).
+   * Utilisée par la page des limites numériques.
+   */
+  tenantLimitsResource(): ResourceRef<{ specs: LimitRuleSpec[]; assignments: LimitAssignmentItem[] } | undefined> {
+    const opts: TchRequestOptions = { suppressShellFeedback: true };
+    return rxResource({
+      injector: this.injector,
+      params: () => 'tenant-limits' as const,
+      stream: () =>
+        forkJoin([
+          this.listRules(opts),
+          this.listAssignments('TENANT', undefined, opts),
+        ]).pipe(
+          map(([specs, view]) => ({ specs, assignments: view.items })),
+        ),
+    });
   }
 }
 

@@ -153,7 +153,11 @@
       "sell_this_draw": "Vann yon tikè",
       "draw_empty": "Pa gen tikè pou tiraj sa a jounen an.",
       "pick_date": "Chwazi yon dat",
-      "other_date": "Yon lòt dat"
+      "other_date": "Yon lòt dat",
+      "hot_numbers": "Nimero cho",
+      "hot_numbers_error": "Nou pa kapab chaje nimero cho yo",
+      "hot_numbers_empty": "Pa gen vant ankò pou tiraj sa a",
+      "exposure_ratio": "{ratio}% nan limit la"
     },
     "tickets": {
       "history_title": "Istorik tikè",

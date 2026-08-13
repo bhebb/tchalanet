@@ -326,6 +326,24 @@ const maryajCampaignStub = {
 
 const limitRulesStub = [
   {
+    ruleKey: 'MAX_STAKE_PER_LINE',
+    label: 'Mise maximum par ligne',
+    description: 'Bloque une ligne au-dessus du montant configuré.',
+    defaultOutcome: 'BLOCK',
+    category: 'TICKET',
+    stateless: false,
+    paramsTemplate: { valueCents: 10000 },
+  },
+  {
+    ruleKey: 'MAX_LINES_PER_TICKET',
+    label: 'Nombre de lignes maximum par ticket',
+    description: 'Bloque un ticket avec trop de lignes.',
+    defaultOutcome: 'BLOCK',
+    category: 'TICKET',
+    stateless: false,
+    paramsTemplate: { lines: 10 },
+  },
+  {
     ruleKey: 'MAX_STAKE_PER_TICKET',
     label: 'Mise maximum par ticket',
     description: 'Bloque un ticket au-dessus du montant configuré.',

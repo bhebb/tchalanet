@@ -19,6 +19,13 @@ export interface DrawActivityReport {
   readonly promotionPayoutBase: number;
 }
 
+export interface DrawExposureAlert {
+  readonly selectionKey: string;
+  readonly stakeTotal: number;
+  readonly maxStakeExposureLimit: number | null;
+  readonly stakeRatio: number | null;
+}
+
 export interface DrawDetailActivityView {
   readonly countdown: string;
   readonly salesStatus: string;
@@ -31,6 +38,8 @@ export interface DrawDetailActivityView {
   readonly topSelectionsState: DrawTopSelectionsState;
   readonly topSelections: readonly DrawTopSelectionItem[];
   readonly topSelectionsErrorMessage: string | null;
+  readonly exposureAlerts?: readonly DrawExposureAlert[] | null;
+  readonly exposureLimitConfigured?: boolean;
 }
 
 @Component({

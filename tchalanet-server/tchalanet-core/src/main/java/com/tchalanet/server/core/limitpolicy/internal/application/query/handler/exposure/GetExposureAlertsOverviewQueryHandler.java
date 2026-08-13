@@ -3,6 +3,7 @@ package com.tchalanet.server.core.limitpolicy.internal.application.query.handler
 import com.tchalanet.server.common.bus.QueryHandler;
 import com.tchalanet.server.common.stereotype.UseCase;
 import com.tchalanet.server.common.types.id.DrawChannelId;
+import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.UserId;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitContext;
@@ -57,11 +58,11 @@ public class GetExposureAlertsOverviewQueryHandler
   private LimitContext contextForScope(GetExposureAlertsOverviewQuery q, java.time.Instant now) {
     UserId userId = null;
     DrawChannelId drawChannelId = null;
+    SellerTerminalId sellerTerminalId = null;
 
     switch (q.scope()) {
-      case LimitScopeRef.SellerTerminalScope sellerTerminalScope -> {
-        // sellerTerminalId not used in LimitContext for exposure alerts overview
-      }
+      case LimitScopeRef.SellerTerminalScope sellerTerminalScope ->
+          sellerTerminalId = sellerTerminalScope.sellerTerminalId();
       case LimitScopeRef.AgentScope agent -> userId = agent.userId();
       case LimitScopeRef.DrawChannelScope channel -> drawChannelId = channel.drawChannelId();
       case LimitScopeRef.TenantScope ignored -> {
@@ -70,13 +71,7 @@ public class GetExposureAlertsOverviewQueryHandler
     }
 
     return new LimitContext(
-        q.tenantId(),
-        userId,
-        null, // sellerTerminalId — not applicable for exposure alerts overview
-        q.drawId(),
-        drawChannelId,
-        now,
-        List.of());
+        q.tenantId(), userId, sellerTerminalId, q.drawId(), drawChannelId, now, List.of());
   }
 
   private ExposureAlertItemView toItem(ExposureAlertsReaderPort.Row row, BigDecimal maxStake) {

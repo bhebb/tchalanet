@@ -16,3 +16,4 @@ export * from './lib/console-surface/components/admin-provisioning-health-card/a
 export * from './lib/console-surface/components/tch-identity-card/tch-identity-card.component';
 export * from './lib/console-account/account/account.routes';
 export * from './lib/console-account/profile/profile.routes';
+export * from './lib/limit-policy-block/limit-policy-block.component';

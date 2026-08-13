@@ -981,11 +981,21 @@
         "confirm": "Bloke",
         "saving": "Blokaj ap fèt…",
         "errorTitle": "Erè pandan blokaj",
-        "cancel": "Anile"
+        "cancel": "Anile",
+        "quickDescription": "Ajoute nimewo yo nan lis blokaj la.",
+        "scopeLabel": "Restriksyon blokaj",
+        "scopeTenant": "Tout santral la",
+        "scopeTenantHint": "Bloke nimewo a sou tout kanal tiraj yo",
+        "scopeChannel": "Yon kanal espesifik",
+        "scopeChannelHint": "Bloke nimewo a sou yon sèl kanal tiraj"
       },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",
         "copy": "Pou gany reyèl yo, itilize rezilta ak rapò; isit la nou sitou bloke nimewo ak miz ki vann.",
+        "confirmDelete": {
+          "title": "Efase règ la",
+          "message": "Efase règ « {{ rule }} » ? Aksyon sa a pa ka defèt."
+        },
         "actions": {
           "block": {
             "title": "Bloke yon nimewo",
@@ -1130,6 +1140,25 @@
         "undefined": "Pa defini",
         "edit": "Modifye",
         "delete": "Efase"
+      },
+      "blockComponent": {
+        "group": {
+          "vente": "Vant",
+          "restrictions": "Restriksyon",
+          "exposition": "Ekspozisyon"
+        },
+        "unconfigured": "Pa konfigire",
+        "configured": "Konfigire",
+        "inheritedFrom": "Eritye de",
+        "editAria": "Modifye",
+        "deleteAria": "Efase"
+      },
+      "section": {
+        "loadError": "Enposib chaje limit yo.",
+        "actionError": "Aksyon an echwe.",
+        "scope": {
+          "tenant": "santral"
+        }
       }
     },
     "drawSalesMatrix": {
@@ -2118,7 +2147,8 @@
       "top5Closed": "Top 5 seleksyon vann",
       "loadingShort": "Ap chaje...",
       "loadSelectionsError": "Enposib chaje seleksyon ki pi jwe yo.",
-      "noSelections": "Okenn seleksyon vann sou tiraj sa a pou kounya."
+      "noSelections": "Okenn seleksyon vann sou tiraj sa a pou kounya.",
+      "exposureEyebrow": "Nimero ki an risk"
     },
     "pos": {
       "title": "Vann tikè",
@@ -2401,7 +2431,41 @@
       "default_missing": "To komisyon santral la bezwen konfigire"
     },
     "limits": {
-      "empty": "Limit vant yo bezwen konfigire"
+      "empty": "Limit vant yo bezwen konfigire",
+      "limitsSection": {
+        "title": "Limit",
+        "descriptionInherit": "Valè ki pa konfigire ap itilize valè santral la"
+      }
+    }
+  },
+  "tenantSetup": {
+    "limitsSection": {
+      "title": "Limit pa defo",
+      "descriptionInherit": "Limit sa yo aplike pou tout kanal ak machann si yo pa konfigire separe"
+    }
+  },
+  "drawChannel": {
+    "limitsSection": {
+      "title": "Limit kanal",
+      "descriptionInherit": "Valè ki pa konfigire ap eritye depi santral la"
+    }
+  },
+  "sellerTerminal": {
+    "limitsSection": {
+      "title": "Limit machann",
+      "descriptionInherit": "Valè ki pa konfigire ap eritye depi santral la"
+    }
+  },
+  "draws": {
+    "detail": {
+      "blockNumber": "Bloke nimero",
+      "blockFromRisk": "Bloke",
+      "hotNumbers": {
+        "title": "Nimero cho",
+        "ratioColumn": "Pousantaj",
+        "empty": "Pa gen nimero cho pou tiraj sa a",
+        "notConfigured": "Limit ekspozisyon pa konfigire"
+      }
     }
   },
   "dashboard": {
