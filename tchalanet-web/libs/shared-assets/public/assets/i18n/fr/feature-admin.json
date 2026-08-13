@@ -480,6 +480,7 @@
         "name": "Nom affiché",
         "timezone": "Fuseau horaire",
         "drawTime": "Heure du tirage",
+        "salesOpenTime": "Ouverture des ventes",
         "cutoffSec": "Fermeture avant tirage (secondes)",
         "daysOfWeek": "Jours ouverts",
         "defaultSource": "Source résultat par défaut",

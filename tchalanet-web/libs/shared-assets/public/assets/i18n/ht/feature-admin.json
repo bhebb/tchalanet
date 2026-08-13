@@ -1650,6 +1650,7 @@
         "name": "Non pou afiche",
         "timezone": "Zòn lè",
         "drawTime": "Lè tiraj",
+        "salesOpenTime": "Vant ouvè",
         "cutoffSec": "Fèmti vant anvan tiraj (segonn)",
         "daysOfWeek": "Jou ouvè",
         "defaultSource": "Sous rezilta pa defo",

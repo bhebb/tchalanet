@@ -320,6 +320,7 @@ public class DrawChannelCatalogImpl implements DrawChannelCatalog {
         view.label(),
         view.timezone(),
         view.drawTime(),
+        view.salesOpenTime(),
         view.cutoffSec(),
         view.daysOfWeek(),
         view.active(),

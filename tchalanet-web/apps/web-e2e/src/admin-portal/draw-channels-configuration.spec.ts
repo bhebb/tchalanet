@@ -42,6 +42,7 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await expect(dialog.getByRole('heading', { name: /Informations système|Enfòmasyon sistèm|System information/ })).toBeVisible();
     await expect(dialog).toContainText(/Automatique|Otomatik|Automatic/);
     await expect(dialog).toContainText('Texas');
+    await expect(dialog).toContainText('05:30');
     await expect(dialog).toContainText(/Tous les jours|Chak jou|Every day/);
     await page.keyboard.press('Escape');
 

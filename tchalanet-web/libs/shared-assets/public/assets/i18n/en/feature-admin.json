@@ -1650,6 +1650,7 @@
         "name": "Display name",
         "timezone": "Timezone",
         "drawTime": "Draw time",
+        "salesOpenTime": "Sales open",
         "cutoffSec": "Sales close before draw (seconds)",
         "daysOfWeek": "Open days",
         "defaultSource": "Default result source",

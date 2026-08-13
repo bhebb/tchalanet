@@ -105,6 +105,10 @@ export class DrawChannelConfigDialog {
     return normalizeTime(detail.drawTime) || '—';
   }
 
+  salesOpenTimeLabel(detail: DrawChannelDetailView): string {
+    return normalizeTime(detail.salesOpenTime) || '—';
+  }
+
   timezoneLabel(detail: DrawChannelDetailView): string {
     return detail.timezone?.trim() || '—';
   }

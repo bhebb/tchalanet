@@ -165,6 +165,7 @@ class CorrectAppliedDrawResultCommandHandlerTest {
                     "Channel",
                     ZoneId.of("UTC"),
                     LocalTime.NOON,
+                    LocalTime.MIDNIGHT,
                     60,
                     List.of(DayOfWeek.MONDAY),
                     true,
