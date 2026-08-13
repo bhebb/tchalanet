@@ -59,7 +59,7 @@ export class AdminDrawChannelDetailPage {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
 
-  private readonly channelId = this.route.snapshot.paramMap.get('id');
+  readonly channelId = this.route.snapshot.paramMap.get('id');
   readonly channelResource = this.api.getChannelDetailResource(() => this.channelId, {
     suppressShellFeedback: true,
   });
