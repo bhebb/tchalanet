@@ -75,11 +75,11 @@
 
     <!-- Results count -->
     <p class="dc-page__count">
-      {{ 'admin.drawChannels.resultsCount' | translate: { count: filteredProviders().length } }}
+      {{ 'admin.drawChannels.channelResultsCount' | translate: { count: filteredRows().length } }}
     </p>
 
-    <!-- Provider cards grid -->
-    @if (filteredProviders().length === 0) {
+    <!-- Draw channel list -->
+    @if (filteredRows().length === 0) {
       <tch-admin-empty-state
         icon="confirmation_number"
         [title]="'admin.drawChannels.empty.title' | translate"
@@ -88,16 +88,75 @@
           : 'admin.drawChannels.empty.none') | translate"
       />
     } @else {
-      <div class="dc-page__grid">
-        @for (provider of filteredProviders(); track provider.providerCode) {
-          <tch-draw-channel-provider-card
-            [provider]="provider"
-            [savingChannelId]="savingChannelId()"
-            (configureChannel)="openChannelConfig($event)"
-            (toggleChannelEnabled)="toggleChannelEnabled($event.slot, $event.enabled)"
-          />
+      <section class="dc-page__channel-list" [attr.aria-label]="'admin.drawChannels.list.title' | translate">
+        @for (row of filteredRows(); track row.providerCode + ':' + row.slot.slotKey) {
+          @let slot = row.slot;
+          <article class="dc-page__channel-card dc-page__channel-card--{{ row.status }}">
+            <div class="dc-page__channel-main">
+              <span class="dc-page__logo" aria-hidden="true">
+                @if (providerLogoUrl(row); as logo) {
+                  <img [src]="logo" [alt]="row.providerLabel" />
+                } @else {
+                  <span>{{ row.providerCode | slice:0:2 }}</span>
+                }
+              </span>
+
+              <div class="dc-page__identity">
+                <p class="dc-page__name">{{ row.providerLabel }} · {{ slot.label }}</p>
+                <p class="dc-page__meta">{{ slot.slotKey }}</p>
+              </div>
+            </div>
+
+            <div class="dc-page__schedule">
+              <p class="dc-page__time">
+                <span>{{ 'admin.drawChannels.slots.drawTimeLabel' | translate }}</span>
+                <strong>
+                  @if (slot.drawTime) {
+                    {{ slot.drawTime | slice:0:5 }}
+                  } @else {
+                    —
+                  }
+                </strong>
+              </p>
+              <p class="dc-page__cutoff">
+                @if (slot.cutoffTime) {
+                  {{ 'admin.drawChannels.slots.cutoffTime' | translate: { value: (slot.cutoffTime | slice:0:5) } }}
+                } @else {
+                  {{ 'admin.drawChannels.salesCutoffMissing' | translate }}
+                }
+              </p>
+            </div>
+
+            <div class="dc-page__facts">
+              <span>
+                <small>{{ 'admin.drawChannels.list.columns.results' | translate }}</small>
+                {{ resultModeLabelKey(row.resultMode) | translate }}
+              </span>
+              <span>
+                <small>{{ 'admin.drawChannels.list.columns.games' | translate }}</small>
+                @if (row.gameCount !== null) {
+                  {{ row.gameCount }}
+                } @else {
+                  —
+                }
+              </span>
+              <span class="dc-page__status dc-page__status--{{ row.status }}">
+                {{ rowStatusLabelKey(row.status) | translate }}
+              </span>
+            </div>
+
+            <div class="dc-page__channel-action">
+              <button
+                mat-stroked-button
+                [disabled]="!slot.channelId || savingChannelId() === slot.channelId"
+                (click)="openChannelConfig(slot)"
+              >
+                {{ 'admin.drawChannels.actions.configure' | translate }}
+              </button>
+            </div>
+          </article>
         }
-      </div>
+      </section>
     }
 
   }

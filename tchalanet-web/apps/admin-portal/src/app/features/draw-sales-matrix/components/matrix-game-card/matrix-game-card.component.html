@@ -18,25 +18,9 @@
         [label]="gameStatusLabelKey(gameVm) | translate"
       />
     }
-    <strong>{{ gameVm.gameCode | consoleGameName:gameVm.displayName }}</strong>
-  </div>
-
-  <div class="matrix-game__facts">
-    <span class="matrix-game__fact" [class.matrix-game__fact--warn]="gameVm.minStake === null || gameVm.maxStake === null">
-      <span class="material-symbols-outlined" aria-hidden="true">payments</span>
-      <span>{{ 'admin.drawSalesMatrix.game.fact.stake' | translate }}</span>
-      <strong>{{ stakeLabel(gameVm) }}</strong>
-    </span>
-    <span class="matrix-game__fact" [class.matrix-game__fact--warn]="!gameVm.limits.configured">
-      <span class="material-symbols-outlined" aria-hidden="true">shield</span>
-      <span>{{ 'admin.drawSalesMatrix.game.fact.drawLimit' | translate }}</span>
-      <strong>{{ limitsLabel(gameVm) }}</strong>
-    </span>
-    <span class="matrix-game__fact" [class.matrix-game__fact--muted]="!gameVm.visibleInPos">
-      <span class="material-symbols-outlined" aria-hidden="true">point_of_sale</span>
-      <span>{{ 'admin.drawSalesMatrix.game.fact.visibility' | translate }}</span>
-      <strong>{{ visibilityLabel(gameVm) }}</strong>
-    </span>
+    <a class="matrix-game__name" routerLink="/app/admin/games" [fragment]="'game-' + gameVm.gameCode">
+      {{ gameVm.gameCode | consoleGameName:gameVm.displayName }}
+    </a>
   </div>
 
   @if (gameVm.warnings.length > 0 && !gameVm.saleReady) {

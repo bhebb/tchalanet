@@ -1,6 +1,7 @@
 <div class="tenant-games-grid">
   @for (game of games(); track game.gameCode) {
     <tch-tenant-game-card
+      [attr.id]="'game-' + game.gameCode"
       [game]="game"
       [actionError]="actionError(game.gameCode)"
       (activate)="activate.emit($event)"

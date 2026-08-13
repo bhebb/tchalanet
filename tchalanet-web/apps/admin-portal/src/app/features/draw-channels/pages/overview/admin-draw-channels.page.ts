@@ -1,11 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { SlicePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,6 +7,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchSectionError } from '@tch/ui/components';
+import { consoleLotteryProviderLogoUrl } from '@tch/web/console';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -22,10 +17,10 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
 import {
   DrawChannelProviderView,
+  DrawResultAcquisitionView,
   DrawChannelSlotConfigView,
 } from '../../data-access/admin-draw-channels.models';
 import { DrawChannelsSummaryComponent } from '../../components/draw-channels-summary/draw-channels-summary.component';
-import { DrawChannelProviderCardComponent } from '../../components/draw-channel-provider-card/draw-channel-provider-card.component';
 import { DrawChannelConfigDialog } from '../../components/draw-channel-config-dialog/draw-channel-config.dialog';
 
 export function adminDrawChannelsErrorView(
@@ -41,12 +36,22 @@ export function adminDrawChannelsErrorView(
 type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive' | 'error';
 type PageState = 'loading' | 'ready' | 'error';
 
+interface DrawChannelListRow {
+  readonly providerCode: string;
+  readonly providerLabel: string;
+  readonly slot: DrawChannelSlotConfigView;
+  readonly resultMode: 'AUTO' | 'MANUAL' | 'UNCONFIGURED';
+  readonly status: 'active' | 'attention' | 'inactive';
+  readonly gameCount: number | null;
+}
+
 @Component({
   selector: 'tch-admin-draw-channels-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
+    SlicePipe,
     MatButtonModule,
     TranslatePipe,
     AdminPageShellComponent,
@@ -55,7 +60,6 @@ type PageState = 'loading' | 'ready' | 'error';
     TchErrorPanel,
     TchSectionError,
     DrawChannelsSummaryComponent,
-    DrawChannelProviderCardComponent,
   ],
   templateUrl: './admin-draw-channels.page.html',
   styleUrls: ['./admin-draw-channels.page.scss'],
@@ -92,6 +96,44 @@ export class AdminDrawChannelsPage implements OnInit {
           !query ||
           p.providerLabel.toLowerCase().includes(query) ||
           p.providerCode.toLowerCase().includes(query),
+      );
+  });
+
+  readonly channelRows = computed<DrawChannelListRow[]>(() =>
+    this.allProviders().flatMap(provider =>
+      provider.slots.map(slot => {
+        const gameCount = slot.saleReadyGameCount ?? slot.offeredGameCount ?? null;
+        return {
+          providerCode:  provider.providerCode,
+          providerLabel: provider.providerLabel,
+          slot,
+          resultMode:    this.resultMode(provider.resultAcquisition.mode),
+          status:        this.channelStatus(slot, gameCount),
+          gameCount,
+        };
+      }),
+    ),
+  );
+
+  readonly filteredRows = computed(() => {
+    const filter = this.activeFilter();
+    const query = this.searchQuery().trim().toLowerCase();
+
+    return this.channelRows()
+      .filter(row => {
+        if (filter === 'active') return row.status === 'active';
+        if (filter === 'todo') return row.status === 'attention';
+        if (filter === 'inactive') return row.status === 'inactive';
+        if (filter === 'error') return row.slot.resultSlotActive === false;
+        return true;
+      })
+      .filter(
+        row =>
+          !query ||
+          row.providerLabel.toLowerCase().includes(query) ||
+          row.providerCode.toLowerCase().includes(query) ||
+          row.slot.label.toLowerCase().includes(query) ||
+          row.slot.slotKey.toLowerCase().includes(query),
       );
   });
 
@@ -156,6 +198,33 @@ export class AdminDrawChannelsPage implements OnInit {
       .subscribe(saved => {
         if (saved === true) this.load();
       });
+  }
+
+  rowStatusLabelKey(status: DrawChannelListRow['status']): string {
+    return `admin.drawChannels.list.status.${status}`;
+  }
+
+  resultModeLabelKey(mode: DrawChannelListRow['resultMode']): string {
+    return `admin.drawChannels.list.resultMode.${mode}`;
+  }
+
+  providerLogoUrl(row: DrawChannelListRow): string | null {
+    return consoleLotteryProviderLogoUrl(row.providerCode);
+  }
+
+  private resultMode(mode: DrawResultAcquisitionView['mode']): DrawChannelListRow['resultMode'] {
+    if (mode === 'AUTO') return 'AUTO';
+    if (mode === 'MANUAL') return 'MANUAL';
+    return 'UNCONFIGURED';
+  }
+
+  private channelStatus(
+    slot: DrawChannelSlotConfigView,
+    gameCount: number | null,
+  ): DrawChannelListRow['status'] {
+    if (!slot.enabled) return 'inactive';
+    if (!slot.drawTime || slot.resultSlotActive === false || gameCount === 0) return 'attention';
+    return 'active';
   }
 
   private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {

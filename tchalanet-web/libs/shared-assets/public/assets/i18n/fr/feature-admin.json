@@ -429,6 +429,28 @@
       },
       "loading": "Chargement des canaux de tirage...",
       "resultsCount": "{{count}} fournisseur(s) affiché(s)",
+      "channelResultsCount": "{{count}} canal(aux) de tirage affiché(s)",
+      "list": {
+        "title": "Liste des canaux de tirage",
+        "columns": {
+          "draw": "Tirage",
+          "schedule": "Horaire",
+          "results": "Résultats",
+          "games": "Jeux",
+          "status": "État",
+          "action": "Action"
+        },
+        "resultMode": {
+          "AUTO": "Automatique",
+          "MANUAL": "Manuel",
+          "UNCONFIGURED": "À définir"
+        },
+        "status": {
+          "active": "Actif",
+          "attention": "Attention",
+          "inactive": "Inactif"
+        }
+      },
       "empty": {
         "title": "Aucun fournisseur",
         "filtered": "Modifiez le filtre ou la recherche pour afficher des fournisseurs.",

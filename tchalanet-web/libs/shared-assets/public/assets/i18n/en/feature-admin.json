@@ -1599,6 +1599,28 @@
       },
       "loading": "Loading draw channels...",
       "resultsCount": "{{count}} source(s) shown",
+      "channelResultsCount": "{{count}} draw channel(s) shown",
+      "list": {
+        "title": "Draw channel list",
+        "columns": {
+          "draw": "Draw",
+          "schedule": "Schedule",
+          "results": "Results",
+          "games": "Games",
+          "status": "Status",
+          "action": "Action"
+        },
+        "resultMode": {
+          "AUTO": "Automatic",
+          "MANUAL": "Manual",
+          "UNCONFIGURED": "To define"
+        },
+        "status": {
+          "active": "Active",
+          "attention": "Needs attention",
+          "inactive": "Inactive"
+        }
+      },
       "empty": {
         "title": "No source",
         "filtered": "Change the filter or search to show sources.",

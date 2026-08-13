@@ -1599,6 +1599,28 @@
       },
       "loading": "Chajman règ tiraj yo...",
       "resultsCount": "{{count}} founisè afiche",
+      "channelResultsCount": "{{count}} kanal tiraj afiche",
+      "list": {
+        "title": "Lis kanal tiraj",
+        "columns": {
+          "draw": "Tiraj",
+          "schedule": "Orè",
+          "results": "Rezilta",
+          "games": "Jwèt",
+          "status": "Eta",
+          "action": "Aksyon"
+        },
+        "resultMode": {
+          "AUTO": "Otomatik",
+          "MANUAL": "Manyèl",
+          "UNCONFIGURED": "Pou defini"
+        },
+        "status": {
+          "active": "Aktif",
+          "attention": "Atansyon",
+          "inactive": "Inaktif"
+        }
+      },
       "empty": {
         "title": "Pa gen founisè",
         "filtered": "Chanje filtè a oswa rechèch la pou montre founisè yo.",
