@@ -263,7 +263,7 @@ class PosDrawsServiceTest {
     var queryBus = mock(QueryBus.class);
     when(queryBus.ask(any())).thenReturn(drawSummary).thenReturn(alertsView);
 
-    var service = new PosDrawsService(queryBus, null, null, null, null, null);
+    var service = new PosDrawsService(queryBus, null, null, null, null, null, null, null);
     var result = service.getDetail(ctxWithTerminal(tenantId, terminalId), drawId);
 
     assertThat(result.drawId()).isEqualTo(drawId.value());
@@ -311,7 +311,7 @@ class PosDrawsServiceTest {
     var queryBus = mock(QueryBus.class);
     when(queryBus.ask(any())).thenReturn(drawSummary).thenReturn(null);
 
-    var service = new PosDrawsService(queryBus, null, null, null, null, null);
+    var service = new PosDrawsService(queryBus, null, null, null, null, null, null, null);
     var result = service.getDetail(ctxWithTerminal(tenantId, terminalId), drawId);
 
     assertThat(result.exposure().active()).isTrue();
@@ -367,7 +367,7 @@ class PosDrawsServiceTest {
     var queryBus = mock(QueryBus.class);
     when(queryBus.ask(any())).thenReturn(drawSummary).thenReturn(alertsView);
 
-    var service = new PosDrawsService(queryBus, null, null, null, null, null);
+    var service = new PosDrawsService(queryBus, null, null, null, null, null, null, null);
     var result = service.getDetail(ctxWithTerminal(tenantId, terminalId), drawId);
 
     assertThat(result.exposure().active()).isFalse();
