@@ -124,5 +124,9 @@
       <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
       {{ 'admin.drawChannels.actions.viewDetails' | translate }}
     </button>
+    <button mat-button [disabled]="!slot.channelId" (click)="limits.emit(slot)">
+      <span class="material-symbols-outlined" aria-hidden="true">shield</span>
+      {{ 'admin.drawChannels.actions.configureLimits' | translate }}
+    </button>
   </div>
 </article>

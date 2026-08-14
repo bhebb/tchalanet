@@ -15,6 +15,16 @@
         }
       </tch-admin-section-card>
 
+      <tch-admin-limits-section
+        targetType="DRAW_CHANNEL"
+        [targetId]="draw()!.drawChannelId"
+        inheritedTargetType="TENANT"
+        [inheritedScopeLabel]="tenantScopeLabel()"
+        [sectionTitle]="limitsSectionTitle()"
+        [effectiveAt]="draw()!.scheduledAt"
+        [defaultExpandedGroups]="['RESTRICTIONS', 'EXPOSITION']"
+      />
+
       <tch-admin-section-card title="Liens opérationnels" icon="link">
         <div class="draw-detail__links">
           @if (draw()!.resultId) {

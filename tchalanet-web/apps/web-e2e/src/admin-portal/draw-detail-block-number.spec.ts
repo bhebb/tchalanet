@@ -19,40 +19,44 @@ const OPEN_DRAW_ID = 'aaaaaaaa-0000-0000-0000-000000000001';
 const CLOSED_DRAW_ID = 'aaaaaaaa-0000-0000-0000-000000000002';
 const DRAW_CHANNEL_ID = 'cccccccc-0000-0000-0000-000000000001';
 
-function stubDraw(page: import('@playwright/test').Page, drawId: string, status: 'OPEN' | 'CLOSED') {
+function stubDraw(
+  page: import('@playwright/test').Page,
+  drawId: string,
+  status: 'OPEN' | 'CLOSED',
+) {
   // Intercept the draw detail endpoint — exact path, no sub-paths (top-selections etc.)
-  return page.route(
-    new RegExp(`/api/v1/admin/draws/${drawId}(?:\\?|$)`),
-    route => {
-      if (route.request().resourceType() === 'document') { route.continue(); return; }
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          status: 'SUCCESS',
-          data: {
-            id: drawId,
-            tenantId: 'stub-tenant',
-            channel: { id: DRAW_CHANNEL_ID, code: 'TEST-MIDDAY', name: 'Test Midday' },
-            slot: {
-              id: 'slot-1',
-              key: 'MIDDAY',
-              label: 'Midday',
-              timezone: 'America/Port-au-Prince',
-              drawTime: '12:00',
-            },
-            drawDate: '2026-08-12',
-            scheduledAt: '2026-08-12T17:00:00Z',
-            cutoffAt: '2026-08-12T16:45:00Z',
-            status,
-            active: status === 'OPEN',
-            lastResult: null,
+  return page.route(new RegExp(`/api/v1/admin/draws/${drawId}(?:\\?|$)`), route => {
+    if (route.request().resourceType() === 'document') {
+      route.continue();
+      return;
+    }
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 'SUCCESS',
+        data: {
+          id: drawId,
+          tenantId: 'stub-tenant',
+          channel: { id: DRAW_CHANNEL_ID, code: 'TEST-MIDDAY', name: 'Test Midday' },
+          slot: {
+            id: 'slot-1',
+            key: 'MIDDAY',
+            label: 'Midday',
+            timezone: 'America/Port-au-Prince',
+            drawTime: '12:00',
           },
-          notices: [],
-        }),
-      });
-    },
-  );
+          drawDate: '2026-08-12',
+          scheduledAt: '2026-08-12T17:00:00Z',
+          cutoffAt: '2026-08-12T16:45:00Z',
+          status,
+          active: status === 'OPEN',
+          lastResult: null,
+        },
+        notices: [],
+      }),
+    });
+  });
 }
 
 test.describe('Draw detail — Bloke nimero button', () => {
@@ -86,17 +90,18 @@ test.describe('Draw detail — Bloke nimero button', () => {
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
     // No draw picker inside the dialog — channel is pre-filled from context
-    await expect(dialog.locator('[data-testid="draw-picker"], mat-select[aria-label*="tiraj"]')).toHaveCount(0);
+    await expect(
+      dialog.locator('[data-testid="draw-picker"], mat-select[aria-label*="tiraj"]'),
+    ).toHaveCount(0);
   });
 
   test('draw CLOSED — "Bloke nimero" button is absent', async ({ page }) => {
     await stubDraw(page, CLOSED_DRAW_ID, 'CLOSED');
     await page.goto(`/app/admin/draws/${CLOSED_DRAW_ID}`);
 
-    // Wait for the page to load before asserting absence
-    await page.waitForLoadState('networkidle');
-    await expect(
-      page.locator('button, [role="button"]', { hasText: /bloke nimero/i }),
-    ).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: /test midday/i })).toBeVisible();
+    await expect(page.locator('button, [role="button"]', { hasText: /bloke nimero/i })).toHaveCount(
+      0,
+    );
   });
 });

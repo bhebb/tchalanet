@@ -41,4 +41,14 @@ public interface LimitAssignmentJpaRepository
         and e.scopeId = :scopeId
       """)
   List<LimitAssignmentJpaEntity> findAllByScope(ScopeType scopeType, UUID scopeId);
+
+  @Query(
+      """
+      select e
+      from LimitAssignmentJpaEntity e
+      where e.tenantId = :tenantId
+        and e.deletedAt is null
+      order by e.scopeType asc, e.ruleKey asc, e.createdAt asc
+      """)
+  List<LimitAssignmentJpaEntity> findAllActiveByTenantId(UUID tenantId);
 }

@@ -10,7 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter } from 'rxjs';
 
@@ -20,7 +20,12 @@ import { AdminEmptyStateComponent } from '@tch/ui/console';
 import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent, tchMutation } from '@tch/web/async';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
-import type { RuleKey, RuleRow } from '../../data-access/admin-limits.models';
+import type {
+  LimitAssignmentItem,
+  LimitRuleSpec,
+  RuleKey,
+  RuleRow,
+} from '../../data-access/admin-limits.models';
 import { LimitAssignmentsTableComponent } from '../../components/limit-assignments-table/limit-assignments-table.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 import { BlockNumberQuickDialogComponent } from '../../components/block-number-quick-dialog/block-number-quick-dialog.component';
@@ -62,7 +67,6 @@ const NUMBER_LIMIT_ACTIONS: readonly NumberLimitAction[] = [
   imports: [
     TranslatePipe,
     MatButtonModule,
-    RouterLink,
     TchSectionError,
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
@@ -77,8 +81,10 @@ export class AdminLimitsNumberPage {
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  readonly dataResource: ResourceRef<{ specs: unknown[]; assignments: unknown[] } | undefined> =
+  readonly dataResource: ResourceRef<{ specs: LimitRuleSpec[]; assignments: LimitAssignmentItem[] } | undefined> =
     this.api.tenantLimitsResource();
   readonly loadError = resourceErrorVm(this.dataResource, 'admin.limits.number');
   readonly actionNotice = signal<string | null>(null);
@@ -93,17 +99,33 @@ export class AdminLimitsNumberPage {
   });
 
   readonly allRows = computed<RuleRow[]>(() => {
-    const data = this.dataResource.value() as { specs: any[]; assignments: any[] } | undefined;
+    const data = this.dataResource.value();
     if (!data) return [];
-    const blockingRules = data.specs.filter((r: any) => (NUMBER_RULE_KEYS as string[]).includes(r.ruleKey));
-    const assignMap = new Map(data.assignments.map((a: any) => [a.ruleKey, a]));
-    return blockingRules.map((spec: any) => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null }));
+    const blockingRules = data.specs.filter(rule =>
+      (NUMBER_RULE_KEYS as readonly string[]).includes(rule.ruleKey),
+    );
+    const assignMap = new Map<RuleKey, LimitAssignmentItem>(
+      data.assignments.map(assignment => [assignment.ruleKey, assignment]),
+    );
+    return blockingRules.map(spec => ({ spec, assignment: assignMap.get(spec.ruleKey) ?? null }));
   });
 
   readonly activeRows = computed(() => this.allRows().filter(r => r.assignment !== null));
   readonly quickActions = NUMBER_LIMIT_ACTIONS;
+  private readonly initialQuickActionHandled = signal(false);
 
-  openBlockNumberQuick(): void {
+  constructor() {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        if (this.initialQuickActionHandled()) return;
+        if (params.get('quick') !== 'block-number') return;
+        this.initialQuickActionHandled.set(true);
+        queueMicrotask(() => this.openBlockNumberQuick(true));
+      });
+  }
+
+  openBlockNumberQuick(clearQuickParam = false): void {
     const ref = this.dialog.open(BlockNumberQuickDialogComponent, {
       width: '480px',
       maxWidth: 'calc(100vw - 2rem)',
@@ -115,12 +137,28 @@ export class AdminLimitsNumberPage {
         this.actionNotice.set('admin.limits.child.noticeSaved');
         this.dataResource.reload();
       });
+    if (clearQuickParam) {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { quick: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    }
   }
 
   openNumberAction(ruleKey: RuleKey): void {
     const row = this.rowFor(ruleKey);
     if (!row) return;
     this.openUpsert(row);
+  }
+
+  openQuickAction(ruleKey: RuleKey): void {
+    if (ruleKey === 'BLOCK_SELECTION_PER_DRAW') {
+      this.openBlockNumberQuick();
+      return;
+    }
+    this.openNumberAction(ruleKey);
   }
 
   openUpsert(row: RuleRow): void {
@@ -135,7 +173,8 @@ export class AdminLimitsNumberPage {
   }
 
   confirmDelete(row: RuleRow): void {
-    if (!row.assignment) return;
+    const assignment = row.assignment;
+    if (!assignment) return;
     const label = row.spec.label || row.spec.ruleKey;
     const ref = this.dialog.open(TchConfirmDialog, {
       data: {
@@ -149,7 +188,7 @@ export class AdminLimitsNumberPage {
       .pipe(filter(result => result?.confirmed === true), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.actionNotice.set(null);
-        this.deleteAssignment.execute(row.assignment!.id.value);
+        this.deleteAssignment.execute(assignment.id.value);
       });
   }
 

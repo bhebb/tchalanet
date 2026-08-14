@@ -1,6 +1,6 @@
 <tch-admin-dialog-shell
   [title]="'admin.limits.blockNumber.title' | translate"
-  [description]="'admin.limits.blockNumber.quickDescription' | translate"
+  [description]="descriptionKey() | translate"
   icon="block"
 >
   <div class="bnqd">
@@ -14,6 +14,22 @@
       }
     }
 
+    @if (hasLockedChannel()) {
+      <div class="bnqd__context">
+        <span class="material-symbols-outlined" aria-hidden="true">event</span>
+        <div>
+          <p class="bnqd__context-label">
+            {{ 'admin.limits.blockNumber.contextLabel' | translate }}
+          </p>
+          <p class="bnqd__context-title">
+            {{ lockedChannelLabel() || ('admin.limits.blockNumber.contextFallback' | translate) }}
+          </p>
+          <p class="bnqd__context-hint">
+            {{ 'admin.limits.blockNumber.contextHint' | translate }}
+          </p>
+        </div>
+      </div>
+    } @else {
     <div class="bnqd__scope">
       <p class="bnqd__scope-label">{{ 'admin.limits.blockNumber.scopeLabel' | translate }}</p>
       <mat-radio-group
@@ -31,8 +47,9 @@
         </mat-radio-button>
       </mat-radio-group>
     </div>
+    }
 
-    @if (scope() === 'DRAW_CHANNEL') {
+    @if (scope() === 'DRAW_CHANNEL' && !hasLockedChannel()) {
       <tch-active-draw-channel-select
         [preselectedId]="preselectedChannelId()"
         (channelChange)="onChannelChange($event)"

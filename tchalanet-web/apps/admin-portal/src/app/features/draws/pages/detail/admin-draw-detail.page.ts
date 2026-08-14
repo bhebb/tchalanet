@@ -33,7 +33,11 @@ import {
   GeneratedDrawView,
   SaveDrawResultRequest,
 } from '../../data-access/admin-generated-draws.models';
-import { AdminGeneratedDrawsApiService } from '../../data-access/admin-generated-draws-api.service';
+import {
+  AdminDrawOverviewEffectiveLimit,
+  AdminDrawOverviewExposureAlert,
+  AdminGeneratedDrawsApiService,
+} from '../../data-access/admin-generated-draws-api.service';
 import {
   DrawResultDrawerComponent,
   DrawResultDrawerState,
@@ -41,15 +45,17 @@ import {
 import {
   AdminFinancialsApi,
   DrawFinancialRow,
-  DrawTopSelectionItem,
   SellerTerminalDrawFinancialRow,
 } from '../../../reports/data-access/admin-financials-api.service';
 import {
   DrawActivityReport,
+  DrawExposureAlert,
   DrawDetailActivityView,
   DrawDetailActivityComponent,
+  DrawTopSelectionItem,
 } from './components/draw-detail-activity/draw-detail-activity.component';
 import { BlockNumberQuickDialogComponent } from '../../../limits/components/block-number-quick-dialog/block-number-quick-dialog.component';
+import { AdminLimitsSectionComponent } from '../../../limits/components/limits-section/admin-limits-section.component';
 
 // BlockNumberQuickDialogComponent is opened programmatically via MatDialog — not declared in the template.
 
@@ -68,6 +74,7 @@ type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
     MatDialogModule,
     ConsoleDrawDetailComponent,
     AdminSectionCardComponent,
+    AdminLimitsSectionComponent,
     DrawResultDrawerComponent,
     DrawDetailActivityComponent,
   ],
@@ -91,6 +98,8 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   readonly activityReport = signal<DrawActivityReport | null>(null);
   readonly topSelectionsState = signal<DrawTopSelectionsState>('idle');
   readonly topSelections = signal<readonly DrawTopSelectionItem[]>([]);
+  readonly exposureAlerts = signal<readonly DrawExposureAlert[]>([]);
+  readonly overviewEffectiveLimits = signal<readonly AdminDrawOverviewEffectiveLimit[]>([]);
   readonly errorTitle = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
   readonly activityError = signal<ErrorViewModel | null>(null);
@@ -207,6 +216,8 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       topSelectionsState: this.topSelectionsState(),
       topSelections: this.topSelections(),
       topSelectionsErrorMessage: this.topSelectionsError()?.message ?? null,
+      exposureAlerts: this.exposureAlerts(),
+      exposureLimitConfigured: this.exposureLimitConfigured(),
     };
   });
 
@@ -251,7 +262,7 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
         this.draw.set(draw);
         this.pageState.set('ready');
         this.loadActivity(draw);
-        this.loadTopSelections(draw);
+        this.loadDrawOverview(draw);
       },
       error: err => {
         const error = this.errorViewModel(err, 'admin.generatedDraws.detail');
@@ -407,6 +418,14 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     };
   }
 
+  limitsSectionTitle(): string {
+    return this.translate.instant('admin.generatedDraws.detail.limitsTitle');
+  }
+
+  tenantScopeLabel(): string {
+    return this.translate.instant('admin.limits.section.scope.tenant');
+  }
+
   resultUnavailableReason(draw: GeneratedDrawView): string | null {
     if (this.hasResult(draw)) return null;
     if (!this.canEnterManualResults()) {
@@ -434,9 +453,13 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
   }
 
   asideHotSelectionsLabel(): string {
-    const count = this.topSelections().length;
+    const count = this.exposureAlerts().length || this.topSelections().length;
     if (count === 0) return 'Aucune';
     return `${count} à surveiller`;
+  }
+
+  exposureLimitConfigured(): boolean {
+    return this.overviewEffectiveLimits().some(limit => limit.ruleKey.includes('EXPOSURE'));
   }
 
   resultFollowupLabel(draw: GeneratedDrawView): string {
@@ -470,7 +493,10 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
     this.dialog.open(BlockNumberQuickDialogComponent, {
       width: '480px',
       maxWidth: '95vw',
-      data: { channelId: draw.drawChannelId },
+      data: {
+        channelId: draw.drawChannelId,
+        channelLabel: draw.label || this.slotDisplayLabel(draw),
+      },
     });
   }
 
@@ -712,14 +738,18 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
       });
   }
 
-  private loadTopSelections(draw: GeneratedDrawView): void {
+  private loadDrawOverview(draw: GeneratedDrawView): void {
     this.topSelectionsState.set('loading');
     this.topSelections.set([]);
-    this.financials
-      .getDrawTopSelections(draw.drawId, { limit: 5 }, { suppressShellFeedback: true })
+    this.exposureAlerts.set([]);
+    this.overviewEffectiveLimits.set([]);
+    this.api
+      .getDrawOverview(draw.drawId, { suppressShellFeedback: true })
       .subscribe({
-        next: view => {
-          this.topSelections.set(view.topSelections);
+        next: overview => {
+          this.topSelections.set(overview.topSelections);
+          this.exposureAlerts.set(this.mapExposureAlerts(overview.exposureAlerts));
+          this.overviewEffectiveLimits.set(overview.effectiveLimits);
           this.topSelectionsState.set('ready');
         },
         error: err => {
@@ -729,6 +759,18 @@ export class AdminDrawDetailPage implements OnInit, OnDestroy {
           this.topSelectionsState.set('error');
         },
       });
+  }
+
+  private mapExposureAlerts(
+    alerts: readonly AdminDrawOverviewExposureAlert[],
+  ): readonly DrawExposureAlert[] {
+    return alerts.map(alert => ({
+      selectionKey: alert.selectionKey,
+      stakeTotal: Number(alert.stakeTotal ?? 0),
+      maxStakeExposureLimit:
+        alert.maxStakeExposureLimit === null ? null : Number(alert.maxStakeExposureLimit),
+      stakeRatio: alert.stakeRatio === null ? null : Number(alert.stakeRatio),
+    }));
   }
 
   private aggregateActivity(

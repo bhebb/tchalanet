@@ -946,8 +946,8 @@
     },
     "limits": {
       "shell": {
-        "title": "Sales limits",
-        "description": "Monitor the rules that protect sales, sellers, numbers, and channels."
+        "title": "Sales controls",
+        "description": "Block numbers, set stake caps, and limit sales where needed."
       },
       "common": {
         "loading": "Loading limits...",
@@ -983,6 +983,10 @@
         "errorTitle": "Block failed",
         "cancel": "Cancel",
         "quickDescription": "Add the selected numbers to the block list.",
+        "contextDescription": "Block numbers directly on the selected draw channel.",
+        "contextLabel": "Selected draw",
+        "contextFallback": "This draw channel",
+        "contextHint": "This block applies only to this channel.",
         "scopeLabel": "Block scope",
         "scopeTenant": "Entire operator",
         "scopeTenantHint": "Blocks the number across all draw channels",
@@ -991,21 +995,21 @@
       },
       "number": {
         "actionsAria": "Quick actions by number",
-        "copy": "For actual winnings, use results and reports; this area mainly blocks numbers and sold stakes.",
+        "copy": "Use this page to control numbers: block them directly or set a cap on total sold stakes.",
         "confirmDelete": {
           "title": "Delete rule",
           "message": "Delete rule « {{ rule }} »? This action cannot be undone."
         },
         "actions": {
           "block": {
-            "title": "Block a number",
-            "description": "Prevent the sale of one or more numbers.",
-            "cta": "Block"
+            "title": "Block numbers",
+            "description": "Choose the draw, then block the numbers that should not be sold.",
+            "cta": "Block numbers"
           },
           "exposure": {
-            "title": "Limit stakes",
-            "description": "Block when sold stakes on a number reach an amount.",
-            "cta": "Define"
+            "title": "Cap per number",
+            "description": "Stop selling a number when total sold stakes reach the cap you set.",
+            "cta": "Set cap"
           }
         }
       },
@@ -1048,22 +1052,115 @@
         "parameters": "Parameters"
       },
       "overview": {
-        "title": "Overview",
-        "description": "Choose the area to control before adding or editing a rule.",
+        "title": "What do you want to control?",
+        "description": "Choose where the rule should apply. For quick needs, start with numbers.",
         "sectionsAria": "Limit sections",
         "activeTitle": "Active protections",
-        "activeDescription": "These rules protect sales by default before seller, number, or channel exceptions.",
-        "noActive": "No active global protection. Start by defining ticket and line caps.",
-        "addGlobal": "Add a global rule",
+        "activeDescription": "All blocks and caps currently protecting sales.",
+        "noActive": "No special limit is active. You can block a number or set a cap when needed.",
+        "addGlobal": "Add general rule",
         "quickTitle": "Quick actions",
         "quickDescription": "Go directly to frequent sales-control operations.",
         "quickAria": "Limit quick actions",
-        "summaryEyebrow": "Limits summary",
+        "emptyTitle": "No active limit",
+        "confirmDisable": "Disable this limit?",
+        "confirmDelete": "Delete this limit?",
+        "summaryEyebrow": "Controls summary",
         "globalActive": "Active global rules",
         "toCheck": "To review",
-        "monitoredNumbers": "Monitored numbers",
-        "warningMessage": "{{count}} global rule(s) are disabled. Check whether they should protect sales.",
-        "noWarning": "No immediate alert on global rules."
+        "monitoredNumbers": "Number rules",
+        "warningMessage": "{{count}} general rule(s) are disabled. Check whether they should protect sales.",
+        "noWarning": "No immediate alert on general rules.",
+        "quick": {
+          "blockNumber": "Block a number",
+          "numberCap": "Cap per number",
+          "ticketLimit": "Ticket limit",
+          "sellerLimit": "Seller limit"
+        },
+        "groups": {
+          "NUMBER_BLOCK": {
+            "title": "Blocked numbers",
+            "description": "Numbers that cannot be sold for a period or draw."
+          },
+          "NUMBER_CAP": {
+            "title": "Number caps",
+            "description": "Maximum stake or sale count allowed on a number."
+          },
+          "TICKET_LIMIT": {
+            "title": "Ticket limits",
+            "description": "Rules for ticket lines, stakes, and totals."
+          },
+          "SELLER_LIMIT": {
+            "title": "Seller limits",
+            "description": "Special rules for a seller or POS terminal."
+          },
+          "ADVANCED": {
+            "title": "Advanced",
+            "description": "Other rules available for sales control."
+          }
+        },
+        "target": {
+          "label": "Applies to",
+          "tenant": "Entire operator"
+        },
+        "duration": {
+          "label": "Duration",
+          "permanent": "Permanent",
+          "custom": "Custom",
+          "until": "Until {{date}}"
+        },
+        "limitStatus": {
+          "label": "Status",
+          "active": "Active",
+          "disabled": "Disabled"
+        },
+        "actions": {
+          "disable": "Disable",
+          "delete": "Delete"
+        },
+        "status": {
+          "configured": "Configured",
+          "notConfigured": "Not configured",
+          "optional": "Optional",
+          "available": "Available"
+        },
+        "scope": {
+          "numbers": {
+            "title": "Numbers",
+            "description": "Block numbers or set a cap on the total sold stakes for a number.",
+            "metric": "{{count}} rule(s)"
+          },
+          "global": {
+            "title": "General rules",
+            "description": "Rules applied to all sales for this operator.",
+            "metric": "{{count}} active"
+          },
+          "channels": {
+            "title": "Draw channels",
+            "description": "Special rules for a draw such as Texas 10:00 or Florida evening.",
+            "metric": "By channel"
+          },
+          "sellers": {
+            "title": "Sellers",
+            "description": "Special rules for a seller or POS terminal.",
+            "metric": "By seller"
+          }
+        }
+      },
+      "rule": {
+        "MAX_STAKE_PER_LINE": "Maximum stake per line",
+        "MAX_LINES_PER_TICKET": "Lines per ticket",
+        "MAX_STAKE_PER_TICKET": "Maximum stake per ticket",
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Stake cap per number",
+        "MAX_STAKE_PER_BET_TYPE_PER_TICKET": "Maximum stake per game type",
+        "MAX_STAKE_PER_SELECTION_PER_TICKET": "Maximum stake per number in ticket",
+        "MAX_SALES_COUNT_PER_SELECTION_PER_DRAW": "Sales count per number",
+        "MAX_SALES_COUNT_PER_TICKET": "Sales count per ticket",
+        "BLOCK_SELECTION_PER_DRAW": "Block a number",
+        "BLOCK_BET_TYPE": "Block a game type",
+        "MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW": "Ticket count per seller",
+        "MAX_STAKE_PER_AGENT_PER_DRAW": "Maximum stake per seller",
+        "MAX_STAKE_PER_OUTLET_PER_DRAW": "Maximum stake per outlet"
       },
       "child": {
         "rulesLink": "Supported rules",
@@ -1075,7 +1172,7 @@
         "noRulesMessage": "The rule catalog is empty.",
         "noConfiguredTitle": "No limits configured",
         "noConfiguredGlobal": "Click Add to configure the first global limit.",
-        "noConfiguredNumber": "Click Add to configure a number exposure limit or number block.",
+        "noConfiguredNumber": "Choose Block numbers or Cap per number to create the first rule.",
         "noConfiguredDraw": "Click Add to configure the first limit for this channel.",
         "noConfiguredSeller": "Click Add to configure the first limit for this seller.",
         "catalogEmptyTitle": "No number rules",
@@ -1143,19 +1240,26 @@
       },
       "blockComponent": {
         "group": {
-          "vente": "Sales",
-          "restrictions": "Restrictions",
-          "exposition": "Exposure"
+          "vente": "Ticket rules",
+          "restrictions": "Blocks",
+          "exposition": "Number risk"
         },
-        "unconfigured": "Not configured",
-        "configured": "Configured",
-        "inheritedFrom": "Inherited from",
+        "unconfigured": "No rule",
+        "configured": "Rule set",
+        "inheritedFrom": "From",
         "editAria": "Edit",
         "deleteAria": "Delete"
       },
       "section": {
         "loadError": "Unable to load limits.",
         "actionError": "Action failed.",
+        "activeAria": "Effective limits",
+        "activeTitle": "Static rules",
+        "activeDescription": "Blocks and caps already configured in this area.",
+        "currentScope": "This area",
+        "inheritedScope": "From {{scope}}",
+        "noParams": "No parameter",
+        "blockedNumbers": "Blocked number: {{numbers}}",
         "scope": {
           "tenant": "operator"
         }
@@ -1848,6 +1952,8 @@
         "configure": "Configure",
         "configureChannel": "Configure channel",
         "configureGameOffer": "Configure channel games",
+        "configureLimits": "Caps and blocks",
+        "blockNumber": "Block numbers",
         "viewGeneratedDraws": "View draws",
         "viewDetails": "View details"
       },
@@ -2126,6 +2232,9 @@
         "salesOpen": "Filter draws open for sale",
         "resultsExpected": "Filter expected results",
         "confirmed": "Filter confirmed results"
+      },
+      "detail": {
+        "limitsTitle": "Limits affecting this draw"
       }
     },
     "drawActivity": {
@@ -2431,29 +2540,29 @@
       "default_missing": "Operator commission rate needs configuration"
     },
     "limits": {
-      "empty": "Sales limits need configuration",
+      "empty": "Sales caps and blocks need configuration",
       "limitsSection": {
-        "title": "Limits",
+        "title": "Caps and blocks",
         "descriptionInherit": "Unconfigured values use the operator defaults"
       }
     }
   },
   "tenantSetup": {
     "limitsSection": {
-      "title": "Default limits",
-      "descriptionInherit": "These limits apply to all channels and sellers if not separately configured"
+      "title": "Default caps and blocks",
+      "descriptionInherit": "These rules apply to all channels and sellers if not separately configured"
     }
   },
   "drawChannel": {
     "limitsSection": {
-      "title": "Channel limits",
-      "descriptionInherit": "Unconfigured values inherit from the operator"
+      "title": "Caps and blocks for this channel",
+      "descriptionInherit": "Unconfigured values come from the operator"
     }
   },
   "sellerTerminal": {
     "limitsSection": {
-      "title": "Seller limits",
-      "descriptionInherit": "Unconfigured values inherit from the operator"
+      "title": "Seller caps and blocks",
+      "descriptionInherit": "Unconfigured values come from the operator"
     }
   },
   "draws": {

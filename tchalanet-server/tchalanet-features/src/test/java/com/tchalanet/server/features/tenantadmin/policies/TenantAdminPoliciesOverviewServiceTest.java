@@ -5,15 +5,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.catalog.drawchannel.api.DrawChannelCatalog;
 import com.tchalanet.server.common.bus.QueryBus;
 import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
 import com.tchalanet.server.common.types.id.TenantId;
+import com.tchalanet.server.common.web.paging.TchPage;
 import com.tchalanet.server.core.limitpolicy.BreachOutcome;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitRuleSpec;
 import com.tchalanet.server.core.limitpolicy.api.query.LimitScopeQueryRef;
 import com.tchalanet.server.core.limitpolicy.api.query.ListLimitAssignmentsView;
+import com.tchalanet.server.core.limitpolicy.api.query.ListTenantLimitAssignmentsView;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
@@ -49,11 +52,29 @@ class TenantAdminPoliciesOverviewServiceTest {
 
     var assignmentsView =
         new ListLimitAssignmentsView(LimitScopeQueryRef.tenant(tenantId), List.of(assignment));
+    var tenantAssignmentsView =
+        new ListTenantLimitAssignmentsView(
+            List.of(
+                new ListTenantLimitAssignmentsView.Item(
+                    assignmentId,
+                    RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
+                    LimitScopeQueryRef.tenant(tenantId),
+                    true,
+                    BreachOutcome.BLOCK,
+                    null,
+                    null,
+                    null)));
 
     var queryBus = mock(QueryBus.class);
-    when(queryBus.ask(any())).thenReturn(List.of(ruleSpec)).thenReturn(assignmentsView);
+    when(queryBus.ask(any()))
+        .thenReturn(List.of(ruleSpec))
+        .thenReturn(assignmentsView)
+        .thenReturn(tenantAssignmentsView)
+        .thenReturn(emptyPage());
+    var drawChannelCatalog = mock(DrawChannelCatalog.class);
+    when(drawChannelCatalog.listAllFull(tenantId)).thenReturn(List.of());
 
-    var service = new TenantAdminPoliciesOverviewService(queryBus);
+    var service = new TenantAdminPoliciesOverviewService(queryBus, drawChannelCatalog);
     var result = service.getOverview(ctx(tenantId));
 
     assertThat(result.globalRules()).hasSize(1);
@@ -95,11 +116,29 @@ class TenantAdminPoliciesOverviewServiceTest {
     var assignmentsView =
         new ListLimitAssignmentsView(
             LimitScopeQueryRef.tenant(tenantId), List.of(disabledAssignment));
+    var tenantAssignmentsView =
+        new ListTenantLimitAssignmentsView(
+            List.of(
+                new ListTenantLimitAssignmentsView.Item(
+                    assignmentId,
+                    RuleKey.MAX_STAKE_PER_LINE,
+                    LimitScopeQueryRef.tenant(tenantId),
+                    false,
+                    BreachOutcome.BLOCK,
+                    null,
+                    null,
+                    null)));
 
     var queryBus = mock(QueryBus.class);
-    when(queryBus.ask(any())).thenReturn(List.of(ruleSpec)).thenReturn(assignmentsView);
+    when(queryBus.ask(any()))
+        .thenReturn(List.of(ruleSpec))
+        .thenReturn(assignmentsView)
+        .thenReturn(tenantAssignmentsView)
+        .thenReturn(emptyPage());
+    var drawChannelCatalog = mock(DrawChannelCatalog.class);
+    when(drawChannelCatalog.listAllFull(tenantId)).thenReturn(List.of());
 
-    var service = new TenantAdminPoliciesOverviewService(queryBus);
+    var service = new TenantAdminPoliciesOverviewService(queryBus, drawChannelCatalog);
     var result = service.getOverview(ctx(tenantId));
 
     assertThat(result.summary().activeRules()).isEqualTo(0);
@@ -123,9 +162,15 @@ class TenantAdminPoliciesOverviewServiceTest {
             null);
 
     var queryBus = mock(QueryBus.class);
-    when(queryBus.ask(any())).thenReturn(List.of(ruleSpec)).thenReturn(null);
+    when(queryBus.ask(any()))
+        .thenReturn(List.of(ruleSpec))
+        .thenReturn(null)
+        .thenReturn(null)
+        .thenReturn(emptyPage());
+    var drawChannelCatalog = mock(DrawChannelCatalog.class);
+    when(drawChannelCatalog.listAllFull(tenantId)).thenReturn(List.of());
 
-    var service = new TenantAdminPoliciesOverviewService(queryBus);
+    var service = new TenantAdminPoliciesOverviewService(queryBus, drawChannelCatalog);
     var result = service.getOverview(ctx(tenantId));
 
     // rule has no assignment → filtered out by the null assignment check
@@ -161,5 +206,9 @@ class TenantAdminPoliciesOverviewServiceTest {
         Set.of(),
         Set.of(),
         null);
+  }
+
+  private static TchPage<Object> emptyPage() {
+    return new TchPage<>(List.of(), 0, 500, 0L, 0, true, false, false);
   }
 }

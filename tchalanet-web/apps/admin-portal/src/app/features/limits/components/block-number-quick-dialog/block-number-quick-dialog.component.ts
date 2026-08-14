@@ -28,9 +28,10 @@ export interface BlockNumberQuickDialogData {
   /**
    * When provided (e.g., opened from a draw detail page), the dialog pre-selects
    * this draw channel and defaults to DRAW_CHANNEL scope.
-   * When absent, the dialog defaults to TENANT (global) scope.
+   * When absent, the dialog lets the admin choose between tenant and channel scope.
    */
   readonly channelId?: string;
+  readonly channelLabel?: string;
 }
 
 type Scope = 'TENANT' | 'DRAW_CHANNEL';
@@ -63,6 +64,10 @@ export class BlockNumberQuickDialogComponent {
   readonly separatorKeyCodes = [ENTER, COMMA];
   readonly selections = signal<string[]>([]);
 
+  readonly lockedChannelId = signal<string | null>(this.data.channelId ?? null);
+  readonly lockedChannelLabel = signal<string | null>(this.data.channelLabel ?? null);
+  readonly hasLockedChannel = computed(() => this.lockedChannelId() !== null);
+
   // Always default to DRAW_CHANNEL. The user can switch to TENANT if needed.
   readonly scope = signal<Scope>('DRAW_CHANNEL');
 
@@ -74,14 +79,24 @@ export class BlockNumberQuickDialogComponent {
 
   readonly canSave = computed(() => {
     if (this.selections().length === 0) return false;
-    if (this.scope() === 'DRAW_CHANNEL') return this.selectedChannel() !== null;
+    if (this.scope() === 'DRAW_CHANNEL') {
+      return this.hasLockedChannel() || this.selectedChannel() !== null;
+    }
     return true;
   });
+
+  readonly descriptionKey = computed(() =>
+    this.hasLockedChannel()
+      ? 'admin.limits.blockNumber.contextDescription'
+      : 'admin.limits.blockNumber.quickDescription',
+  );
 
   readonly saveMutation = tchMutation<void, { id: { value: string } }>({
     run: () => {
       const isTenant = this.scope() === 'TENANT';
-      const targetId = isTenant ? undefined : (this.selectedChannel()?.id ?? undefined);
+      const targetId = isTenant
+        ? undefined
+        : (this.lockedChannelId() ?? this.selectedChannel()?.id ?? undefined);
       return this.api.upsertAssignment(
         {
           ruleKey: 'BLOCK_SELECTION_PER_DRAW',
@@ -99,6 +114,7 @@ export class BlockNumberQuickDialogComponent {
   });
 
   setScope(scope: Scope): void {
+    if (this.hasLockedChannel() && scope !== 'DRAW_CHANNEL') return;
     this.scope.set(scope);
     // Clearing the selection when switching to TENANT avoids stale channel state.
     if (scope === 'TENANT') {

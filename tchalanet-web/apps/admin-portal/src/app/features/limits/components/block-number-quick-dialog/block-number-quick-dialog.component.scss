@@ -13,6 +13,46 @@
   letter-spacing: 0.04em;
 }
 
+.bnqd__context {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.875rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--tch-color-primary) 30%, var(--tch-color-outline-variant));
+  border-radius: var(--tch-radius-md, 12px);
+  background: color-mix(in srgb, var(--tch-color-primary-container) 35%, transparent);
+}
+
+.bnqd__context > .material-symbols-outlined {
+  color: var(--tch-color-primary);
+}
+
+.bnqd__context-label,
+.bnqd__context-title,
+.bnqd__context-hint {
+  margin: 0;
+}
+
+.bnqd__context-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--tch-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bnqd__context-title {
+  margin-top: 0.15rem;
+  font-weight: 800;
+  color: var(--tch-color-on-surface);
+}
+
+.bnqd__context-hint {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
 .bnqd__radio-group {
   display: flex;
   flex-direction: column;

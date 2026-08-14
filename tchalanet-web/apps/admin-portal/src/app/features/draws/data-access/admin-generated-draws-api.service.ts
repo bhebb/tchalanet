@@ -53,6 +53,46 @@ export interface GeneratedDrawsSummaryQuery {
   readonly today: string;
 }
 
+export interface AdminDrawOverviewView {
+  readonly draw: {
+    readonly drawId: string;
+    readonly channelCode: string;
+    readonly channelLabel: string;
+    readonly drawDate: string;
+    readonly status: string;
+    readonly scheduledAt: string;
+    readonly openedAt: string | null;
+    readonly closedAt: string | null;
+    readonly result: unknown | null;
+  };
+  readonly topSelections: readonly AdminDrawOverviewTopSelection[];
+  readonly effectiveLimits: readonly AdminDrawOverviewEffectiveLimit[];
+  readonly exposureAlerts: readonly AdminDrawOverviewExposureAlert[];
+}
+
+export interface AdminDrawOverviewTopSelection {
+  readonly rank: number;
+  readonly displaySelection: string;
+  readonly gameCode: string;
+  readonly betType: string;
+  readonly count: number;
+  readonly totalStakeCents: number;
+}
+
+export interface AdminDrawOverviewEffectiveLimit {
+  readonly ruleKey: string;
+  readonly resolvedScope: string;
+}
+
+export interface AdminDrawOverviewExposureAlert {
+  readonly betType: string;
+  readonly selectionKey: string;
+  readonly stakeTotal: number;
+  readonly salesCount: number;
+  readonly maxStakeExposureLimit: number | null;
+  readonly stakeRatio: number | null;
+}
+
 // ── Mapping helpers ──────────────────────────────────────────────────────────
 
 /**
@@ -351,6 +391,13 @@ export class AdminGeneratedDrawsApiService {
 
   getDrawById(drawId: string, options?: TchRequestOptions): Observable<GeneratedDrawView> {
     return this.backend.get<DrawView>(`/admin/draws/${drawId}`, options).pipe(map(mapDrawView));
+  }
+
+  getDrawOverview(
+    drawId: string,
+    options?: TchRequestOptions,
+  ): Observable<AdminDrawOverviewView> {
+    return this.backend.get<AdminDrawOverviewView>(`/admin/draws/${drawId}/overview`, options);
   }
 
   saveDrawResult(

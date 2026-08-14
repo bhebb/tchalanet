@@ -9,81 +9,110 @@
   gap: 1.25rem;
 }
 
-.admin-limits-overview__cards {
+.admin-limits-overview__quick-actions {
   display: grid;
-  gap: 0.875rem;
-}
-
-.admin-limits-overview__card {
-  display: flex;
-  align-items: center;
   gap: 0.75rem;
-  padding: 0.875rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-md);
-  color: inherit;
-  text-decoration: none;
-  background: var(--tch-color-surface-container-lowest);
-
-  &:hover {
-    border-color: var(--tch-color-primary);
-  }
 }
 
-.admin-limits-overview__card-icon {
+.admin-limits-overview__groups {
   display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  place-items: center;
-  border-radius: var(--tch-radius-pill);
-  background: var(--tch-color-secondary-container);
-  color: var(--tch-color-on-secondary-container);
+  gap: 1rem;
 }
 
-.admin-limits-overview__card-body {
+.admin-limits-overview__group {
   display: grid;
-  gap: 0.125rem;
-  min-width: 0;
-  flex: 1;
+  gap: 0.75rem;
+}
 
-  strong {
-    color: var(--tch-color-on-surface);
-    font-size: var(--tch-font-size-body-md);
+.admin-limits-overview__group-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h3,
+  p {
+    margin: 0;
   }
 
-  span {
+  h3 {
+    font-size: var(--tch-font-size-title-sm, 1rem);
+  }
+
+  p {
+    margin-top: 0.125rem;
     color: var(--tch-color-on-surface-variant);
     font-size: var(--tch-font-size-body-sm);
-    line-height: 1.35;
+    line-height: 1.4;
   }
-}
 
-.admin-limits-overview__card-meta {
-  display: grid;
-  gap: 0.25rem;
-  justify-items: end;
-  color: var(--tch-color-on-surface-variant);
-  font-size: var(--tch-font-size-label-sm);
-  font-weight: var(--tch-weight-semibold, 600);
+  > span {
+    display: grid;
+    min-width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border-radius: var(--tch-radius-pill);
+    background: var(--tch-color-surface-container);
+    color: var(--tch-color-on-surface-variant);
+    font-weight: var(--tch-weight-semibold, 600);
+  }
 }
 
 .admin-limits-overview__rule-list {
   display: grid;
-  gap: 0.625rem;
+  gap: 0.75rem;
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--tch-color-on-surface);
 }
 
 .admin-limits-overview__rule-item {
   display: grid;
   gap: 0.75rem;
-  padding: 0.875rem;
+  padding: 1rem;
   border: 1px solid var(--tch-color-outline-variant);
   border-radius: var(--tch-radius-md);
   background: var(--tch-color-surface-container-lowest);
-  line-height: 1.4;
+  box-shadow: var(--tch-shadow-sm, 0 1px 2px rgb(0 0 0 / 8%));
+}
+
+.admin-limits-overview__rule-main {
+  display: grid;
+  gap: 0.25rem;
+
+  strong {
+    color: var(--tch-color-on-surface);
+    font-size: var(--tch-font-size-body-lg);
+  }
+
+  span {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-body-md);
+  }
+}
+
+.admin-limits-overview__rule-facts {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0;
+
+  div {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  dt {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm);
+    font-weight: var(--tch-weight-semibold, 600);
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--tch-color-on-surface);
+    font-weight: var(--tch-weight-semibold, 600);
+  }
 }
 
 .admin-limits-overview__rule-actions {
@@ -153,10 +182,30 @@
   color: var(--tch-color-on-surface-variant);
 }
 
-.admin-limits-overview__empty-text {
-  margin: 0;
+.admin-limits-overview__empty-state {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  padding: 1.25rem;
+  border: 1px dashed var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-surface-container-lowest);
   color: var(--tch-color-on-surface-variant);
   line-height: 1.45;
+
+  > span {
+    color: var(--tch-color-primary);
+    font-size: 2rem;
+  }
+
+  strong,
+  p {
+    margin: 0;
+  }
+
+  strong {
+    color: var(--tch-color-on-surface);
+  }
 }
 
 .admin-limits-overview__section-actions {
@@ -223,9 +272,17 @@
 }
 
 @include ui.up(expanded) {
+  .admin-limits-overview__quick-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .admin-limits-overview__rule-item {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(13rem, 1.2fr) minmax(0, 2fr) auto;
     align-items: center;
+  }
+
+  .admin-limits-overview__rule-facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .admin-limits-overview__rule-actions {

@@ -60,6 +60,30 @@ export interface TenantAdminPoliciesOverviewView {
   actionLinks: LimitOverviewActionLink[];
   alerts: LimitOverviewAlert[];
   globalRules: LimitOverviewGlobalRule[];
+  activeLimits?: ActiveLimitItem[];
+}
+
+export type ActiveLimitGroup =
+  | 'NUMBER_BLOCK'
+  | 'NUMBER_CAP'
+  | 'TICKET_LIMIT'
+  | 'SELLER_LIMIT'
+  | 'ADVANCED';
+
+export interface ActiveLimitItem {
+  assignmentId: string;
+  ruleKey: RuleKey;
+  group: ActiveLimitGroup;
+  targetType: TargetType;
+  targetId: string;
+  targetLabel: string | null;
+  targetCode: string | null;
+  enabled: boolean;
+  onBreach: BreachOutcome;
+  params: unknown;
+  startsAt: string | null;
+  endsAt: string | null;
+  actions: string[];
 }
 
 export interface LimitOverviewSummary {
@@ -280,6 +304,27 @@ export function formatLimitSentence(row: RuleRow): string {
     default:
       return `${outcome} selon la règle « ${row.spec.label || row.spec.ruleKey} ».`;
   }
+}
+
+export function formatActiveLimitParams(item: ActiveLimitItem): string {
+  const params = (item.params as Record<string, unknown>) ?? {};
+  const selections = params['selections'] ?? params['selectionIds'];
+  const valueCents = params['valueCents'] ?? params['maxStakeCents'] ?? params['amountCents'];
+  const maxCount = params['maxCount'] ?? params['count'];
+
+  if (Array.isArray(selections) && selections.length > 0) {
+    return selections.map(String).join(', ');
+  }
+
+  if (typeof valueCents === 'number') {
+    return formatHtg(valueCents / 100);
+  }
+
+  if (typeof maxCount === 'number') {
+    return formatInteger(maxCount);
+  }
+
+  return '—';
 }
 
 function amountLabel(ruleKey: RuleKey): string {

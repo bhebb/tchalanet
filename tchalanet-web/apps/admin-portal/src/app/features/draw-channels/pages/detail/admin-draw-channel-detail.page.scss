@@ -73,6 +73,14 @@
   gap: 0.75rem;
 }
 
+.dc-detail__limits-anchor {
+  scroll-margin-top: 6rem;
+
+  &:focus {
+    outline: none;
+  }
+}
+
 @include ui.down(expanded) {
   .dc-detail__section-head {
     display: grid;

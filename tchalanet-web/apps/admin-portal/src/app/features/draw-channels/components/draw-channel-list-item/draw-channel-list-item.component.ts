@@ -36,6 +36,7 @@ export class DrawChannelListItemComponent {
 
   readonly configure = output<DrawChannelSlotConfigView>();
   readonly details = output<DrawChannelSlotConfigView>();
+  readonly limits = output<DrawChannelSlotConfigView>();
   readonly toggleEnabled = output<boolean>();
 
   readonly providerLogoUrl = computed(() => consoleLotteryProviderLogoUrl(this.row().providerCode));

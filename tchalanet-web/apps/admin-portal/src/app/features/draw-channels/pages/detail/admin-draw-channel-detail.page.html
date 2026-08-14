@@ -44,6 +44,19 @@
       </p>
     </tch-admin-section-card>
 
+    @if (channelId) {
+    <div id="limits" class="dc-detail__limits-anchor" tabindex="-1">
+      <tch-admin-limits-section
+        targetType="DRAW_CHANNEL"
+        [targetId]="channelId"
+        inheritedTargetType="TENANT"
+        [inheritedScopeLabel]="'admin.limits.section.scope.tenant' | translate"
+        [sectionTitle]="'drawChannel.limitsSection.title' | translate"
+        [defaultExpandedGroups]="['VENTE', 'RESTRICTIONS']"
+      />
+    </div>
+    }
+
     <tch-admin-section-card
       [title]="'admin.drawChannels.detail.links.title' | translate"
       icon="link"
@@ -57,23 +70,20 @@
           <mat-icon aria-hidden="true">event</mat-icon>
           {{ 'admin.drawChannels.actions.viewGeneratedDraws' | translate }}
         </button>
+        <button mat-stroked-button type="button" (click)="scrollToLimits()">
+          <mat-icon aria-hidden="true">shield</mat-icon>
+          {{ 'admin.drawChannels.actions.configureLimits' | translate }}
+        </button>
+        <button mat-stroked-button type="button" (click)="openBlockNumberDialog()">
+          <mat-icon aria-hidden="true">block</mat-icon>
+          {{ 'admin.drawChannels.actions.blockNumber' | translate }}
+        </button>
         <button mat-stroked-button type="button" (click)="load()">
           <mat-icon aria-hidden="true">refresh</mat-icon>
           {{ 'admin.drawChannels.actions.refresh' | translate }}
         </button>
       </div>
     </tch-admin-section-card>
-
-    @if (channelId) {
-      <tch-admin-limits-section
-        targetType="DRAW_CHANNEL"
-        [targetId]="channelId"
-        inheritedTargetType="TENANT"
-        [inheritedScopeLabel]="'admin.limits.section.scope.tenant' | translate"
-        [sectionTitle]="'drawChannel.limitsSection.title' | translate"
-        [defaultExpandedGroups]="['VENTE', 'RESTRICTIONS']"
-      />
-    }
     }
   </ng-container>
 

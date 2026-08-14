@@ -53,12 +53,14 @@ class PrivateShellNavigationResolverTest {
     var sellersGroup =
         sellers.stream().filter(item -> "sellers".equals(item.get("id"))).findFirst();
     assertThat(sellersGroup).isPresent();
-    assertThat(child(sellersGroup.orElseThrow(), "sellers-commissions").get("label_key"))
-        .as("the runtime drawer must use the seller-configuration label, not the commission label")
-        .isEqualTo("nav.admin.seller_configuration");
-    assertThat(child(sellersGroup.orElseThrow(), "sellers-limits").get("label_key"))
-        .as("seller limits are reachable from the seller/device group")
-        .isEqualTo("nav.admin.seller_limits");
+    assertThat(childIds(sellersGroup.orElseThrow()))
+        .as("seller group keeps only the daily seller terminal destinations")
+        .containsExactly("sellers-list", "sellers-new");
+    var limits = sellers.stream().filter(item -> "limits".equals(item.get("id"))).findFirst();
+    assertThat(limits).isPresent();
+    assertThat(limits.orElseThrow().get("path"))
+        .as("limits are reachable as a single top-level operations destination")
+        .isEqualTo("/app/admin/limits");
     assertThat(secondary.stream().map(item -> item.get("id")))
         .as("help lives in the drawer footer, not mixed into either section")
         .containsExactly("help");
