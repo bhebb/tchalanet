@@ -1111,7 +1111,7 @@
         },
         "limitStatus": {
           "label": "Status",
-          "active": "Active",
+          "active": "Enabled",
           "disabled": "Disabled"
         },
         "actions": {
@@ -1160,7 +1160,7 @@
         "BLOCK_BET_TYPE": "Block a game type",
         "MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW": "Ticket count per seller",
         "MAX_STAKE_PER_AGENT_PER_DRAW": "Maximum stake per seller",
-        "MAX_STAKE_PER_OUTLET_PER_DRAW": "Maximum stake per outlet"
+        "MAX_STAKE_PER_OUTLET_PER_DRAW": "Maximum stake per seller"
       },
       "child": {
         "rulesLink": "Supported rules",
