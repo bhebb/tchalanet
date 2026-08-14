@@ -24,7 +24,7 @@ export class TicketVerificationWidget {
     () => stringProp(this.config(), 'descriptionKey') ?? 'public.check.description',
   );
   readonly ctaKey = computed(
-    () => stringProp(this.config(), 'ctaKey') ?? 'public.check.cta',
+    () => normalizeCtaKey(stringProp(this.config(), 'ctaKey')),
   );
   readonly path = computed(() =>
     toPublicPath(stringProp(this.config(), 'path') ?? '/public/check-ticket'),
@@ -49,4 +49,8 @@ function formatWidgetCode(value: string): string {
   const compact = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8);
   if (compact.length <= 4) return compact;
   return `${compact.slice(0, 4)}-${compact.slice(4)}`;
+}
+
+function normalizeCtaKey(key: string | null | undefined): string {
+  return key && key !== 'cta' && key !== 'public.ticket.cta' ? key : 'public.check.cta';
 }
