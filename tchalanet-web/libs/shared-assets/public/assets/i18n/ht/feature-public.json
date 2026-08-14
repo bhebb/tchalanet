@@ -11,12 +11,13 @@
       "title": "Fonksyonalite"
     },
     "hero": {
-      "cta": "Verifye yon tikè",
-      "eyebrow": "Verifikasyon piblik tikè",
-      "subtitle": "Jwe. Verifye. Genyen.",
-      "tagline": "Verifikasyon piblik tikè",
+      "cta": "Dekouvri Tchalanet",
+      "eyebrow": "Tchalanet",
+      "secondary_cta": "Verifye yon tikè",
+      "subtitle": "Vant, jesyon, tiraj, rezilta ak verifikasyon tikè yo reyini nan yon sèl platfòm.",
+      "tagline": "Tchalanet",
       "ticket_helper": "Antre kòd piblik ou pou konnen estati tikè ou.",
-      "title": "Byenveni"
+      "title": "Yon sèl platfòm. Tout ekosistèm lotri a."
     },
     "news": {
       "empty": "Pa gen nouvèl pou kounye a.",
