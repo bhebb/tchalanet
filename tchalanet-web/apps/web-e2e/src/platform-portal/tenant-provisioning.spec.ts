@@ -36,7 +36,7 @@ const previewStub = {
 };
 
 const provisionStub = {
-  tenantId: { value: STUB_TENANT_ID },
+  tenantId: STUB_TENANT_ID,
   tenantCode: 'TEST-ACME',
   tenantName: 'Test ACME',
   adminUserId: { value: 'admin-user-1' },
@@ -57,7 +57,23 @@ async function installProvisioningStubs(page: import('@playwright/test').Page): 
   });
   await page.route(new RegExp(`/platform/tenants/${STUB_TENANT_ID}`), route => {
     if (route.request().resourceType() === 'document') { route.continue(); return; }
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'SUCCESS', data: { tenantId: { value: STUB_TENANT_ID }, code: 'TEST-ACME', name: 'Test ACME', status: 'DRAFT', type: 'LOTTERY', currency: 'HTG', timezone: 'America/Port-au-Prince' }, notices: [] }) });
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 'SUCCESS',
+        data: {
+          tenantId: STUB_TENANT_ID,
+          code: 'TEST-ACME',
+          name: 'Test ACME',
+          status: 'DRAFT',
+          type: 'LOTTERY',
+          currency: 'HTG',
+          timezone: 'America/Port-au-Prince',
+        },
+        notices: [],
+      }),
+    });
   });
 }
 
@@ -77,9 +93,9 @@ test.describe('Tenant provisioning — form contract', () => {
     const shell = page.locator('tch-admin-page-shell');
     await expect(shell).toBeVisible({ timeout: 10_000 });
 
-    // Identity, regional, commercial, profile, admin sections must all be present
+    // Identity, regional, commercial, profile, admin, and plan sections must all be present.
     const cards = page.locator('tch-admin-section-card');
-    await expect(cards).toHaveCount(5, { timeout: 5_000 });
+    await expect(cards).toHaveCount(6, { timeout: 5_000 });
   });
 
   test('code field is required — submit shows validation', async ({ page }) => {
@@ -88,12 +104,11 @@ test.describe('Tenant provisioning — form contract', () => {
     const shell = page.locator('tch-admin-page-shell');
     await expect(shell).toBeVisible({ timeout: 10_000 });
 
-    // Click submit without filling required fields
-    const submitBtn = page.locator('button[type="submit"], button', { hasText: /créer|provision|soumettre|submit/i }).first();
-    await submitBtn.click();
+    const submitBtn = page.locator('tch-submit-button button[type="submit"]').first();
+    await expect(submitBtn).toBeVisible({ timeout: 5_000 });
+    await expect(submitBtn).toBeDisabled();
 
-    // At least one mat-error should become visible
-    await expect(page.locator('mat-error').first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator('.tenant-provisioning__submit-hint')).toBeVisible({ timeout: 5_000 });
   });
 
   test('back link returns to tenant list', async ({ page }) => {

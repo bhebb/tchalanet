@@ -17,9 +17,8 @@
           <div class="latest-results-widget__item-top">
             <div class="latest-results-widget__item-meta">
               <h3 class="latest-results-widget__item-name">
-                {{ (slot.drawChannelLabelKey || slot.label || slot.slotKey || slot.provider) | tchLabel }}
+                {{ slotTitle(slot) }}
               </h3>
-              <p class="latest-results-widget__item-slot-key">{{ slot.slotKey }}</p>
               <time class="latest-results-widget__item-date">
                 {{ slot.resultDate || slot.latest?.resultDate || slot.next?.localDate || '' }}{{ slotTime(slot) ? ' · ' + slotTime(slot) : '' }}
               </time>

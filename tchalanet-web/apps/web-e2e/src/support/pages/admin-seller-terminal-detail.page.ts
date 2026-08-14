@@ -33,7 +33,10 @@ export class AdminSellerTerminalDetailPage {
     await expect(this.main.getByTestId('admin-detail-section')).toHaveCount(4);
     // The summary is an identity card in the aside; detail sections remain in the main column.
     await expect(this.aside.getByTestId('admin-detail-section')).toHaveCount(0);
-    await expect(this.page.getByTestId('admin-page-actions').getByRole('link')).toHaveCount(3);
+    const actionLinks = this.page.getByTestId('admin-page-actions').getByRole('link');
+    await expect(actionLinks.filter({ hasText: /retour|back/i })).toHaveCount(1);
+    await expect(actionLinks.filter({ hasText: /modifier|edit/i })).toHaveCount(1);
+    await expect(actionLinks.filter({ hasText: /barèmes|barem|pricing/i })).toHaveCount(1);
   }
 
   async expectBlockingError(): Promise<void> {

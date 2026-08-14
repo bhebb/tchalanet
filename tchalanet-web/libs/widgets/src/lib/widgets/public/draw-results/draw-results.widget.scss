@@ -69,14 +69,6 @@ tch-card.latest-results-widget__item {
   color: var(--tch-color-on-surface, var(--mat-sys-on-surface));
 }
 
-.latest-results-widget__item-slot-key {
-  margin: 0;
-  font-size: var(--tch-font-size-label-sm, 0.75rem);
-  font-family: var(--tch-font-family-mono, monospace);
-  color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
-  opacity: 0.6;
-}
-
 .latest-results-widget__item-date {
   font-size: var(--tch-font-size-label-sm, 0.75rem);
   color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));

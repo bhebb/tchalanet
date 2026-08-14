@@ -37,6 +37,41 @@ class DrawChannelLabelKeyResolverTest {
         .isEqualTo("draw_channel.tx.1800.label");
     assertThat(DrawChannelLabelKeyResolver.resolve("TX_2212"))
         .isEqualTo("draw_channel.tx.2212.label");
+
+    assertThat(DrawChannelLabelKeyResolver.resolve("PA_MID"))
+        .isEqualTo("draw_channel.pa.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("PA_EVE"))
+        .isEqualTo("draw_channel.pa.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("NJ_MID"))
+        .isEqualTo("draw_channel.nj.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("NJ_EVE"))
+        .isEqualTo("draw_channel.nj.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("CA_MID"))
+        .isEqualTo("draw_channel.ca.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("CA_EVE"))
+        .isEqualTo("draw_channel.ca.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("OH_MID"))
+        .isEqualTo("draw_channel.oh.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("OH_EVE"))
+        .isEqualTo("draw_channel.oh.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("MI_MID"))
+        .isEqualTo("draw_channel.mi.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("MI_EVE"))
+        .isEqualTo("draw_channel.mi.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("TN_MID"))
+        .isEqualTo("draw_channel.tn.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("TN_EVE"))
+        .isEqualTo("draw_channel.tn.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("IL_MID"))
+        .isEqualTo("draw_channel.il.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("IL_EVE"))
+        .isEqualTo("draw_channel.il.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("MO_MID"))
+        .isEqualTo("draw_channel.mo.mid.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("MO_EVE"))
+        .isEqualTo("draw_channel.mo.eve.label");
+    assertThat(DrawChannelLabelKeyResolver.resolve("MN_EVE"))
+        .isEqualTo("draw_channel.mn.eve.label");
   }
 
   @Test

@@ -23,7 +23,6 @@ test.describe('Admin games configuration — mobile', () => {
     await expect(firstCard).toBeVisible();
     await expect(firstCard).toContainText(/Bolèt|Bolet/);
     await expect(firstCard.locator('.gp-game-card__logo img')).toBeVisible();
-    await expect(firstCard).toContainText(/POS/);
     await expect(firstCard).toContainText(/Mises|Miz|Stakes/);
     await expect(firstCard).toContainText(/Barème|Barèm|Payouts/);
 

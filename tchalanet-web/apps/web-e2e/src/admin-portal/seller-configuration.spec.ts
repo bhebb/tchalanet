@@ -24,6 +24,7 @@ test.describe('Admin seller configuration — pricing overrides', () => {
     await page.goto('/app/admin/seller-terminals/commissions');
 
     const sellerCard = page.locator('.commission-table__mobile-card').first();
+    await expect(sellerCard).toBeVisible({ timeout: 10_000 });
     await expect(sellerCard).toContainText('Bhebbb');
     await sellerCard
       .locator('a[href="/app/admin/seller-terminals/stub-terminal-1/overrides"]')
@@ -32,6 +33,7 @@ test.describe('Admin seller configuration — pricing overrides', () => {
     await expect(page).toHaveURL(/\/app\/admin\/seller-terminals\/stub-terminal-1\/overrides$/);
 
     const row = page.locator('.seller-overrides__row').first();
+    await expect(row).toBeVisible({ timeout: 10_000 });
     const input = row.locator('input[type="number"]');
     await expect(input).toHaveValue('10');
 
@@ -41,7 +43,7 @@ test.describe('Admin seller configuration — pricing overrides', () => {
         response.url().includes('/admin/controls/pricing-rules/seller-terminals/stub-terminal-1') &&
         response.request().method() === 'PUT',
     );
-    await row.getByRole('button', { name: 'Enregistrer' }).click();
+    await row.getByRole('button', { name: /enregistrer|anregistre|save/i }).click();
 
     const response = await saveResponse;
     expect(response.status()).toBe(200);
@@ -60,7 +62,7 @@ test.describe('Admin seller configuration — pricing overrides', () => {
           .includes('/admin/controls/pricing-rules/seller-terminals/stub-terminal-1/overrides/') &&
         response.request().method() === 'DELETE',
     );
-    await row.getByRole('button', { name: 'Revenir tenant' }).click();
+    await row.getByRole('button', { name: /revenir tenant|retounen tenant|tenant inheritance/i }).click();
     expect((await deleteResponse).status()).toBe(200);
     await expect(row.getByText('Hérite du tenant')).toBeVisible();
   });

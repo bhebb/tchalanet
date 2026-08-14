@@ -60,6 +60,14 @@
         "label": "Georgia — Nuit"
       }
     },
+    "il": {
+      "mid": {
+        "label": "Illinois — Midi"
+      },
+      "eve": {
+        "label": "Illinois — Soir"
+      }
+    },
     "tx": {
       "1000": {
         "label": "Texas — 10:00"
@@ -82,12 +90,41 @@
         "label": "Michigan — Soir"
       }
     },
+    "mn": {
+      "eve": {
+        "label": "Minnesota — Soir"
+      }
+    },
+    "mo": {
+      "mid": {
+        "label": "Missouri — Midi"
+      },
+      "eve": {
+        "label": "Missouri — Soir"
+      }
+    },
+    "oh": {
+      "mid": {
+        "label": "Ohio — Midi"
+      },
+      "eve": {
+        "label": "Ohio — Soir"
+      }
+    },
     "pa": {
       "mid": {
         "label": "Pennsylvania — Jour"
       },
       "eve": {
         "label": "Pennsylvania — Soir"
+      }
+    },
+    "tn": {
+      "mid": {
+        "label": "Tennessee — Midi"
+      },
+      "eve": {
+        "label": "Tennessee — Soir"
       }
     },
     "ca": {
