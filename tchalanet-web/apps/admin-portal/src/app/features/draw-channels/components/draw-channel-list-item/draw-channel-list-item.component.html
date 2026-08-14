@@ -55,6 +55,25 @@
           }}
         </span>
       </button>
+      <button
+        mat-icon-button
+        type="button"
+        [matMenuTriggerFor]="channelActions"
+        [disabled]="!slot.channelId"
+        [attr.aria-label]="'admin.drawChannels.actions.more' | translate"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+      </button>
+      <mat-menu #channelActions="matMenu">
+        <button mat-menu-item type="button" (click)="details.emit(slot)">
+          <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          <span>{{ 'admin.drawChannels.actions.viewDetails' | translate }}</span>
+        </button>
+        <button mat-menu-item type="button" (click)="limits.emit(slot)">
+          <span class="material-symbols-outlined" aria-hidden="true">shield</span>
+          <span>{{ 'admin.drawChannels.actions.configureLimits' | translate }}</span>
+        </button>
+      </mat-menu>
     </div>
   </header>
 
@@ -120,24 +139,5 @@
     >
       {{ 'admin.drawChannels.actions.configure' | translate }}
     </button>
-    <button
-      mat-icon-button
-      type="button"
-      [matMenuTriggerFor]="channelActions"
-      [disabled]="!slot.channelId"
-      [attr.aria-label]="'admin.drawChannels.actions.more' | translate"
-    >
-      <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
-    </button>
-    <mat-menu #channelActions="matMenu">
-      <button mat-menu-item type="button" (click)="details.emit(slot)">
-        <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-        <span>{{ 'admin.drawChannels.actions.viewDetails' | translate }}</span>
-      </button>
-      <button mat-menu-item type="button" (click)="limits.emit(slot)">
-        <span class="material-symbols-outlined" aria-hidden="true">shield</span>
-        <span>{{ 'admin.drawChannels.actions.configureLimits' | translate }}</span>
-      </button>
-    </mat-menu>
   </div>
 </article>

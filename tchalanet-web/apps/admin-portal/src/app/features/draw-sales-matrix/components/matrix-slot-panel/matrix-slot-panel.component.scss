@@ -32,6 +32,20 @@
     color: var(--tch-color-on-surface-variant);
     font-size: var(--tch-font-size-label-sm);
   }
+
+  &__action {
+    --mdc-icon-button-state-layer-size: 2rem;
+    color: var(--tch-color-primary);
+    flex: 0 0 auto;
+    height: 2rem;
+    padding: 0;
+    width: 2rem;
+
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-size: 1.125rem;
+    }
+  }
 }
 
 .matrix-channel-info {
@@ -77,44 +91,10 @@
     font-size: var(--tch-font-size-label-sm);
   }
 
-  &__cta {
-    grid-column: 1 / -1;
-    justify-self: start;
-  }
-
   &--missing {
     border-color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 45%, var(--tch-color-outline-variant));
     background: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 5%, var(--tch-color-surface));
     color: var(--tch-color-on-surface);
-  }
-}
-
-.matrix-slot-overview {
-  display: grid;
-  gap: 0.5rem;
-  grid-template-columns: 1fr;
-  margin-block: 0.5rem 0.75rem;
-
-  &__item {
-    background: var(--tch-color-surface-container-low);
-    border: 1px solid var(--tch-color-outline-variant);
-    border-radius: var(--tch-radius-sm);
-    display: grid;
-    gap: 0.125rem;
-    min-width: 0;
-    padding: 0.625rem;
-
-    span {
-      color: var(--tch-color-on-surface-variant);
-      font-size: var(--tch-font-size-label-sm);
-      overflow-wrap: anywhere;
-    }
-
-    strong {
-      color: var(--tch-color-on-surface);
-      font-size: var(--tch-font-size-title-md);
-      font-weight: var(--tch-weight-bold);
-    }
   }
 }
 
@@ -182,18 +162,8 @@
 }
 
 @include ui.up(medium) {
-  .matrix-slot-overview {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .matrix-channel-info {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-
-    &__cta {
-      grid-column: auto;
-      align-self: center;
-      justify-self: end;
-    }
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
   .matrix-slot-header {

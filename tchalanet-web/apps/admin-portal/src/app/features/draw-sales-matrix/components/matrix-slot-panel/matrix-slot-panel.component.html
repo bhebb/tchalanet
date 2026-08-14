@@ -13,26 +13,26 @@
         } @else if (!slotVm.channel.active) {
           <span class="matrix-badge matrix-badge--warn">{{ 'admin.drawSalesMatrix.slot.channelInactive' | translate }}</span>
         }
+        <a
+          mat-icon-button
+          class="matrix-slot-header__action"
+          routerLink="/app/admin/draw-channels"
+          [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
+          [attr.aria-label]="
+            (slotVm.channel
+              ? 'admin.drawSalesMatrix.channel.editChannel'
+              : 'admin.drawSalesMatrix.channel.configureChannels'
+            ) | translate
+          "
+          (click)="$event.stopPropagation()"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+        </a>
       </span>
     </mat-panel-title>
   </mat-expansion-panel-header>
 
   @if (slotVm.channel; as channel) {
-    <div class="matrix-slot-overview">
-      <div class="matrix-slot-overview__item">
-        <span>{{ 'admin.drawSalesMatrix.slot.activeGamesLabel' | translate }}</span>
-        <strong>{{ activeOfferedCount() }}</strong>
-      </div>
-      <div class="matrix-slot-overview__item">
-        <span>{{ 'admin.drawSalesMatrix.slot.offeredGamesLabel' | translate }}</span>
-        <strong>{{ offeredCount() }}</strong>
-      </div>
-      <div class="matrix-slot-overview__item">
-        <span>{{ 'admin.drawSalesMatrix.slot.availableGamesLabel' | translate }}</span>
-        <strong>{{ availableGames().length }}</strong>
-      </div>
-    </div>
-
     <div class="matrix-channel-info">
       <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">schedule</span>
       <div class="matrix-channel-info__body">
@@ -56,27 +56,11 @@
           }
         </span>
       </div>
-      <a
-        mat-stroked-button
-        class="matrix-channel-info__cta"
-        routerLink="/app/admin/draw-channels"
-        [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
-      >
-        {{ 'admin.drawSalesMatrix.channel.editChannel' | translate }}
-      </a>
     </div>
   } @else {
     <div class="matrix-channel-info matrix-channel-info--missing">
       <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">router</span>
       <span class="matrix-channel-info__body">{{ 'admin.drawSalesMatrix.channel.missingHelp' | translate }}</span>
-      <a
-        mat-stroked-button
-        class="matrix-channel-info__cta"
-        routerLink="/app/admin/draw-channels"
-        [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
-      >
-        {{ 'admin.drawSalesMatrix.channel.configureChannels' | translate }}
-      </a>
     </div>
   }
 
