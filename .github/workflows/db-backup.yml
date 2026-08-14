@@ -64,7 +64,7 @@ jobs:
       # Le cron quotidien vise la prod, l'hebdomadaire le staging. Un
       # déclenchement manuel suit toujours l'entrée choisie.
       IS_PROD: ${{ (github.event_name == 'schedule' && github.event.schedule == '7 8 * * *') || inputs.target_environment == 'production' }}
-      HCLOUD_TOKEN_VALUE: ${{ secrets.HCLOUD_TOKEN }}
+      HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
     outputs:
       skipped: ${{ steps.guard.outputs.skipped }}
       deploy_env: ${{ steps.guard.outputs.deploy_env }}
@@ -72,10 +72,8 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup hcloud for staging host resolution
-        if: ${{ env.IS_PROD != 'true' && env.HCLOUD_TOKEN_VALUE != '' }}
+        if: ${{ env.IS_PROD != 'true' && env.HCLOUD_TOKEN != '' }}
         uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
-        with:
-          token: ${{ env.HCLOUD_TOKEN_VALUE }}
 
       - name: Resolve target and validate secrets
         id: guard
@@ -94,7 +92,12 @@ jobs:
             DEPLOY_ENV=prod; HOST="$PROD_HOST"
           else
             DEPLOY_ENV=staging
-            if command -v hcloud >/dev/null 2>&1 && hcloud server describe stg-app >/dev/null 2>&1; then
+            if [ -n "$HCLOUD_TOKEN" ]; then
+              command -v hcloud >/dev/null 2>&1 || { echo "hcloud CLI unavailable" >&2; exit 1; }
+              hcloud server describe stg-app >/dev/null 2>&1 || {
+                echo "Unable to resolve staging host from Hetzner server stg-app" >&2
+                exit 1
+              }
               HOST="$(hcloud server describe stg-app -o json | jq -r '.public_net.ipv4.ip')"
             else
               HOST="$STG_HOST"
