@@ -68,5 +68,5 @@ export class PublicMarkdownPage {
 
 function readFile(data: Data): PublicMarkdownFile {
   const v = data['file'];
-  return v === 'privacy' || v === 'terms' ? v : 'privacy';
+  return v === 'privacy' || v === 'terms' || v === 'data-deletion' ? v : 'privacy';
 }

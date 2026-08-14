@@ -224,6 +224,23 @@
           "reasonKey": null,
           "badge": null,
           "children": []
+        },
+        {
+          "id": "dataDeletion",
+          "kind": "link",
+          "labelKey": "public.footer.legal.data_deletion",
+          "label": null,
+          "destination": {
+            "kind": "route",
+            "value": "/public/data-deletion"
+          },
+          "icon": "delete_sweep",
+          "image": null,
+          "activeMatch": "prefix",
+          "disabled": false,
+          "reasonKey": null,
+          "badge": null,
+          "children": []
         }
       ]
     }

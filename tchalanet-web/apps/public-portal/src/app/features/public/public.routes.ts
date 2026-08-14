@@ -93,6 +93,12 @@ const publicFeatureRoutes: Route[] = [
       import('./markdown/public-markdown.page').then(m => m.PublicMarkdownPage),
     data: { titleKey: 'public.footer.legal.terms', file: 'terms' },
   },
+  {
+    path: 'data-deletion',
+    loadComponent: () =>
+      import('./markdown/public-markdown.page').then(m => m.PublicMarkdownPage),
+    data: { titleKey: 'public.footer.legal.data_deletion', file: 'data-deletion' },
+  },
 ];
 
 export const publicRoutes: Route[] = [

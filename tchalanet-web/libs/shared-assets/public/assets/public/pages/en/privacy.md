@@ -1,59 +1,104 @@
 # Privacy Policy
 
-*Last updated: June 2026*
+*Last updated: August 2026*
 
 ---
 
-## 1. Introduction
+## 1. Purpose
 
-Tchalanet is committed to protecting the privacy of users of its public services. This policy describes the information we collect, how it is used, and your rights.
+This policy explains how Tchalanet handles data for its public services and Android mobile app `com.tchalanet.mobile`. It covers results consultation, public ticket verification, the manager space, the mobile sales app, ticket scanning, and printing through a terminal or Bluetooth printer.
 
-## 2. Information Collected
+The app and service name is Tchalanet. The developer entity shown on Google Play must match the entity publishing the app.
 
-### Browsing Information
+## 2. Data We Process
 
-When you use Tchalanet's public surfaces, we automatically collect technical information such as IP address, browser type, pages visited, and session duration. This data is used solely for analysis and service improvement purposes.
+Tchalanet processes only the data needed to operate, secure, support, and improve the service.
 
-### Public Ticket Code
+| Category | Examples | Purpose |
+|---|---|---|
+| Account and authentication | email or login identifier, authentication tokens, roles, permissions, organization, seller or terminal assignment | sign-in, access control, security, session management |
+| Lottery operation data | prepared or sold tickets, game lines, stakes, draws, results, ticket statuses, public codes, scan or verification actions | sales, verification, results, reports, terminal control |
+| Contact data | seller phone number, contact form information, customer phone number only if an SMS option is enabled | support, demonstration, profile management, ticket information delivery if requested |
+| Technical data | IP address, timestamps, device, app version, language, technical logs, request identifiers | security, diagnostics, abuse prevention, service improvement |
+| Local app data | selected language, selected Bluetooth printer, tokens in secure phone storage | usability, printing, session continuity |
 
-When you use the ticket verification feature, the public code you enter is transmitted to our service to look up the corresponding ticket status. This code does not contain any personally identifiable information.
+Tchalanet does not sell personal data.
 
-## 3. Use of Data
+## 3. Mobile App Permissions and Sensors
 
-The data collected is used to:
+The Android app may request the following permissions:
 
-- Ensure the proper operation of public services
-- Analyze usage and improve the experience
-- Detect and prevent fraudulent use
-- Meet applicable legal obligations
+- **Camera**: scan a QR code or ticket code. Camera input is used to read the code; Tchalanet does not store it as a photo or video.
+- **Bluetooth**: find, select, and use a compatible ticket printer.
+- **Location on Android 11 and earlier**: technically required by Android for Bluetooth discovery. Tchalanet does not track user location.
+- **Internet**: communicate with Tchalanet services and authentication services.
 
-## 4. Data Sharing
+The app does not request contacts, SMS, call log, microphone, personal photos, or advertising ID access.
 
-Tchalanet does not sell your personal data. Data may be shared with technical providers operating under strict confidentiality agreements, only as part of service delivery.
+## 4. Cookies and Local Storage
 
-## 5. Retention
+Tchalanet public web surfaces use cookies or equivalent mechanisms that are strictly necessary for the service, such as language, security, session, and stability. No advertising cookies are used on Tchalanet public surfaces.
 
-Browsing data is retained for a maximum of 13 months. Ticket verification queries are not associated with a user profile.
+The mobile app does not use advertising cookies. It uses:
 
-## 6. Your Rights
+- secure Android storage for authentication tokens;
+- local preferences for language and printer configuration;
+- device memory for operations in progress.
 
-In accordance with applicable law, you have the following rights:
+## 5. Third-Party Services
 
-- **Right of access**: view data concerning you
-- **Right of rectification**: correct inaccurate data
-- **Right to erasure**: request deletion of your data
-- **Right to object**: object to certain processing
+Tchalanet may rely on technical providers to deliver the service, including:
 
-To exercise these rights, contact us via the [Contact](/public/contact) page.
+- Firebase Authentication, for authentication;
+- Google Play services and Android, for platform functions;
+- hosting, network, backup, security, and monitoring providers;
+- communication services if a notification or SMS is requested or configured.
 
-## 7. Cookies
+These providers process data only according to their technical and contractual role.
 
-Tchalanet's public surfaces use technical cookies necessary for the service to function. No advertising cookies are used.
+## 6. Data Sharing
 
-## 8. Changes
+Data may be shared only with:
 
-This policy may be updated. Any significant changes will be communicated through Tchalanet's official communication channels.
+- the organization or manager the user belongs to;
+- technical providers necessary to provide the service;
+- competent authorities if legally required;
+- authorized support and security teams.
+
+Tchalanet does not share data for behavioral advertising.
+
+## 7. Security
+
+Tchalanet applies appropriate security measures: encrypted communications, secure mobile token storage, role-based access control, logging, organization isolation, technical monitoring, and backups.
+
+## 8. Retention
+
+Data is kept only for as long as needed for the purposes described above, including:
+
+- account data: for the duration of access to the service;
+- mobile tokens: until logout, expiration, or app deletion;
+- ticket, draw, and report operation data: according to applicable business, accounting, anti-fraud, and legal obligations;
+- technical logs: for the limited time needed for security, diagnostics, and abuse prevention;
+- contact requests: for the time needed to process and follow up on the request.
+
+Some data may be kept longer if required by law, security obligations, disputes, or legal holds.
+
+## 9. Account and Data Deletion
+
+Users may request deletion of their account or associated data through the [Data Deletion](/public/data-deletion) page or [Contact](/public/contact).
+
+After the request is validated, Tchalanet deletes or anonymizes personal data that is no longer necessary. Data that must be retained for legal, anti-fraud, security, or audit obligations may be kept for the required period.
+
+## 10. User Rights
+
+Depending on applicable law, you may request access, correction, deletion, restriction, or objection to the processing of your data. You may also request information about processed data and recipients.
+
+To exercise these rights, use [Contact](/public/contact) or the [Data Deletion](/public/data-deletion) page.
+
+## 11. Changes
+
+This policy may be updated to reflect service changes, legal obligations, or Google Play requirements. The version published on this page is the applicable version.
 
 ---
 
-For any questions, contact our team via [the Contact page](/public/contact).
+For questions, contact the Tchalanet team through [Contact](/public/contact).

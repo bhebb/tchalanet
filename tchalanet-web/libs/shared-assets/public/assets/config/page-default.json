@@ -101,11 +101,11 @@
                   },
                   "primaryCta": {
                     "labelKey": "home.hero.cta",
-                    "path": "/register"
+                    "path": "/public/managers"
                   },
                   "secondaryCta": {
-                    "labelKey": "home.hero.demo",
-                    "path": "/demo"
+                    "labelKey": "home.hero.secondary_cta",
+                    "path": "/public/check-ticket"
                   }
                 }
               }
@@ -530,4 +530,3 @@
   "i18n": {},
   "issues": []
 }
-
