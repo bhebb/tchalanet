@@ -1,4 +1,4 @@
-import { providerLabel, publicResultIdentity, resolveSlotKeys, slotTypeKey } from './public-results.utils';
+import { formatResultDate, providerLabel, publicResultIdentity, resolveSlotKeys, slotTypeKey } from './public-results.utils';
 
 const slots = [
   { slotKey: 'NY_MID', provider: 'NY', drawTime: '12:30:00' },
@@ -41,7 +41,7 @@ describe('public result identity', () => {
     expect(view.identity.providerName).toBe('New York');
     expect(view.identity.channelName).toBe('New York · Midday');
     expect(view.identity.providerLogoUrl).toContain('/assets/images/logo/ny_logo.png');
-    expect(view.dateTimeLabel).toBe('2026-07-04 · 12:30');
+    expect(view.dateTimeLabel).toBe(`${formatResultDate('2026-07-04')} · 12:30`);
   });
 
   it('keeps legacy Haiti channel labels as fallback instead of canonical public labels', () => {

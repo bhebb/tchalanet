@@ -75,7 +75,7 @@ export function publicResultIdentity(source: PublicResultIdentitySource): Public
 
   return {
     identity: summary.identity,
-    dateTimeLabel: [source.resultDate, time].filter(Boolean).join(' · '),
+    dateTimeLabel: [formatResultDate(source.resultDate), time].filter(Boolean).join(' · '),
   };
 }
 
@@ -91,6 +91,22 @@ export function slotTypeKey(slot: PublicResultSlotFilterSource): Exclude<SlotTyp
   }
 
   return 'mid';
+}
+
+/** Formats an ISO date string (YYYY-MM-DD) for display in French. */
+export function formatResultDate(iso: string | null | undefined): string {
+  if (!iso) return '';
+  const d = new Date(`${iso}T12:00:00`);
+  if (isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat('fr', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+}
+
+/** Returns a CSS-safe slot category token for color theming. */
+export function slotColorToken(slotKey: string): 'pick3' | 'pick4' | 'borlette' {
+  const key = slotKey.toLowerCase();
+  if (key.includes('pick4') || key.includes('cash4') || key.includes('daily4') || key.includes('win4')) return 'pick4';
+  if (key.includes('pick3') || key.includes('cash3') || key.includes('daily3') || key.includes('numbers')) return 'pick3';
+  return 'borlette';
 }
 
 function hhmm(time: string | null | undefined): string {
