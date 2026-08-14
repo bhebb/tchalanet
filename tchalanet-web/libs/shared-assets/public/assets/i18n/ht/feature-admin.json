@@ -778,7 +778,7 @@
           "edit": "Modifye",
           "unavailable": "Pa disponib",
           "maryaj": "Konfigire Maryaj gratis",
-          "availability": "Disponiblite pa tiraj"
+          "availability": "Jwèt pa tiraj"
         }
       },
       "confirm": {
@@ -1266,7 +1266,7 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Jwèt pa kanal tiraj",
+      "title": "Jwèt pa tiraj",
       "description": "Aktive oswa dezaktive jwèt yo pa règ tiraj. Lè, fèmti vant ak lyen règ la modifye nan fich règ tiraj la.",
       "loading": "Chajman matriks la...",
       "action": {
@@ -1934,8 +1934,8 @@
         "drawTimeLabel": "Lè tiraj",
         "salesCloseLabel": "Fèmti vant",
         "catalogLabel": "Katalòg",
-        "saleEnabled": "An vant",
-        "saleDisabled": "Dezaktive",
+        "saleEnabled": "Aktif",
+        "saleDisabled": "Inaktif",
         "saleToggleLabel": "Vann sou tiraj sa a",
         "platformActive": "Disponib nan katalòg",
         "platformInactive": "Dezaktive nan katalòg",
@@ -1955,7 +1955,8 @@
         "configureLimits": "Plafon ak blokaj",
         "blockNumber": "Bloke nimewo",
         "viewGeneratedDraws": "Gade tiraj yo",
-        "viewDetails": "Gade detay"
+        "viewDetails": "Gade detay",
+        "more": "Plis aksyon"
       },
       "detail": {
         "titleFallback": "Detay kanal tiraj",

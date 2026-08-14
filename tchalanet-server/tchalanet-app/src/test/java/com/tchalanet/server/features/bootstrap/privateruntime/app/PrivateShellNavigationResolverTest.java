@@ -48,7 +48,8 @@ class PrivateShellNavigationResolverTest {
         .containsExactly("dashboard", "draws", "sellers", "limits", "tickets", "reports");
     assertThat(itemIds(sections.get(1)))
         .as("configuration: rarely-touched setup, kept out of the daily section")
-        .containsExactly("setup", "draws-channels", "games", "maryaj-gratis", "company");
+        .containsExactly(
+            "setup", "draws-channels", "games", "games-channel-matrix", "maryaj-gratis", "company");
     var sellers = (List<Map<String, Object>>) sections.get(0).get("items");
     var sellersGroup =
         sellers.stream().filter(item -> "sellers".equals(item.get("id"))).findFirst();

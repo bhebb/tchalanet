@@ -532,14 +532,13 @@ export const TENANT_ADMIN_NAVIGATION: readonly NavigationSection[] = [
         icon: 'casino',
         destination: { kind: 'route', value: '/app/admin/games' },
         activeRoutes: ['/app/admin/pricing'],
-        children: [
-          {
-            id: 'games-channel-matrix',
-            labelKey: 'nav.admin.games_channel_matrix',
-            icon: 'grid_view',
-            destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
-          },
-        ],
+        activeMatch: 'exact',
+      },
+      {
+        id: 'games-channel-matrix',
+        labelKey: 'nav.admin.games_channel_matrix',
+        icon: 'grid_view',
+        destination: { kind: 'route', value: '/app/admin/games/channel-matrix' },
       },
       {
         id: 'maryaj-gratis',

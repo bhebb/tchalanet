@@ -309,15 +309,14 @@
             "active_routes": [
               "/app/admin/pricing"
             ],
-            "children": [
-              {
-                "id": "games-channel-matrix",
-                "label_key": "nav.admin.games_channel_matrix",
-                "path": "/app/admin/games/channel-matrix",
-                "kind": "internal",
-                "icon": "grid_view"
-              }
-            ]
+            "active_match": "exact"
+          },
+          {
+            "id": "games-channel-matrix",
+            "label_key": "nav.admin.games_channel_matrix",
+            "path": "/app/admin/games/channel-matrix",
+            "kind": "internal",
+            "icon": "grid_view"
           },
           {
             "id": "maryaj-gratis",
