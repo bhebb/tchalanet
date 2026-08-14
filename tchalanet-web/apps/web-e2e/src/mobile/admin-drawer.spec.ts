@@ -79,11 +79,10 @@ test.describe('admin console drawer on a narrow viewport', () => {
     // page became effectively unreachable for anyone who didn't know to tap a heading. Every
     // child, including the landing one, is now an ordinary row; the title is never interactive.
     //
-    // The static fallback model's first section is admin/[dashboard, sellers, draws, reports,
-    // tickets] — dashboard has no children so it's a plain row, making "sellers" the first
-    // category, same assumption every other test in this file already relies on via `.first()`.
+    // The current admin order is dashboard, draws, sellers, limits, tickets, reports. Dashboard
+    // and limits are plain links; draws is the first category and sellers is the second one.
     await page.locator(toggle).click();
-    await page.locator(category).first().click();
+    await page.locator(category).nth(1).click();
 
     const title = page.locator(`${panel} h2`);
     await expect(title).toBeVisible();

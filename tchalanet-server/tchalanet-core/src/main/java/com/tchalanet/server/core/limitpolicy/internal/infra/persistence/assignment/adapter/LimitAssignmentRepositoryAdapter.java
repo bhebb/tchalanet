@@ -1,6 +1,7 @@
 package com.tchalanet.server.core.limitpolicy.internal.infra.persistence.assignment.adapter;
 
 import com.tchalanet.server.common.types.id.LimitAssignmentId;
+import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.core.limitpolicy.api.RuleKey;
 import com.tchalanet.server.core.limitpolicy.api.model.LimitScopeRef;
 import com.tchalanet.server.core.limitpolicy.internal.application.port.out.assignment.LimitAssignmentReaderPort;
@@ -73,6 +74,11 @@ public class LimitAssignmentRepositoryAdapter
     var scopeId = scopeMapper.toId(scope);
 
     return repo.findAllByScope(scopeType, scopeId).stream().map(mapper::toDomain).toList();
+  }
+
+  @Override
+  public List<LimitAssignment> listByTenant(TenantId tenantId) {
+    return repo.findAllActiveByTenantId(tenantId.value()).stream().map(mapper::toDomain).toList();
   }
 
   @Override

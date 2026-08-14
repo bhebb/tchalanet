@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ViewportScroller } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +24,7 @@ import {
 import { resourceErrorVm } from '@tch/web/async';
 import { type ErrorViewModel } from '@tch/web/errors';
 
+import { BlockNumberQuickDialogComponent } from '../../../limits/components/block-number-quick-dialog/block-number-quick-dialog.component';
 import { AdminLimitsSectionComponent } from '../../../limits/components/limits-section/admin-limits-section.component';
 import { DrawChannelConfigDialog } from '../../components/draw-channel-config-dialog/draw-channel-config.dialog';
 import { AdminDrawChannelsApiService } from '../../data-access/admin-draw-channels-api.service';
@@ -58,6 +60,8 @@ export class AdminDrawChannelDetailPage {
   private readonly api = inject(AdminDrawChannelsApiService);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly viewportScroller = inject(ViewportScroller);
+  private scrolledToInitialFragment = false;
 
   readonly channelId = this.route.snapshot.paramMap.get('id');
   readonly channelResource = this.api.getChannelDetailResource(() => this.channelId, {
@@ -131,6 +135,16 @@ export class AdminDrawChannelDetailPage {
       id: 'draws',
       label: this.t('admin.drawChannels.actions.viewGeneratedDraws'),
       icon: 'event',
+    },
+    {
+      id: 'limits',
+      label: this.t('admin.drawChannels.actions.configureLimits'),
+      icon: 'shield',
+    },
+    {
+      id: 'block-number',
+      label: this.t('admin.drawChannels.actions.blockNumber'),
+      icon: 'block',
     },
   ]);
   readonly statusTone = computed<AdminStatusTone>(() =>
@@ -252,6 +266,17 @@ export class AdminDrawChannelDetailPage {
     ];
   });
 
+  constructor() {
+    effect(() => {
+      if (this.pageState() !== 'ready') return;
+      if (this.scrolledToInitialFragment) return;
+      if (this.route.snapshot.fragment !== 'limits') return;
+
+      this.scrolledToInitialFragment = true;
+      queueMicrotask(() => this.scrollToLimits());
+    });
+  }
+
   load(): void {
     this.channelResource.reload();
   }
@@ -267,6 +292,14 @@ export class AdminDrawChannelDetailPage {
     }
     if (event.action.id === 'draws') {
       this.openGeneratedDraws();
+      return;
+    }
+    if (event.action.id === 'limits') {
+      this.scrollToLimits();
+      return;
+    }
+    if (event.action.id === 'block-number') {
+      this.openBlockNumberDialog();
     }
   }
 
@@ -300,6 +333,24 @@ export class AdminDrawChannelDetailPage {
       queryParams: {
         provider: identity.providerCode ?? providerCodeFromChannel(channel.code),
         slotKey: identity.slotKey ?? channel.code,
+      },
+    });
+  }
+
+  scrollToLimits(): void {
+    this.viewportScroller.scrollToAnchor('limits');
+    document.getElementById('limits')?.focus({ preventScroll: true });
+  }
+
+  openBlockNumberDialog(): void {
+    const channel = this.channel();
+    if (!channel) return;
+    this.dialog.open(BlockNumberQuickDialogComponent, {
+      width: '480px',
+      maxWidth: 'calc(100vw - 2rem)',
+      data: {
+        channelId: channel.id,
+        channelLabel: this.channelTitle(channel),
       },
     });
   }

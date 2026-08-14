@@ -5,8 +5,6 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TchLoading } from '@tch/ui/components';
 import { AdminMetricCardComponent } from '@tch/ui/console';
 
-import { DrawTopSelectionItem } from '../../../../../reports/data-access/admin-financials-api.service';
-
 type DrawActivityState = 'idle' | 'loading' | 'ready' | 'error';
 type DrawTopSelectionsState = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -24,6 +22,12 @@ export interface DrawExposureAlert {
   readonly stakeTotal: number;
   readonly maxStakeExposureLimit: number | null;
   readonly stakeRatio: number | null;
+}
+
+export interface DrawTopSelectionItem {
+  readonly rank: number;
+  readonly displaySelection: string;
+  readonly totalStakeCents: number;
 }
 
 export interface DrawDetailActivityView {

@@ -16,6 +16,7 @@ import java.time.DayOfWeek;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -264,7 +265,7 @@ public class DrawChannelAdminService {
     }
   }
 
-  private EnumSet<DayOfWeek> supportedDays(String daysOfWeek) {
+  private Set<DayOfWeek> supportedDays(String daysOfWeek) {
     try {
       return EnumSet.copyOf(DaysOfWeekParser.parse(daysOfWeek));
     } catch (RuntimeException ex) {

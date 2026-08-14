@@ -75,6 +75,9 @@ public class TenantDrawChannelController {
         catalog
             .findById(ctx.tenantId(), id)
             .orElseThrow(() -> new IllegalArgumentException("draw_channel_not_found: " + id));
+    Integer sortOrder =
+        req.sortOrder() == null ? Integer.valueOf(existing.sortOrder()) : req.sortOrder();
+    boolean active = req.active() == null ? existing.active() : req.active().booleanValue();
     var update =
         new UpdateDrawChannelRequest(
             existing.tenantId(),
@@ -86,8 +89,8 @@ public class TenantDrawChannelController {
             req.salesOpenTime() == null ? existing.salesOpenTime() : req.salesOpenTime(),
             req.cutoffSec() == null ? existing.cutoffSec() : req.cutoffSec(),
             req.daysOfWeek() == null ? existing.daysOfWeek() : req.daysOfWeek(),
-            req.active() == null ? existing.active() : req.active(),
-            req.sortOrder() == null ? existing.sortOrder() : req.sortOrder(),
+            active,
+            sortOrder,
             req.period() == null ? existing.period() : req.period(),
             req.notes() == null ? existing.notes() : req.notes(),
             existing.resultSlotId(),

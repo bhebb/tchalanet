@@ -191,7 +191,7 @@
                 "id": "blockNumber",
                 "labelKey": "quickaction.admin.block_number",
                 "icon": "block",
-                "destination": { "kind": "route", "value": "/app/admin/limits/number" }
+                "destination": { "kind": "route", "value": "/app/admin/limits/number?quick=block-number" }
               },
               {
                 "id": "blockSeller",

@@ -47,6 +47,7 @@ describe(DrawChannelListItemComponent.name, () => {
     expect(text).toContain('10:00');
     expect(text).toContain('Vant fèmen 09:55');
     expect(text).toContain('Jou ouvè: Chak jou');
+    expect(text).toContain('Plafon ak blokaj');
     expect(text).not.toContain('Jwèt');
     expect(fixture.nativeElement.querySelector('.dc-channel-card__logo img')).not.toBeNull();
   });
@@ -57,6 +58,7 @@ const translations = {
     drawChannels: {
       actions: {
         configure: 'Konfigire',
+        configureLimits: 'Plafon ak blokaj',
         viewDetails: 'Gade detay',
       },
       list: {

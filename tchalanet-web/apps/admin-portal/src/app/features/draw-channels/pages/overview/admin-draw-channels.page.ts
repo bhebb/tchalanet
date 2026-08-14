@@ -165,6 +165,13 @@ export class AdminDrawChannelsPage {
     void this.router.navigate(['/app/admin/draw-channels', slot.channelId]);
   }
 
+  openChannelLimits(slot: DrawChannelSlotConfigView): void {
+    if (!slot.channelId) return;
+    void this.router.navigate(['/app/admin/draw-channels', slot.channelId], {
+      fragment: 'limits',
+    });
+  }
+
   channelSaving(slot: DrawChannelSlotConfigView): boolean {
     return !!slot.channelId && this.toggleChannel.pending(slot.channelId);
   }

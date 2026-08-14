@@ -1,12 +1,4 @@
 <div class="limits-child-page">
-
-  <div class="limits-number__quick-bar">
-    <button mat-flat-button color="warn" type="button" (click)="openBlockNumberQuick()">
-      <span class="material-symbols-outlined">block</span>
-      {{ 'admin.limits.blockNumber.quickCta' | translate }}
-    </button>
-  </div>
-
   <div
     class="limits-number__actions"
     [attr.aria-label]="'admin.limits.number.actionsAria' | translate"
@@ -26,7 +18,7 @@
         mat-stroked-button
         type="button"
         [disabled]="!isActionAvailable(action.ruleKey)"
-        (click)="openNumberAction(action.ruleKey)"
+        (click)="openQuickAction(action.ruleKey)"
       >
         {{ action.ctaKey | translate }}
       </button>
@@ -36,10 +28,6 @@
 
   <div class="limits-child-page__toolbar">
     <p class="limits-number__action-copy">{{ 'admin.limits.number.copy' | translate }}</p>
-    <a mat-stroked-button routerLink="../system" class="limits-child-page__rules-link">
-      <span class="material-symbols-outlined">info</span>
-      {{ 'admin.limits.common.supportedRules' | translate }}
-    </a>
     <button mat-stroked-button (click)="dataResource.reload()" [disabled]="dataResource.isLoading()">
       <span class="material-symbols-outlined">refresh</span>
     </button>

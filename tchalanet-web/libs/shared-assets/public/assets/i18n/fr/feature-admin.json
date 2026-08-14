@@ -626,6 +626,8 @@
         "configure": "Configurer",
         "configureChannel": "Configurer le canal",
         "configureGameOffer": "Configurer les jeux du canal",
+        "configureLimits": "Plafonds et blocages",
+        "blockNumber": "Bloquer des numéros",
         "viewGeneratedDraws": "Voir les tirages",
         "viewDetails": "Voir les détails"
       },
@@ -904,6 +906,9 @@
         "salesOpen": "Filtrer sur les tirages ouverts à la vente",
         "resultsExpected": "Filtrer sur les résultats attendus",
         "confirmed": "Filtrer sur les résultats confirmés"
+      },
+      "detail": {
+        "limitsTitle": "Limites qui affectent ce tirage"
       }
     },
     "drawActivity": {
@@ -1625,8 +1630,8 @@
     },
     "limits": {
       "shell": {
-        "title": "Limites de vente",
-        "description": "Surveillez les règles qui protègent les ventes, les vendeurs, les numéros et les canaux."
+        "title": "Contrôle des ventes",
+        "description": "Bloquez des numéros, définissez des plafonds de mise et limitez les ventes si nécessaire."
       },
       "common": {
         "loading": "Chargement des limites…",
@@ -1662,6 +1667,10 @@
         "errorTitle": "Erreur lors du blocage",
         "cancel": "Annuler",
         "quickDescription": "Ajoute les numéros sélectionnés à la liste de blocage.",
+        "contextDescription": "Bloquez des numéros directement sur le canal de tirage sélectionné.",
+        "contextLabel": "Tirage sélectionné",
+        "contextFallback": "Ce canal de tirage",
+        "contextHint": "Ce blocage s’applique uniquement à ce canal.",
         "scopeLabel": "Portée du blocage",
         "scopeTenant": "Tout le santral",
         "scopeTenantHint": "Bloque le numéro sur tous les canaux de tirage",
@@ -1670,21 +1679,21 @@
       },
       "number": {
         "actionsAria": "Actions rapides par numéro",
-        "copy": "Pour les gains réels, utilisez les résultats et rapports; ici on bloque surtout les numéros et les mises vendues.",
+        "copy": "Sur cette page, vous contrôlez les numéros : soit vous les bloquez, soit vous mettez un plafond sur le total des mises.",
         "confirmDelete": {
           "title": "Supprimer la règle",
           "message": "Supprimer la règle « {{ rule }} » ? Cette action est irréversible."
         },
         "actions": {
           "block": {
-            "title": "Bloquer un numéro",
-            "description": "Empêcher la vente d’un ou plusieurs numéros.",
-            "cta": "Bloquer"
+            "title": "Bloquer des numéros",
+            "description": "Choisissez le tirage puis bloquez les numéros à ne plus vendre.",
+            "cta": "Bloquer des numéros"
           },
           "exposure": {
-            "title": "Limiter les mises",
-            "description": "Bloquer quand les mises vendues sur un numéro atteignent un montant.",
-            "cta": "Définir"
+            "title": "Plafond par numéro",
+            "description": "Arrêter la vente d’un numéro quand le total des mises atteint le plafond choisi.",
+            "cta": "Mettre un plafond"
           }
         }
       },
@@ -1727,22 +1736,115 @@
         "parameters": "Paramètres"
       },
       "overview": {
-        "title": "Vue d’ensemble",
-        "description": "Choisissez la zone à contrôler avant d’ajouter ou modifier une règle.",
+        "title": "Que voulez-vous contrôler ?",
+        "description": "Choisissez où la règle doit s’appliquer. Pour les besoins rapides, commencez par les numéros.",
         "sectionsAria": "Sections de limites",
         "activeTitle": "Protections actives",
-        "activeDescription": "Ces règles protègent les ventes par défaut avant les exceptions par vendeur, numéro ou canal.",
-        "noActive": "Aucune protection globale active. Commencez par définir les plafonds de ticket et de ligne.",
-        "addGlobal": "Ajouter une règle globale",
+        "activeDescription": "Tous les blocages et plafonds qui protègent actuellement les ventes.",
+        "noActive": "Aucune limite spéciale n’est active. Vous pouvez bloquer un numéro ou définir un plafond si nécessaire.",
+        "addGlobal": "Ajouter une règle générale",
         "quickTitle": "Actions rapides",
         "quickDescription": "Accédez directement aux opérations fréquentes de contrôle des ventes.",
         "quickAria": "Actions rapides limites",
-        "summaryEyebrow": "Résumé des limites",
+        "emptyTitle": "Aucune limite active",
+        "confirmDisable": "Désactiver cette limite ?",
+        "confirmDelete": "Supprimer cette limite ?",
+        "summaryEyebrow": "Résumé des contrôles",
         "globalActive": "Règles globales actives",
         "toCheck": "À vérifier",
-        "monitoredNumbers": "Numéros surveillés",
-        "warningMessage": "{{count}} règle(s) globale(s) sont désactivées. Vérifiez si elles doivent protéger les ventes.",
-        "noWarning": "Aucune alerte immédiate sur les règles globales."
+        "monitoredNumbers": "Règles sur numéros",
+        "warningMessage": "{{count}} règle(s) générale(s) sont désactivées. Vérifiez si elles doivent protéger les ventes.",
+        "noWarning": "Aucune alerte immédiate sur les règles générales.",
+        "quick": {
+          "blockNumber": "Bloquer un numéro",
+          "numberCap": "Plafond par numéro",
+          "ticketLimit": "Limite ticket",
+          "sellerLimit": "Limite vendeur"
+        },
+        "groups": {
+          "NUMBER_BLOCK": {
+            "title": "Blocage de numéros",
+            "description": "Numéros qui ne peuvent pas être vendus pour une période ou un tirage."
+          },
+          "NUMBER_CAP": {
+            "title": "Plafonds sur numéros",
+            "description": "Montant ou quantité maximum pouvant être vendu sur un numéro."
+          },
+          "TICKET_LIMIT": {
+            "title": "Limites ticket",
+            "description": "Règles sur le nombre de lignes, les mises et le total d’un ticket."
+          },
+          "SELLER_LIMIT": {
+            "title": "Limites vendeur",
+            "description": "Règles spéciales pour un vendeur ou un terminal POS."
+          },
+          "ADVANCED": {
+            "title": "Avancé",
+            "description": "Autres règles disponibles pour contrôler les ventes."
+          }
+        },
+        "target": {
+          "label": "Appliqué à",
+          "tenant": "Tout le santral"
+        },
+        "duration": {
+          "label": "Durée",
+          "permanent": "Permanent",
+          "custom": "Personnalisée",
+          "until": "Jusqu’au {{date}}"
+        },
+        "limitStatus": {
+          "label": "État",
+          "active": "Active",
+          "disabled": "Désactivée"
+        },
+        "actions": {
+          "disable": "Désactiver",
+          "delete": "Supprimer"
+        },
+        "status": {
+          "configured": "Configuré",
+          "notConfigured": "Non configuré",
+          "optional": "Optionnel",
+          "available": "Disponible"
+        },
+        "scope": {
+          "numbers": {
+            "title": "Numéros",
+            "description": "Bloquer des numéros ou mettre un plafond sur le total des mises d’un numéro.",
+            "metric": "{{count}} règle(s)"
+          },
+          "global": {
+            "title": "Règles générales",
+            "description": "Règles appliquées à toutes les ventes du santral.",
+            "metric": "{{count}} active(s)"
+          },
+          "channels": {
+            "title": "Canaux de tirage",
+            "description": "Règles spéciales pour un tirage comme Texas 10:00 ou Florida soir.",
+            "metric": "Par canal"
+          },
+          "sellers": {
+            "title": "Vendeurs",
+            "description": "Règles spéciales pour un vendeur ou un terminal POS.",
+            "metric": "Par vendeur"
+          }
+        }
+      },
+      "rule": {
+        "MAX_STAKE_PER_LINE": "Mise maximum par ligne",
+        "MAX_LINES_PER_TICKET": "Nombre de lignes par ticket",
+        "MAX_STAKE_PER_TICKET": "Mise maximum par ticket",
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafond de mise par numéro",
+        "MAX_STAKE_PER_BET_TYPE_PER_TICKET": "Mise maximum par type de jeu",
+        "MAX_STAKE_PER_SELECTION_PER_TICKET": "Mise maximum par numéro dans le ticket",
+        "MAX_SALES_COUNT_PER_SELECTION_PER_DRAW": "Nombre de ventes par numéro",
+        "MAX_SALES_COUNT_PER_TICKET": "Nombre de ventes par ticket",
+        "BLOCK_SELECTION_PER_DRAW": "Bloquer un numéro",
+        "BLOCK_BET_TYPE": "Bloquer un type de jeu",
+        "MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW": "Nombre de tickets par vendeur",
+        "MAX_STAKE_PER_AGENT_PER_DRAW": "Mise maximum par vendeur",
+        "MAX_STAKE_PER_OUTLET_PER_DRAW": "Mise maximum par point de vente"
       },
       "child": {
         "rulesLink": "Règles supportées",
@@ -1754,7 +1856,7 @@
         "noRulesMessage": "Le catalogue de règles est vide.",
         "noConfiguredTitle": "Aucune limite configurée",
         "noConfiguredGlobal": "Cliquez sur Ajouter pour configurer une première limite globale.",
-        "noConfiguredNumber": "Cliquez sur Ajouter pour configurer une limite d’exposition ou un blocage de numéro.",
+        "noConfiguredNumber": "Choisissez Bloquer des numéros ou Plafond par numéro pour créer la première règle.",
         "noConfiguredDraw": "Cliquez sur Ajouter pour configurer une première limite pour ce canal.",
         "noConfiguredSeller": "Cliquez sur Ajouter pour configurer une première limite pour ce vendeur.",
         "catalogEmptyTitle": "Aucune règle par numéro",
@@ -1822,19 +1924,26 @@
       },
       "blockComponent": {
         "group": {
-          "vente": "Vente",
-          "restrictions": "Restrictions",
-          "exposition": "Exposition"
+          "vente": "Règles ticket",
+          "restrictions": "Blocages",
+          "exposition": "Risque par numéro"
         },
-        "unconfigured": "Non configuré",
-        "configured": "Configuré",
-        "inheritedFrom": "Hérite du",
+        "unconfigured": "Aucune règle",
+        "configured": "Règle définie",
+        "inheritedFrom": "Valeur du",
         "editAria": "Modifier",
         "deleteAria": "Supprimer"
       },
       "section": {
         "loadError": "Erreur de chargement des limites.",
         "actionError": "Erreur lors de l'action.",
+        "activeAria": "Limites effectives",
+        "activeTitle": "Règles statiques",
+        "activeDescription": "Blocages et plafonds déjà configurés à cet emplacement.",
+        "currentScope": "Cet emplacement",
+        "inheritedScope": "Depuis {{scope}}",
+        "noParams": "Sans paramètre",
+        "blockedNumbers": "Numéro bloqué : {{numbers}}",
         "scope": {
           "tenant": "santral"
         }
@@ -2431,29 +2540,29 @@
       "default_missing": "Taux de commission santral à configurer"
     },
     "limits": {
-      "empty": "Limites de vente à configurer",
+      "empty": "Plafonds et blocages de vente à configurer",
       "limitsSection": {
-        "title": "Limites",
+        "title": "Plafonds et blocages",
         "descriptionInherit": "Les valeurs non configurées utilisent les valeurs du santral"
       }
     }
   },
   "tenantSetup": {
     "limitsSection": {
-      "title": "Limites par défaut",
-      "descriptionInherit": "Ces limites s'appliquent à tous les canaux et vendeurs si non configurées séparément"
+      "title": "Plafonds et blocages par défaut",
+      "descriptionInherit": "Ces règles s'appliquent à tous les canaux et vendeurs si elles ne sont pas configurées séparément"
     }
   },
   "drawChannel": {
     "limitsSection": {
-      "title": "Limites du canal",
-      "descriptionInherit": "Les valeurs non configurées héritent du santral"
+      "title": "Plafonds et blocages de ce canal",
+      "descriptionInherit": "Les valeurs non configurées viennent du santral"
     }
   },
   "sellerTerminal": {
     "limitsSection": {
-      "title": "Limites vendeur",
-      "descriptionInherit": "Les valeurs non configurées héritent du santral"
+      "title": "Plafonds et blocages vendeur",
+      "descriptionInherit": "Les valeurs non configurées viennent du santral"
     }
   },
   "draws": {

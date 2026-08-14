@@ -294,7 +294,7 @@ describe('destinations de groupe sur les modèles réels', () => {
       .map(group => group.id);
 
     expect(withDestination.sort()).toEqual(
-      ['sellers', 'draws', 'games', 'limits', 'tickets', 'reports', 'company'].sort(),
+      ['sellers', 'draws', 'games', 'tickets', 'reports', 'company'].sort(),
     );
   });
 
