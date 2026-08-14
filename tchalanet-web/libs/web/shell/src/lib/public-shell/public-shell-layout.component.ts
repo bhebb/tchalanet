@@ -19,6 +19,7 @@ export class PublicShellLayoutComponent {
   readonly shell = input<PublicShellRuntime | undefined>();
   readonly languages = input<readonly LanguageOption[]>([]);
   readonly currentLanguage = input('');
+  readonly loginEnabled = input(true);
 
   readonly languageSelected = output<string>();
   readonly loginRequested = output<ActionItem | undefined>();

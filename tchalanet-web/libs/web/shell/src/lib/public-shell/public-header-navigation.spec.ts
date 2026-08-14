@@ -36,7 +36,13 @@ const SHELL = {
         destination: { kind: 'url', value: 'https://docs.tchalanet.com/' },
       },
     ],
-    actions: [],
+    actions: [
+      {
+        id: 'login',
+        labelKey: 'public.nav.login',
+        destination: { kind: 'route', value: '/login' },
+      },
+    ],
     secondary: [],
   },
 } as unknown as PublicShellRuntime;
@@ -103,6 +109,17 @@ describe('public header navigation', () => {
       expect(links[1].querySelector('.material-symbols-outlined')?.textContent?.trim()).toBe(
         'menu_book',
       );
+    });
+
+    it('hides the public login action when login is disabled', async () => {
+      const fixture = await renderAt('/public');
+
+      expect(fixture.nativeElement.textContent).toContain('login');
+
+      fixture.componentRef.setInput('loginEnabled', false);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).not.toContain('login');
     });
 
     it('announces the current page inside the menu', async () => {

@@ -4,14 +4,22 @@ import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, of } from 'rxjs';
+import { afterEach } from 'vitest';
 
 import { mergeTranslationTrees, normalizeBackendTranslations } from './merged-translate-loader';
 import { I18nActions } from './store/i18n.actions';
-import { I18nEffects } from './store/i18n.effects';
+import { I18nEffects, TCH_I18N_LANGUAGE_STORAGE_KEY } from './store/i18n.effects';
 import { i18nFeature } from './store/i18n.reducer';
 import { i18nInitialState } from './store/i18n.state';
 
 describe('i18n runtime', () => {
+  const testLanguageStorageKey = 'tchalanet.web.test.language';
+
+  afterEach(() => {
+    localStorage.removeItem(testLanguageStorageKey);
+    localStorage.removeItem('tchalanet.web.language');
+  });
+
   it('preserves the selected language when init is reduced repeatedly', () => {
     const initializedState = i18nFeature.reducer(
       { ...i18nInitialState, currentLanguage: 'ht', initialized: true },
@@ -44,6 +52,7 @@ describe('i18n runtime', () => {
         { provide: DOCUMENT, useValue: document },
         { provide: Store, useValue: store },
         { provide: TranslateService, useValue: translate },
+        { provide: TCH_I18N_LANGUAGE_STORAGE_KEY, useValue: testLanguageStorageKey },
       ],
     });
 
@@ -54,8 +63,45 @@ describe('i18n runtime', () => {
 
     expect(translate.use).toHaveBeenCalledWith('ht');
     expect(document.documentElement.lang).toBe('ht');
+    expect(localStorage.getItem(testLanguageStorageKey)).toBe('ht');
+    expect(localStorage.getItem('tchalanet.web.language')).toBeNull();
     subscription.unsubscribe();
   });
+
+  it('uses the configured app language storage key during initialization', () => {
+    localStorage.setItem('tchalanet.web.language', 'ht');
+    localStorage.setItem(testLanguageStorageKey, 'fr');
+
+    const actions$ = new Subject<ReturnType<typeof I18nActions.init>>();
+    const translate = {
+      addLangs: vi.fn(),
+      use: vi.fn().mockReturnValue(of({})),
+    };
+    const store = {
+      dispatch: vi.fn(),
+    };
+
+    TestBed.configureTestingModule({
+      providers: [
+        I18nEffects,
+        { provide: Actions, useValue: new Actions(actions$) },
+        { provide: DOCUMENT, useValue: { documentElement: { lang: '' } } },
+        { provide: Store, useValue: store },
+        { provide: TranslateService, useValue: translate },
+        { provide: TCH_I18N_LANGUAGE_STORAGE_KEY, useValue: testLanguageStorageKey },
+      ],
+    });
+
+    const effects = TestBed.inject(I18nEffects);
+    const emitted: unknown[] = [];
+    const subscription = effects.init$.subscribe(action => emitted.push(action));
+
+    actions$.next(I18nActions.init({ defaultLanguage: 'en', languages: ['fr', 'en', 'ht'] }));
+
+    expect(emitted).toEqual([I18nActions.setCurrent({ language: 'fr' })]);
+    subscription.unsubscribe();
+  });
+
 
   it('merges backend surfaces in configured common-to-specific order', () => {
     const translations = normalizeBackendTranslations(

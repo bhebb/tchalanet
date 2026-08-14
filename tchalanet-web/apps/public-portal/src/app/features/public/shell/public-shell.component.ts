@@ -4,6 +4,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { I18nFacade } from '@tch/core/i18n';
 import { LanguageOption } from '@tch/ui/components';
 import { PublicRuntimeStore, PublicShellLayoutComponent, PublicShellService } from '@tch/web/shell';
+import { environment } from '../../../../environments/environment';
 
 const LANG_META: Record<string, { label: string; shortLabel: string; flag: string }> = {
   fr: { label: 'Français', shortLabel: 'FR', flag: '🇫🇷' },
@@ -22,6 +23,7 @@ export class TchPublicShellComponent {
   private readonly router = inject(Router);
   protected readonly i18n = inject(I18nFacade);
   protected readonly shellSvc = inject(PublicShellService);
+  protected readonly loginEnabled = environment.publicLoginEnabled;
   protected readonly languages = computed<readonly LanguageOption[]>(() =>
     this.i18n.languages().map(id => ({
       id,

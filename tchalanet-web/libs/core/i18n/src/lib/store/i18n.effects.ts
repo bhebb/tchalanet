@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, inject } from '@angular/core';
+import { InjectionToken, Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,12 +7,16 @@ import { EMPTY, catchError, map, switchMap, tap } from 'rxjs';
 
 import { I18nActions } from './i18n.actions';
 
-const languageStorageKey = 'tchalanet.web.language';
+export const TCH_I18N_LANGUAGE_STORAGE_KEY = new InjectionToken<string>(
+  'TCH_I18N_LANGUAGE_STORAGE_KEY',
+  { factory: () => 'tchalanet.web.language' },
+);
 
 @Injectable()
 export class I18nEffects {
   private readonly actions$ = inject(Actions);
   private readonly document = inject(DOCUMENT);
+  private readonly languageStorageKey = inject(TCH_I18N_LANGUAGE_STORAGE_KEY);
   private readonly store = inject(Store);
   private readonly translate = inject(TranslateService);
 
@@ -21,7 +25,7 @@ export class I18nEffects {
       ofType(I18nActions.init),
       map(({ languages, defaultLanguage }) => {
         this.translate.addLangs([...languages]);
-        const stored = readStoredLanguage();
+        const stored = readStoredLanguage(this.languageStorageKey);
         const language = stored && languages.includes(stored) ? stored : defaultLanguage;
 
         return I18nActions.setCurrent({ language });
@@ -37,7 +41,7 @@ export class I18nEffects {
           this.translate.use(language).pipe(
             tap(() => {
               this.document.documentElement.lang = language;
-              writeStoredLanguage(language);
+              writeStoredLanguage(this.languageStorageKey, language);
             }),
             catchError((error: unknown) => {
               this.store.dispatch(I18nActions.setError({ error }));
@@ -50,11 +54,11 @@ export class I18nEffects {
   );
 }
 
-function readStoredLanguage(): string | null {
+function readStoredLanguage(languageStorageKey: string): string | null {
   return typeof localStorage === 'undefined' ? null : localStorage.getItem(languageStorageKey);
 }
 
-function writeStoredLanguage(language: string): void {
+function writeStoredLanguage(languageStorageKey: string, language: string): void {
   if (typeof localStorage === 'undefined') {
     return;
   }

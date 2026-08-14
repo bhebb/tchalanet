@@ -30,11 +30,11 @@ export class PublicShellService {
   });
 
   private hydrateI18n(response: PageRuntimeResponse): void {
-    const { currentLang, supportedLangs } = response.meta;
+    const { supportedLangs } = response.meta;
     if (!supportedLangs?.length) return;
     this.i18n.setLanguages(
       supportedLangs.map(l => l.code),
-      currentLang,
+      this.i18n.currentLanguage(),
     );
   }
 }

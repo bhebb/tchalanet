@@ -51,6 +51,7 @@ export class PublicHeader {
   readonly shell = input<PublicShellRuntime | undefined>();
   readonly languages = input<readonly LanguageOption[]>([]);
   readonly currentLanguage = input('');
+  readonly loginEnabled = input(true);
   readonly loginRequested = output<ActionItem | undefined>();
   readonly languageSelected = output<string>();
 
@@ -58,7 +59,9 @@ export class PublicHeader {
   readonly brand = computed(() => publicBrand(this.shell()));
   readonly nav = computed(() => publicHeaderNav(this.shell()));
   readonly navCompact = computed(() => toCompactNav(this.nav()));
-  readonly loginAction = computed(() => publicLoginAction(this.shell()));
+  readonly loginAction = computed(() =>
+    this.loginEnabled() ? publicLoginAction(this.shell()) : undefined,
+  );
 
   constructor() {
     // À partir de `expanded` la nav est inline et le burger disparaît : laisser l'overlay ouvert

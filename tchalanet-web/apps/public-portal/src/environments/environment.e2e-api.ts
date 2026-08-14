@@ -4,6 +4,7 @@ import type { TchRuntimeConfig } from '@tch/shared-config';
 // config is loaded from assets so REST calls can target the Docker API profile.
 export const environment = {
   production: false,
+  publicLoginEnabled: true,
   runtimeConfigPath: '/assets/config/runtime.public-portal.json',
   fallbackConfig: {
     appId: 'public-portal',

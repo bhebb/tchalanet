@@ -2,6 +2,7 @@ import type { TchRuntimeConfig } from '@tch/shared-config';
 
 export const environment = {
   production: false,
+  publicLoginEnabled: true,
   runtimeConfigPath: '/assets/config/runtime.public-portal.json',
   fallbackConfig: {
     appId: 'public-portal',

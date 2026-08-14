@@ -15,6 +15,7 @@ import {
   I18nEffects,
   MERGED_TRANSLATE_LOADER_OPTIONS,
   MergedTranslateLoader,
+  TCH_I18N_LANGUAGE_STORAGE_KEY,
   i18nFeature,
   provideTchAngularLocales,
 } from '@tch/core/i18n';
@@ -27,12 +28,22 @@ import {
 } from '@tch/shared-config';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { provideWidgets } from '@tch/widgets';
-import { provideTchTitleStrategy, shellFeedbackInterceptor } from '@tch/web/shell';
+import {
+  PUBLIC_RUNTIME_I18N_CONFIG,
+  provideTchTitleStrategy,
+  shellFeedbackInterceptor,
+} from '@tch/web/shell';
 import { provideEffects } from '@ngrx/effects';
 import { provideState, provideStore } from '@ngrx/store';
 
 import { appRoutes } from './app.routes';
 import { environment } from '../environments/environment';
+
+const PUBLIC_PORTAL_I18N_CONFIG = {
+  ...PORTAL_I18N_CONFIG,
+  fallbackLang: 'fr',
+  defaultLang: 'fr',
+} as const;
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -64,6 +75,14 @@ export const appConfig: ApplicationConfig = {
     provideStore({}),
     provideState(i18nFeature),
     provideEffects([I18nEffects]),
+    { provide: TCH_I18N_LANGUAGE_STORAGE_KEY, useValue: 'tchalanet.web.public.language' },
+    {
+      provide: PUBLIC_RUNTIME_I18N_CONFIG,
+      useValue: {
+        languages: ['fr', 'en', 'ht'],
+        defaultLanguage: PUBLIC_PORTAL_I18N_CONFIG.defaultLang,
+      },
+    },
     themeStoreProvider,
     provideWidgets(),
     provideFirebaseAuthClient({
@@ -71,10 +90,10 @@ export const appConfig: ApplicationConfig = {
       emulatorUrl: environment.fallbackConfig.firebaseAuthEmulatorUrl,
     }),
     { provide: FeatureFlags, useExisting: SettingsFeatureFlags },
-    provideTchAngularLocales(PORTAL_I18N_CONFIG.defaultLang),
+    provideTchAngularLocales(PUBLIC_PORTAL_I18N_CONFIG.defaultLang),
     provideTranslateService({
-      fallbackLang: PORTAL_I18N_CONFIG.fallbackLang,
-      lang: PORTAL_I18N_CONFIG.defaultLang,
+      fallbackLang: PUBLIC_PORTAL_I18N_CONFIG.fallbackLang,
+      lang: PUBLIC_PORTAL_I18N_CONFIG.defaultLang,
       loader: {
         provide: TranslateLoader,
         useClass: MergedTranslateLoader,
@@ -83,9 +102,9 @@ export const appConfig: ApplicationConfig = {
     {
       provide: MERGED_TRANSLATE_LOADER_OPTIONS,
       useValue: {
-        assetsPrefix: PORTAL_I18N_CONFIG.assetsPrefix,
-        assetsSuffix: PORTAL_I18N_CONFIG.assetsSuffix,
-        bundles: PORTAL_I18N_CONFIG.bundles,
+        assetsPrefix: PUBLIC_PORTAL_I18N_CONFIG.assetsPrefix,
+        assetsSuffix: PUBLIC_PORTAL_I18N_CONFIG.assetsSuffix,
+        bundles: PUBLIC_PORTAL_I18N_CONFIG.bundles,
       },
     },
   ],

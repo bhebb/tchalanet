@@ -2,6 +2,7 @@
   [shell]="shellSvc.shell()"
   [languages]="languages()"
   [currentLanguage]="i18n.currentLanguage()"
+  [loginEnabled]="loginEnabled"
   (languageSelected)="i18n.setCurrent($event)"
   (loginRequested)="login()"
 >
