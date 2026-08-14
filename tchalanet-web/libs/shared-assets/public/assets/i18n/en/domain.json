@@ -60,6 +60,14 @@
         "label": "Georgia Night"
       }
     },
+    "il": {
+      "mid": {
+        "label": "Illinois Midday"
+      },
+      "eve": {
+        "label": "Illinois Evening"
+      }
+    },
     "tx": {
       "1000": {
         "label": "Texas 10:00"
@@ -82,6 +90,11 @@
         "label": "Michigan - Evening"
       }
     },
+    "mn": {
+      "eve": {
+        "label": "Minnesota Evening"
+      }
+    },
     "mo": {
       "mid": {
         "label": "Missouri Midday"
@@ -90,12 +103,28 @@
         "label": "Missouri Evening"
       }
     },
+    "oh": {
+      "mid": {
+        "label": "Ohio Midday"
+      },
+      "eve": {
+        "label": "Ohio Evening"
+      }
+    },
     "pa": {
       "mid": {
         "label": "Pennsylvania - Midday"
       },
       "eve": {
         "label": "Pennsylvania - Evening"
+      }
+    },
+    "tn": {
+      "mid": {
+        "label": "Tennessee Midday"
+      },
+      "eve": {
+        "label": "Tennessee Evening"
       }
     },
     "ca": {

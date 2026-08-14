@@ -60,6 +60,14 @@
         "label": "Georgia — Nwit"
       }
     },
+    "il": {
+      "mid": {
+        "label": "Illinois — Midi"
+      },
+      "eve": {
+        "label": "Illinois — Swa"
+      }
+    },
     "tx": {
       "1000": {
         "label": "Texas — 10:00"
@@ -82,6 +90,11 @@
         "label": "Michigan — Aswè"
       }
     },
+    "mn": {
+      "eve": {
+        "label": "Minnesota — Swa"
+      }
+    },
     "mo": {
       "mid": {
         "label": "Missouri — Midi"
@@ -90,12 +103,28 @@
         "label": "Missouri — Swa"
       }
     },
+    "oh": {
+      "mid": {
+        "label": "Ohio — Midi"
+      },
+      "eve": {
+        "label": "Ohio — Swa"
+      }
+    },
     "pa": {
       "mid": {
         "label": "Pennsylvania — Jou"
       },
       "eve": {
         "label": "Pennsylvania — Aswè"
+      }
+    },
+    "tn": {
+      "mid": {
+        "label": "Tennessee — Midi"
+      },
+      "eve": {
+        "label": "Tennessee — Swa"
       }
     },
     "ca": {

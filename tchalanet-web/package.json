@@ -35,6 +35,7 @@
     "e2e:web:api": "node tools/run-web-e2e.mjs --api",
     "contracts:check": "pnpm i18n:inventory -- --check && pnpm widgets:contract && pnpm breakpoints:contract",
     "i18n:inventory": "node tools/i18n-inventory.mjs",
+    "public-draw-i18n:check": "node tools/check-public-draw-i18n.mjs",
     "runtime:local-ide": "node tools/select-runtime-profile.mjs local-ide",
     "runtime:local-ide-emulator": "node tools/select-runtime-profile.mjs local-ide-emulator",
     "runtime:dev-docker": "node tools/select-runtime-profile.mjs dev-docker",

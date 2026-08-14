@@ -225,11 +225,15 @@ const PROVIDER_LABELS: Readonly<Record<string, string>> = {
   CA: 'California',
   FL: 'Florida',
   GA: 'Georgia',
+  IL: 'Illinois',
   MI: 'Michigan',
+  MN: 'Minnesota',
   MO: 'Missouri',
   NJ: 'New Jersey',
   NY: 'New York',
+  OH: 'Ohio',
   PA: 'Pennsylvania',
+  TN: 'Tennessee',
   TX: 'Texas',
 };
 
