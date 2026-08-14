@@ -379,7 +379,7 @@
       },
       "data-deletion": {
         "body": "Mande efasman kont ou oswa done pèsonèl ki asosye yo.",
-        "description": "Pwosedi efasman kont ak done Tchalanet.",
+        "description": "Mande dirèkteman efasman kont Tchalanet ou oswa done pèsonèl ki asosye yo.",
         "eyebrow": "Done",
         "title": "Efasman done"
       },
@@ -636,6 +636,7 @@
         "BECOME_OPERATOR": "Vin yon operatè",
         "SUPPORT": "Sipò / Kesyon",
         "PARTNERSHIP": "Patenarya",
+        "DATA_DELETION": "Efasman done",
         "OTHER": "Lòt"
       },
       "consent_label": "Mwen aksepte ekip Tchalanet kontakte mwen",
@@ -645,6 +646,15 @@
       "error_title": "Erè",
       "error_body": "Yon erè te fèt. Tanpri eseye ankò.",
       "reset_cta": "Nouvo demann"
+    },
+    "data_deletion": {
+      "procedure_title": "Kijan pou mande efasman",
+      "procedure_body": "Sèvi ak fòm ki anba a pou mande efasman yon kont Tchalanet oswa done pèsonèl ki asosye yo. Mete òganizasyon, pwen lavant oswa tèminal ki konsène a si ou konnen yo.",
+      "deleted_data": "Done ki ka efase yo gen ladan idantifyan kont, kowòdone kontak, asosyasyon tèminal ak done pèsonèl ki lye ak kont la.",
+      "retained_data": "Gen kèk dosye operasyonèl ki ka konsève lè sa nesesè pou sekirite, prevansyon fwod, konfòmite, obligasyon kontablite, litij oswa odit operasyon lotri.",
+      "response_time": "Ekip Tchalanet la ka verifye idantite ou anvan tretman an epi l ap reponn nan yon delè rezonab selon obligasyon ki aplikab yo.",
+      "form_title": "Voye yon demann",
+      "form_body": "Demann sa a ap voye bay ekip Tchalanet la ak tip demann Efasman done."
     },
     "managers": {
       "loadError": "Enposib pou chaje jeran yo."

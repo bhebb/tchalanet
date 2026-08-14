@@ -5,9 +5,17 @@
   display: grid;
   gap: 1.5rem;
   padding: 1.5rem 1.25rem;
+  border: 1px solid color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 18%, transparent);
   border-radius: var(--tch-radius-xl, 24px);
-  background: var(--tch-color-primary, var(--mat-sys-primary));
-  color: var(--tch-color-on-primary, var(--mat-sys-on-primary));
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in oklab, var(--tch-color-primary-container, var(--mat-sys-primary-container)) 88%, var(--tch-color-surface, var(--mat-sys-surface))) 0%,
+      color-mix(in oklab, var(--tch-color-primary-container, var(--mat-sys-primary-container)) 54%, var(--tch-color-surface, var(--mat-sys-surface))) 100%
+    ),
+    var(--tch-color-primary-container, var(--mat-sys-primary-container));
+  color: var(--tch-color-on-primary-container, var(--mat-sys-on-primary-container));
+  box-shadow: 0 16px 40px -32px color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 45%, transparent);
 
   @include bp.up(medium) {
     padding: 2rem;
@@ -30,7 +38,8 @@
   justify-self: start;
   border-radius: var(--tch-radius-pill, 9999px);
   padding: 0.25rem 0.75rem;
-  background: color-mix(in oklab, currentColor 15%, transparent);
+  background: color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 12%, transparent);
+  color: inherit;
   font-size: var(--tch-font-size-label-sm, 0.75rem);
   font-weight: 800;
   text-transform: uppercase;
@@ -56,7 +65,7 @@
 .operator__body {
   margin: 0;
   max-width: 56ch;
-  opacity: 0.85;
+  color: color-mix(in oklab, var(--tch-color-on-primary-container, var(--mat-sys-on-primary-container)) 78%, transparent);
   font-size: var(--tch-font-size-body-md, 1rem);
   line-height: 1.6;
 }
@@ -79,21 +88,20 @@
 }
 
 .operator__btn-primary {
-  --comp-action-bg: var(--tch-color-secondary-container, var(--mat-sys-secondary-container));
-  --comp-action-fg: var(--tch-color-on-secondary-container, var(--mat-sys-on-secondary-container));
+  --comp-action-bg: var(--tch-color-primary, var(--mat-sys-primary));
+  --comp-action-fg: var(--tch-color-on-primary, var(--mat-sys-on-primary));
 }
 
 .operator__btn-secondary {
   --comp-action-bg: transparent;
-  --comp-action-fg: var(--tch-color-on-primary, var(--mat-sys-on-primary));
-  border: 1px solid color-mix(in oklab, currentColor 45%, transparent);
+  --comp-action-fg: var(--tch-color-primary, var(--mat-sys-primary));
+  border: 1px solid color-mix(in oklab, var(--tch-color-primary, var(--mat-sys-primary)) 50%, transparent);
 }
 
 .operator__access-link {
   font-size: var(--tch-font-size-label-sm, 0.8rem);
   font-weight: 500;
-  color: inherit;
-  opacity: 0.7;
+  color: var(--tch-color-primary, var(--mat-sys-primary));
   text-decoration: underline;
   text-underline-offset: 3px;
   @include tch.focus-visible;

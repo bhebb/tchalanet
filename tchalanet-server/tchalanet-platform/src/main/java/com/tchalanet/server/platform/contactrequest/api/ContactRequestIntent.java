@@ -5,5 +5,6 @@ public enum ContactRequestIntent {
   BECOME_SELLER_TERMINAL,
   SUPPORT,
   PARTNERSHIP,
+  DATA_DELETION,
   OTHER
 }

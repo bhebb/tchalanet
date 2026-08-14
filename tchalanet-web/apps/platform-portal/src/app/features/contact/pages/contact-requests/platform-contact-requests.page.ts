@@ -260,6 +260,7 @@ export class PlatformContactRequestsPage implements OnInit {
       BECOME_OPERATOR: 'Devenir opérateur',
       SUPPORT: 'Support',
       PARTNERSHIP: 'Partenariat',
+      DATA_DELETION: 'Suppression des données',
       OTHER: 'Autre',
     }[intent];
   }

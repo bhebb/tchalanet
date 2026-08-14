@@ -251,6 +251,7 @@ export const CONSOLE_CONTACT_REQUEST_INTENTS = [
   'BECOME_OPERATOR',
   'SUPPORT',
   'PARTNERSHIP',
+  'DATA_DELETION',
   'OTHER',
 ] as const;
 

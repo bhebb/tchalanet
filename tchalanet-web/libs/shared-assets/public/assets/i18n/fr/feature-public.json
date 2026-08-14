@@ -379,7 +379,7 @@
       },
       "data-deletion": {
         "body": "Demandez la suppression de votre compte ou des données personnelles associées.",
-        "description": "Procédure de suppression de compte et de données Tchalanet.",
+        "description": "Demandez directement la suppression de votre compte ou des données personnelles associées à Tchalanet.",
         "eyebrow": "Données",
         "title": "Suppression des données"
       },
@@ -636,6 +636,7 @@
         "BECOME_OPERATOR": "Devenir opérateur",
         "SUPPORT": "Support / Question",
         "PARTNERSHIP": "Partenariat",
+        "DATA_DELETION": "Suppression des données",
         "OTHER": "Autre"
       },
       "consent_label": "J'accepte d'être contacté par l'équipe Tchalanet",
@@ -645,6 +646,15 @@
       "error_title": "Erreur",
       "error_body": "Une erreur est survenue. Veuillez réessayer.",
       "reset_cta": "Nouvelle demande"
+    },
+    "data_deletion": {
+      "procedure_title": "Comment demander la suppression",
+      "procedure_body": "Utilisez le formulaire ci-dessous pour demander la suppression d’un compte Tchalanet ou des données personnelles associées. Indiquez l’organisation, le point de vente ou le terminal concerné si vous les connaissez.",
+      "deleted_data": "Les données supprimées peuvent inclure les identifiants de compte, coordonnées, associations de terminal et données personnelles liées au compte.",
+      "retained_data": "Certains enregistrements opérationnels peuvent être conservés lorsque c’est nécessaire pour la sécurité, la prévention de fraude, la conformité, les obligations comptables, les litiges ou l’audit des opérations de loterie.",
+      "response_time": "L’équipe Tchalanet peut vérifier votre identité avant traitement et répondra dans un délai raisonnable selon les obligations applicables.",
+      "form_title": "Envoyer une demande",
+      "form_body": "Cette demande sera transmise à l’équipe Tchalanet avec le type Suppression des données."
     },
     "managers": {
       "loadError": "Impossible de charger les gestionnaires."

@@ -1,0 +1,23 @@
+<section class="data-deletion">
+  <header class="data-deletion__header">
+    <p class="data-deletion__eyebrow">{{ 'public.pages.data-deletion.eyebrow' | translate }}</p>
+    <h1>{{ 'public.pages.data-deletion.title' | translate }}</h1>
+    <p class="data-deletion__lead">{{ 'public.pages.data-deletion.description' | translate }}</p>
+  </header>
+
+  <div class="data-deletion__panel">
+    <h2>{{ 'public.data_deletion.procedure_title' | translate }}</h2>
+    <p>{{ 'public.data_deletion.procedure_body' | translate }}</p>
+    <ul>
+      <li>{{ 'public.data_deletion.deleted_data' | translate }}</li>
+      <li>{{ 'public.data_deletion.retained_data' | translate }}</li>
+      <li>{{ 'public.data_deletion.response_time' | translate }}</li>
+    </ul>
+  </div>
+
+  <div class="data-deletion__form">
+    <h2>{{ 'public.data_deletion.form_title' | translate }}</h2>
+    <p>{{ 'public.data_deletion.form_body' | translate }}</p>
+    <tch-public-contact-form intent="DATA_DELETION" [lockIntent]="true" />
+  </div>
+</section>
