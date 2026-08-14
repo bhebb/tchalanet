@@ -8,7 +8,8 @@ import { credsFor } from '../support/env';
  * After the limits nav simplification:
  * - limits-global, limits-draw, limits-seller-terminal removed from the nav (both
  *   the limits section and the sellers section).
- * - limits-overview (/app/admin/limits) and limits-number remain.
+ * - limits-overview (/app/admin/limits) remains as a single top-level link.
+ * - limits-number is reached from limit quick actions, not from the sidenav.
  * - The removed routes are still *routable* (Angular route exists) but absent from
  *   the sidenav.
  *
@@ -56,17 +57,13 @@ test.describe('Limits nav simplification', () => {
       });
 
       test('limits-overview (/app/admin/limits) is present and reachable', async ({ page }) => {
-        await expect(
-          page.locator(
-            '[data-testid="sidebar-group-link"][href="/app/admin/limits"], [data-testid="sidebar-child"][href="/app/admin/limits"]',
-          ),
-        ).toBeVisible();
+        await expect(page.locator('a[href="/app/admin/limits"]').first()).toBeVisible();
       });
 
-      test('limits-number is present in the sidenav', async ({ page }) => {
+      test('limits-number is absent from the sidenav', async ({ page }) => {
         await expect(
-          page.locator('[data-testid="sidebar-child"][href="/app/admin/limits/number"]'),
-        ).toBeVisible();
+          page.locator('a[href="/app/admin/limits/number"]'),
+        ).toHaveCount(0);
       });
     });
   }

@@ -95,17 +95,10 @@ test.describe('Admin console sidenav — desktop (≥840px)', () => {
     await expect(activeChildren).toHaveAttribute('href', '/app/admin/reports/daily');
   });
 
-  test('reloading a nested route keeps the right group expanded and child active', async ({
-    page,
-  }) => {
-    await page.goto('/app/admin/limits/number');
+  test('reloading directly on limits keeps the simple limits link active', async ({ page }) => {
+    await page.goto('/app/admin/limits');
 
-    const group = page.locator('[data-testid="sidebar-group"]').filter({
-      has: page.locator('[data-testid="sidebar-group-link"][href="/app/admin/limits"]'),
-    });
-    await expect(
-      childrenOf(group).locator('[data-testid="sidebar-child"][href="/app/admin/limits/number"]'),
-    ).toHaveClass(/is-active/);
+    await expect(page.locator('a[href="/app/admin/limits"]').first()).toHaveClass(/is-active/);
   });
 
   test('reloading directly on tickets/sell keeps the ticket group expanded and marks it active', async ({
