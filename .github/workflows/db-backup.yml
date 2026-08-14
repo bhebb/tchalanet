@@ -141,6 +141,10 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/tchalanet-infra
+            if ! command -v age >/dev/null 2>&1 || ! command -v rclone >/dev/null 2>&1; then
+              sudo apt-get update -qq
+              sudo apt-get install -y -qq age rclone
+            fi
             ENV="$DEPLOY_ENV" ./scripts/remote/pg-backup.sh
         env:
           DEPLOY_ENV: ${{ steps.guard.outputs.deploy_env }}
