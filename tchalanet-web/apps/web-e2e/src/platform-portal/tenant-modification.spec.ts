@@ -20,7 +20,7 @@ const STUB_TENANT_ID = 'bbbbbbbb-0000-0000-0000-000000000001';
 
 function stubTenant(status: 'DRAFT' | 'ACTIVE' | 'SUSPENDED') {
   return {
-    tenantId: { value: STUB_TENANT_ID },
+    tenantId: STUB_TENANT_ID,
     code: 'STUB-MOD',
     name: 'Modification Test Tenant',
     status,
@@ -72,7 +72,7 @@ test.describe('Tenant detail — modification contract', () => {
     const shell = page.locator('tch-admin-page-shell');
     await expect(shell).toBeVisible({ timeout: 10_000 });
 
-    const activateBtn = page.locator('button, [tch-action]', { hasText: /activer|activate/i });
+    const activateBtn = page.getByRole('button', { name: /activer|activate|aktive/i });
     await expect(activateBtn).toBeVisible({ timeout: 5_000 });
   });
 
@@ -83,8 +83,12 @@ test.describe('Tenant detail — modification contract', () => {
     const shell = page.locator('tch-admin-page-shell');
     await expect(shell).toBeVisible({ timeout: 10_000 });
 
-    await expect(page.locator('button, [tch-action]', { hasText: /activer|activate/i })).toHaveCount(0, { timeout: 5_000 });
-    await expect(page.locator('button, [tch-action]', { hasText: /suspendre|suspend/i })).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByRole('button', { name: /activer|activate|aktive/i })).toHaveCount(0, {
+      timeout: 5_000,
+    });
+    await expect(page.getByRole('button', { name: /suspendre|suspend|sispann/i })).toBeVisible({
+      timeout: 5_000,
+    });
   });
 
   test('support access button is always visible for super admin', async ({ page }) => {

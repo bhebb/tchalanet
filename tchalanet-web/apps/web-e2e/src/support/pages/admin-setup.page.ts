@@ -26,9 +26,9 @@ export class AdminSetupPage {
   async expectReadySetupWithOperationalPrintingIssue(): Promise<void> {
     await expect(this.page.locator('.setup__progress-pct')).toHaveText('100%');
     await expect(this.page.getByTestId('admin-setup-card-settings').locator('.setup__card--ready')).toBeVisible();
-    await expect(
-      this.page.getByTestId('admin-setup-card-pos_printing').locator('.setup__card--missing'),
-    ).toBeVisible();
+    const posPrintingCard = this.page.getByTestId('admin-setup-card-pos_printing');
+    await expect(posPrintingCard).toBeVisible();
+    await expect(posPrintingCard.locator('.setup__card--missing')).toBeVisible();
     await expect(this.page.locator('.setup__card--terminal.setup__card--locked')).toHaveCount(0);
   }
 }

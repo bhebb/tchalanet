@@ -27,6 +27,17 @@ import { credsFor } from '../support/env';
  */
 
 const creds = credsFor('admin');
+const channelCardSelector = 'tch-draw-channel-list-item';
+
+function channelCards(page: import('@playwright/test').Page) {
+  return page.locator(channelCardSelector);
+}
+
+function firstConfigureButton(page: import('@playwright/test').Page) {
+  return channelCards(page)
+    .locator('button:not([disabled])', { hasText: /configurer|konfigire|configure/i })
+    .first();
+}
 
 test.describe('Draw channels — page contract', () => {
   test.beforeEach(async ({ page, loginPage, apiStub }) => {
@@ -44,8 +55,8 @@ test.describe('Draw channels — page contract', () => {
     const shell = page.locator('tch-admin-page-shell');
     await expect(shell).toBeVisible({ timeout: 10_000 });
 
-    // At least one provider card must be visible once the mock resolves
-    await expect(page.locator('tch-draw-channel-provider-card').first()).toBeVisible({
+    // At least one channel card must be visible once the mock resolves.
+    await expect(channelCards(page).first()).toBeVisible({
       timeout: 8_000,
     });
   });
@@ -54,8 +65,8 @@ test.describe('Draw channels — page contract', () => {
     const shell = page.locator('tch-admin-page-shell');
     await expect(shell).toBeVisible({ timeout: 10_000 });
 
-    // Wait for cards to load, then the count must be > 0
-    await expect(page.locator('tch-draw-channel-provider-card').first()).toBeVisible({
+    // Wait for cards to load, then the count must be > 0.
+    await expect(channelCards(page).first()).toBeVisible({
       timeout: 8_000,
     });
 
@@ -94,35 +105,23 @@ test.describe('Draw channels — config dialog contract', () => {
     await page.goto('/app/admin/draw-channels');
   });
 
-  test('clicking the configure icon on a provider opens the dialog', async ({ page }) => {
-    // Wait for provider cards to load
-    await expect(page.locator('tch-draw-channel-provider-card').first()).toBeVisible({
+  test('clicking configure on a channel opens the dialog', async ({ page }) => {
+    // Wait for channel cards to load.
+    await expect(channelCards(page).first()).toBeVisible({
       timeout: 8_000,
     });
 
-    // The configure icon button on the first slot row — aria-label is locale-specific
-    // (e.g. "Konfigire" in Haitian Creole), so target by mat-icon-button on slot row
-    await page
-      .locator('tch-draw-channel-slot-row')
-      .first()
-      .locator('[mat-icon-button]')
-      .first()
-      .click();
+    await firstConfigureButton(page).click();
 
     await expect(page.locator('mat-dialog-container')).toBeVisible({ timeout: 5_000 });
   });
 
   test('config dialog renders provider and slots sections', async ({ page }) => {
-    await expect(page.locator('tch-draw-channel-provider-card').first()).toBeVisible({
+    await expect(channelCards(page).first()).toBeVisible({
       timeout: 8_000,
     });
 
-    await page
-      .locator('tch-draw-channel-slot-row')
-      .first()
-      .locator('[mat-icon-button]')
-      .first()
-      .click();
+    await firstConfigureButton(page).click();
 
     const dialog = page.locator('mat-dialog-container');
     await expect(dialog).toBeVisible({ timeout: 5_000 });
@@ -142,16 +141,11 @@ test.describe('Draw channels — config dialog contract', () => {
     // This test verifies the STRUCTURE of the limit block when channelId is present.
     // The current mock data does not include channelId; when backend wiring is added,
     // this test should pass without modification.
-    await expect(page.locator('tch-draw-channel-provider-card').first()).toBeVisible({
+    await expect(channelCards(page).first()).toBeVisible({
       timeout: 8_000,
     });
 
-    await page
-      .locator('tch-draw-channel-slot-row')
-      .first()
-      .locator('[mat-icon-button]')
-      .first()
-      .click();
+    await firstConfigureButton(page).click();
 
     const dialog = page.locator('mat-dialog-container');
     await expect(dialog).toBeVisible({ timeout: 5_000 });
