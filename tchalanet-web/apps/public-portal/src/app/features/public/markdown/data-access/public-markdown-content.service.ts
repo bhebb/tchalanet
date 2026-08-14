@@ -5,7 +5,7 @@ import { Observable, catchError } from 'rxjs';
 
 import { TCH_PUBLIC_ASSETS } from '@tch/shared-assets';
 
-export type PublicMarkdownFile = 'privacy' | 'terms';
+export type PublicMarkdownFile = 'privacy' | 'terms' | 'data-deletion';
 
 @Injectable({ providedIn: 'root' })
 export class PublicMarkdownContentService {

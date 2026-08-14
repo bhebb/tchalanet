@@ -372,10 +372,16 @@
         "title": "Help"
       },
       "privacy": {
-        "body": "This page will present privacy information for Tchalanet public surfaces.",
-        "description": "Privacy information for Tchalanet public services.",
+        "body": "Information about data, cookies, mobile permissions, retention, and deletion.",
+        "description": "Privacy policy for Tchalanet public services and mobile app.",
         "eyebrow": "Legal",
         "title": "Privacy"
+      },
+      "data-deletion": {
+        "body": "Request deletion of your account or associated personal data.",
+        "description": "Tchalanet account and data deletion procedure.",
+        "eyebrow": "Data",
+        "title": "Data deletion"
       },
       "results": {
         "description": "Consult confirmed results according to supported sources.",
@@ -388,8 +394,8 @@
         "title": "Game rules and simulation"
       },
       "terms": {
-        "body": "This page will present the terms of use for Tchalanet public surfaces.",
-        "description": "Terms of use for Tchalanet public services.",
+        "body": "Terms that apply to public surfaces, manager space, and the mobile app.",
+        "description": "Terms of use for Tchalanet public and mobile services.",
         "eyebrow": "Legal",
         "title": "Terms of use"
       },

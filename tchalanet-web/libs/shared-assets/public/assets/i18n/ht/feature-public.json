@@ -372,10 +372,16 @@
         "title": "Èd"
       },
       "privacy": {
-        "body": "Paj sa a ap prezante enfòmasyon konfidansyalite pou espas piblik Tchalanet yo.",
-        "description": "Enfòmasyon konfidansyalite pou sèvis piblik Tchalanet.",
+        "body": "Enfòmasyon sou done, cookie, pèmisyon mobil, konsèvasyon ak efasman.",
+        "description": "Politik konfidansyalite pou sèvis piblik ak aplikasyon mobil Tchalanet.",
         "eyebrow": "Legal",
         "title": "Konfidansyalite"
+      },
+      "data-deletion": {
+        "body": "Mande efasman kont ou oswa done pèsonèl ki asosye yo.",
+        "description": "Pwosedi efasman kont ak done Tchalanet.",
+        "eyebrow": "Done",
+        "title": "Efasman done"
       },
       "results": {
         "description": "Konsilte rezilta konfime, dapre sous nou sipòte yo.",
@@ -388,8 +394,8 @@
         "title": "Règ jwèt ak similasyon"
       },
       "terms": {
-        "body": "Paj sa a ap prezante kondisyon itilizasyon pou espas piblik Tchalanet yo.",
-        "description": "Kondisyon itilizasyon sèvis piblik Tchalanet.",
+        "body": "Kondisyon ki aplikab pou espas piblik, espas jeran ak aplikasyon mobil la.",
+        "description": "Kondisyon itilizasyon pou sèvis piblik ak mobil Tchalanet.",
         "eyebrow": "Legal",
         "title": "Kondisyon itilizasyon"
       },

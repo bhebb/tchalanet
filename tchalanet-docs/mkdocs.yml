@@ -105,6 +105,7 @@ nav:
 
   - Opérations:
       - Index: 04-operations/index.md
+      - Google Play compliance book: 04-operations/google-play-compliance-book.md
       - Super admin operations: 04-operations/super-admin-operations.md
 
   - Référence interne:

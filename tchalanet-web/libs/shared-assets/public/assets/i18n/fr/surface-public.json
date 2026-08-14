@@ -26,6 +26,7 @@
       "description": "Infrastructure digitale pour la gestion professionnelle des tickets, tirages et opérations de loterie.",
       "legal": {
         "compliance": "Conformité",
+        "data_deletion": "Suppression des données",
         "privacy": "Confidentialité",
         "title": "Légal",
         "terms": "Conditions d’utilisation"

@@ -26,6 +26,7 @@
       "description": "Digital infrastructure for professional management of tickets, draws, and lottery operations.",
       "legal": {
         "compliance": "Compliance",
+        "data_deletion": "Data deletion",
         "privacy": "Privacy",
         "title": "Legal",
         "terms": "Terms of use"

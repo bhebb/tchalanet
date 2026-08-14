@@ -372,10 +372,16 @@
         "title": "Aide"
       },
       "privacy": {
-        "body": "Cette page présentera les informations de confidentialité applicables aux surfaces publiques Tchalanet.",
-        "description": "Informations de confidentialité pour les services publics Tchalanet.",
+        "body": "Informations sur les données, cookies, permissions mobiles, conservation et suppression.",
+        "description": "Politique de confidentialité pour les services publics et l’application mobile Tchalanet.",
         "eyebrow": "Légal",
         "title": "Confidentialité"
+      },
+      "data-deletion": {
+        "body": "Demandez la suppression de votre compte ou des données personnelles associées.",
+        "description": "Procédure de suppression de compte et de données Tchalanet.",
+        "eyebrow": "Données",
+        "title": "Suppression des données"
       },
       "results": {
         "description": "Consultez les résultats confirmés selon les sources prises en charge.",
@@ -388,8 +394,8 @@
         "title": "Règles des jeux et simulation"
       },
       "terms": {
-        "body": "Cette page présentera les conditions d’utilisation applicables aux surfaces publiques Tchalanet.",
-        "description": "Conditions d’utilisation des services publics Tchalanet.",
+        "body": "Conditions applicables aux surfaces publiques, à l’espace gestionnaire et à l’application mobile.",
+        "description": "Conditions d’utilisation des services publics et mobiles Tchalanet.",
         "eyebrow": "Légal",
         "title": "Conditions d’utilisation"
       },
