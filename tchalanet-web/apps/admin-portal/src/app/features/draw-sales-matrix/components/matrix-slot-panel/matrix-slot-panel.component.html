@@ -32,38 +32,6 @@
     </mat-panel-title>
   </mat-expansion-panel-header>
 
-  @if (slotVm.channel; as channel) {
-    <div class="matrix-channel-info">
-      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">schedule</span>
-      <div class="matrix-channel-info__body">
-        <span class="matrix-channel-info__title">
-          {{ 'admin.drawSalesMatrix.channel.settingsTitle' | translate }}
-        </span>
-        <span class="matrix-channel-info__facts">
-          <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
-          <span>
-            {{
-              'admin.drawSalesMatrix.channel.cutoff'
-                | translate
-                  : {
-                      minutes: cutoffMinutes(channel.cutoffSec),
-                      drawTime: channel.drawTime ?? '-'
-                    }
-            }}
-          </span>
-          @if (channel.dependsOnChannelId) {
-            <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
-          }
-        </span>
-      </div>
-    </div>
-  } @else {
-    <div class="matrix-channel-info matrix-channel-info--missing">
-      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">router</span>
-      <span class="matrix-channel-info__body">{{ 'admin.drawSalesMatrix.channel.missingHelp' | translate }}</span>
-    </div>
-  }
-
   @if (offeredGames().length > 0) {
     <p class="matrix-section-label">{{ 'admin.drawSalesMatrix.section.offered' | translate }}</p>
     <div class="matrix-games">

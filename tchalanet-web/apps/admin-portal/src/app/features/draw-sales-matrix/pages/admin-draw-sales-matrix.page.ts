@@ -22,7 +22,6 @@ import {
   DrawSalesMatrixProviderListComponent,
   MatrixProviderGameActionEvent,
 } from '../components/matrix-provider-list/matrix-provider-list.component';
-import { DrawSalesMatrixSummaryComponent } from '../components/matrix-summary/matrix-summary.component';
 
 interface MatrixGameMutationInput {
   readonly key: string;
@@ -47,7 +46,6 @@ interface MatrixToggleGameInput extends MatrixGameMutationInput {
     TchAsyncReadyDirective,
     TchAsyncViewComponent,
     DrawSalesMatrixProviderListComponent,
-    DrawSalesMatrixSummaryComponent,
   ],
   templateUrl: './admin-draw-sales-matrix.page.html',
   styleUrls: ['./admin-draw-sales-matrix.page.scss'],
