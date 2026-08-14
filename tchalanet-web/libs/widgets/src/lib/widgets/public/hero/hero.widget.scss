@@ -91,9 +91,12 @@
   }
 }
 
-.hero-widget__action--primary {
+.hero-widget__action--primary.tch-action[data-variant='primary'] {
   --comp-action-bg: var(--tch-color-accent, var(--mat-sys-tertiary));
   --comp-action-fg: var(--tch-color-on-accent, var(--mat-sys-on-tertiary));
+
+  background: var(--comp-action-bg);
+  color: var(--comp-action-fg);
 }
 
 .hero-widget__action--secondary {
