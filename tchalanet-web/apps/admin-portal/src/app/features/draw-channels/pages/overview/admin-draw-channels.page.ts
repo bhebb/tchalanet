@@ -153,6 +153,10 @@ export class AdminDrawChannelsPage {
       this.confirmDisableChannel(slot);
       return;
     }
+    if (this.activationBlocked(slot)) {
+      this.openChannelDialog(slot);
+      return;
+    }
     this.toggleChannel.execute({ slot, enabled }, { key: slot.channelId });
   }
 
@@ -228,6 +232,10 @@ export class AdminDrawChannelsPage {
     if (!slot.enabled) return 'inactive';
     if (!slot.drawTime || slot.resultSlotActive === false) return 'attention';
     return 'active';
+  }
+
+  private activationBlocked(slot: DrawChannelSlotConfigView): boolean {
+    return !slot.drawTime || slot.resultSlotActive === false;
   }
 
   private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {

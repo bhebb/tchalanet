@@ -47,9 +47,10 @@ describe(DrawChannelListItemComponent.name, () => {
     expect(text).toContain('10:00');
     expect(text).toContain('Vant fèmen 09:55');
     expect(text).toContain('Jou ouvè: Chak jou');
-    expect(text).toContain('Plafon ak blokaj');
+    expect(text).not.toContain('Plafon ak blokaj');
     expect(text).not.toContain('Jwèt');
     expect(fixture.nativeElement.querySelector('.dc-channel-card__logo img')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[aria-label="Plis aksyon"]')).not.toBeNull();
   });
 });
 
@@ -59,6 +60,7 @@ const translations = {
       actions: {
         configure: 'Konfigire',
         configureLimits: 'Plafon ak blokaj',
+        more: 'Plis aksyon',
         viewDetails: 'Gade detay',
       },
       list: {

@@ -220,11 +220,14 @@ describe('PLATFORM_NAVIGATION', () => {
     expect(companySettings?.activeRoutes).toContain('/app/admin/company/settings/config');
   });
 
-  it('keeps games active for pricing details without exposing a separate overview child', () => {
+  it('keeps games as a direct link and exposes draw availability separately', () => {
     const games = adminItem('games');
+    const matrix = adminItem('games-channel-matrix');
 
     expect(games?.activeRoutes).toContain('/app/admin/pricing');
-    expect(games?.children?.map(child => child.id)).toEqual(['games-channel-matrix']);
+    expect(games?.children ?? []).toEqual([]);
+    expect(games?.activeMatch).toBe('exact');
+    expect(matrix?.destination?.value).toBe('/app/admin/games/channel-matrix');
   });
 });
 
@@ -243,6 +246,7 @@ describe('TENANT_ADMIN_NAVIGATION', () => {
       'setup',
       'draws-channels',
       'games',
+      'games-channel-matrix',
       'maryaj-gratis',
       'company',
     ]);

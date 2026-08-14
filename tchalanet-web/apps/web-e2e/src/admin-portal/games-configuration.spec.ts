@@ -31,7 +31,7 @@ test.describe('Admin games configuration — desktop', () => {
       firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }),
     ).toBeVisible();
     await expect(
-      firstCard.getByRole('button', { name: /Disponibilité par tirage|Disponiblite pa tiraj|Draw availability/ }),
+      firstCard.getByRole('button', { name: /Jeux par tirage|Jwèt pa tiraj|Games by draw/ }),
     ).toBeVisible();
 
     const needsAttentionCard = page.locator('.gp-game-card--attention').filter({ hasText: /Loto 4/ });

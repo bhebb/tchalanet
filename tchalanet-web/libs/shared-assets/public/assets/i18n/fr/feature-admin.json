@@ -608,8 +608,8 @@
         "drawTimeLabel": "Heure du tirage",
         "salesCloseLabel": "Fermeture vente",
         "catalogLabel": "Catalogue",
-        "saleEnabled": "En vente",
-        "saleDisabled": "Désactivé",
+        "saleEnabled": "Actif",
+        "saleDisabled": "Inactif",
         "saleToggleLabel": "Vendre sur ce tirage",
         "platformActive": "Disponible au catalogue",
         "platformInactive": "Désactivé au catalogue",
@@ -629,7 +629,8 @@
         "configureLimits": "Plafonds et blocages",
         "blockNumber": "Bloquer des numéros",
         "viewGeneratedDraws": "Voir les tirages",
-        "viewDetails": "Voir les détails"
+        "viewDetails": "Voir les détails",
+        "more": "Plus d'actions"
       },
       "detail": {
         "titleFallback": "Détails du canal de tirage",
@@ -1462,7 +1463,7 @@
           "edit": "Modifier",
           "unavailable": "Non disponible",
           "maryaj": "Configurer Maryaj gratis",
-          "availability": "Disponibilité par tirage"
+          "availability": "Jeux par tirage"
         }
       },
       "confirm": {
@@ -1950,7 +1951,7 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Jeux par canal",
+      "title": "Jeux par tirage",
       "description": "Activez ou désactivez les jeux par canal. La configuration du canal se fait dans la fiche du canal de tirage.",
       "loading": "Chargement de la matrice...",
       "action": {
@@ -1958,7 +1959,7 @@
         "refresh": "Actualiser"
       },
       "summary": {
-        "aria": "Résumé de la matrice des jeux par canal",
+        "aria": "Résumé de la matrice des jeux par tirage",
         "saleReady": "Prêts à vendre",
         "offeredGames": "Jeux offerts",
         "activeChannels": "Canaux actifs",

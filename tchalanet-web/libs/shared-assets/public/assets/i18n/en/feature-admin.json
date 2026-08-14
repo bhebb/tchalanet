@@ -778,7 +778,7 @@
           "edit": "Edit",
           "unavailable": "Unavailable",
           "maryaj": "Configure free Maryaj",
-          "availability": "Draw availability"
+          "availability": "Games by draw"
         }
       },
       "confirm": {
@@ -1266,7 +1266,7 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Games by channel",
+      "title": "Games by draw",
       "description": "Enable or disable games per channel. Channel timing and routing are edited from the draw channel record.",
       "loading": "Loading matrix...",
       "action": {
@@ -1274,7 +1274,7 @@
         "refresh": "Refresh"
       },
       "summary": {
-        "aria": "Games by channel matrix summary",
+        "aria": "Games by draw matrix summary",
         "saleReady": "Ready to sell",
         "offeredGames": "Offered games",
         "activeChannels": "Active channels",
@@ -1934,8 +1934,8 @@
         "drawTimeLabel": "Draw time",
         "salesCloseLabel": "Sales close",
         "catalogLabel": "Catalog",
-        "saleEnabled": "Selling",
-        "saleDisabled": "Disabled",
+        "saleEnabled": "Active",
+        "saleDisabled": "Inactive",
         "saleToggleLabel": "Sell on this draw",
         "platformActive": "Available in catalog",
         "platformInactive": "Disabled in catalog",
@@ -1955,7 +1955,8 @@
         "configureLimits": "Caps and blocks",
         "blockNumber": "Block numbers",
         "viewGeneratedDraws": "View draws",
-        "viewDetails": "View details"
+        "viewDetails": "View details",
+        "more": "More actions"
       },
       "detail": {
         "titleFallback": "Draw channel details",
