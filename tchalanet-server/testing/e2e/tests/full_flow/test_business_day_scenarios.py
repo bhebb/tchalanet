@@ -49,6 +49,7 @@ pytestmark = [pytest.mark.L2, pytest.mark.full_flow, pytest.mark.slow]
 
 _FIREBASE_PROVIDERS = {"firebase-emulator", "firebase"}
 _DEFAULT_START = dt.date(2026, 7, 9)
+_DEFAULT_LOOKBACK_DAYS = 6
 _TENANT_ZONE = ZoneInfo("America/Port-au-Prince")
 _SELLER_SELECTED_MARYAJ_GRATIS = "13-21"
 ScenarioMode = Literal["happy_path", "availability_gates"]
@@ -222,7 +223,11 @@ def _env_mode(name: str, default: str, allowed: set[str]) -> str:
 
 def _start_date() -> dt.date:
     raw = os.environ.get("TCH_E2E_BUSINESS_DAY_START", "").strip()
-    return dt.date.fromisoformat(raw) if raw else _DEFAULT_START
+    if raw:
+        return dt.date.fromisoformat(raw)
+    # Keep the live scenario inside GenerateDrawsForRangeCommand's 31-day cap.
+    # The original fixed date remains useful for historical local runs via env override.
+    return max(_DEFAULT_START, dt.date.today() - dt.timedelta(days=_DEFAULT_LOOKBACK_DAYS))
 
 
 def _business_day_config(scenario: ScenarioMode) -> BusinessDayRunConfig:
@@ -548,6 +553,8 @@ def _draw_slot_key(draw: dict[str, Any]) -> str:
 
 def _generate_and_force_open_draws(sa: ApiClient, runtime: TenantRuntime, start: dt.date) -> list[dict[str, Any]]:
     today = dt.date.today()
+    if start > today:
+        start = today
     expected_channel_codes = set(runtime.plan.draw_channel_codes or _active_draw_channel_codes(runtime))
     generated = sa.post(
         "/platform/ops/draws/generate",
@@ -562,8 +569,21 @@ def _generate_and_force_open_draws(sa: ApiClient, runtime: TenantRuntime, start:
         headers=_rid(),
     )
     assert_ok(generated)
+    _wait_for_batch_completion(
+        sa,
+        _data(generated) or {},
+        runtime.code,
+        f"generate {start.isoformat()}..{today.isoformat()}",
+        timeout_seconds=_env_int("TCH_E2E_DRAW_GENERATE_TIMEOUT_SECONDS", 30),
+    )
 
-    draws = _eventually_generated_draws(runtime.admin, start, today, expected_channel_codes)
+    draws = _eventually_generated_draws(
+        runtime.admin,
+        start,
+        today,
+        expected_channel_codes,
+        generate_result=_data(generated),
+    )
 
     selected_by_channel: dict[str, dict[str, Any]] = {}
     for draw in draws:
@@ -615,6 +635,7 @@ def _eventually_generated_draws(
     start: dt.date,
     end: dt.date,
     expected_channel_codes: set[str],
+    generate_result: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     deadline = time.monotonic() + _env_int("TCH_E2E_DRAW_GENERATE_TIMEOUT_SECONDS", 30)
     last_total = 0
@@ -632,7 +653,8 @@ def _eventually_generated_draws(
             missing = sorted(expected_channel_codes - last_codes)
             raise AssertionError(
                 f"generated draws did not become visible before timeout: "
-                f"total={last_total} missing={missing}"
+                f"total={last_total} missing={missing} "
+                f"window={start.isoformat()}..{end.isoformat()} generate={generate_result}"
             )
         time.sleep(0.5)
 
