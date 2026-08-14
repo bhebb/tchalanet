@@ -149,6 +149,7 @@ public class ContactRequestSubmissionService implements ContactRequestApi {
       case BECOME_SELLER_TERMINAL -> "Devenir seller terminal";
       case SUPPORT -> "Support";
       case PARTNERSHIP -> "Partenariat";
+      case DATA_DELETION -> "Suppression des données";
       case OTHER -> "Autre";
     };
   }

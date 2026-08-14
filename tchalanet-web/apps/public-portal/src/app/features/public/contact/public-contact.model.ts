@@ -3,6 +3,7 @@ export type ContactIntent =
   | 'BECOME_OPERATOR'
   | 'SUPPORT'
   | 'PARTNERSHIP'
+  | 'DATA_DELETION'
   | 'OTHER';
 
 export interface SubmitContactRequest {

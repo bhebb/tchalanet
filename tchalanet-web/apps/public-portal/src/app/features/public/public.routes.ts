@@ -96,8 +96,8 @@ const publicFeatureRoutes: Route[] = [
   {
     path: 'data-deletion',
     loadComponent: () =>
-      import('./markdown/public-markdown.page').then(m => m.PublicMarkdownPage),
-    data: { titleKey: 'public.footer.legal.data_deletion', file: 'data-deletion' },
+      import('./data-deletion/public-data-deletion.page').then(m => m.PublicDataDeletionPage),
+    data: { titleKey: 'public.footer.legal.data_deletion' },
   },
 ];
 

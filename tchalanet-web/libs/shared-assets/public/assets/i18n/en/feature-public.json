@@ -379,7 +379,7 @@
       },
       "data-deletion": {
         "body": "Request deletion of your account or associated personal data.",
-        "description": "Tchalanet account and data deletion procedure.",
+        "description": "Request deletion of your Tchalanet account or associated personal data directly.",
         "eyebrow": "Data",
         "title": "Data deletion"
       },
@@ -636,6 +636,7 @@
         "BECOME_OPERATOR": "Become an operator",
         "SUPPORT": "Support / Question",
         "PARTNERSHIP": "Partnership",
+        "DATA_DELETION": "Data deletion",
         "OTHER": "Other"
       },
       "consent_label": "I agree to be contacted by the Tchalanet team",
@@ -645,6 +646,15 @@
       "error_title": "Error",
       "error_body": "An error occurred. Please try again.",
       "reset_cta": "New request"
+    },
+    "data_deletion": {
+      "procedure_title": "How to request deletion",
+      "procedure_body": "Use the form below to request deletion of a Tchalanet account or associated personal data. Include the organization, location, or terminal involved if you know them.",
+      "deleted_data": "Deleted data may include account identifiers, contact details, terminal associations, and personal data linked to the account.",
+      "retained_data": "Some operational records may be retained when required for security, fraud prevention, compliance, accounting obligations, disputes, or lottery operation audit requirements.",
+      "response_time": "The Tchalanet team may verify your identity before processing and will respond within a reasonable period according to applicable obligations.",
+      "form_title": "Submit a request",
+      "form_body": "This request will be sent to the Tchalanet team with the Data deletion request type."
     },
     "managers": {
       "loadError": "Unable to load managers."
