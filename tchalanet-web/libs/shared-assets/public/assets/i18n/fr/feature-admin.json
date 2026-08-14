@@ -1390,6 +1390,11 @@
       },
       "summary": {
         "aria": "Résumé des jeux disponibles",
+        "compact": {
+          "games": "jeux",
+          "active": "actifs",
+          "needsConfig": "à configurer"
+        },
         "systemGames": {
           "label": "Jeux système",
           "help": "Jeux disponibles pour ce santral."

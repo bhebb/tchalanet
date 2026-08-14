@@ -116,25 +116,20 @@ export class AdminGamesPricingPage {
 
     return [
       {
-        labelKey: 'admin.gamesPricing.summary.systemGames.label',
+        labelKey: 'admin.gamesPricing.summary.compact.games',
         value: summary.catalogGameCount,
         helpKey: 'admin.gamesPricing.summary.systemGames.help',
       },
       {
-        labelKey: 'admin.gamesPricing.summary.activeGames.label',
+        labelKey: 'admin.gamesPricing.summary.compact.active',
         value: summary.activeGameCount,
         helpKey: 'admin.gamesPricing.summary.activeGames.help',
       },
       {
-        labelKey: 'admin.gamesPricing.summary.needsConfig.label',
+        labelKey: 'admin.gamesPricing.summary.compact.needsConfig',
         value: summary.needsConfigCount,
         helpKey: 'admin.gamesPricing.summary.needsConfig.help',
         tone: summary.needsConfigCount > 0 ? 'warning' : 'success',
-      },
-      {
-        labelKey: 'admin.gamesPricing.summary.inactiveGames.label',
-        value: summary.inactiveGameCount,
-        helpKey: 'admin.gamesPricing.summary.inactiveGames.help',
       },
     ];
   });

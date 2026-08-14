@@ -698,6 +698,11 @@
       },
       "summary": {
         "aria": "Rezime jwèt disponib yo",
+        "compact": {
+          "games": "jwèt",
+          "active": "aktif",
+          "needsConfig": "pou konfigire"
+        },
         "systemGames": {
           "label": "Jwèt sistèm",
           "help": "Jwèt ki disponib pou santral sa a."

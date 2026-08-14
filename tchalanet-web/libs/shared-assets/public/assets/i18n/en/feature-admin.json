@@ -698,6 +698,11 @@
       },
       "summary": {
         "aria": "Available games summary",
+        "compact": {
+          "games": "games",
+          "active": "active",
+          "needsConfig": "needs setup"
+        },
         "systemGames": {
           "label": "System games",
           "help": "Games available for this operator."
