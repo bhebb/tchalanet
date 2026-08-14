@@ -82,6 +82,14 @@
         "label": "Michigan - Evening"
       }
     },
+    "mo": {
+      "mid": {
+        "label": "Missouri Midday"
+      },
+      "eve": {
+        "label": "Missouri Evening"
+      }
+    },
     "pa": {
       "mid": {
         "label": "Pennsylvania - Midday"

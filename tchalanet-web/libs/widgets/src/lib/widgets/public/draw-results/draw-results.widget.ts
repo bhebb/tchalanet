@@ -12,6 +12,7 @@ import { WidgetConfig } from '@tch/page-model';
 import { LabelPipe } from '@tch/page-model';
 import { actionFrom, destinationHref, isRecord, stringProp } from '@tch/page-model';
 import { BadgeStatus, TchActionButton, TchCard, TchSectionHeader, TchStatusBadge } from '@tch/ui/components';
+import { TranslateService } from '@ngx-translate/core';
 
 interface DrawResultItem {
   readonly drawResultId?: string;
@@ -66,6 +67,7 @@ export class PublicDrawResultsWidget {
   readonly config = input.required<WidgetConfig>();
   readonly dynamic = input<unknown>();
   readonly widgetId = input<string>('');
+  private readonly translate = inject(TranslateService);
 
   private readonly _now = signal(Date.now());
 
@@ -153,6 +155,21 @@ export class PublicDrawResultsWidget {
     return t.length > 5 ? t.substring(0, 5) : t;
   }
 
+  slotTitle(slot: DrawResultItem): string {
+    const explicit = publicLabel(slot.drawChannelLabel) ?? publicLabel(slot.label);
+    if (explicit) return explicit;
+
+    const key = publicLabel(slot.drawChannelLabelKey);
+    if (key) {
+      const translated = this.translate.instant(key);
+      if (typeof translated === 'string' && translated.trim() && translated !== key) {
+        return translated;
+      }
+    }
+
+    return humanSlotLabel(slot.slotKey) ?? publicLabel(slot.provider) ?? '';
+  }
+
   numbers(slot: DrawResultItem): readonly string[] {
     return extractNumbers(slot);
   }
@@ -184,6 +201,47 @@ function extractNumbers(slot: DrawResultItem): readonly string[] {
 function isCaliforniaMidday(slotKey: string | undefined): boolean {
   return (slotKey ?? '').trim().toUpperCase() === 'CA_MID';
 }
+
+function publicLabel(value: string | undefined): string | null {
+  const clean = value?.trim();
+  if (!clean) return null;
+  const normalized = clean.toLowerCase();
+  return normalized === 'label' || normalized === 'null' || normalized === 'undefined'
+    ? null
+    : clean;
+}
+
+function humanSlotLabel(slotKey: string | undefined): string | null {
+  const clean = slotKey?.trim().toUpperCase();
+  if (!clean) return null;
+  const [provider, period] = clean.split('_', 2);
+  if (!provider || !period) return clean.replace(/[_-]+/g, ' ');
+  const providerLabel = PROVIDER_LABELS[provider] ?? provider;
+  const periodLabel = PERIOD_LABELS[period] ?? period.replace(/[_-]+/g, ' ');
+  return `${providerLabel} — ${periodLabel}`;
+}
+
+const PROVIDER_LABELS: Readonly<Record<string, string>> = {
+  CA: 'California',
+  FL: 'Florida',
+  GA: 'Georgia',
+  MI: 'Michigan',
+  MO: 'Missouri',
+  NJ: 'New Jersey',
+  NY: 'New York',
+  PA: 'Pennsylvania',
+  TX: 'Texas',
+};
+
+const PERIOD_LABELS: Readonly<Record<string, string>> = {
+  MID: 'Midi',
+  EVE: 'Soir',
+  LATE: 'Nuit',
+  '1000': '10:00',
+  '1227': '12:27',
+  '1800': '18:00',
+  '2212': '22:12',
+};
 
 function occurredAtMs(slot: DrawResultItem): number {
   const iso = slot.occurredAt ?? slot.latest?.occurredAt;

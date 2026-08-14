@@ -82,6 +82,14 @@
         "label": "Michigan — Aswè"
       }
     },
+    "mo": {
+      "mid": {
+        "label": "Missouri — Midi"
+      },
+      "eve": {
+        "label": "Missouri — Swa"
+      }
+    },
     "pa": {
       "mid": {
         "label": "Pennsylvania — Jou"

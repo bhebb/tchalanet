@@ -82,6 +82,14 @@
         "label": "Michigan — Soir"
       }
     },
+    "mo": {
+      "mid": {
+        "label": "Missouri — Midi"
+      },
+      "eve": {
+        "label": "Missouri — Soir"
+      }
+    },
     "pa": {
       "mid": {
         "label": "Pennsylvania — Jour"
