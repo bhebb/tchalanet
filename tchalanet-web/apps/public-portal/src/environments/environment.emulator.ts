@@ -4,6 +4,7 @@ import type { TchRuntimeConfig } from '@tch/shared-config';
 // (:9099, project demo-tchalanet-local). Used by `nx serve … --configuration=emulator`.
 export const environment = {
   production: false,
+  publicLoginEnabled: true,
   runtimeConfigPath: null,
   fallbackConfig: {
     appId: 'public-portal',

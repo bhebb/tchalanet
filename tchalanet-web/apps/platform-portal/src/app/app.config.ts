@@ -23,6 +23,7 @@ import {
   I18nEffects,
   MERGED_TRANSLATE_LOADER_OPTIONS,
   MergedTranslateLoader,
+  TCH_I18N_LANGUAGE_STORAGE_KEY,
   i18nFeature,
   provideTchAngularLocales,
 } from '@tch/core/i18n';
@@ -94,6 +95,7 @@ export const appConfig: ApplicationConfig = {
     provideStore({}),
     provideState(i18nFeature),
     provideEffects([I18nEffects]),
+    { provide: TCH_I18N_LANGUAGE_STORAGE_KEY, useValue: 'tchalanet.web.platform.language' },
     themeStoreProvider,
     provideWidgets(),
     provideFirebaseAuthClient({
