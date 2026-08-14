@@ -68,6 +68,30 @@
             ]
           },
           {
+            "id": "managerCta",
+            "labelKey": "layout.public_home.manager_cta",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.managerCta"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ticketVerification",
+            "labelKey": "layout.public_home.ticket_verification",
+            "columns": [
+              {
+                "span": 12,
+                "widgets": [
+                  "home.checkTicket"
+                ]
+              }
+            ]
+          },
+          {
             "id": "draws",
             "labelKey": "layout.public_home.draws",
             "columns": [
@@ -87,30 +111,6 @@
                 "span": 12,
                 "widgets": [
                   "home.howItWorks"
-                ]
-              }
-            ]
-          },
-          {
-            "id": "ticketVerification",
-            "labelKey": "layout.public_home.ticket_verification",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.checkTicket"
-                ]
-              }
-            ]
-          },
-          {
-            "id": "managerCta",
-            "labelKey": "layout.public_home.manager_cta",
-            "columns": [
-              {
-                "span": 12,
-                "widgets": [
-                  "home.managerCta"
                 ]
               }
             ]
