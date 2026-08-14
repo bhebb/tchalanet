@@ -342,6 +342,18 @@
         font-weight: 800;
       }
 
+      /* Pick 3: vert teal */
+      .results-page__numbers[data-color='pick3'] .results-page__ball {
+        background: var(--tch-color-tertiary, var(--mat-sys-tertiary));
+        color: var(--tch-color-on-tertiary, var(--mat-sys-on-tertiary));
+      }
+
+      /* Pick 4: secondary (amber/orange selon le thème) */
+      .results-page__numbers[data-color='pick4'] .results-page__ball {
+        background: var(--tch-color-secondary, var(--mat-sys-secondary));
+        color: var(--tch-color-on-secondary, var(--mat-sys-on-secondary));
+      }
+
       .results-page__numbers-pending {
         color: var(--tch-color-on-surface-variant, var(--mat-sys-on-surface-variant));
         font-style: italic;

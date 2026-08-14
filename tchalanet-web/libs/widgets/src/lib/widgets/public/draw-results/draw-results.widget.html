@@ -20,7 +20,7 @@
                 {{ slotTitle(slot) }}
               </h3>
               <time class="latest-results-widget__item-date">
-                {{ slot.resultDate || slot.latest?.resultDate || slot.next?.localDate || '' }}{{ slotTime(slot) ? ' · ' + slotTime(slot) : '' }}
+                {{ formatDate(slot.resultDate || slot.latest?.resultDate || slot.next?.localDate) }}{{ slotTime(slot) ? ' · ' + slotTime(slot) : '' }}
               </time>
             </div>
             <tch-status-badge

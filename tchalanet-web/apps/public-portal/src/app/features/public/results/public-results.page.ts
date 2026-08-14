@@ -29,10 +29,12 @@ import {
 import { PAGE_SIZE_OPTIONS } from './public-results.model';
 import type { PageSizeOption, ProviderKey, SlotTypeKey } from './public-results.model';
 import {
+  formatResultDate,
   providerKey,
   providerLabel,
   publicResultIdentity,
   resolveSlotKeys,
+  slotColorToken,
   slotTypeKey,
 } from './public-results.utils';
 
@@ -164,6 +166,14 @@ export class PublicResultsPage {
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
+
+  formatDate(iso: string): string {
+    return formatResultDate(iso);
+  }
+
+  ballColorToken(row: PublicDrawResultRowView): string {
+    return slotColorToken(row.slotKey);
+  }
 
   /**
    * Status label rules aligned with DrawResultStatus enum:

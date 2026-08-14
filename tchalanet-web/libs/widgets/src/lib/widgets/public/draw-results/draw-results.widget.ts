@@ -150,6 +150,10 @@ export class PublicDrawResultsWidget {
     return 'pending';
   }
 
+  formatDate(iso: string | undefined): string {
+    return formatResultDate(iso);
+  }
+
   slotTime(slot: DrawResultItem): string {
     const t = slot.drawTime ?? slot.next?.localTime ?? '';
     return t.length > 5 ? t.substring(0, 5) : t;
@@ -206,9 +210,19 @@ function publicLabel(value: string | undefined): string | null {
   const clean = value?.trim();
   if (!clean) return null;
   const normalized = clean.toLowerCase();
-  return normalized === 'label' || normalized === 'null' || normalized === 'undefined'
-    ? null
-    : clean;
+  if (normalized === 'label' || normalized === 'null' || normalized === 'undefined') return null;
+  // Reject raw technical slot keys like MO_MID, PA_MID, FL_LATE — fall through to humanSlotLabel
+  if (/^[A-Z]{2,3}_[A-Z0-9]+$/.test(clean)) return null;
+  return clean;
+}
+
+/** Formats an ISO date string (YYYY-MM-DD) for display in French. */
+export function formatResultDate(iso: string | null | undefined): string {
+  if (!iso) return '';
+  // Use local noon to avoid off-by-one day across timezones
+  const d = new Date(`${iso}T12:00:00`);
+  if (isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat('fr', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
 }
 
 function humanSlotLabel(slotKey: string | undefined): string | null {

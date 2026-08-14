@@ -112,7 +112,7 @@
           <tbody>
             @for (row of resultRows(); track row.drawResultId) {
             <tr>
-              <td class="results-page__td--date">{{ row.resultDate }}</td>
+              <td class="results-page__td--date">{{ formatDate(row.resultDate) }}</td>
               <td class="results-page__td--draw">
                 <span class="results-page__draw-identity">
                   @if (row.identity.providerLogoUrl) {
@@ -141,7 +141,7 @@
               </td>
               <td class="results-page__td--numbers">
                 @if (row.numbers.length) {
-                <div class="results-page__numbers">
+                <div class="results-page__numbers" [attr.data-color]="ballColorToken(row)">
                   @for (n of row.numbers; track $index) {
                   <span class="results-page__ball">{{ n }}</span>
                   }
@@ -196,7 +196,7 @@
             </span>
           </div>
           @if (row.numbers.length) {
-          <div class="results-page__numbers">
+          <div class="results-page__numbers" [attr.data-color]="ballColorToken(row)">
             @for (n of row.numbers; track $index) {
             <span class="results-page__ball">{{ n }}</span>
             }
