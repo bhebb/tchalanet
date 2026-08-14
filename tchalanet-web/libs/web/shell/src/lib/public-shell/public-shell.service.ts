@@ -1,6 +1,15 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, of, shareReplay, tap } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 import { I18nFacade } from '@tch/core/i18n';
 import { PageModelApi, PageRuntimeResponse, PublicShellRuntime } from '@tch/page-model';
@@ -12,9 +21,16 @@ export class PublicShellService {
   private readonly api = inject(PageModelApi);
   private readonly fallback = inject(PublicFallbackBundleService);
   private readonly i18n = inject(I18nFacade);
+  private readonly language$ = toObservable(this.i18n.currentLanguage);
 
-  readonly page$ = this.api.getPublicPage().pipe(
-    catchError(() => this.fallback.load().pipe(map(b => b.pagePayload))),
+  readonly page$ = this.language$.pipe(
+    filter(language => language.length > 0),
+    distinctUntilChanged(),
+    switchMap(language =>
+      this.api.getPublicPage(language).pipe(
+        catchError(() => this.fallback.load().pipe(map(b => b.pagePayload))),
+      ),
+    ),
     tap(response => this.hydrateI18n(response)),
     shareReplay(1),
   );
