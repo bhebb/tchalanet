@@ -23,30 +23,30 @@
   },
   "actions": [
     {
-      "id": "discoverTchalanet",
+      "id": "checkTicket",
       "kind": "button",
       "style": "primary",
       "labelKey": "home.hero.cta",
       "label": null,
       "destination": {
         "kind": "route",
-        "value": "/public/managers"
+        "value": "/public/check-ticket"
       },
-      "icon": "explore",
+      "icon": "qr_code_scanner",
       "disabled": false,
       "children": []
     },
     {
-      "id": "checkTicket",
+      "id": "discoverTchalanet",
       "kind": "button",
       "style": "secondary",
       "labelKey": "home.hero.secondary_cta",
       "label": null,
       "destination": {
         "kind": "route",
-        "value": "/public/check-ticket"
+        "value": "/public/managers"
       },
-      "icon": "qr_code_scanner",
+      "icon": "explore",
       "disabled": false,
       "children": []
     }
