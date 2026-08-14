@@ -77,14 +77,12 @@
         <dd>{{ pricingLabel(g) }}</dd>
       </div>
     </div>
-    <div class="gp-game-card__fact gp-game-card__fact--{{ availabilityState(g) }}">
-      <span class="material-symbols-outlined" aria-hidden="true">{{ availabilityIcon(g) }}</span>
-      <div>
-        <dt>{{ 'admin.gamesPricing.card.fact.availability' | translate }}</dt>
-        <dd>{{ availabilityLabelKey(g) | translate }}</dd>
-      </div>
-    </div>
   </dl>
+
+  <p class="gp-game-card__availability gp-game-card__availability--{{ availabilityState(g) }}">
+    <span class="material-symbols-outlined" aria-hidden="true">{{ availabilityIcon(g) }}</span>
+    <span>{{ availabilityLabelKey(g) | translate }}</span>
+  </p>
 
   @if (actionError(); as error) {
     <div class="gp-game-card__error" role="alert">

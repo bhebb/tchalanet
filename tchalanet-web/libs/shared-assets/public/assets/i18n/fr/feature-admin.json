@@ -632,6 +632,13 @@
         "viewDetails": "Voir les détails",
         "more": "Plus d'actions"
       },
+      "table": {
+        "channel": "Canal",
+        "result": "Résultat",
+        "schedule": "Tirage",
+        "availability": "Disponibilité",
+        "actions": "Actions"
+      },
       "detail": {
         "titleFallback": "Détails du canal de tirage",
         "description": "{{code}} · {{timezone}}",
@@ -1370,6 +1377,12 @@
         "backToSetup": "Configuration générale",
         "pricing": "Voir les barèmes",
         "refresh": "Rafraîchir"
+      },
+      "table": {
+        "game": "Jeu",
+        "setup": "Paramètres",
+        "availability": "Disponibilité",
+        "actions": "Actions"
       },
       "empty": {
         "title": "Aucun jeu disponible",

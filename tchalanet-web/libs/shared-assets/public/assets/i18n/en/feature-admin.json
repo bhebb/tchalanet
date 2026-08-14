@@ -686,6 +686,12 @@
         "pricing": "View pricing",
         "refresh": "Refresh"
       },
+      "table": {
+        "game": "Game",
+        "setup": "Settings",
+        "availability": "Availability",
+        "actions": "Actions"
+      },
       "empty": {
         "title": "No games available",
         "message": "Contact Tchalanet to enable a game catalog."
@@ -1957,6 +1963,13 @@
         "viewGeneratedDraws": "View draws",
         "viewDetails": "View details",
         "more": "More actions"
+      },
+      "table": {
+        "channel": "Channel",
+        "result": "Result",
+        "schedule": "Draw time",
+        "availability": "Availability",
+        "actions": "Actions"
       },
       "detail": {
         "titleFallback": "Draw channel details",

@@ -1,5 +1,34 @@
+@use 'breakpoints' as ui;
+
 .tenant-games-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+
+  &__header {
+    display: none;
+  }
+}
+
+@include ui.up(expanded) {
+  .tenant-games-grid {
+    gap: 0.5rem;
+
+    &__header {
+      align-items: center;
+      color: var(--tch-color-on-surface-variant, #46464f);
+      display: grid;
+      font-size: var(--tch-font-size-label-sm, 0.6875rem);
+      font-weight: var(--tch-weight-semibold, 600);
+      gap: 1rem;
+      grid-template-columns: minmax(16rem, 1.4fr) minmax(18rem, 1.3fr) minmax(12rem, 0.9fr) auto;
+      letter-spacing: 0;
+      padding: 0 1rem 0.25rem;
+      text-transform: uppercase;
+
+      span:last-child {
+        text-align: end;
+      }
+    }
+  }
 }

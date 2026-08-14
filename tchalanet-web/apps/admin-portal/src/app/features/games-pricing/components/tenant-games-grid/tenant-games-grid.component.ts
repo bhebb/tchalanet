@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { TenantGamePricingView } from '../../data-access/admin-games-pricing.models';
 import {
@@ -10,7 +11,7 @@ import {
   selector: 'tch-tenant-games-grid',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TenantGameCardComponent],
+  imports: [TenantGameCardComponent, TranslatePipe],
   templateUrl: './tenant-games-grid.component.html',
   styleUrls: ['./tenant-games-grid.component.scss'],
 })

@@ -102,6 +102,10 @@
     grid-template-columns: 1fr;
     min-width: 0;
   }
+
+  &__table-header {
+    display: none;
+  }
 }
 
 @include ui.up(expanded) {
@@ -114,6 +118,29 @@
 
     &__search-wrap {
       flex: 1 1 18rem;
+    }
+
+    &__channel-list {
+      gap: 0.5rem;
+    }
+
+    &__table-header {
+      align-items: center;
+      color: var(--tch-color-on-surface-variant, #46464f);
+      display: grid;
+      font-size: var(--tch-font-size-label-sm, 0.6875rem);
+      font-weight: var(--tch-weight-semibold, 600);
+      gap: 1rem;
+      grid-template-columns:
+        minmax(16rem, 1.5fr) minmax(7rem, 0.55fr) minmax(13rem, 1fr) minmax(12rem, 1fr)
+        auto;
+      letter-spacing: 0;
+      padding: 0 1rem 0.25rem;
+      text-transform: uppercase;
+
+      span:last-child {
+        text-align: end;
+      }
     }
   }
 }

@@ -686,6 +686,12 @@
         "pricing": "Gade barèm yo",
         "refresh": "Rafrechi"
       },
+      "table": {
+        "game": "Jwèt",
+        "setup": "Paramèt",
+        "availability": "Disponibilite",
+        "actions": "Aksyon"
+      },
       "empty": {
         "title": "Pa gen jwèt disponib",
         "message": "Kontakte Tchalanet pou aktive yon katalòg jwèt."
@@ -1957,6 +1963,13 @@
         "viewGeneratedDraws": "Gade tiraj yo",
         "viewDetails": "Gade detay",
         "more": "Plis aksyon"
+      },
+      "table": {
+        "channel": "Kanal",
+        "result": "Rezilta",
+        "schedule": "Lè tiraj",
+        "availability": "Disponibilite",
+        "actions": "Aksyon"
       },
       "detail": {
         "titleFallback": "Detay kanal tiraj",

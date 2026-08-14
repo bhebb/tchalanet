@@ -87,6 +87,13 @@
         class="dc-page__channel-list"
         [attr.aria-label]="'admin.drawChannels.list.title' | translate"
       >
+        <div class="dc-page__table-header" aria-hidden="true">
+          <span>{{ 'admin.drawChannels.table.channel' | translate }}</span>
+          <span>{{ 'admin.drawChannels.table.result' | translate }}</span>
+          <span>{{ 'admin.drawChannels.table.schedule' | translate }}</span>
+          <span>{{ 'admin.drawChannels.table.availability' | translate }}</span>
+          <span>{{ 'admin.drawChannels.table.actions' | translate }}</span>
+        </div>
         @for (row of filteredRows(); track row.providerCode + ':' + row.slot.slotKey) {
         <tch-draw-channel-list-item
           [row]="row"

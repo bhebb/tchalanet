@@ -1,5 +1,9 @@
 @use 'breakpoints' as ui;
 
+:host {
+  display: block;
+}
+
 .gp-game-card {
   align-items: stretch;
   background: var(--tch-color-surface-container-lowest, #fff);
@@ -72,7 +76,8 @@
   }
 
   &__name,
-  &__meta {
+  &__meta,
+  &__availability {
     margin: 0;
   }
 
@@ -216,45 +221,26 @@
       overflow-wrap: anywhere;
     }
 
+  }
+
+  &__availability {
+    align-items: center;
+    color: var(--tch-color-on-surface-variant, #46464f);
+    display: inline-flex;
+    font-size: var(--tch-font-size-body-sm, 0.8125rem);
+    font-weight: var(--tch-weight-semibold, 600);
+    gap: 0.35rem;
+
+    .material-symbols-outlined {
+      font-size: 1rem;
+    }
+
     &--available {
       color: var(--tch-color-status-success, #0f8b5f);
-      margin-top: 0.125rem;
-
-      > .material-symbols-outlined {
-        color: var(--tch-color-status-success, #0f8b5f);
-      }
-
-      dt {
-        display: none;
-      }
-
-      dd {
-        color: var(--tch-color-status-success, #0f8b5f);
-      }
     }
 
     &--attention {
-      margin-top: 0.125rem;
-
-      > .material-symbols-outlined {
-        color: var(--tch-color-status-warning, #b26a00);
-      }
-
-      dt {
-        display: none;
-      }
-
-      dd {
-        color: var(--tch-color-status-warning, #b26a00);
-      }
-    }
-
-    &--unavailable {
-      margin-top: 0.125rem;
-
-      dt {
-        display: none;
-      }
+      color: var(--tch-color-status-warning, #b26a00);
     }
   }
 
@@ -282,7 +268,7 @@
 @include ui.up(expanded) {
   .gp-game-card {
     align-items: center;
-    grid-template-columns: minmax(15rem, 1fr) minmax(8rem, 0.5fr) minmax(0, 2.4fr) auto;
+    grid-template-columns: minmax(16rem, 1.4fr) minmax(18rem, 1.3fr) minmax(12rem, 0.9fr) auto;
     padding: 0.9rem 1rem;
 
     &__header {
@@ -297,6 +283,10 @@
     &__actions {
       display: flex;
       justify-content: flex-end;
+    }
+
+    &__facts {
+      gap: 0.25rem;
     }
 
     &__error {
