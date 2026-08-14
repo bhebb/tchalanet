@@ -119,6 +119,8 @@ interface ActiveLimitRow {
     </tch-admin-section-card>
   `,
   styles: [`
+    @use 'breakpoints' as ui;
+
     .limits-section__active {
       display: grid;
       gap: 0.75rem;
@@ -217,7 +219,7 @@ interface ActiveLimitRow {
       background: transparent;
     }
 
-    @media (min-width: 720px) {
+    @include ui.up(medium) {
       .limits-section__active-row {
         grid-template-columns: auto minmax(0, 1fr) auto;
       }
