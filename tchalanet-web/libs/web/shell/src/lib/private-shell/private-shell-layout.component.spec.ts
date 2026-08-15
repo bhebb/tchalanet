@@ -2,12 +2,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { AUTH_CLIENT, AuthClient } from '@tch/core/auth';
+import { AUTH_CLIENT, AuthClient, PrivateBootstrapStore } from '@tch/core/auth';
+import { I18nFacade, i18nFeature } from '@tch/core/i18n';
 import { TchBreakpointService } from '@tch/ui/components';
-import { themeStoreProvider } from '@tch/ui/theme';
+import { ThemeStore, themeStoreProvider } from '@tch/ui/theme';
 
 import { PrivateShellLayoutComponent } from './private-shell-layout.component';
 
@@ -29,6 +31,8 @@ function configure(isWide = signal(false)) {
     providers: [
       provideRouter([]),
       provideTranslateService(),
+      provideStore({}),
+      provideState(i18nFeature),
       provideHttpClient(),
       themeStoreProvider,
       { provide: AUTH_CLIENT, useValue: authClient },
@@ -57,6 +61,40 @@ const contentOf = (fixture: ComponentFixture<unknown>) =>
   fixture.nativeElement.querySelector('.content') as HTMLElement;
 const burgerOf = (fixture: ComponentFixture<unknown>) =>
   fixture.nativeElement.querySelector('.burger') as HTMLButtonElement;
+const textOf = (fixture: ComponentFixture<unknown>, selector: string) =>
+  (fixture.nativeElement.querySelector(selector) as HTMLElement | null)?.textContent?.trim() ?? '';
+
+function setBootstrap(
+  options: { tenantName?: string | null; tenantCode?: string | null } = {},
+): void {
+  TestBed.inject(PrivateBootstrapStore).setBootstrap({
+    space: options.tenantName === null ? 'PLATFORM' : 'ADMIN',
+    user: {
+      userId: 'user-1',
+      username: 'admin',
+      displayName: 'Admin',
+      email: 'admin@example.test',
+      roles: ['TENANT_ADMIN'],
+      defaultSpace: options.tenantName === null ? 'PLATFORM' : 'ADMIN',
+      preferredLocale: 'ht',
+      preferredTimezone: 'America/Port-au-Prince',
+    },
+    tenantContext:
+      options.tenantName === null
+        ? null
+        : {
+            tenantId: 'tenant-1',
+            tenantCode: options.tenantCode ?? 'TITI',
+            tenantName: options.tenantName ?? 'Chez Titi',
+          },
+    entitlements: { roles: [], permissions: [] },
+    readiness: { status: 'READY', checks: [] },
+    notifications: { unreadCount: 0, criticalCount: 0 },
+    navigationDrawer: null,
+    pageModelRef: { route: '/app/admin', endpoint: '/runtime/page' },
+    partial: false,
+  });
+}
 
 describe('PrivateShellLayoutComponent', () => {
   beforeEach(() => configure());
@@ -95,6 +133,59 @@ describe('PrivateShellLayoutComponent', () => {
     fixture.nativeElement.querySelector('tch-drawer-nav a').click();
 
     expect(fixture.componentInstance.drawerOpen()).toBe(false);
+  });
+
+  it('moves the tenant context into the mobile drawer instead of a second header row', () => {
+    setBootstrap({ tenantName: 'Chez Titi avec un nom vraiment très long' });
+    const fixture = render();
+
+    expect(fixture.nativeElement.querySelector('.context-bar')).toBeNull();
+    expect(textOf(fixture, '[data-testid="private-shell-drawer-context"]')).toContain(
+      'Chez Titi avec un nom vraiment très long',
+    );
+    expect(
+      fixture.nativeElement.querySelector('.drawer-context__name')?.getAttribute('title'),
+    ).toBe('Chez Titi avec un nom vraiment très long');
+  });
+
+  it('shows the platform scope when no effective tenant is present', () => {
+    setBootstrap({ tenantName: null });
+    const fixture = render();
+
+    expect(textOf(fixture, '[data-testid="private-shell-drawer-context"]')).toContain(
+      'surface.platform_admin',
+    );
+    expect(textOf(fixture, '[data-testid="private-shell-drawer-context"]')).toContain(
+      'surface.tenant_admin',
+    );
+  });
+
+  it('changes language from the drawer quick settings through the i18n facade', () => {
+    const fixture = render();
+
+    fixture.nativeElement.querySelector('[data-testid="private-shell-language-trigger"]').click();
+    fixture.detectChanges();
+    (
+      fixture.nativeElement.querySelectorAll('.drawer-settings__option')[1] as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(TestBed.inject(I18nFacade).currentLanguage()).toBe('fr');
+    expect(fixture.componentInstance.settingsPanel()).toBeNull();
+  });
+
+  it('changes theme mode from the drawer quick settings through ThemeStore', () => {
+    const fixture = render();
+
+    fixture.nativeElement.querySelector('[data-testid="private-shell-theme-trigger"]').click();
+    fixture.detectChanges();
+    (
+      fixture.nativeElement.querySelectorAll('.drawer-settings__option')[2] as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    expect(TestBed.inject(ThemeStore).activeTheme().mode).toBe('dark');
+    expect(fixture.componentInstance.settingsPanel()).toBeNull();
   });
 });
 

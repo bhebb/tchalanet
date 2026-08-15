@@ -2,11 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { Component, Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { NavigationSection } from '@tch/api';
 import { AUTH_CLIENT, AuthClient } from '@tch/core/auth';
+import { i18nFeature } from '@tch/core/i18n';
 import { TchBreakpointService } from '@tch/ui/components';
 import { themeStoreProvider } from '@tch/ui/theme';
 
@@ -60,6 +62,8 @@ function configure(isWide: Signal<boolean>) {
         { path: 'app/admin/draws', component: Blank },
       ]),
       provideTranslateService(),
+      provideStore({}),
+      provideState(i18nFeature),
       provideHttpClient(),
       themeStoreProvider,
       { provide: AUTH_CLIENT, useValue: authClient },
@@ -102,7 +106,6 @@ describe('private shell navigation', () => {
       expect(linkFor(fixture, '/app/admin').getAttribute('aria-current')).toBe('page');
       expect(linkFor(fixture, '/app/admin/draws').getAttribute('aria-current')).toBeNull();
     });
-
   });
 
   describe('sidebar permanente (≥ 840px)', () => {

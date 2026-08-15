@@ -22,7 +22,7 @@
       <tch-private-notification-bell />
       <button
         type="button"
-        class="mode-toggle"
+        class="mode-toggle mode-toggle--desktop"
         (click)="themeToggled.emit()"
         [attr.aria-label]="'nav.theme_toggle' | translate"
         [attr.aria-pressed]="darkMode()"
@@ -55,14 +55,141 @@
         <tch-drawer-nav
           [primary]="primary()"
           [sections]="sections()"
-          [secondary]="secondary()"
+          [secondary]="drawerSecondary()"
           [ariaLabel]="'nav.private.ariaLabel' | translate"
           [searchLabel]="'nav.private.search' | translate"
           [backLabel]="'common.back' | translate"
           [noResultLabel]="'common.searchEmpty' | translate"
           pagesLabelKey="nav.private.pages"
           (itemActivated)="closeDrawer()"
-        />
+        >
+          <div drawer-nav-header class="drawer-context" data-testid="private-shell-drawer-context">
+            <p class="drawer-context__label">
+              @if (drawerTenantName()) {
+                <span class="drawer-context__name" [title]="drawerTenantName()">
+                  {{ drawerTenantName() }}
+                </span>
+              } @else {
+                <span class="drawer-context__name">
+                  {{ 'surface.platform_admin' | translate }}
+                </span>
+              }
+              <span class="drawer-context__scope">{{ drawerScopeKey() | translate }}</span>
+            </p>
+          </div>
+
+          <div
+            drawer-nav-footer
+            class="drawer-settings"
+            data-testid="private-shell-drawer-settings"
+          >
+            <button
+              type="button"
+              class="drawer-settings__row"
+              data-testid="private-shell-language-trigger"
+              [attr.aria-expanded]="settingsPanel() === 'language'"
+              (click)="toggleSettingsPanel('language')"
+            >
+              <span class="drawer-settings__icon material-symbols-outlined" aria-hidden="true">
+                language
+              </span>
+              <span class="drawer-settings__label">{{ currentLanguage().label }}</span>
+              <span class="drawer-settings__chevron material-symbols-outlined" aria-hidden="true">
+                chevron_right
+              </span>
+            </button>
+            @if (settingsPanel() === 'language') {
+              <div class="drawer-settings__panel" role="group">
+                @for (language of availableLanguages(); track language.id) {
+                  <button
+                    type="button"
+                    class="drawer-settings__option"
+                    [class.drawer-settings__option--active]="language.id === currentLanguage().id"
+                    [attr.aria-pressed]="language.id === currentLanguage().id"
+                    (click)="setLanguage(language.id)"
+                  >
+                    <span>{{ language.label }}</span>
+                    <span>{{ language.shortLabel }}</span>
+                  </button>
+                }
+              </div>
+            }
+
+            <button
+              type="button"
+              class="drawer-settings__row"
+              data-testid="private-shell-theme-trigger"
+              [attr.aria-expanded]="settingsPanel() === 'theme'"
+              (click)="toggleSettingsPanel('theme')"
+            >
+              <span class="drawer-settings__icon material-symbols-outlined" aria-hidden="true">
+                {{ themeIcon() }}
+              </span>
+              <span class="drawer-settings__label">
+                {{ currentThemeLabelKey() | translate }}
+              </span>
+              <span class="drawer-settings__chevron material-symbols-outlined" aria-hidden="true">
+                chevron_right
+              </span>
+            </button>
+            @if (settingsPanel() === 'theme') {
+              <div class="drawer-settings__panel" role="group">
+                @for (mode of themeModes; track mode) {
+                  <button
+                    type="button"
+                    class="drawer-settings__option"
+                    [class.drawer-settings__option--active]="mode === currentThemeMode()"
+                    [attr.aria-pressed]="mode === currentThemeMode()"
+                    (click)="setThemeMode(mode)"
+                  >
+                    <span>{{ 'theme.modes.' + mode | translate }}</span>
+                  </button>
+                }
+              </div>
+            }
+
+            @if (helpAction(); as help) {
+              @if (isRouteAction(help)) {
+                <a
+                  class="drawer-settings__row"
+                  data-testid="private-shell-help-link"
+                  [routerLink]="actionRoute(help)"
+                  [queryParams]="actionQueryParams(help)"
+                  (click)="closeDrawer()"
+                >
+                  <span class="drawer-settings__icon material-symbols-outlined" aria-hidden="true">
+                    {{ help.icon || 'help_outline' }}
+                  </span>
+                  <span class="drawer-settings__label">{{ actionText(help) | translate }}</span>
+                  <span
+                    class="drawer-settings__chevron material-symbols-outlined"
+                    aria-hidden="true"
+                  >
+                    chevron_right
+                  </span>
+                </a>
+              } @else if (isExternalAction(help)) {
+                <a
+                  class="drawer-settings__row"
+                  data-testid="private-shell-help-link"
+                  [href]="actionHref(help)"
+                  (click)="closeDrawer()"
+                >
+                  <span class="drawer-settings__icon material-symbols-outlined" aria-hidden="true">
+                    {{ help.icon || 'help_outline' }}
+                  </span>
+                  <span class="drawer-settings__label">{{ actionText(help) | translate }}</span>
+                  <span
+                    class="drawer-settings__chevron material-symbols-outlined"
+                    aria-hidden="true"
+                  >
+                    chevron_right
+                  </span>
+                </a>
+              }
+            }
+          </div>
+        </tch-drawer-nav>
       } @else {
         <!-- Déployé : accordéon, tout le modèle reste atteignable sans niveau supplémentaire. -->
         <tch-sidebar-nav

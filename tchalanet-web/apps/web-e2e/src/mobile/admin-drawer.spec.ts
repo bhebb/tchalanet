@@ -135,8 +135,7 @@ test.describe('admin console drawer on a narrow viewport', () => {
     await page.locator(toggle).click();
     await settled(page, 'tch-drawer-nav');
 
-    const rows = page.locator('.drawer-nav__footer li');
-    const last = rows.last();
+    const last = page.locator('[data-testid="private-shell-help-link"]');
     await expect(last).toBeVisible();
 
     const box = (await last.boundingBox())!;

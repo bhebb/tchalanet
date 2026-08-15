@@ -4,6 +4,8 @@
   [attr.aria-label]="ariaLabel()"
   [attr.inert]="openCategory() ? '' : null"
 >
+  <ng-content select="[drawer-nav-header]" />
+
   @if (searchLabel()) {
     <div class="drawer-nav__search">
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
@@ -94,6 +96,8 @@
         }
       </ul>
     }
+
+    <ng-content select="[drawer-nav-footer]" />
   }
 </nav>
 
