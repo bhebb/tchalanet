@@ -55,7 +55,7 @@
       [gameReady]="store.isMaryajGameReady()"
       [editing]="store.editingOffer()"
       (activateCampaign)="store.activate($event)"
-      (pauseCampaign)="store.pause($event)"
+      (pauseCampaign)="confirmPauseOffer($event)"
       (instantiateOffer)="store.instantiate()"
       (editOffer)="store.startEditingOffer()"
       (cancelEdit)="store.cancelEditingOffer()"

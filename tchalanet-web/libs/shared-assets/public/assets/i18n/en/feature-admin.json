@@ -875,6 +875,11 @@
         "activeEyebrow": "Active offer",
         "campaignCode": "Operator campaign · {{count}} rule(s)",
         "pause": "Pause",
+        "confirmPause": {
+          "title": "Pause the Free Maryaj offer?",
+          "message": "Customers will stop receiving new Free Maryaj while the offer is paused. You can resume it later.",
+          "action": "Pause offer"
+        },
         "permanent": "No end date",
         "technicalDate": "Technical date:",
         "attributionMode": "Allocation mode",

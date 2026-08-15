@@ -1569,6 +1569,11 @@
         "activeEyebrow": "Offre active",
         "campaignCode": "Campagne du santral · {{count}} règle(s)",
         "pause": "Mettre en pause",
+        "confirmPause": {
+          "title": "Mettre l'offre Maryaj gratis en pause ?",
+          "message": "Les clients ne recevront plus de nouveaux Maryaj gratuits pendant que l'offre est en pause. Vous pourrez la relancer plus tard.",
+          "action": "Mettre en pause"
+        },
         "permanent": "Pas de fin",
         "technicalDate": "Date technique :",
         "attributionMode": "Mode d’attribution",

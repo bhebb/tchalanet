@@ -875,6 +875,11 @@
         "activeEyebrow": "Òf aktif",
         "campaignCode": "Kanpay santral · {{count}} règ",
         "pause": "Mete an poz",
+        "confirmPause": {
+          "title": "Mete òf Maryaj gratis la an poz?",
+          "message": "Kliyan yo p ap resevwa nouvo Maryaj gratis pandan òf la an poz. Ou ka relanse òf la pita.",
+          "action": "Mete an poz"
+        },
         "permanent": "Pa gen fen",
         "technicalDate": "Dat teknik:",
         "attributionMode": "Mòd atribisyon",

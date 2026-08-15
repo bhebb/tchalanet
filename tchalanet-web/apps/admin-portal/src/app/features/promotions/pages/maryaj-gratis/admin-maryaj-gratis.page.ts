@@ -12,13 +12,20 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
+import {
+  TchConfirmDialog,
+  type TchConfirmDialogData,
+  TchErrorPanel,
+  TchLoading,
+  TchSectionError,
+} from '@tch/ui/components';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { TenantGameView } from '../../../games-pricing/data-access/games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
 import { GameSettingsDialog } from '../../../games-pricing/components/dialogs/game-settings.dialog';
+import { PromotionCampaignView } from '../../data-access/admin-promotions-api.service';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { MaryajGenerationPanelComponent } from './components/maryaj-generation-panel.component';
 import { MaryajGameSettingsPanelComponent } from './components/maryaj-game-settings-panel.component';
@@ -49,6 +56,7 @@ export class AdminMaryajGratisPage implements OnInit {
   private readonly viewportScroller = inject(ViewportScroller);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
   readonly store = inject(AdminMaryajGratisStore);
 
   constructor() {
@@ -76,6 +84,24 @@ export class AdminMaryajGratisPage implements OnInit {
     ref.afterClosed().subscribe(ok => {
       if (ok) this.store.load();
     });
+  }
+
+  confirmPauseOffer(campaign: PromotionCampaignView): void {
+    this.dialog
+      .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
+        data: {
+          title: this.translate.instant('admin.maryajGratis.offer.confirmPause.title'),
+          message: this.translate.instant('admin.maryajGratis.offer.confirmPause.message'),
+          confirmLabel: this.translate.instant('admin.maryajGratis.offer.confirmPause.action'),
+          cancelLabel: this.translate.instant('common.cancel'),
+          destructive: true,
+          icon: 'pause_circle',
+        },
+      })
+      .afterClosed()
+      .subscribe(result => {
+        if (result?.confirmed) this.store.pause(campaign);
+      });
   }
 
   private scrollToFragment(fragment: string | null): void {
