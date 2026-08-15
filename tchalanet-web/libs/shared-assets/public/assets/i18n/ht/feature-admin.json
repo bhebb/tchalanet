@@ -2188,7 +2188,14 @@
         },
         "payouts": {
           "title": "Barèm",
-          "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte."
+          "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte.",
+          "editPricing": "Modifye",
+          "notConfigured": "Pa konfigire",
+          "fixedAmountSummary": "Montan fiks: {{amount}}",
+          "multiplierSummary": "Miltiplikatè: ×{{odds}}",
+          "confirmClearTitle": "Efase règ {{label}} la?",
+          "confirmClearMessage": "Règ barèm sa a ap vin pa konfigire jiskaske ou anrejistre yon nouvo valè.",
+          "confirmClearAction": "Efase règ la"
         },
         "advanced": {
           "title": "Opsyon avanse",

@@ -220,7 +220,21 @@
             <div class="game-settings-dialog__pricing-variants">
               @for (variant of group.variants; track variant.pricingVariantCode ?? variant.label) {
               <div class="game-settings-dialog__pricing-variant">
-                <span class="game-settings-dialog__pricing-label">{{ variant.label }}</span>
+                <div class="game-settings-dialog__pricing-summary">
+                  <span class="game-settings-dialog__pricing-label">{{ variant.label }}</span>
+                  <strong>{{ pricingRuleSummary(variant) }}</strong>
+                </div>
+                <button
+                  class="game-settings-dialog__pricing-edit"
+                  type="button"
+                  mat-stroked-button
+                  [disabled]="!variant.pricingVariantCode"
+                  (click)="editPricingVariant(group.id, variant.pricingVariantCode ?? null, variant.label)"
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                  {{ 'admin.games.settings.payouts.editPricing' | translate }}
+                </button>
+                @if (isPricingVariantEditing(group.id, variant.pricingVariantCode ?? null, variant.label)) {
                 <div class="game-settings-dialog__pricing-control">
                   <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
                     <mat-label
@@ -273,12 +287,13 @@
                     type="button"
                     mat-icon-button
                     [disabled]="!variant.pricingVariantCode || (variant.odds === null || variant.odds === undefined) && (variant.fixedAmount === null || variant.fixedAmount === undefined)"
-                    (click)="clearPricingOdds(group.id, variant.pricingVariantCode ?? null)"
+                    (click)="requestClearPricingOdds(group.id, variant.pricingVariantCode ?? null, variant.label)"
                     [attr.aria-label]="'admin.games.settings.options.clearPricing' | translate"
                   >
                     <span class="material-symbols-outlined" aria-hidden="true">delete</span>
                   </button>
                 </div>
+                }
               </div>
               }
             </div>

@@ -2188,7 +2188,14 @@
         },
         "payouts": {
           "title": "Payouts",
-          "description": "Configure how much the customer can win for each supported option."
+          "description": "Configure how much the customer can win for each supported option.",
+          "editPricing": "Edit",
+          "notConfigured": "Not configured",
+          "fixedAmountSummary": "Fixed amount: {{amount}}",
+          "multiplierSummary": "Multiplier: ×{{odds}}",
+          "confirmClearTitle": "Clear the {{label}} rule?",
+          "confirmClearMessage": "This payout rule will be unconfigured until you save a new value.",
+          "confirmClearAction": "Clear rule"
         },
         "advanced": {
           "title": "Advanced options",

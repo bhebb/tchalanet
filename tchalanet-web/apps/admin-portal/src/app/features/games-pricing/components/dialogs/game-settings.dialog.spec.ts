@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
+import { TenantGameOddGroupView } from '../../data-access/admin-games-pricing.models';
 import {
   GamesAdminApiService,
   TenantGameBetOptionConfigView,
@@ -23,6 +24,9 @@ describe(GameSettingsDialog.name, () => {
     upsertTenantOdds: ReturnType<typeof vi.fn>;
     deleteTenantOdds: ReturnType<typeof vi.fn>;
   };
+  let dialog: {
+    open: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     gamesApi = {
@@ -34,11 +38,15 @@ describe(GameSettingsDialog.name, () => {
       upsertTenantOdds: vi.fn(() => of(undefined)),
       deleteTenantOdds: vi.fn(() => of(undefined)),
     };
+    dialog = {
+      open: vi.fn(() => ({ afterClosed: () => of({ confirmed: true }) })),
+    };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: { game: game() } },
         { provide: MatDialogRef, useValue: { close: vi.fn() } },
+        { provide: MatDialog, useValue: dialog },
         { provide: GamesAdminApiService, useValue: gamesApi },
         { provide: AdminGamesPricingApiService, useValue: pricingApi },
         { provide: TranslateService, useValue: { instant: translateInstant } },
@@ -144,6 +152,67 @@ describe(GameSettingsDialog.name, () => {
     );
   });
 
+  it('opens one payout rule editor and summarizes the current rule', () => {
+    const [group] = maryajPricingGroups();
+    const [variant] = group.variants;
+    component.pricingGroups.set([group]);
+
+    component.editPricingVariant(group.id, variant.pricingVariantCode, variant.label);
+
+    expect(
+      component.isPricingVariantEditing(group.id, variant.pricingVariantCode, variant.label),
+    ).toBe(true);
+    expect(component.pricingRuleSummary(variant)).toBe('Montan fiks: 500 HTG');
+  });
+
+  it('saves payout rule edits', () => {
+    const [group] = maryajPricingGroups();
+    const [variant] = group.variants;
+    component.pricingGroups.set([group]);
+
+    component.updatePricingRuleType(group.id, variant.pricingVariantCode, 'STAKE_MULTIPLIER');
+    component.updatePricingOdds(group.id, variant.pricingVariantCode, '4.5');
+    component.submit(new Event('submit'));
+
+    expect(pricingApi.upsertTenantOdds).toHaveBeenCalledWith(
+      {
+        gameCode: 'HT_MARYAJ_GRATIS',
+        pricingVariantCode: 'MARYAJ_EXACT',
+        betType: 'MARRIAGE_2D2D',
+        betOption: 1,
+        odds: 4.5,
+        payoutRuleType: 'STAKE_MULTIPLIER',
+        fixedAmount: null,
+      },
+      { suppressShellFeedback: true },
+    );
+  });
+
+  it('confirms before clearing a payout rule', () => {
+    const [group] = maryajPricingGroups();
+    const [variant] = group.variants;
+    component.pricingGroups.set([group]);
+
+    component.requestClearPricingOdds(group.id, variant.pricingVariantCode, variant.label);
+
+    expect(dialog.open).toHaveBeenCalled();
+    component.submit(new Event('submit'));
+
+    expect(component.pricingGroups()[0]?.variants[0]).toEqual(
+      expect.objectContaining({
+        odds: null,
+        fixedAmount: null,
+      }),
+    );
+    expect(pricingApi.deleteTenantOdds).toHaveBeenCalledWith(
+      {
+        gameCode: 'HT_MARYAJ_GRATIS',
+        pricingVariantCode: 'MARYAJ_EXACT',
+      },
+      { suppressShellFeedback: true },
+    );
+  });
+
   function game(): TenantGameView {
     return {
       gameCode: 'HT_MARYAJ_GRATIS',
@@ -196,10 +265,49 @@ describe(GameSettingsDialog.name, () => {
     };
   }
 
-  function translateInstant(key: string): string {
+  function maryajPricingGroups(): readonly TenantGameOddGroupView[] {
+    return [
+      {
+        id: 'maryaj',
+        label: 'Maryaj',
+        betType: 'MARRIAGE_2D2D',
+        betOption: null,
+        variants: [
+          {
+            label: 'Egzak',
+            value: '500',
+            odds: null,
+            payoutRuleType: 'FIXED_AMOUNT',
+            fixedAmount: 500,
+            betType: 'MARRIAGE_2D2D',
+            betOption: 1,
+            pricingVariantCode: 'MARYAJ_EXACT',
+          },
+        ],
+      },
+    ];
+  }
+
+  function translateInstant(key: string, params?: Record<string, unknown>): string {
     const translations: Record<string, string> = {
       'common.not_available': 'Pa disponib',
+      'admin.games.settings.payouts.fixedAmountSummary': 'Montan fiks: {{amount}}',
+      'admin.games.settings.payouts.multiplierSummary': 'Miltiplikatè: ×{{odds}}',
+      'admin.games.settings.payouts.notConfigured': 'Pa konfigire',
+      'admin.games.settings.payouts.confirmClearTitle': 'Efase règ {{label}} la?',
+      'admin.games.settings.payouts.confirmClearMessage':
+        'Règ barèm sa a ap vin pa konfigire jiskaske ou anrejistre yon nouvo valè.',
+      'admin.games.settings.payouts.confirmClearAction': 'Efase règ la',
+      'common.cancel': 'Anile',
     };
-    return translations[key] ?? key;
+    return interpolate(translations[key] ?? key, params);
+  }
+
+  function interpolate(value: string, params?: Record<string, unknown>): string {
+    if (!params) return value;
+    return Object.entries(params).reduce(
+      (acc, [key, replacement]) => acc.replace(`{{${key}}}`, `${replacement}`),
+      value,
+    );
   }
 });

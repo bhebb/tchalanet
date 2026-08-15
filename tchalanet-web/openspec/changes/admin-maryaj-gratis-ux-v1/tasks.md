@@ -97,15 +97,15 @@ full brief is complete.
 
 ## 8. Game Editor - Barem / Gany
 
-- [ ] Separate payout rule overview from rule editing.
-- [ ] Show existing rules first as compact summaries.
-- [ ] Open an individual rule editor only when the admin selects a rule.
-- [ ] Do not render every payout-rule input expanded by default.
-- [ ] Confirm destructive payout-rule deletion.
-- [ ] Preserve all current supported payout calculation modes.
-- [ ] Keep payout business logic out of the frontend.
-- [ ] Add focused tests for payout-rule edit.
-- [ ] Add focused tests for payout-rule delete confirmation.
+- [x] Separate payout rule overview from rule editing.
+- [x] Show existing rules first as compact summaries.
+- [x] Open an individual rule editor only when the admin selects a rule.
+- [x] Do not render every payout-rule input expanded by default.
+- [x] Confirm destructive payout-rule deletion.
+- [x] Preserve all current supported payout calculation modes.
+- [x] Keep payout business logic out of the frontend.
+- [x] Add focused tests for payout-rule edit.
+- [x] Add focused tests for payout-rule delete confirmation.
 
 ## 9. Offer Editor - Permanent / No-End Date
 

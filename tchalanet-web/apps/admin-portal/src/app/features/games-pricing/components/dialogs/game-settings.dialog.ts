@@ -9,7 +9,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormField, form, submit as submitForm } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,6 +25,8 @@ import {
   AdminFormSection,
   AdminFormShell,
   TchSectionError,
+  TchConfirmDialog,
+  type TchConfirmDialogData,
 } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
@@ -88,6 +95,7 @@ interface SaveGameConfigRequest {
 export class GameSettingsDialog {
   protected readonly data = inject<{ game: TenantGameView }>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<GameSettingsDialog>);
+  private readonly dialog = inject(MatDialog);
   private readonly api = inject(GamesAdminApiService);
   private readonly pricingApi = inject(AdminGamesPricingApiService);
   private readonly destroyRef = inject(DestroyRef);
@@ -110,6 +118,7 @@ export class GameSettingsDialog {
   );
   readonly betOptionLoading = signal(true);
   readonly betOptionLoadFailed = signal(false);
+  readonly editingPricingVariantKey = signal<string | null>(null);
   readonly showSalesOptions = computed(() => {
     const config = this.betOptionConfig();
     if (!config || this.isSimpleStakeGame()) return false;
@@ -301,6 +310,66 @@ export class GameSettingsDialog {
     );
   }
 
+  editPricingVariant(groupId: string, pricingVariantCode: string | null, label: string): void {
+    if (!pricingVariantCode) return;
+    this.editingPricingVariantKey.set(this.pricingVariantKey(groupId, pricingVariantCode, label));
+  }
+
+  isPricingVariantEditing(
+    groupId: string,
+    pricingVariantCode: string | null,
+    label: string,
+  ): boolean {
+    if (!pricingVariantCode) return false;
+    return (
+      this.editingPricingVariantKey() ===
+      this.pricingVariantKey(groupId, pricingVariantCode, label)
+    );
+  }
+
+  pricingRuleSummary(variant: TenantGameOddGroupView['variants'][number]): string {
+    if (!this.isPricingConfigured(variant)) {
+      return this.translate.instant('admin.games.settings.payouts.notConfigured');
+    }
+    if (variant.payoutRuleType === 'FIXED_AMOUNT') {
+      return this.translate.instant('admin.games.settings.payouts.fixedAmountSummary', {
+        amount: this.formattedStakeAmount(variant.fixedAmount ?? null),
+      });
+    }
+    return this.translate.instant('admin.games.settings.payouts.multiplierSummary', {
+      odds: variant.odds,
+    });
+  }
+
+  requestClearPricingOdds(
+    groupId: string,
+    pricingVariantCode: string | null,
+    label: string,
+  ): void {
+    if (!pricingVariantCode) return;
+    this.dialog
+      .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
+        data: {
+          title: this.translate.instant('admin.games.settings.payouts.confirmClearTitle', {
+            label,
+          }),
+          message: this.translate.instant('admin.games.settings.payouts.confirmClearMessage'),
+          confirmLabel: this.translate.instant('admin.games.settings.payouts.confirmClearAction'),
+          cancelLabel: this.translate.instant('common.cancel'),
+          destructive: true,
+          icon: 'delete',
+        },
+      })
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result?.confirmed) {
+          this.clearPricingOdds(groupId, pricingVariantCode);
+          this.editingPricingVariantKey.set(null);
+        }
+      });
+  }
+
   private setPricingOdds(groupId: string, pricingVariantCode: string, odds: number | null): void {
     this.pricingGroups.update(groups =>
       groups.map(group => {
@@ -479,6 +548,10 @@ export class GameSettingsDialog {
       return variant.fixedAmount !== null && variant.fixedAmount !== undefined;
     }
     return variant.odds !== null && variant.odds !== undefined;
+  }
+
+  private pricingVariantKey(groupId: string, pricingVariantCode: string, label: string): string {
+    return `${groupId}:${pricingVariantCode}:${label}`;
   }
 
   private toPricingGroups(

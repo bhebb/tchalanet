@@ -253,6 +253,27 @@
     width: 100%;
   }
 
+  &__pricing-summary {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+
+    strong {
+      color: var(--tch-color-on-surface);
+      font-weight: var(--tch-weight-semibold);
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__pricing-edit {
+    justify-self: start;
+
+    .material-symbols-outlined {
+      font-size: 1.25rem;
+      margin-inline-end: 0.25rem;
+    }
+  }
+
   &__pricing-control {
     align-items: stretch;
     display: grid;
@@ -361,11 +382,12 @@
 
     &__pricing-variant {
       align-items: start;
-      grid-template-columns: minmax(8rem, 0.75fr) minmax(0, 2fr);
+      grid-template-columns: minmax(8rem, 0.75fr) auto;
     }
 
     &__pricing-control {
       align-items: start;
+      grid-column: 1 / -1;
       grid-template-columns: minmax(0, 1fr) minmax(8rem, 11rem) 2.75rem;
     }
   }

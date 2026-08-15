@@ -755,7 +755,14 @@
         },
         "payouts": {
           "title": "Barèmes",
-          "description": "Configurez le montant que le client peut gagner pour chaque option supportée."
+          "description": "Configurez le montant que le client peut gagner pour chaque option supportée.",
+          "editPricing": "Modifier",
+          "notConfigured": "Non configuré",
+          "fixedAmountSummary": "Montant fixe : {{amount}}",
+          "multiplierSummary": "Multiplicateur : ×{{odds}}",
+          "confirmClearTitle": "Effacer la règle {{label}} ?",
+          "confirmClearMessage": "Cette règle de barème ne sera plus configurée tant que vous n’enregistrez pas une nouvelle valeur.",
+          "confirmClearAction": "Effacer la règle"
         },
         "advanced": {
           "title": "Options avancées",
