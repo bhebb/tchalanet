@@ -45,6 +45,9 @@ export class DrawChannelsSummaryComponent {
   readonly activeChannels = computed(() =>
     this.providers().reduce((sum, p) => sum + p.slots.filter(s => s.enabled).length, 0),
   );
+  readonly inactiveChannels = computed(() =>
+    this.providers().reduce((sum, p) => sum + p.slots.filter(s => !s.enabled).length, 0),
+  );
   readonly todoCount = computed(() =>
     this.providers().filter(p => p.tenantStatus === 'INACTIVE' || p.tenantStatus === 'NEEDS_CONFIG').length,
   );

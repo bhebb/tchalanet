@@ -88,6 +88,45 @@ describe(DrawChannelListItemComponent.name, () => {
     expect(fixture.nativeElement.querySelector('.dc-channel-card__primary-action').disabled).toBe(true);
     expect(fixture.nativeElement.querySelector('[aria-label="Plis aksyon"]').disabled).toBe(true);
   });
+
+  it('keeps the active switch separate from sale readiness while saving a pending change', () => {
+    TestBed.configureTestingModule({
+      imports: [DrawChannelListItemComponent],
+      providers: [provideNoopAnimations(), provideTranslateService()],
+    });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('ht', translations);
+    translate.use('ht');
+
+    const fixture = TestBed.createComponent(DrawChannelListItemComponent);
+    fixture.componentRef.setInput('row', {
+      providerCode: 'TX',
+      providerLabel: 'Texas',
+      resultMode: 'AUTO',
+      status: 'active',
+      slot: {
+        channelId: 'channel-ht-tx-1000',
+        slotKey: 'HT_TX_1000',
+        label: 'Texas · 1000',
+        enabled: true,
+        resultSlotActive: true,
+        drawTime: '10:00:00',
+        cutoffTime: '09:55:00',
+        daysOfWeek: 'MON-SUN',
+        defaultSource: 'EXTERNAL',
+      },
+    } satisfies DrawChannelListItemView);
+    fixture.componentRef.setInput('pendingEnabled', false);
+
+    fixture.detectChanges();
+
+    const toggle = fixture.nativeElement.querySelector('.dc-channel-card__sale-toggle');
+    const text = fixture.nativeElement.textContent as string;
+    expect(toggle.classList.contains('dc-channel-card__sale-toggle--on')).toBe(false);
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    expect(text).toContain('Inaktif');
+    expect(text).toMatch(/disponib pou vann/i);
+  });
 });
 
 const translations = {
