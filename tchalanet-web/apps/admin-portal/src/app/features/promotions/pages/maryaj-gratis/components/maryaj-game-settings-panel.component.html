@@ -64,8 +64,8 @@
       </div>
     </dl>
 
-    @if (game.readiness.reason) {
-      <p class="maryaj-game-settings__hint">{{ game.readiness.reason }}</p>
+    @if (readinessReason(game.readiness.reason); as reason) {
+      <p class="maryaj-game-settings__hint">{{ reason }}</p>
     }
   } @else {
     <div class="maryaj-game-settings__empty" data-testid="maryaj-gratis-game-empty">

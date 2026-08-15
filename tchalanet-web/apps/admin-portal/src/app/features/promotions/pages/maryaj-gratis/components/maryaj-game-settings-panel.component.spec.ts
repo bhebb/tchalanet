@@ -19,6 +19,10 @@ describe(MaryajGameSettingsPanelComponent.name, () => {
                 'admin.maryajGratis.game.reverse': 'Reverse',
                 'admin.maryajGratis.game.notDefined': 'Pa defini',
                 'admin.maryajGratis.game.readiness.READY': 'Pare',
+                'admin.maryajGratis.game.readiness.TODO': 'Pou konfigire',
+                'admin.maryajGratis.game.readiness.BLOCKED': 'Pa disponib',
+                'admin.gamesPricing.readiness.reason.missingStakeOrPricing':
+                  'Miz oswa barèm manke.',
                 'common.not_available': 'Pa disponib',
               })[key] ?? key,
           },
@@ -43,7 +47,17 @@ describe(MaryajGameSettingsPanelComponent.name, () => {
 
   it('does not leak raw readiness translation keys for unknown statuses', () => {
     expect(component.readinessLabel('READY')).toBe('Pare');
+    expect(component.readinessLabel('TODO')).toBe('Pou konfigire');
+    expect(component.readinessLabel('BLOCKED')).toBe('Pa disponib');
     expect(component.readinessLabel('UNKNOWN')).toBe('UNKNOWN');
+  });
+
+  it('translates readiness reasons and keeps plain backend text as fallback', () => {
+    expect(
+      component.readinessReason('admin.gamesPricing.readiness.reason.missingStakeOrPricing'),
+    ).toBe('Miz oswa barèm manke.');
+    expect(component.readinessReason('Configure stake first')).toBe('Configure stake first');
+    expect(component.readinessReason(null)).toBeNull();
   });
 
   it('maps readiness states to shared console status tones', () => {

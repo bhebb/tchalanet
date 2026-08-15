@@ -171,6 +171,7 @@ full brief is complete.
 - [x] Prefer compact section summaries with obvious edit actions.
 - [x] Keep missing offer setup as an exceptional state instead of opening the full offer form in the summary view.
 - [x] Keep missing game setup as an exceptional state with the shared status treatment.
+- [x] Translate game incomplete readiness reasons in the main summary instead of leaking raw keys.
 - [x] Use the shared console refresh button instead of a local header action.
 - [x] Pilot the shared console section card on the Generation section instead of a local card shell.
 - [x] Use the shared console section card on the Maryaj Gratis game section.
@@ -209,6 +210,7 @@ full brief is complete.
 
 - [x] Add unit coverage for no-end-date hydration and save mapping.
 - [x] Add focused coverage for Maryaj Gratis game summary amount formatting and business labels.
+- [x] Add focused coverage for Maryaj Gratis game incomplete/readiness labels and reasons.
 - [x] Add focused coverage for Maryaj Gratis offer status labels and no-end-date display helpers.
 - [x] Add focused coverage for Maryaj Gratis offer zero, one, and multiple tier read helpers.
 - [x] Update Maryaj e2e page object for game, offer, generation panels and hidden `2036`.

@@ -59,6 +59,12 @@ export class MaryajGameSettingsPanelComponent {
     return translated === key ? status : translated;
   }
 
+  readinessReason(reason: string | null): string | null {
+    if (!reason) return null;
+    const translated = this.translate.instant(reason);
+    return translated === reason ? reason : translated;
+  }
+
   readinessTone(status: string): AdminStatusTone {
     if (status === 'READY') return 'success';
     if (status === 'TODO') return 'warning';
