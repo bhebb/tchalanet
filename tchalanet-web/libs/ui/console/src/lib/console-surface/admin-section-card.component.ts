@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 
 import { TchCard, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
 
@@ -56,16 +63,18 @@ export interface AdminSectionCardError {
         --comp-card-bg: var(--tch-color-surface);
         padding: 0;
         overflow: hidden;
-        box-shadow: 0 1px 4px color-mix(in oklab, var(--tch-color-on-surface) 8%, transparent),
-                    0 0 0 1px color-mix(in oklab, var(--tch-color-on-surface) 4%, transparent);
+        box-shadow:
+          0 1px 4px color-mix(in oklab, var(--tch-color-on-surface) 8%, transparent),
+          0 0 0 1px color-mix(in oklab, var(--tch-color-on-surface) 4%, transparent);
         border: none;
       }
 
       .section-card__header {
-        display: flex;
-        align-items: center;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
         gap: 0.625rem;
-        padding: 1rem 1.5rem;
+        padding: 1rem;
         border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
       }
 
@@ -100,8 +109,13 @@ export interface AdminSectionCardError {
 
       .section-card__actions {
         display: flex;
+        grid-column: 1 / -1;
+        flex-wrap: wrap;
         gap: 0.5rem;
-        flex-shrink: 0;
+      }
+
+      .section-card__actions:empty {
+        display: none;
       }
 
       .section-card__error {
@@ -114,6 +128,19 @@ export interface AdminSectionCardError {
 
       .material-symbols-outlined {
         font-family: 'Material Symbols Outlined';
+      }
+
+      @media (min-width: 840px) {
+        .section-card__header {
+          display: flex;
+          align-items: center;
+          padding: 1rem 1.5rem;
+        }
+
+        .section-card__actions {
+          grid-column: auto;
+          flex-shrink: 0;
+        }
       }
     `,
   ],
