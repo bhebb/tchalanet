@@ -405,6 +405,7 @@
         "unavailable": "Non disponible"
       },
       "summary": {
+        "aria": "Résumé des canaux de tirage",
         "availableStates": "Fournisseurs",
         "activeStates": "Fournisseurs actifs",
         "activeChannels": "Créneaux actifs",
@@ -1451,7 +1452,7 @@
         "saleDisabledShort": "Non vendu",
         "stakeUnavailable": "Mise indisponible",
         "stakeConfigured": "Mise configurée",
-        "stakeRange": "Mises : {{min}}-{{max}} {{currency}}",
+        "stakeRange": "{{min}}-{{max}} {{currency}}",
         "stakeMissing": "Mise non configurée",
         "notConfigured": "Non configuré",
         "pricingMissing": "Barème non configuré",

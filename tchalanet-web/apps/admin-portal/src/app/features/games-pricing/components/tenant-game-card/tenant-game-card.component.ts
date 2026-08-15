@@ -171,7 +171,11 @@ export class TenantGameCardComponent {
   }
 
   private pricingProfileLabel(profile: string): string {
-    return profile.startsWith('admin.') ? this.t(profile) : profile;
+    const label = profile.startsWith('admin.') ? this.t(profile) : profile;
+    const fieldLabel = this.t('admin.gamesPricing.card.fact.payouts');
+    return label.toLocaleLowerCase().startsWith(fieldLabel.toLocaleLowerCase())
+      ? label.slice(fieldLabel.length).trim()
+      : label;
   }
 
   private t(key: string, params?: Record<string, unknown>): string {

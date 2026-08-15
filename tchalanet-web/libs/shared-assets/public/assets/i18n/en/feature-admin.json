@@ -759,7 +759,7 @@
         "saleDisabledShort": "Not sold",
         "stakeUnavailable": "Stake unavailable",
         "stakeConfigured": "Stake configured",
-        "stakeRange": "Stakes: {{min}}-{{max}} {{currency}}",
+        "stakeRange": "{{min}}-{{max}} {{currency}}",
         "stakeMissing": "Stake not configured",
         "notConfigured": "Not configured",
         "pricingMissing": "Pricing not configured",
@@ -1742,6 +1742,7 @@
         "unavailable": "Unavailable"
       },
       "summary": {
+        "aria": "Draw channels summary",
         "availableStates": "Lottery sources",
         "activeStates": "Active sources",
         "activeChannels": "Active slots",

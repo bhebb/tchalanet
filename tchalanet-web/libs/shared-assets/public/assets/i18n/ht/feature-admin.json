@@ -759,7 +759,7 @@
         "saleDisabledShort": "Pa vann",
         "stakeUnavailable": "Miz pa disponib",
         "stakeConfigured": "Miz konfigire",
-        "stakeRange": "Miz: {{min}}-{{max}} {{currency}}",
+        "stakeRange": "{{min}}-{{max}} {{currency}}",
         "stakeMissing": "Miz pa konfigire",
         "notConfigured": "Pa konfigire",
         "pricingMissing": "Barèm pa konfigire",
@@ -1742,6 +1742,7 @@
         "unavailable": "Pa disponib"
       },
       "summary": {
+        "aria": "Rezime kanal tiraj yo",
         "availableStates": "Founisè",
         "activeStates": "Founisè aktif",
         "activeChannels": "Lè aktif",
