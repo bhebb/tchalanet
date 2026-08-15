@@ -1970,8 +1970,8 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Jeux par tirage",
-      "description": "Activez ou désactivez les jeux par canal. La configuration du canal se fait dans la fiche du canal de tirage.",
+      "title": "Disponibilité par tirage",
+      "description": "Activez les jeux vendables sur chaque tirage.",
       "loading": "Chargement de la matrice...",
       "action": {
         "configureChannels": "Configurer les canaux de tirage",
@@ -1988,6 +1988,7 @@
       },
       "provider": {
         "slots": "{{count}} créneau(x)",
+        "available": "{{active}}/{{total}} jeux disponibles",
         "offered": "{{count}} jeu(x) offert(s)",
         "ready": "{{count}} vendable(s)"
       },
@@ -1997,7 +1998,7 @@
           "review": "À vérifier",
           "notConfigured": "Non configuré"
         },
-        "offeredCount": "{{active}} jeu(x) actif(s) sur {{offered}} offert(s)",
+        "offeredCount": "{{active}} jeu(x) actif(s) sur {{total}}",
         "activeGamesLabel": "Jeux actifs",
         "offeredGamesLabel": "Jeux offerts",
         "availableGamesLabel": "À ajouter",
@@ -2009,13 +2010,14 @@
         "settingsTitle": "Paramètres du tirage",
         "salesOpen": "Ouverture vente : {{value}}",
         "cutoff": "Ce tirage arrête la vente {{minutes}} minute(s) avant {{drawTime}}.",
+        "cutoffShort": "Fermeture vente {{minutes}} min avant",
         "activeGames": "{{count}} jeu(x) actif(s)",
         "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
         "dependsOnAnother": "Dépend d'un autre canal",
         "matrixHelp": "Cette matrice sert à activer l'offre de jeux. Pour changer l'heure, le cutoff ou le rattachement, ouvrez la configuration du canal.",
         "missingHelp": "Ce créneau n'a pas encore de canal de vente configuré.",
         "configureChannels": "Configurer les canaux",
-        "editChannel": "Modifier le canal"
+        "editChannel": "Modifier la règle de tirage"
       },
       "section": {
         "offered": "Offre active sur ce canal",
@@ -2057,6 +2059,8 @@
           "add": "Ajouter",
           "activate": "Activer",
           "disable": "Désactiver",
+          "on": "ON",
+          "off": "OFF",
           "remove": "Retirer du canal"
         }
       },

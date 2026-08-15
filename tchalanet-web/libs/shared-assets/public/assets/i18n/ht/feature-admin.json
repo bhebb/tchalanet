@@ -1277,8 +1277,8 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Jwèt pa tiraj",
-      "description": "Aktive oswa dezaktive jwèt yo pa règ tiraj. Lè, fèmti vant ak lyen règ la modifye nan fich règ tiraj la.",
+      "title": "Disponibilite pa tiraj",
+      "description": "Aktive jwèt ki ka vann sou chak tiraj.",
       "loading": "Chajman matriks la...",
       "action": {
         "configureChannels": "Konfigire règ tiraj yo",
@@ -1295,6 +1295,7 @@
       },
       "provider": {
         "slots": "{{count}} lè tiraj",
+        "available": "{{active}}/{{total}} jwèt disponib",
         "offered": "{{count}} jwèt ofri",
         "ready": "{{count}} vendab"
       },
@@ -1304,7 +1305,7 @@
           "review": "Pou verifye",
           "notConfigured": "Pa konfigire"
         },
-        "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
+        "offeredCount": "{{active}} jwèt aktif sou {{total}}",
         "activeGamesLabel": "Jwèt aktif",
         "offeredGamesLabel": "Jwèt yo ofri",
         "availableGamesLabel": "Pou ajoute",
@@ -1316,13 +1317,14 @@
         "settingsTitle": "Paramèt tiraj",
         "salesOpen": "Ouvèti vant : {{value}}",
         "cutoff": "Tiraj sa a sispann vann tikè {{minutes}} minit avan {{drawTime}}.",
+        "cutoffShort": "Fèmen vant {{minutes}} min avan",
         "activeGames": "{{count}} jwèt aktif",
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
         "dependsOnAnother": "Depann de yon lòt règ",
         "matrixHelp": "Matriks sa a jere òf jwèt la. Pou chanje lè, fèmti vant oswa lyen règ la, ouvri konfigirasyon règ tiraj la.",
         "missingHelp": "Lè tiraj sa a poko gen règ vant konfigire.",
         "configureChannels": "Konfigire règ yo",
-        "editChannel": "Modifye règ la"
+        "editChannel": "Modifye règ tiraj"
       },
       "section": {
         "offered": "Òf aktif sou règ sa a",
@@ -1364,6 +1366,8 @@
           "add": "Ajoute",
           "activate": "Aktive",
           "disable": "Dezaktive",
+          "on": "ON",
+          "off": "OFF",
           "remove": "Retire nan kanal la"
         }
       },

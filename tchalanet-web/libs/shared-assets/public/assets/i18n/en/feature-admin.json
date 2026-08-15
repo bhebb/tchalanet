@@ -1277,8 +1277,8 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Games by draw",
-      "description": "Enable or disable games per channel. Channel timing and routing are edited from the draw channel record.",
+      "title": "Availability by draw",
+      "description": "Enable games that can be sold on each draw.",
       "loading": "Loading matrix...",
       "action": {
         "configureChannels": "Configure draw channels",
@@ -1295,6 +1295,7 @@
       },
       "provider": {
         "slots": "{{count}} slot(s)",
+        "available": "{{active}}/{{total}} games available",
         "offered": "{{count}} offered game(s)",
         "ready": "{{count}} sellable"
       },
@@ -1304,7 +1305,7 @@
           "review": "Review",
           "notConfigured": "Not configured"
         },
-        "offeredCount": "{{active}} active game(s) out of {{offered}} offered",
+        "offeredCount": "{{active}} active game(s) out of {{total}}",
         "activeGamesLabel": "Active games",
         "offeredGamesLabel": "Offered games",
         "availableGamesLabel": "Can add",
@@ -1316,13 +1317,14 @@
         "settingsTitle": "Draw settings",
         "salesOpen": "Sales open: {{value}}",
         "cutoff": "Sales stop {{minutes}} minute(s) before {{drawTime}}.",
+        "cutoffShort": "Sales close {{minutes}} min before",
         "activeGames": "{{count}} active game(s)",
         "availableToAdd": "{{count}} game(s) available to add",
         "dependsOnAnother": "Depends on another channel",
         "matrixHelp": "This matrix manages the game offer. To change time, cutoff or routing, open the channel configuration.",
         "missingHelp": "This slot does not have a sales channel configured yet.",
         "configureChannels": "Configure channels",
-        "editChannel": "Edit channel"
+        "editChannel": "Edit draw rule"
       },
       "section": {
         "offered": "Active offer on this channel",
@@ -1364,6 +1366,8 @@
           "add": "Add",
           "activate": "Activate",
           "disable": "Disable",
+          "on": "On",
+          "off": "Off",
           "remove": "Remove from channel"
         }
       },

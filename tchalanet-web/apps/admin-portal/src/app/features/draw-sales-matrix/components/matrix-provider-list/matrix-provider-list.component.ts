@@ -44,17 +44,17 @@ export class DrawSalesMatrixProviderListComponent {
     return provider.slots.length;
   }
 
-  protected saleReadyCount(provider: ProviderMatrixView): number {
+  protected availableTenantGameCount(provider: ProviderMatrixView): number {
     return provider.slots
       .flatMap(slot => slot.games)
-      .filter(game => game.saleReady)
+      .filter(game => game.enabledForTenant)
       .length;
   }
 
-  protected offeredCount(provider: ProviderMatrixView): number {
+  protected activeGameCount(provider: ProviderMatrixView): number {
     return provider.slots
       .flatMap(slot => slot.games)
-      .filter(game => game.offeredOnChannel)
+      .filter(game => game.enabledForTenant && game.offeredOnChannel && game.enabledOnChannel)
       .length;
   }
 }

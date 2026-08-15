@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
@@ -41,7 +40,6 @@ interface MatrixToggleGameInput extends MatrixGameMutationInput {
   imports: [
     AdminPageShellComponent,
     TranslatePipe,
-    RouterLink,
     MatButtonModule,
     TchAsyncReadyDirective,
     TchAsyncViewComponent,

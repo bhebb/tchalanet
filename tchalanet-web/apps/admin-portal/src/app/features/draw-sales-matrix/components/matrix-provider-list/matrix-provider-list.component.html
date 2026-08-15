@@ -7,8 +7,12 @@
       </h3>
       <div class="matrix-provider__facts">
         <span>{{ 'admin.drawSalesMatrix.provider.slots' | translate: { count: slotCount(provider) } }}</span>
-        <span>{{ 'admin.drawSalesMatrix.provider.offered' | translate: { count: offeredCount(provider) } }}</span>
-        <span>{{ 'admin.drawSalesMatrix.provider.ready' | translate: { count: saleReadyCount(provider) } }}</span>
+        <span>
+          {{
+            'admin.drawSalesMatrix.provider.available'
+              | translate: { active: activeGameCount(provider), total: availableTenantGameCount(provider) }
+          }}
+        </span>
       </div>
     </header>
 
