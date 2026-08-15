@@ -167,6 +167,7 @@ full brief is complete.
 - [x] Avoid a large hero/summary card that consumes an entire mobile viewport.
 - [x] Prefer compact section summaries with obvious edit actions.
 - [x] Use the shared console refresh button instead of a local header action.
+- [x] Pilot the shared console section card on the Generation section instead of a local card shell.
 - [x] Keep only exceptional warnings visually prominent.
 
 ## 16. Mobile-First Behavior

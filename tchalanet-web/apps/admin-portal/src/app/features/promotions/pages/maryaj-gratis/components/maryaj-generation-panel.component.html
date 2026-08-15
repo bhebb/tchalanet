@@ -1,23 +1,11 @@
-<section
+<tch-admin-section-card
   id="generation"
   class="maryaj-generation"
-  aria-labelledby="maryaj-generation-title"
   data-testid="maryaj-gratis-generation-panel"
+  icon="auto_awesome"
+  [title]="'admin.maryajGratis.generation.title' | translate"
+  [description]="'admin.maryajGratis.generation.description' | translate"
 >
-  <div class="maryaj-generation__header">
-    <span class="maryaj-generation__icon">
-      <mat-icon>auto_awesome</mat-icon>
-    </span>
-    <div>
-      <p class="maryaj-generation__eyebrow">
-        {{ 'admin.maryajGratis.generation.eyebrow' | translate }}
-      </p>
-      <h3 id="maryaj-generation-title" class="maryaj-generation__title">
-        {{ 'admin.maryajGratis.generation.title' | translate }}
-      </h3>
-    </div>
-  </div>
-
   @if (editing()) {
     <form class="maryaj-generation__form" [formGroup]="form()">
       <section class="maryaj-generation__selection">
@@ -73,4 +61,4 @@
       </div>
     </dl>
   }
-</section>
+</tch-admin-section-card>

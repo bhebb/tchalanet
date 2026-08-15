@@ -1012,6 +1012,7 @@
       "generation": {
         "eyebrow": "Jenerasyon",
         "title": "Jenerasyon Maryaj gratis",
+        "description": "Kontwole kijan nimewo Maryaj gratis yo chwazi oswa rejenerasyon yo fèt.",
         "selection": "Seleksyon",
         "retry": "Rejenerasyon",
         "retryCount": "{{count}} tantativ",

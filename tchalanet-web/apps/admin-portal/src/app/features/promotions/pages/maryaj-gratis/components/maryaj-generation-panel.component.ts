@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { AdminSectionCardComponent } from '@tch/ui/console';
 import { PromotionConfigItem } from '../../../data-access/admin-promotions-api.service';
 
 @Component({
@@ -18,6 +19,7 @@ import { PromotionConfigItem } from '../../../data-access/admin-promotions-api.s
     MatIconModule,
     MatInputModule,
     ReactiveFormsModule,
+    AdminSectionCardComponent,
     TranslatePipe,
   ],
   templateUrl: './maryaj-generation-panel.component.html',
