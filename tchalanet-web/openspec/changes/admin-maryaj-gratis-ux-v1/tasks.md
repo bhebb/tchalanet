@@ -224,8 +224,8 @@ full brief is complete.
 - [x] Run admin-business e2e outside the sandbox; Maryaj path passes, but unrelated setup printing and limits scenarios currently fail.
 - [x] Add main page coverage for active game plus active offer.
 - [x] Add main page coverage for active game plus paused offer.
-- [ ] Add main page coverage for game incomplete.
-- [ ] Add main page coverage for offer incomplete.
+- [x] Add main page coverage for game incomplete.
+- [x] Add main page coverage for offer incomplete.
 - [x] Add main page coverage for permanent/no-end-date offer.
 - [x] Add main page coverage for scheduled future offer.
 - [x] Add main page coverage for ended offer.

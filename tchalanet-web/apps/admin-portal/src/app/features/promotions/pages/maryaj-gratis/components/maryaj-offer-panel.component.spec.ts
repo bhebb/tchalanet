@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { FormBuilder } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService, provideTranslateService } from '@ngx-translate/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type {
@@ -17,10 +18,17 @@ describe(MaryajOfferPanelComponent.name, () => {
     TestBed.configureTestingModule({
       providers: [
         FormBuilder,
-        { provide: TranslateService, useValue: { instant: translateInstant } },
+        provideNoopAnimations(),
+        provideTranslateService({
+          fallbackLang: 'ht',
+          lang: 'ht',
+        }),
       ],
     });
     formBuilder = TestBed.inject(FormBuilder);
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('ht', translations);
+    translate.use('ht');
     component = TestBed.runInInjectionContext(() => new MaryajOfferPanelComponent());
     const testForm = form();
     (component as unknown as { form: () => typeof testForm }).form = () => testForm;
@@ -173,6 +181,23 @@ describe(MaryajOfferPanelComponent.name, () => {
     expect(component.tierRuleLabel(secondTier)).toBe('200 HTG + → 2 Maryaj gratis');
   });
 
+  it('renders an incomplete offer with a compact setup action', () => {
+    const fixture = TestBed.createComponent(MaryajOfferPanelComponent);
+    fixture.componentRef.setInput('campaign', null);
+    fixture.componentRef.setInput('effect', null);
+    fixture.componentRef.setInput('form', form());
+    fixture.componentRef.setInput('saving', false);
+    fixture.componentRef.setInput('gameReady', true);
+    fixture.componentRef.setInput('editing', false);
+
+    fixture.detectChanges();
+
+    const text = normalizedText(fixture.nativeElement.textContent as string);
+    expect(text).toContain('Pou aktive');
+    expect(text).toContain('Òf Maryaj gratis la poko aktive.');
+    expect(text).toContain('Modifye òf la');
+  });
+
   function form() {
     return formBuilder.group({
       quantityTiers: formBuilder.array([
@@ -201,24 +226,45 @@ describe(MaryajOfferPanelComponent.name, () => {
     };
   }
 
-  function translateInstant(key: string, params?: Record<string, unknown>): string {
-    const translations: Record<string, string> = {
-      'admin.maryajGratis.amount.htg': '{{amount}} HTG',
-      'admin.maryajGratis.offer.status.active': 'Aktif',
-      'admin.maryajGratis.offer.status.paused': 'An poz',
-      'admin.maryajGratis.offer.status.draft': 'Bouyon',
-      'admin.maryajGratis.offer.status.inactive': 'Inaktif',
-      'admin.maryajGratis.offer.status.archived': 'Achive',
-      'admin.maryajGratis.offer.status.scheduled': 'Pwograme',
-      'admin.maryajGratis.offer.status.ended': 'Fini',
-      'admin.maryajGratis.offer.tiers.openRange': '{{min}} +',
-      'admin.maryajGratis.offer.tiers.range': '{{min}} – {{max}}',
-      'admin.maryajGratis.offer.tiers.rule': '{{range}} → {{quantity}} Maryaj gratis',
-    };
-    const template = translations[key] ?? key;
-    return Object.entries(params ?? {}).reduce(
-      (value, [name, replacement]) => value.replace(`{{${name}}}`, String(replacement)),
-      template,
-    );
+  function normalizedText(value: string): string {
+    return value.replace(/\s+/g, ' ').trim();
   }
 });
+
+const translations = {
+  common: {
+    edit: 'Modifye',
+    not_available: 'Pa disponib',
+  },
+  admin: {
+    maryajGratis: {
+      amount: {
+        htg: '{{amount}} HTG',
+      },
+      offer: {
+        description: 'Dat, palye ak kantite.',
+        empty: {
+          action: 'Modifye òf la',
+          title: 'Òf Maryaj gratis la poko aktive.',
+          copy: 'Konfigire òf la pou kliyan yo resevwa Maryaj gratis.',
+        },
+        status: {
+          active: 'Aktif',
+          paused: 'An poz',
+          draft: 'Bouyon',
+          inactive: 'Inaktif',
+          archived: 'Achive',
+          scheduled: 'Pwograme',
+          ended: 'Fini',
+          needsSetup: 'Pou aktive',
+        },
+        tiers: {
+          openRange: '{{min}} +',
+          range: '{{min}} – {{max}}',
+          rule: '{{range}} → {{quantity}} Maryaj gratis',
+        },
+        title: 'Òf gratis la',
+      },
+    },
+  },
+};
