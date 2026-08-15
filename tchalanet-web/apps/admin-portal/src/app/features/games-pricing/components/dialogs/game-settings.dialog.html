@@ -125,43 +125,44 @@
           {{ 'admin.games.settings.salesOptions.loadFailed' | translate }}
         </p>
         } @else if (betOptionConfig(); as config) {
-        <div class="game-settings-dialog__bet-types">
-          @for (betType of config.betTypes; track betType.betType) {
+          <div class="game-settings-dialog__bet-types">
+            @for (betType of config.betTypes; track betType.betType) {
           <div class="game-settings-dialog__bet-type">
             <div class="game-settings-dialog__bet-type-header">
               <strong>{{ betType.betType | consoleBetLabel:null }}</strong>
-              <mat-form-field appearance="outline" class="game-settings-dialog__policy-field">
-                <mat-label
-                  >{{ 'admin.games.settings.salesOptions.selectionPolicy' | translate }}</mat-label
-                >
-                <mat-select
-                  [value]="betType.selectionPolicy"
-                  (selectionChange)="updateSelectionPolicy(betType.betType, $event.value)"
-                >
-                  @for (policy of selectionPolicies; track policy) {
-                  <mat-option [value]="policy">
-                    {{ ('admin.games.settings.salesOptions.policy.' + policy) | translate }}
-                  </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <div class="game-settings-dialog__policy">
+                <mat-form-field appearance="outline" class="game-settings-dialog__policy-field">
+                  <mat-label
+                    >{{ 'admin.games.settings.salesOptions.selectionPolicy' | translate }}</mat-label
+                  >
+                  <mat-select
+                    [value]="betType.selectionPolicy"
+                    (selectionChange)="updateSelectionPolicy(betType.betType, $event.value)"
+                  >
+                    @for (policy of selectionPolicies; track policy) {
+                    <mat-option [value]="policy">
+                      {{ ('admin.games.settings.salesOptions.policy.' + policy) | translate }}
+                    </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <p>{{ 'admin.games.settings.salesOptions.selectionPolicyHelp' | translate }}</p>
+              </div>
             </div>
+
+            <p class="game-settings-dialog__muted">
+              {{ 'admin.games.settings.salesOptions.optionControlsHelp' | translate }}
+            </p>
 
             <div class="game-settings-dialog__options">
               @for (option of betType.options; track option.code) {
               <div class="game-settings-dialog__option">
                 <div class="game-settings-dialog__option-main">
-                  <span class="game-settings-dialog__option-title">
-                    <span class="game-settings-dialog__option-label"
-                      >{{ betType.betType | consoleBetLabel:option.code }}</span
-                    >
-                    <tch-status-badge
-                      [status]="optionStatus(option)"
-                      [label]="optionStatusLabelKey(option) | translate"
-                    />
-                  </span>
-                  @if (option.description) {
-                  <span class="game-settings-dialog__muted">{{ option.description }}</span>
+                  <span class="game-settings-dialog__option-label"
+                    >{{ betType.betType | consoleBetLabel:option.code }}</span
+                  >
+                  @if (optionDescription(betType.betType, option); as description) {
+                  <span class="game-settings-dialog__muted">{{ description }}</span>
                   }
                 </div>
                 <div class="game-settings-dialog__option-actions">

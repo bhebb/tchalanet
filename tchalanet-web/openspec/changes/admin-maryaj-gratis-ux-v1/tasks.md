@@ -85,15 +85,15 @@ full brief is complete.
 
 ## 7. Game Editor - Opsyon Jwet
 
-- [ ] Keep the selection mode field with a concise business label.
-- [ ] Explain automatic selection once, not repeatedly.
-- [ ] Simplify Exact / Reverse option presentation into compact rows.
-- [ ] Keep only controls that tenant admins can actually change.
-- [ ] Clarify the difference between offered and POS-visible if both controls are required.
-- [ ] Translate all option descriptions to the selected locale.
-- [ ] Add focused tests for Exact option enable/disable.
-- [ ] Add focused tests for Reverse option enable/disable.
-- [ ] Add focused tests for default option selection.
+- [x] Keep the selection mode field with a concise business label.
+- [x] Explain automatic selection once, not repeatedly.
+- [x] Simplify Exact / Reverse option presentation into compact rows.
+- [x] Keep only controls that tenant admins can actually change.
+- [x] Clarify the difference between offered and POS-visible if both controls are required.
+- [x] Translate all option descriptions to the selected locale.
+- [x] Add focused tests for Exact option enable/disable.
+- [x] Add focused tests for Reverse option enable/disable.
+- [x] Add focused tests for default option selection.
 
 ## 8. Game Editor - Barem / Gany
 

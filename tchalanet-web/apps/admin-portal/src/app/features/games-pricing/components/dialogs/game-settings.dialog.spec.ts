@@ -5,7 +5,11 @@ import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
-import { GamesAdminApiService, TenantGameView } from '../../data-access/games-admin-api.service';
+import {
+  GamesAdminApiService,
+  TenantGameBetOptionConfigView,
+  TenantGameView,
+} from '../../data-access/games-admin-api.service';
 import { GameSettingsDialog } from './game-settings.dialog';
 
 describe(GameSettingsDialog.name, () => {
@@ -84,6 +88,62 @@ describe(GameSettingsDialog.name, () => {
     );
   });
 
+  it('updates Exact and Reverse option controls independently', () => {
+    component.betOptionConfig.set(maryajBetOptionConfig());
+
+    component.toggleOptionVisibleInPos('MARRIAGE_2D2D', 1, false);
+    component.toggleOptionEnabled('MARRIAGE_2D2D', 2, false);
+
+    expect(component.betOptionConfig()?.betTypes[0]?.options).toEqual([
+      expect.objectContaining({
+        code: 1,
+        enabled: true,
+        visibleInPos: false,
+      }),
+      expect.objectContaining({
+        code: 2,
+        enabled: false,
+        visibleInPos: false,
+      }),
+    ]);
+  });
+
+  it('saves supported option policy and default selection', () => {
+    component.betOptionConfig.set(maryajBetOptionConfig());
+
+    component.updateSelectionPolicy('MARRIAGE_2D2D', 'EXPLICIT_WITH_AUTO_OPTION');
+    component.updateDefaultOption('MARRIAGE_2D2D', 1);
+    component.submit(new Event('submit'));
+
+    expect(gamesApi.updateBetOptionConfig).toHaveBeenCalledWith(
+      'HT_MARYAJ_GRATIS',
+      {
+        betTypes: [
+          {
+            betType: 'MARRIAGE_2D2D',
+            selectionPolicy: 'EXPLICIT_WITH_AUTO_OPTION',
+            defaultOption: 1,
+            options: [
+              {
+                code: 1,
+                enabled: true,
+                visibleInPos: true,
+                displayOrder: 1,
+              },
+              {
+                code: 2,
+                enabled: true,
+                visibleInPos: true,
+                displayOrder: 2,
+              },
+            ],
+          },
+        ],
+      },
+      { suppressShellFeedback: true },
+    );
+  });
+
   function game(): TenantGameView {
     return {
       gameCode: 'HT_MARYAJ_GRATIS',
@@ -102,6 +162,37 @@ describe(GameSettingsDialog.name, () => {
       readyForSale: true,
       betOptions: [],
       betOptionGroups: [],
+    };
+  }
+
+  function maryajBetOptionConfig(): TenantGameBetOptionConfigView {
+    return {
+      gameCode: 'HT_MARYAJ_GRATIS',
+      betTypes: [
+        {
+          betType: 'MARRIAGE_2D2D',
+          selectionPolicy: 'EXPLICIT_ONLY',
+          defaultOption: null,
+          options: [
+            {
+              code: 1,
+              label: 'Exact',
+              description: 'Backend exact description',
+              enabled: true,
+              visibleInPos: true,
+              displayOrder: 1,
+            },
+            {
+              code: 2,
+              label: 'Reverse',
+              description: 'Backend reverse description',
+              enabled: true,
+              visibleInPos: true,
+              displayOrder: 2,
+            },
+          ],
+        },
+      ],
     };
   }
 

@@ -762,14 +762,26 @@
           "summary": "Nom POS et ordre d'affichage"
         },
         "salesOptions": {
-          "title": "Modes de vente avancés",
-          "description": "Choix commerciaux multiples et règle de sélection utilisée pendant la vente.",
+          "title": "Options du jeu",
+          "description": "Choisissez les options Maryaj Gratis offertes et la façon dont les vendeurs les sélectionnent.",
           "loadFailed": "Impossible de charger les options de vente. Les autres réglages peuvent encore être enregistrés.",
-          "selectionPolicy": "Mode de sélection",
+          "selectionPolicy": "Choix des numéros",
+          "selectionPolicyHelp": "Contrôle si le vendeur doit choisir l’option ou si Tchalanet peut la sélectionner automatiquement.",
+          "optionControlsHelp": "Offerte active l’option. Visible POS contrôle si les vendeurs peuvent la voir.",
           "defaultOption": "Option par défaut",
           "noDefaultOption": "Aucune option par défaut",
           "enabled": "Offerte",
           "visibleInPos": "Visible POS",
+          "descriptionByOption": {
+            "MARRIAGE_2D2D": {
+              "1": "Les deux numéros doivent correspondre dans le même ordre.",
+              "2": "Les deux numéros peuvent correspondre dans l’ordre inverse ou former un double."
+            },
+            "PATTERN2X2": {
+              "1": "Les deux numéros doivent correspondre dans le même ordre.",
+              "2": "Les deux numéros peuvent correspondre dans l’ordre inverse ou former un double."
+            }
+          },
           "status": {
             "visible": "Visible",
             "hidden": "Masquée POS",

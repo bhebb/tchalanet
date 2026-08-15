@@ -19,9 +19,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   AdminFormSection,
   AdminFormShell,
-  BadgeStatus,
   TchSectionError,
-  TchStatusBadge,
 } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
@@ -80,7 +78,6 @@ interface SaveGameConfigRequest {
     MatSelectModule,
     RouterLink,
     TchSectionError,
-    TchStatusBadge,
     TranslatePipe,
     ConsoleBetLabelPipe,
     ConsoleGameNamePipe,
@@ -195,16 +192,14 @@ export class GameSettingsDialog {
     }));
   }
 
-  protected optionStatus(option: TenantBetOptionConfigView): BadgeStatus {
-    if (!option.enabled) return 'blocked';
-    return option.visibleInPos ? 'ready' : 'pending';
-  }
-
-  protected optionStatusLabelKey(option: TenantBetOptionConfigView): string {
-    if (!option.enabled) return 'admin.games.settings.salesOptions.status.disabled';
-    return option.visibleInPos
-      ? 'admin.games.settings.salesOptions.status.visible'
-      : 'admin.games.settings.salesOptions.status.hidden';
+  protected optionDescription(
+    betType: string,
+    option: TenantBetOptionConfigView,
+  ): string | null {
+    const key = this.optionDescriptionKey(betType, option.code);
+    const translated = this.translate.instant(key);
+    if (translated && translated !== key) return translated;
+    return option.description;
   }
 
   formattedStakeAmount(value: number | null): string {
@@ -502,6 +497,16 @@ export class GameSettingsDialog {
   private isSimpleStakeGame(): boolean {
     const code = this.data.game.gameCode.toUpperCase();
     return code.includes('BOLET') || code.includes('BORLETTE');
+  }
+
+  private optionDescriptionKey(betType: string, optionCode: number): string {
+    const normalizedBetType = betType
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '_')
+      .replace(/\*/g, 'STAR')
+      .replace(/-/g, '_');
+    return `admin.games.settings.salesOptions.descriptionByOption.${normalizedBetType}.${optionCode}`;
   }
 
   protected notConfiguredLabel(): string {

@@ -2195,14 +2195,26 @@
           "summary": "Non POS ak lòd afichaj"
         },
         "salesOptions": {
-          "title": "Mòd vant avanse",
-          "description": "Plizyè chwa komèsyal ak règ seleksyon ki sèvi pandan vant lan.",
+          "title": "Opsyon jwèt",
+          "description": "Chwazi opsyon Maryaj gratis la ofri epi kijan vandè yo chwazi yo.",
           "loadFailed": "Opsyon vant yo pa ka chaje. Lòt reglaj yo ka toujou anrejistre.",
-          "selectionPolicy": "Mòd seleksyon",
+          "selectionPolicy": "Chwa nimewo",
+          "selectionPolicyHelp": "Kontwole si vandè a dwe chwazi opsyon an oswa si Tchalanet ka chwazi l otomatikman.",
+          "optionControlsHelp": "Ofri aktive opsyon an. Vizib POS kontwole si vandè yo wè li.",
           "defaultOption": "Opsyon pa defo",
           "noDefaultOption": "Pa gen opsyon pa defo",
           "enabled": "Ofri",
           "visibleInPos": "Vizib POS",
+          "descriptionByOption": {
+            "MARRIAGE_2D2D": {
+              "1": "De nimewo yo dwe soti nan menm lòd la.",
+              "2": "De nimewo yo ka soti nan lòd ranvèse a oswa fòme yon doub."
+            },
+            "PATTERN2X2": {
+              "1": "De nimewo yo dwe soti nan menm lòd la.",
+              "2": "De nimewo yo ka soti nan lòd ranvèse a oswa fòme yon doub."
+            }
+          },
           "status": {
             "visible": "Vizib",
             "hidden": "Kache nan POS",

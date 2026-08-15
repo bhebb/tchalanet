@@ -2195,14 +2195,26 @@
           "summary": "POS name and display order"
         },
         "salesOptions": {
-          "title": "Advanced sales modes",
-          "description": "Multiple commercial choices and the selection rule used during sale.",
+          "title": "Game options",
+          "description": "Choose the Maryaj Gratis options offered and how sellers select them.",
           "loadFailed": "Sales options could not be loaded. Other settings can still be saved.",
-          "selectionPolicy": "Selection mode",
+          "selectionPolicy": "Number choice",
+          "selectionPolicyHelp": "Controls whether the seller must choose the option or Tchalanet can select it automatically.",
+          "optionControlsHelp": "Offered enables the option. Visible in POS controls whether sellers can see it.",
           "defaultOption": "Default option",
           "noDefaultOption": "No default option",
           "enabled": "Offered",
           "visibleInPos": "Visible in POS",
+          "descriptionByOption": {
+            "MARRIAGE_2D2D": {
+              "1": "Both numbers must match in the same order.",
+              "2": "Both numbers may match in reverse order or form a double."
+            },
+            "PATTERN2X2": {
+              "1": "Both numbers must match in the same order.",
+              "2": "Both numbers may match in reverse order or form a double."
+            }
+          },
           "status": {
             "visible": "Visible",
             "hidden": "Hidden in POS",
