@@ -2154,7 +2154,12 @@
         },
         "stakes": {
           "title": "Miz",
-          "description": "Mete limit minimòm ak maksimòm pa liy."
+          "description": "Mete limit minimòm ak maksimòm pa liy.",
+          "error": {
+            "minPositive": "Miz minimòm nan dwe pi gran pase 0.",
+            "maxPositive": "Miz maksimòm nan dwe pi gran pase 0.",
+            "maxAfterMin": "Miz maksimòm nan dwe pi gran oswa egal ak minimòm nan."
+          }
         },
         "availability": {
           "title": "Disponibilite",

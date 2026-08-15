@@ -2154,7 +2154,12 @@
         },
         "stakes": {
           "title": "Stakes",
-          "description": "Set the minimum and maximum limits per line."
+          "description": "Set the minimum and maximum limits per line.",
+          "error": {
+            "minPositive": "The minimum stake must be greater than 0.",
+            "maxPositive": "The maximum stake must be greater than 0.",
+            "maxAfterMin": "The maximum stake must be greater than or equal to the minimum."
+          }
         },
         "availability": {
           "title": "Availability",

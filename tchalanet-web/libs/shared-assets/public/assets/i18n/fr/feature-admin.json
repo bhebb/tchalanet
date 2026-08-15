@@ -721,7 +721,12 @@
         },
         "stakes": {
           "title": "Mises",
-          "description": "Définissez les limites minimum et maximum par ligne."
+          "description": "Définissez les limites minimum et maximum par ligne.",
+          "error": {
+            "minPositive": "La mise minimum doit être supérieure à 0.",
+            "maxPositive": "La mise maximum doit être supérieure à 0.",
+            "maxAfterMin": "La mise maximum doit être supérieure ou égale au minimum."
+          }
         },
         "availability": {
           "title": "Disponibilité",

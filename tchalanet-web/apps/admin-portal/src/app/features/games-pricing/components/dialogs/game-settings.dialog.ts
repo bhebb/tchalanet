@@ -130,6 +130,9 @@ export class GameSettingsDialog {
     onSuccess: () => this.dialogRef.close(true),
   });
   readonly feedback = computed(() => this.saveSettings.feedback());
+  readonly stakeErrorKey = computed(() =>
+    this.stakeErrorKeyFor(this.model().minStake, this.model().maxStake),
+  );
 
   constructor() {
     this.api
@@ -150,6 +153,7 @@ export class GameSettingsDialog {
 
   submit(event: Event): void {
     event.preventDefault();
+    if (this.stakeErrorKey()) return;
     submitForm(this.form, async () => {
       this.saveSettings.execute({
         settings: this.toRequest(this.model()),
@@ -201,6 +205,24 @@ export class GameSettingsDialog {
     return option.visibleInPos
       ? 'admin.games.settings.salesOptions.status.visible'
       : 'admin.games.settings.salesOptions.status.hidden';
+  }
+
+  formattedStakeAmount(value: number | null): string {
+    if (value === null) return this.translate.instant('common.not_available');
+    return `${value.toLocaleString('fr')} HTG`;
+  }
+
+  stakeErrorKeyFor(minStake: number | null, maxStake: number | null): string | null {
+    if (minStake !== null && (!Number.isFinite(minStake) || minStake <= 0)) {
+      return 'admin.games.settings.stakes.error.minPositive';
+    }
+    if (maxStake !== null && (!Number.isFinite(maxStake) || maxStake <= 0)) {
+      return 'admin.games.settings.stakes.error.maxPositive';
+    }
+    if (minStake !== null && maxStake !== null && minStake > maxStake) {
+      return 'admin.games.settings.stakes.error.maxAfterMin';
+    }
+    return null;
   }
 
   updatePricingOdds(groupId: string, pricingVariantCode: string | null, rawValue: string): void {

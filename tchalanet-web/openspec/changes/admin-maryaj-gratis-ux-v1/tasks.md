@@ -69,10 +69,10 @@ full brief is complete.
 
 - [x] Group min/max stake inputs together.
 - [x] Use clear HTG suffixes.
-- [ ] Format large values for readability, such as `10 000 000 HTG`.
-- [ ] Keep structural validation close to fields.
+- [x] Format large values for readability, such as `10 000 000 HTG`.
+- [x] Keep structural validation close to fields.
 - [x] Avoid duplicating min/max values in multiple sections.
-- [ ] Add focused tests for stake min/max validation.
+- [x] Add focused tests for stake min/max validation.
 
 ## 6. Game Editor - Disponibilite
 

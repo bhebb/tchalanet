@@ -265,6 +265,13 @@
     font-size: var(--tch-font-size-body-sm);
     margin: 0;
   }
+
+  &__field-error {
+    color: var(--tch-color-error);
+    font: var(--tch-typescale-body-small);
+    margin: -0.25rem 0 0;
+  }
+
   mat-form-field {
     min-width: 0;
   }
