@@ -813,7 +813,7 @@
         "configure": "Edit game",
         "pricingOptions": "Payout options",
         "pricingHint": "Exact and Reverse are supported by default.",
-        "standard": "Standard",
+        "standard": "Standard pricing",
         "minimumStake": "Minimum stake",
         "maximumStake": "Maximum stake",
         "maxPerDraw": "Payout cap per draw",
@@ -831,7 +831,7 @@
         "stake": "Stake",
         "availability": "Availability",
         "availabilitySummary": "Managed on each draw",
-        "availabilityAction": "Go to Availability by draw",
+        "availabilityAction": "Availability by draw →",
         "missingReason": {
           "absent": "Free Maryaj is missing from the operator game configuration.",
           "inactive": "Free Maryaj is disabled for this operator.",

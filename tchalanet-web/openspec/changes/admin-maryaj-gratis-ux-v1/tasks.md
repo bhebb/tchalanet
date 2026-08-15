@@ -12,7 +12,7 @@ full brief is complete.
 - [x] Confirm which fields belong to generation/retry configuration.
 - [x] Confirm which fields belong to platform/catalog pricing.
 - [x] Confirm which fields are actually editable by tenant admins today.
-- [ ] Confirm whether priority is required for normal tenant-admin use or only for overlapping or multiple campaigns.
+- [x] Confirm priority is campaign/rule arbitration for overlapping or multiple promotions, not primary tenant-admin display data.
 - [x] Confirm the far-future end date is a technical representation of "no end date".
 - [x] Confirm Exact / Reverse pricing labels come from catalog/platform pricing and are read-only here.
 - [ ] Confirm whether Maryaj gratis and regular Maryaj share core game logic as implied by current copy.
@@ -115,7 +115,7 @@ full brief is complete.
 ## 10. Offer Editor - Priority
 
 - [x] Move `Priyorite` into `Opsyon avanse`.
-- [ ] Explain priority only if multiple active offers can overlap.
+- [x] Explain priority only if multiple active offers can overlap.
 - [x] Preserve the backend value while the field is collapsed.
 
 ## 11. Offer Editor - Attribution Mode

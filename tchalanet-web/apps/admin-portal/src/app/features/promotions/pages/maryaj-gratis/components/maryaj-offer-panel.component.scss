@@ -98,22 +98,6 @@
   font: var(--tch-typescale-body-medium);
 }
 
-.maryaj-offer__technical {
-  margin: 0.75rem 0 0;
-  color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-body-small);
-}
-
-.maryaj-offer__technical div {
-  display: inline-flex;
-  gap: 0.35rem;
-}
-
-.maryaj-offer__technical dt,
-.maryaj-offer__technical dd {
-  margin: 0;
-}
-
 .maryaj-offer__actions {
   display: flex;
   gap: 0.75rem;

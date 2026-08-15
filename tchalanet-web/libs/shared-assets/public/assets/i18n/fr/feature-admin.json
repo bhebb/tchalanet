@@ -1508,7 +1508,7 @@
         "configure": "Modifier le jeu",
         "pricingOptions": "Options de gain",
         "pricingHint": "Exact et Reverse sont supportés par défaut.",
-        "standard": "Standard",
+        "standard": "Barème standard",
         "minimumStake": "Mise minimum",
         "maximumStake": "Mise maximum",
         "maxPerDraw": "Plafond de paiement par tirage",
@@ -1526,7 +1526,7 @@
         "stake": "Mise",
         "availability": "Disponibilité",
         "availabilitySummary": "Gérée sur chaque tirage",
-        "availabilityAction": "Aller à Disponibilité par tirage",
+        "availabilityAction": "Disponibilité par tirage →",
         "missingReason": {
           "absent": "Le jeu Maryaj gratis est absent de la configuration du santral.",
           "inactive": "Le jeu Maryaj gratis est désactivé pour ce santral.",

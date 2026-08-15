@@ -813,7 +813,7 @@
         "configure": "Modifye jwèt la",
         "pricingOptions": "Opsyon gany yo",
         "pricingHint": "Exact ak Reverse sipòte pa default.",
-        "standard": "Standard",
+        "standard": "Barèm estanda",
         "minimumStake": "Miz minimòm",
         "maximumStake": "Miz maksimòm",
         "maxPerDraw": "Limit peman pa tiraj",
@@ -831,7 +831,7 @@
         "stake": "Miz",
         "availability": "Disponibilite",
         "availabilitySummary": "Jere sou chak tiraj",
-        "availabilityAction": "Ale nan Disponibilite pa tiraj",
+        "availabilityAction": "Disponibilite pa tiraj →",
         "missingReason": {
           "absent": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt santral la.",
           "inactive": "Jwèt Maryaj gratis la dezaktive pou santral sa a.",
