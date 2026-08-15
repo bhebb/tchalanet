@@ -7,8 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormField, form, submit as submitForm } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
+import { form, submit as submitForm } from '@angular/forms/signals';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -16,14 +15,8 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
-  AdminFormSection,
-  AdminFormShell,
   TchSectionError,
   TchConfirmDialog,
   type TchConfirmDialogData,
@@ -32,7 +25,7 @@ import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
 import { Observable, concatMap, filter, forkJoin, map, of } from 'rxjs';
 
-import { ConsoleBetLabelPipe, ConsoleGameNamePipe } from '@tch/web/console';
+import { ConsoleGameNamePipe } from '@tch/web/console';
 import { TenantGameOddGroupView } from '../../data-access/admin-games-pricing.models';
 import {
   AdminGamesPricingApiService,
@@ -49,17 +42,10 @@ import {
   UpdateGameSettingsRequest,
   UpdateTenantGameBetOptionConfigRequest,
 } from '../../data-access/games-admin-api.service';
-
-interface GameSettingsFormModel {
-  readonly displayName: string;
-  readonly visibleInPos: boolean;
-  readonly minStake: number | null;
-  readonly maxStake: number | null;
-  readonly displayOrder: number;
-  readonly availabilityEnabled: boolean;
-  readonly startLocalTime: string;
-  readonly endLocalTime: string;
-}
+import {
+  GameSettingsEditorComponent,
+  GameSettingsFormModel,
+} from '../game-settings-editor/game-settings-editor.component';
 
 interface SaveGameConfigRequest {
   readonly settings: UpdateGameSettingsRequest;
@@ -80,20 +66,12 @@ export const GAME_SETTINGS_DIALOG_SURFACE_CONFIG = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    FormField,
-    AdminFormSection,
-    AdminFormShell,
     AdminDialogShellComponent,
+    GameSettingsEditorComponent,
     MatButtonModule,
-    MatCheckboxModule,
     MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    RouterLink,
     TchSectionError,
     TranslatePipe,
-    ConsoleBetLabelPipe,
     ConsoleGameNamePipe,
   ],
   templateUrl: './game-settings.dialog.html',
