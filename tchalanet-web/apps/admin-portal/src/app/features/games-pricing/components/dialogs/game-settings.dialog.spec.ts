@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
@@ -27,6 +27,12 @@ describe(GameSettingsDialog.name, () => {
   let dialog: {
     open: ReturnType<typeof vi.fn>;
   };
+  let dialogRef: {
+    close: ReturnType<typeof vi.fn>;
+    backdropClick: ReturnType<typeof vi.fn>;
+    keydownEvents: ReturnType<typeof vi.fn>;
+    disableClose?: boolean;
+  };
 
   beforeEach(() => {
     gamesApi = {
@@ -41,11 +47,16 @@ describe(GameSettingsDialog.name, () => {
     dialog = {
       open: vi.fn(() => ({ afterClosed: () => of({ confirmed: true }) })),
     };
+    dialogRef = {
+      close: vi.fn(),
+      backdropClick: vi.fn(() => new Subject<MouseEvent>()),
+      keydownEvents: vi.fn(() => new Subject<KeyboardEvent>()),
+    };
 
     TestBed.configureTestingModule({
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: { game: game() } },
-        { provide: MatDialogRef, useValue: { close: vi.fn() } },
+        { provide: MatDialogRef, useValue: dialogRef },
         { provide: MatDialog, useValue: dialog },
         { provide: GamesAdminApiService, useValue: gamesApi },
         { provide: AdminGamesPricingApiService, useValue: pricingApi },
@@ -59,6 +70,10 @@ describe(GameSettingsDialog.name, () => {
   it('formats stake amounts with readable grouping for field hints', () => {
     expect(component.formattedStakeAmount(10_000_000)).toBe('10 000 000 HTG');
     expect(component.formattedStakeAmount(null)).toBe('Pa disponib');
+  });
+
+  it('prevents silent dialog close so unsaved changes can be handled', () => {
+    expect(dialogRef.disableClose).toBe(true);
   });
 
   it('validates stake min and max close to the game editor fields', () => {
@@ -94,6 +109,22 @@ describe(GameSettingsDialog.name, () => {
       }),
       { suppressShellFeedback: true },
     );
+  });
+
+  it('closes cancel immediately when no game settings changed', () => {
+    component.requestCancel();
+
+    expect(dialog.open).not.toHaveBeenCalled();
+    expect(dialogRef.close).toHaveBeenCalledWith(undefined);
+  });
+
+  it('confirms before discarding unsaved game settings', () => {
+    component.model.update(value => ({ ...value, visibleInPos: false }));
+
+    component.requestCancel();
+
+    expect(dialog.open).toHaveBeenCalled();
+    expect(dialogRef.close).toHaveBeenCalledWith(undefined);
   });
 
   it('updates Exact and Reverse option controls independently', () => {
@@ -298,6 +329,9 @@ describe(GameSettingsDialog.name, () => {
       'admin.games.settings.payouts.confirmClearMessage':
         'Règ barèm sa a ap vin pa konfigire jiskaske ou anrejistre yon nouvo valè.',
       'admin.games.settings.payouts.confirmClearAction': 'Efase règ la',
+      'admin.games.settings.confirmDiscard.title': 'Kite san anrejistre?',
+      'admin.games.settings.confirmDiscard.message': 'Chanjman ou fè yo p ap anrejistre.',
+      'admin.games.settings.confirmDiscard.action': 'Kite san anrejistre',
       'common.cancel': 'Anile',
     };
     return interpolate(translations[key] ?? key, params);

@@ -334,7 +334,13 @@
     </tch-admin-form-shell>
   </form>
 
-  <button actions mat-button mat-dialog-close [disabled]="saveSettings.pending()">
+  <button
+    actions
+    mat-button
+    type="button"
+    [disabled]="saveSettings.pending()"
+    (click)="requestCancel()"
+  >
     {{ 'common.cancel' | translate }}
   </button>
   <button

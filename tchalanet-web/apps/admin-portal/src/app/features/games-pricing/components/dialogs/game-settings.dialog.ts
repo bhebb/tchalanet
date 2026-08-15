@@ -30,7 +30,7 @@ import {
 } from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
-import { Observable, concatMap, forkJoin, map, of } from 'rxjs';
+import { Observable, concatMap, filter, forkJoin, map, of } from 'rxjs';
 
 import { ConsoleBetLabelPipe, ConsoleGameNamePipe } from '@tch/web/console';
 import { TenantGameOddGroupView } from '../../data-access/admin-games-pricing.models';
@@ -119,6 +119,15 @@ export class GameSettingsDialog {
   readonly betOptionLoading = signal(true);
   readonly betOptionLoadFailed = signal(false);
   readonly editingPricingVariantKey = signal<string | null>(null);
+  readonly initialBetOptionSnapshot = signal(this.snapshot(null));
+  private readonly initialModelSnapshot = this.snapshot(this.model());
+  private readonly initialPricingSnapshot = this.snapshot(this.pricingGroups());
+  readonly dirty = computed(
+    () =>
+      this.snapshot(this.model()) !== this.initialModelSnapshot ||
+      this.snapshot(this.pricingGroups()) !== this.initialPricingSnapshot ||
+      this.snapshot(this.betOptionConfig()) !== this.initialBetOptionSnapshot(),
+  );
   readonly showSalesOptions = computed(() => {
     const config = this.betOptionConfig();
     if (!config || this.isSimpleStakeGame()) return false;
@@ -141,12 +150,29 @@ export class GameSettingsDialog {
   );
 
   constructor() {
+    this.dialogRef.disableClose = true;
+    this.dialogRef
+      .backdropClick()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.requestCancel());
+    this.dialogRef
+      .keydownEvents()
+      .pipe(
+        filter(event => event.key === 'Escape'),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(event => {
+        event.preventDefault();
+        this.requestCancel();
+      });
+
     this.api
       .getBetOptionConfig(this.data.game.gameCode, { suppressShellFeedback: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: config => {
           this.betOptionConfig.set(config);
+          this.initialBetOptionSnapshot.set(this.snapshot(config));
           this.betOptionLoading.set(false);
           this.betOptionLoadFailed.set(false);
         },
@@ -177,6 +203,30 @@ export class GameSettingsDialog {
       ...current,
       selectionPolicy,
     }));
+  }
+
+  requestCancel(): void {
+    if (this.saveSettings.pending()) return;
+    if (!this.dirty()) {
+      this.dialogRef.close(undefined);
+      return;
+    }
+
+    this.dialog
+      .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
+        data: {
+          title: this.translate.instant('admin.games.settings.confirmDiscard.title'),
+          message: this.translate.instant('admin.games.settings.confirmDiscard.message'),
+          confirmLabel: this.translate.instant('admin.games.settings.confirmDiscard.action'),
+          cancelLabel: this.translate.instant('common.cancel'),
+          icon: 'undo',
+        },
+      })
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result?.confirmed) this.dialogRef.close(undefined);
+      });
   }
 
   updateDefaultOption(betType: string, defaultOption: number | null): void {
@@ -580,6 +630,10 @@ export class GameSettingsDialog {
       .replace(/\*/g, 'STAR')
       .replace(/-/g, '_');
     return `admin.games.settings.salesOptions.descriptionByOption.${normalizedBetType}.${optionCode}`;
+  }
+
+  private snapshot(value: unknown): string {
+    return JSON.stringify(value);
   }
 
   protected notConfiguredLabel(): string {

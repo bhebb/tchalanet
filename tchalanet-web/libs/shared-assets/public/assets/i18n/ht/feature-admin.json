@@ -2186,6 +2186,11 @@
           "description": "Rezime barèm santral la ki aplike nan vant lan.",
           "clearPricing": "Efase règ barèm nan"
         },
+        "confirmDiscard": {
+          "title": "Kite san anrejistre?",
+          "message": "Chanjman ou fè yo p ap anrejistre.",
+          "action": "Kite san anrejistre"
+        },
         "payouts": {
           "title": "Barèm",
           "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte.",

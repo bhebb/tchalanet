@@ -53,8 +53,8 @@ full brief is complete.
 
 - [x] Stop treating the full game configuration as a simple modal on compact/mobile layouts.
 - [x] Provide a dedicated route/page or full-height responsive drawer/sheet for game editing.
-- [ ] Preserve unsaved-change behavior and cancel/save semantics.
-- [ ] Keep save actions reachable without trapping the admin in a very long dialog.
+- [x] Preserve unsaved-change behavior and cancel/save semantics.
+- [x] Keep save actions reachable without trapping the admin in a very long dialog.
 - [x] Structure the game editing surface as Vant, Miz, Disponibilite, Opsyon jwet, Barem/Gany, and Opsyon avanse.
 
 ## 4. Game Editor - Vant

@@ -2186,6 +2186,11 @@
           "description": "Summary of the operator pricing applied at sale time.",
           "clearPricing": "Clear pricing rule"
         },
+        "confirmDiscard": {
+          "title": "Leave without saving?",
+          "message": "Your changes will not be saved.",
+          "action": "Leave without saving"
+        },
         "payouts": {
           "title": "Payouts",
           "description": "Configure how much the customer can win for each supported option.",
