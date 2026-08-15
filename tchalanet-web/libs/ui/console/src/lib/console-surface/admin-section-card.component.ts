@@ -34,9 +34,9 @@ export interface AdminSectionCardError {
             <p class="section-card__description">{{ description() }}</p>
           }
         </div>
-        <div class="section-card__actions">
-          <ng-content select="[actions]" />
-        </div>
+      </div>
+      <div class="section-card__status">
+        <ng-content select="[status]" />
       </div>
       @if (sectionError(); as error) {
         <div class="section-card__error">
@@ -49,6 +49,9 @@ export interface AdminSectionCardError {
       }
       <div class="section-card__body">
         <ng-content />
+      </div>
+      <div class="section-card__actions">
+        <ng-content select="[actions]" />
       </div>
     </tch-card>
   `,
@@ -63,6 +66,7 @@ export interface AdminSectionCardError {
       tch-card {
         --tch-radius-lg: var(--tch-radius-2xl, 1.5rem);
         --comp-card-bg: var(--tch-color-surface);
+        display: grid;
         padding: 0;
         overflow: hidden;
         box-shadow:
@@ -109,13 +113,22 @@ export interface AdminSectionCardError {
         color: var(--tch-color-on-surface-variant, #46464f);
       }
 
+      .section-card__status,
       .section-card__actions {
         display: flex;
-        grid-column: 1 / -1;
         flex-wrap: wrap;
         gap: 0.5rem;
       }
 
+      .section-card__status {
+        padding: 1rem 1.5rem 0;
+      }
+
+      .section-card__actions {
+        padding: 0 1.5rem 1.5rem;
+      }
+
+      .section-card__status:empty,
       .section-card__actions:empty {
         display: none;
       }
@@ -133,15 +146,28 @@ export interface AdminSectionCardError {
       }
 
       @include ui.up(expanded) {
+        tch-card {
+          grid-template-columns: minmax(0, 1fr) auto auto;
+          align-items: center;
+        }
+
         .section-card__header {
           display: flex;
           align-items: center;
+          grid-column: 1;
           padding: 1rem 1.5rem;
         }
 
+        .section-card__status,
         .section-card__actions {
-          grid-column: auto;
+          border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
+          padding: 1rem 1.5rem 1rem 0;
           flex-shrink: 0;
+        }
+
+        .section-card__error,
+        .section-card__body {
+          grid-column: 1 / -1;
         }
       }
     `,

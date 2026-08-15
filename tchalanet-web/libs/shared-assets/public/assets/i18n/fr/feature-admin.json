@@ -1496,14 +1496,14 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Configurez le jeu Maryaj gratis, son offre gratuite et la génération des numéros.",
+      "description": "Configurez le jeu, l’offre gratuite et la génération des numéros.",
       "action": {
         "refresh": "Rafraîchir"
       },
       "loading": "Chargement des promotions...",
       "game": {
         "eyebrow": "Paramètres du jeu",
-        "title": "Maryaj gratuit",
+        "title": "Le jeu",
         "subtitle": "Même logique que Maryaj; seuls le barème gratuit et la génération changent.",
         "configure": "Modifier le jeu",
         "pricingOptions": "Options de gain",
@@ -1567,7 +1567,7 @@
         }
       },
       "offer": {
-        "title": "Offre Maryaj gratis",
+        "title": "L’offre gratuite",
         "description": "Dates, paliers et quantité de Maryaj gratuits remis aux clients.",
         "activeEyebrow": "Offre active",
         "campaignCode": "Campagne du santral · {{count}} règle(s)",
@@ -1708,7 +1708,7 @@
       },
       "generation": {
         "eyebrow": "Génération",
-        "title": "Génération des Maryaj gratuits",
+        "title": "Génération",
         "description": "Contrôle comment les numéros Maryaj gratuits sont générés et régénérés.",
         "selection": "Numéros",
         "retry": "Régénération",

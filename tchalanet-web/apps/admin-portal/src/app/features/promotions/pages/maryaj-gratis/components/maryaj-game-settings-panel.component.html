@@ -7,11 +7,15 @@
   [description]="'admin.maryajGratis.game.subtitle' | translate"
 >
   @if (game(); as game) {
+    <tch-admin-status-pill
+      status
+      [label]="readinessLabel(game.readiness.status)"
+      [tone]="readinessTone(game.readiness.status)"
+    />
+  }
+
+  @if (game(); as game) {
     <div actions class="maryaj-game-settings__toolbar">
-      <tch-admin-status-pill
-        [label]="readinessLabel(game.readiness.status)"
-        [tone]="readinessTone(game.readiness.status)"
-      />
       <button
         mat-stroked-button
         type="button"

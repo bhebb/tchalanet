@@ -801,14 +801,14 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Konfigire jwèt Maryaj gratis la, òf gratis la, ak jenerasyon nimewo yo.",
+      "description": "Konfigire jwèt la, òf gratis la ak jenerasyon nimewo yo.",
       "action": {
         "refresh": "Rafrechi"
       },
       "loading": "Y ap chaje pwomosyon yo...",
       "game": {
         "eyebrow": "Paramèt jwèt la",
-        "title": "Maryaj gratis",
+        "title": "Jwèt la",
         "subtitle": "Menm lojik ak Maryaj; se pri gratis ak jenerasyon an sèlman ki chanje.",
         "configure": "Modifye jwèt la",
         "pricingOptions": "Opsyon gany yo",
@@ -872,7 +872,7 @@
         }
       },
       "offer": {
-        "title": "Òf Maryaj gratis",
+        "title": "Òf gratis la",
         "description": "Dat, palye ak kantite Maryaj gratis kliyan yo resevwa.",
         "activeEyebrow": "Òf aktif",
         "campaignCode": "Kanpay santral · {{count}} règ",
@@ -1013,7 +1013,7 @@
       },
       "generation": {
         "eyebrow": "Jenerasyon",
-        "title": "Jenerasyon Maryaj gratis",
+        "title": "Jenerasyon",
         "description": "Kontwole kijan nimewo Maryaj gratis yo jenere ak rejenerasyon yo fèt.",
         "selection": "Nimewo",
         "retry": "Rejenerasyon",

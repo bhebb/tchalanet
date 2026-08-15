@@ -8,28 +8,19 @@
 >
   @if (campaign() && !editing()) {
     @if (campaign(); as campaign) {
+      <tch-admin-status-pill
+        status
+        [label]="statusLabel(campaign.status)"
+        [tone]="statusTone(campaign.status)"
+      />
+    }
+  }
+
+  @if (campaign() && !editing()) {
+    @if (campaign(); as campaign) {
       <div actions class="maryaj-offer__toolbar">
-        <tch-admin-status-pill
-          [label]="statusLabel(campaign.status)"
-          [tone]="statusTone(campaign.status)"
-        />
-        @if (campaign.status !== 'ACTIVE') {
-          <button
-            mat-flat-button
-            color="primary"
-            [disabled]="saving() || !gameReady()"
-            (click)="activateCampaign.emit(campaign)"
-          >
-            <mat-icon>play_arrow</mat-icon>
-            {{ 'common.activate' | translate }}
-          </button>
-        } @else {
-          <button mat-stroked-button [disabled]="saving()" (click)="pauseCampaign.emit(campaign)">
-            <mat-icon>pause</mat-icon>
-            {{ 'admin.maryajGratis.offer.pause' | translate }}
-          </button>
-        }
         <button
+          class="maryaj-offer__action maryaj-offer__action--edit"
           mat-flat-button
           color="primary"
           data-testid="maryaj-gratis-edit-offer"
@@ -39,6 +30,28 @@
           <mat-icon>edit</mat-icon>
           {{ 'common.edit' | translate }}
         </button>
+        @if (campaign.status !== 'ACTIVE') {
+          <button
+            class="maryaj-offer__action maryaj-offer__action--activate"
+            mat-flat-button
+            color="primary"
+            [disabled]="saving() || !gameReady()"
+            (click)="activateCampaign.emit(campaign)"
+          >
+            <mat-icon>play_arrow</mat-icon>
+            {{ 'common.activate' | translate }}
+          </button>
+        } @else {
+          <button
+            class="maryaj-offer__action maryaj-offer__action--pause"
+            mat-stroked-button
+            [disabled]="saving()"
+            (click)="pauseCampaign.emit(campaign)"
+          >
+            <mat-icon>pause</mat-icon>
+            {{ 'admin.maryajGratis.offer.pause' | translate }}
+          </button>
+        }
       </div>
 
       <dl class="maryaj-offer__facts">

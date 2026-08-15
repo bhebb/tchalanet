@@ -801,14 +801,14 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Configure the Free Maryaj game, its free offer, and number generation.",
+      "description": "Configure the game, free offer, and number generation.",
       "action": {
         "refresh": "Refresh"
       },
       "loading": "Loading promotions...",
       "game": {
         "eyebrow": "Game settings",
-        "title": "Free Maryaj",
+        "title": "The game",
         "subtitle": "The same Maryaj logic applies; only the free pricing and generation change.",
         "configure": "Edit game",
         "pricingOptions": "Payout options",
@@ -872,7 +872,7 @@
         }
       },
       "offer": {
-        "title": "Free Maryaj offer",
+        "title": "The free offer",
         "description": "Dates, tiers, and the number of free Maryaj awarded to customers.",
         "activeEyebrow": "Active offer",
         "campaignCode": "Operator campaign · {{count}} rule(s)",
@@ -1013,7 +1013,7 @@
       },
       "generation": {
         "eyebrow": "Generation",
-        "title": "Free Maryaj generation",
+        "title": "Generation",
         "description": "Control how Free Maryaj numbers are generated and regenerated.",
         "selection": "Numbers",
         "retry": "Regeneration",
