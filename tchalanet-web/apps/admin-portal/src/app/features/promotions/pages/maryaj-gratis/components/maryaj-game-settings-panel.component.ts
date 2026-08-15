@@ -4,13 +4,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { AdminSectionCardComponent } from '@tch/ui/console';
 import { TenantGamePricingView } from '../../../../games-pricing/data-access/admin-games-pricing.models';
 
 @Component({
   selector: 'tch-maryaj-game-settings-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslatePipe, MatButtonModule, MatIconModule, RouterLink],
+  imports: [TranslatePipe, MatButtonModule, MatIconModule, RouterLink, AdminSectionCardComponent],
   templateUrl: './maryaj-game-settings-panel.component.html',
   styleUrls: ['./maryaj-game-settings-panel.component.scss'],
 })

@@ -1,59 +1,8 @@
 @use 'breakpoints' as ui;
 
 .maryaj-game-settings {
-  display: grid;
-  gap: 1.25rem;
+  display: block;
   scroll-margin-top: 5rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-lg);
-  padding: 1.5rem;
-  background: var(--tch-color-surface-container-low);
-  box-shadow: var(--tch-elevation-1);
-}
-
-.maryaj-game-settings__header {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.maryaj-game-settings__heading {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.875rem;
-}
-
-.maryaj-game-settings__icon {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--tch-radius-pill);
-  background: var(--tch-color-primary-container);
-  color: var(--tch-color-on-primary-container);
-}
-
-.maryaj-game-settings__eyebrow {
-  margin: 0;
-  color: var(--tch-color-primary);
-  font: var(--tch-typescale-label-large);
-  text-transform: uppercase;
-}
-
-.maryaj-game-settings__title {
-  margin: 0.25rem 0 0;
-  color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-title-large);
-  line-height: 1.25;
-}
-
-.maryaj-game-settings__subtitle {
-  margin: 0.25rem 0 0;
-  color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-body-medium);
 }
 
 .maryaj-game-settings__toolbar {
@@ -132,11 +81,6 @@
 }
 
 @include ui.up(expanded) {
-  .maryaj-game-settings__header {
-    align-items: center;
-    flex-direction: row;
-  }
-
   .maryaj-game-settings__toolbar {
     justify-content: flex-end;
   }

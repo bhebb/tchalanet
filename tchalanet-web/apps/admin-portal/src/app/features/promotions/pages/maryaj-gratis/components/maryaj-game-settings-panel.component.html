@@ -1,46 +1,30 @@
-<section
+<tch-admin-section-card
   id="game"
   class="maryaj-game-settings"
-  aria-labelledby="maryaj-game-settings-title"
   data-testid="maryaj-gratis-game-panel"
+  icon="casino"
+  [title]="'admin.maryajGratis.game.title' | translate"
+  [description]="'admin.maryajGratis.game.subtitle' | translate"
 >
-  <div class="maryaj-game-settings__header">
-    <div class="maryaj-game-settings__heading">
-      <span class="maryaj-game-settings__icon">
-        <mat-icon>casino</mat-icon>
+  @if (game(); as game) {
+    <div actions class="maryaj-game-settings__toolbar">
+      <span
+        class="maryaj-game-settings__status"
+        [class.maryaj-game-settings__status--ready]="game.tenantStatus === 'ACTIVE'"
+      >
+        {{ readinessLabel(game.readiness.status) }}
       </span>
-      <div>
-        <p class="maryaj-game-settings__eyebrow">
-          {{ 'admin.maryajGratis.game.eyebrow' | translate }}
-        </p>
-        <h3 id="maryaj-game-settings-title" class="maryaj-game-settings__title">
-          {{ 'admin.maryajGratis.game.title' | translate }}
-        </h3>
-        <p class="maryaj-game-settings__subtitle">
-          {{ 'admin.maryajGratis.game.subtitle' | translate }}
-        </p>
-      </div>
+      <button
+        mat-stroked-button
+        type="button"
+        data-testid="maryaj-gratis-configure-game"
+        (click)="configure.emit(game)"
+      >
+        <mat-icon>tune</mat-icon>
+        {{ 'admin.maryajGratis.game.configure' | translate }}
+      </button>
     </div>
-    <div class="maryaj-game-settings__toolbar">
-      @if (game(); as game) {
-        <span
-          class="maryaj-game-settings__status"
-          [class.maryaj-game-settings__status--ready]="game.tenantStatus === 'ACTIVE'"
-        >
-          {{ readinessLabel(game.readiness.status) }}
-        </span>
-        <button
-          mat-stroked-button
-          type="button"
-          data-testid="maryaj-gratis-configure-game"
-          (click)="configure.emit(game)"
-        >
-          <mat-icon>tune</mat-icon>
-          {{ 'admin.maryajGratis.game.configure' | translate }}
-        </button>
-      }
-    </div>
-  </div>
+  }
 
   @if (game(); as game) {
     <dl class="maryaj-game-settings__grid">
@@ -80,4 +64,4 @@
       {{ 'admin.maryajGratis.game.missing' | translate }}
     </p>
   }
-</section>
+</tch-admin-section-card>
