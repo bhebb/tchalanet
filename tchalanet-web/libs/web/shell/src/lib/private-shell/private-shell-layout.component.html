@@ -69,7 +69,7 @@
                 <span class="drawer-context__name" [title]="drawerTenantName()">
                   {{ drawerTenantName() }}
                 </span>
-              } @else {
+              } @else if (drawerShowPlatformLabel()) {
                 <span class="drawer-context__name">
                   {{ 'surface.platform_admin' | translate }}
                 </span>

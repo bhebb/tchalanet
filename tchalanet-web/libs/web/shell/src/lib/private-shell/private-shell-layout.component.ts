@@ -113,6 +113,9 @@ export class PrivateShellLayoutComponent {
   readonly themeIcon = computed(() => (this.darkMode() ? 'light_mode' : 'dark_mode'));
   readonly settingsPanel = signal<ShellSettingsPanel | null>(null);
   readonly drawerTenantName = computed(() => this.bootstrap.tenantContext()?.tenantName?.trim() ?? '');
+  /** Afficher l'étiquette "Plateforme" uniquement quand l'espace est explicitement PLATFORM.
+   * En ADMIN pré-bootstrap (space = null) on préfère le blanc à "Plateforme" trompeur. */
+  readonly drawerShowPlatformLabel = computed(() => this.bootstrap.space() === 'PLATFORM');
   readonly drawerScopeKey = computed(() => 'surface.tenant_admin');
   readonly drawerSecondary = computed(() => this.secondary().filter(item => item.id !== 'help'));
   readonly helpAction = computed(() => this.secondary().find(item => item.id === 'help') ?? null);
