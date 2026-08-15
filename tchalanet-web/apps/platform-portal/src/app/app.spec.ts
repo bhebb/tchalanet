@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideTranslateService } from '@ngx-translate/core';
 import { AUTH_CLIENT, AuthClient } from '@tch/core/auth';
+import { i18nFeature } from '@tch/core/i18n';
 import { themeStoreProvider } from '@tch/ui/theme';
 import { App } from './app';
 
@@ -20,6 +22,8 @@ describe('App', () => {
       providers: [
         provideRouter([]),
         provideTranslateService(),
+        provideStore({}),
+        provideState(i18nFeature),
         themeStoreProvider,
         { provide: AUTH_CLIENT, useValue: authClient },
       ],
