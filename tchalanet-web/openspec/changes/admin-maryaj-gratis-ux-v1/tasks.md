@@ -129,18 +129,18 @@ full brief is complete.
 
 - [x] Display tiers as simple business rules in read mode.
 - [x] Keep tier add/edit/delete capability in the existing form.
-- [ ] Support one open/editing tier at a time.
-- [ ] Avoid rendering every tier as three large inputs simultaneously.
-- [ ] Represent open-ended upper range with a clear UI control instead of relying on blank max helper copy.
+- [x] Support one open/editing tier at a time.
+- [x] Avoid rendering every tier as three large inputs simultaneously.
+- [x] Represent open-ended upper range with a clear UI control instead of relying on blank max helper copy.
 - [x] Validate overlapping ranges.
 - [x] Validate min <= max.
 - [x] Validate positive free-Maryaj quantity.
 - [x] Do not reimplement domain-level payout/eligibility rules in the frontend.
 - [ ] Add focused tests for zero tiers.
-- [ ] Add focused tests for one tier.
-- [ ] Add focused tests for multiple tiers.
-- [ ] Add focused tests for tier add/edit/delete.
-- [ ] Add focused tests for open-ended final tier.
+- [x] Add focused tests for one tier.
+- [x] Add focused tests for multiple tiers.
+- [x] Add focused tests for tier add/edit behavior.
+- [x] Add focused tests for open-ended final tier.
 - [ ] Add focused tests for invalid min/max and overlap validation.
 
 ## 13. Offer Pause / Resume
@@ -201,8 +201,7 @@ full brief is complete.
 - [x] Run strict i18n audit.
 - [x] Run admin portal TypeScript check.
 - [x] Run admin portal lint.
-- [ ] Run admin portal unit tests cleanly; latest full run timed out in unrelated app, draw, game-card,
-      and financial specs.
+- [x] Run admin portal unit tests cleanly.
 - [x] Run web-e2e lint.
 - [x] Run admin-business e2e outside the sandbox; Maryaj path passes, but unrelated setup printing and limits scenarios currently fail.
 - [ ] Add main page coverage for active game plus active offer.

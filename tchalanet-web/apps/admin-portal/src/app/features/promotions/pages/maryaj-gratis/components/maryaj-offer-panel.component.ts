@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -40,6 +40,7 @@ import {
 })
 export class MaryajOfferPanelComponent {
   private readonly translate = inject(TranslateService);
+  readonly openTierIndex = signal(0);
 
   readonly campaign = input<PromotionCampaignView | null>(null);
   readonly effect = input<PromotionConfigItem | null>(null);
@@ -106,6 +107,44 @@ export class MaryajOfferPanelComponent {
     return this.form().get('quantityTiers') as FormArray;
   }
 
+  addTier(): void {
+    const nextIndex = this.quantityTiers().length;
+    this.addQuantityTier.emit();
+    this.openTierIndex.set(nextIndex);
+  }
+
+  removeTier(index: number): void {
+    this.removeQuantityTier.emit(index);
+    const nextLength = Math.max(this.quantityTiers().length - 1, 1);
+    this.openTierIndex.set(Math.min(this.openTierIndex(), nextLength - 1));
+  }
+
+  openTier(index: number): void {
+    this.openTierIndex.set(index);
+  }
+
+  isTierOpen(index: number): boolean {
+    return this.openTierIndex() === index;
+  }
+
+  isTierOpenEnded(index: number): boolean {
+    const max = this.tierValue(index, 'maxPaidAmount');
+    return max == null || max === '';
+  }
+
+  setTierOpenEnded(index: number, checked: boolean): void {
+    const control = this.quantityTiers().at(index)?.get('maxPaidAmount');
+    if (!control) return;
+    if (checked) {
+      control.setValue(null);
+      control.markAsDirty();
+      return;
+    }
+    const min = this.numberValue(this.tierValue(index, 'minPaidAmount'), 1);
+    control.setValue(min);
+    control.markAsDirty();
+  }
+
   effectQuantityTiers(): readonly MaryajQuantityTier[] {
     const raw = this.effect()?.params?.['quantityTiers'];
     if (!Array.isArray(raw)) return [];
@@ -130,6 +169,17 @@ export class MaryajOfferPanelComponent {
       range,
       quantity: tier.quantity,
     });
+  }
+
+  editableTierRuleLabel(index: number): string {
+    const tier = {
+      minPaidAmount: this.numberValue(this.tierValue(index, 'minPaidAmount'), 0),
+      maxPaidAmount: this.isTierOpenEnded(index)
+        ? null
+        : this.numberValue(this.tierValue(index, 'maxPaidAmount'), 0),
+      quantity: this.numberValue(this.tierValue(index, 'quantity'), 0),
+    };
+    return this.tierRuleLabel(tier);
   }
 
   tierLabel(index: number): string {
@@ -173,5 +223,9 @@ export class MaryajOfferPanelComponent {
       return Number.isFinite(parsed) ? parsed : fallback;
     }
     return fallback;
+  }
+
+  private tierValue(index: number, name: string): unknown {
+    return this.quantityTiers().at(index)?.get(name)?.value;
   }
 }

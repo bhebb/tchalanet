@@ -364,17 +364,66 @@
   font: var(--tch-typescale-body-small);
 }
 
-.maryaj-offer__tier-row {
+.maryaj-offer__tier {
   display: grid;
-  grid-template-columns: 1fr;
-  align-items: start;
+  gap: 0.875rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  padding: 0.875rem;
+  background: var(--tch-color-surface);
+}
+
+.maryaj-offer__tier--open {
+  border-color: var(--tch-color-primary);
+}
+
+.maryaj-offer__tier-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
   gap: 0.75rem;
 }
 
 .maryaj-offer__tier-label {
-  padding-top: 0;
+  display: block;
+  margin-bottom: 0.25rem;
   color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-label-large);
+  font: var(--tch-typescale-label-medium);
+}
+
+.maryaj-offer__tier-summary strong {
+  display: block;
+  color: var(--tch-color-on-surface);
+  font: var(--tch-typescale-title-small);
+}
+
+.maryaj-offer__tier-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+}
+
+.maryaj-offer__tier-editor {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.875rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+}
+
+.maryaj-offer__tier-open-ended {
+  min-height: 3rem;
+}
+
+.maryaj-offer__tier-open-copy {
+  margin: 0;
+  border-radius: var(--tch-radius-control, 8px);
+  padding: 0.875rem 1rem;
+  background: var(--tch-color-surface-container-low);
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-body-small);
 }
 
 @include ui.up(expanded) {
@@ -407,11 +456,16 @@
     display: flex;
   }
 
-  .maryaj-offer__tier-row {
-    grid-template-columns: minmax(5rem, 0.5fr) repeat(3, minmax(0, 1fr)) auto;
+  .maryaj-offer__tier-summary {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .maryaj-offer__tier-label {
-    padding-top: 1rem;
+  .maryaj-offer__tier-actions {
+    justify-content: flex-end;
+  }
+
+  .maryaj-offer__tier-editor {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
   }
 }
