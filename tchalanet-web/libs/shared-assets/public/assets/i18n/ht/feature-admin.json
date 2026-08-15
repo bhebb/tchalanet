@@ -898,7 +898,8 @@
           "paused": "An poz",
           "draft": "Bouyon",
           "inactive": "Inaktif",
-          "archived": "Achive"
+          "archived": "Achive",
+          "needsSetup": "Pou konfigire"
         },
         "selection": {
           "title": "Nimewo Maryaj gratis",
@@ -926,6 +927,11 @@
           "edit": "Modifye òf Maryaj gratis la",
           "activate": "Òf Maryaj gratis la pou aktive",
           "copy": "Palye, kantite gratis ak jenerasyon nimewo yo."
+        },
+        "empty": {
+          "title": "Òf gratis la poko konfigire.",
+          "copy": "Konfigire dat, palye ak kantite Maryaj gratis kliyan yo ap resevwa.",
+          "action": "Konfigire òf la"
         },
         "preview": {
           "perAmount": {

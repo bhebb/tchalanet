@@ -6,17 +6,23 @@
   [title]="'admin.maryajGratis.offer.title' | translate"
   [description]="'admin.maryajGratis.offer.description' | translate"
 >
-  @if (campaign() && !editing()) {
+  @if (!editing()) {
     @if (campaign(); as campaign) {
       <tch-admin-status-pill
         status
         [label]="statusLabel(campaign.status)"
         [tone]="statusTone(campaign.status)"
       />
+    } @else {
+      <tch-admin-status-pill
+        status
+        [label]="'admin.maryajGratis.offer.status.needsSetup' | translate"
+        tone="warning"
+      />
     }
   }
 
-  @if (campaign() && !editing()) {
+  @if (!editing()) {
     @if (campaign(); as campaign) {
       <div actions class="maryaj-offer__toolbar">
         <button
@@ -53,7 +59,25 @@
           </button>
         }
       </div>
+    } @else {
+      <div actions class="maryaj-offer__toolbar">
+        <button
+          class="maryaj-offer__action maryaj-offer__action--edit"
+          mat-flat-button
+          color="primary"
+          data-testid="maryaj-gratis-configure-offer"
+          [disabled]="saving()"
+          (click)="editOffer.emit()"
+        >
+          <mat-icon>edit</mat-icon>
+          {{ 'admin.maryajGratis.offer.empty.action' | translate }}
+        </button>
+      </div>
+    }
+  }
 
+  @if (!editing()) {
+    @if (campaign(); as campaign) {
       <dl class="maryaj-offer__facts">
         <div>
           <dt>{{ 'admin.maryajGratis.offer.facts.start' | translate }}</dt>
@@ -117,6 +141,18 @@
           }
         </ul>
       </section>
+    } @else {
+      <div class="maryaj-offer__empty" data-testid="maryaj-gratis-offer-empty">
+        <mat-icon aria-hidden="true">redeem</mat-icon>
+        <div>
+          <p class="maryaj-offer__empty-title">
+            {{ 'admin.maryajGratis.offer.empty.title' | translate }}
+          </p>
+          <p class="maryaj-offer__empty-copy">
+            {{ 'admin.maryajGratis.offer.empty.copy' | translate }}
+          </p>
+        </div>
+      </div>
     }
   } @else {
     <div class="maryaj-offer__setup">

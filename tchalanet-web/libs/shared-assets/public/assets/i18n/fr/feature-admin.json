@@ -1593,7 +1593,8 @@
           "paused": "En pause",
           "draft": "Brouillon",
           "inactive": "Inactif",
-          "archived": "Archivé"
+          "archived": "Archivé",
+          "needsSetup": "À configurer"
         },
         "selection": {
           "title": "Numéros Maryaj gratuits",
@@ -1621,6 +1622,11 @@
           "edit": "Modifier l’offre Maryaj gratis",
           "activate": "Offre Maryaj gratis à activer",
           "copy": "Paliers, quantité offerte et génération des numéros."
+        },
+        "empty": {
+          "title": "L’offre gratuite n’est pas encore configurée.",
+          "copy": "Configurez les dates, les paliers et le nombre de Maryaj gratis remis aux clients.",
+          "action": "Configurer l’offre"
         },
         "preview": {
           "perAmount": {

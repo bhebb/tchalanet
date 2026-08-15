@@ -898,7 +898,8 @@
           "paused": "Paused",
           "draft": "Draft",
           "inactive": "Inactive",
-          "archived": "Archived"
+          "archived": "Archived",
+          "needsSetup": "Needs setup"
         },
         "selection": {
           "title": "Free Maryaj numbers",
@@ -926,6 +927,11 @@
           "edit": "Edit the Free Maryaj offer",
           "activate": "Free Maryaj offer to activate",
           "copy": "Tiers, free quantity, and number generation."
+        },
+        "empty": {
+          "title": "The free offer is not set up yet.",
+          "copy": "Set dates, tiers, and how many free Maryaj customers receive.",
+          "action": "Set up offer"
         },
         "preview": {
           "perAmount": {
