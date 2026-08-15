@@ -493,13 +493,13 @@ const drawSalesMatrixStub = {
           slotKey: 'NY_MID',
           labelKey: null,
           resultSlot: {
-            resultSlotId: { value: 'result-slot-ny-mid' },
+            resultSlotId: 'result-slot-ny-mid',
             drawTime: '14:30:00',
             daysOfWeek: 'MON-SUN',
             active: true,
           },
           channel: {
-            drawChannelId: { value: 'channel-ny-mid' },
+            drawChannelId: 'channel-ny-mid',
             channelCode: 'HT_NY_MID',
             active: true,
             configured: true,
@@ -513,7 +513,7 @@ const drawSalesMatrixStub = {
           games: [
             {
               gameCode: 'HT_BOLET',
-              tenantGameId: { value: 'game-bolet' },
+              tenantGameId: 'game-bolet',
               displayName: 'Bolèt',
               enabledForTenant: true,
               visibleInPos: true,
@@ -527,7 +527,7 @@ const drawSalesMatrixStub = {
             },
             {
               gameCode: 'HT_MARYAJ_GRATIS',
-              tenantGameId: { value: 'game-maryaj-gratis' },
+              tenantGameId: 'game-maryaj-gratis',
               displayName: 'Maryaj gratis',
               enabledForTenant: true,
               visibleInPos: true,
