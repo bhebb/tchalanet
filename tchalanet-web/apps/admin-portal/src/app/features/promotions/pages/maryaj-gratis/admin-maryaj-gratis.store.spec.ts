@@ -27,6 +27,7 @@ describe(AdminMaryajGratisStore.name, () => {
   let gamesPricingApi: {
     getGamesPricing: ReturnType<typeof vi.fn>;
   };
+  let snackBar: { open: ReturnType<typeof vi.fn> };
   let store: AdminMaryajGratisStore;
 
   beforeEach(() => {
@@ -42,6 +43,7 @@ describe(AdminMaryajGratisStore.name, () => {
     gamesPricingApi = {
       getGamesPricing: vi.fn(),
     };
+    snackBar = { open: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -49,7 +51,7 @@ describe(AdminMaryajGratisStore.name, () => {
         FormBuilder,
         { provide: AdminPromotionsApiService, useValue: promotionsApi },
         { provide: AdminGamesPricingApiService, useValue: gamesPricingApi },
-        { provide: MatSnackBar, useValue: { open: vi.fn() } },
+        { provide: MatSnackBar, useValue: snackBar },
         { provide: TranslateService, useValue: { instant: (key: string) => key } },
       ],
     });
@@ -108,6 +110,55 @@ describe(AdminMaryajGratisStore.name, () => {
       { minPaidAmount: 700, maxPaidAmount: null, quantity: 5 },
     ]);
     expect(request.items[0].params['maxQuantity']).toBe(5);
+  });
+
+  it('blocks saving a tiered offer when every quantity tier is removed', () => {
+    loadEditableCampaign();
+    store.quantityTiers().clear();
+
+    store.saveOffer();
+
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'admin.maryajGratis.validation.tiersRequired',
+      'OK',
+      { duration: 5000 },
+    );
+    expect(promotionsApi.updateCampaign).not.toHaveBeenCalled();
+    expect(promotionsApi.updateRuleEffects).not.toHaveBeenCalled();
+  });
+
+  it('blocks saving a tier whose maximum paid amount is below its minimum', () => {
+    loadEditableCampaign();
+    store.quantityTiers().at(0).patchValue({
+      minPaidAmount: 500,
+      maxPaidAmount: 400,
+    });
+
+    store.saveOffer();
+
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'admin.maryajGratis.validation.tierMaxBeforeMin',
+      'OK',
+      { duration: 5000 },
+    );
+    expect(promotionsApi.updateCampaign).not.toHaveBeenCalled();
+    expect(promotionsApi.updateRuleEffects).not.toHaveBeenCalled();
+  });
+
+  it('blocks saving overlapping tier ranges', () => {
+    loadEditableCampaign();
+    store.quantityTiers().at(1).patchValue({
+      minPaidAmount: 900,
+      maxPaidAmount: null,
+    });
+
+    store.saveOffer();
+
+    expect(snackBar.open).toHaveBeenCalledWith('admin.maryajGratis.validation.tierOverlap', 'OK', {
+      duration: 5000,
+    });
+    expect(promotionsApi.updateCampaign).not.toHaveBeenCalled();
+    expect(promotionsApi.updateRuleEffects).not.toHaveBeenCalled();
   });
 
   it('treats a long-running persisted campaign as having no admin-facing end date', () => {
@@ -177,6 +228,17 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(store.maryajGame()).toBeNull();
     expect(store.gamesError()).not.toBeNull();
   });
+
+  function loadEditableCampaign(): void {
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaignWithTiers()], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(of(campaignWithTiers()));
+    gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+    promotionsApi.updateCampaign.mockReturnValue(of(campaignWithTiers()));
+    promotionsApi.updateRuleEffects.mockReturnValue(of(campaignWithTiers()));
+
+    store.load();
+    store.startEditingOffer();
+  }
 });
 
 function campaignWithoutRules(): PromotionCampaignView {

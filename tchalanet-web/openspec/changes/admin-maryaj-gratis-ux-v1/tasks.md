@@ -137,12 +137,12 @@ full brief is complete.
 - [x] Validate min <= max.
 - [x] Validate positive free-Maryaj quantity.
 - [x] Do not reimplement domain-level payout/eligibility rules in the frontend.
-- [ ] Add focused tests for zero tiers.
+- [x] Add focused tests for zero tiers.
 - [x] Add focused tests for one tier.
 - [x] Add focused tests for multiple tiers.
 - [x] Add focused tests for tier add/edit behavior.
 - [x] Add focused tests for open-ended final tier.
-- [ ] Add focused tests for invalid min/max and overlap validation.
+- [x] Add focused tests for invalid min/max and overlap validation.
 
 ## 13. Offer Pause / Resume
 
