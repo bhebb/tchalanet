@@ -48,11 +48,11 @@ full brief is complete.
 
 ## 3. Replace Long Game Configuration Modal
 
-- [ ] Stop treating the full game configuration as a simple modal on compact/mobile layouts.
-- [ ] Provide a dedicated route/page or full-height responsive drawer/sheet for game editing.
+- [x] Stop treating the full game configuration as a simple modal on compact/mobile layouts.
+- [x] Provide a dedicated route/page or full-height responsive drawer/sheet for game editing.
 - [ ] Preserve unsaved-change behavior and cancel/save semantics.
 - [ ] Keep save actions reachable without trapping the admin in a very long dialog.
-- [ ] Structure the game editing surface as Vant, Miz, Disponibilite, Opsyon jwet, Barem/Gany, and Opsyon avanse.
+- [x] Structure the game editing surface as Vant, Miz, Disponibilite, Opsyon jwet, Barem/Gany, and Opsyon avanse.
 
 ## 4. Game Editor - Vant
 
@@ -233,7 +233,7 @@ full brief is complete.
 
 - [x] Maryaj Gratis no longer feels like one giant form on the main page.
 - [x] Main page clearly separates Jwet, Of, and Jenerasyon.
-- [ ] Game editing clearly separates Vant, Miz, Disponibilite, Opsyon jwet, and Barem.
+- [x] Game editing clearly separates Vant, Miz, Disponibilite, Opsyon jwet, and Barem.
 - [ ] Offer editing clearly separates lifecycle, attribution, tiers, and advanced settings in a mobile-first surface.
 - [x] Permanent offers no longer expose a fake far-future date to the admin.
 - [x] Priority is no longer a primary field unless product later proves it is required.

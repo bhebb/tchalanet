@@ -2165,7 +2165,8 @@
           "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte."
         },
         "advanced": {
-          "title": "Opsyon avanse"
+          "title": "Opsyon avanse",
+          "summary": "Non POS ak lòd afichaj"
         },
         "salesOptions": {
           "title": "Mòd vant avanse",

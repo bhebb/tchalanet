@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormField, form, submit as submitForm } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
@@ -9,7 +16,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { BadgeStatus, TchSectionError, TchStatusBadge } from '@tch/ui/components';
+import {
+  AdminFormSection,
+  AdminFormShell,
+  BadgeStatus,
+  TchSectionError,
+  TchStatusBadge,
+} from '@tch/ui/components';
 import { AdminDialogShellComponent } from '@tch/ui/console';
 import { tchMutation } from '@tch/web/async';
 import { Observable, concatMap, forkJoin, map, of } from 'rxjs';
@@ -56,6 +69,8 @@ interface SaveGameConfigRequest {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormField,
+    AdminFormSection,
+    AdminFormShell,
     AdminDialogShellComponent,
     MatButtonModule,
     MatCheckboxModule,
@@ -93,7 +108,9 @@ export class GameSettingsDialog {
   });
   readonly form = form(this.model);
   readonly betOptionConfig = signal<TenantGameBetOptionConfigView | null>(null);
-  readonly pricingGroups = signal<readonly TenantGameOddGroupView[]>(this.toPricingGroups(this.data.game.betOptionGroups ?? []));
+  readonly pricingGroups = signal<readonly TenantGameOddGroupView[]>(
+    this.toPricingGroups(this.data.game.betOptionGroups ?? []),
+  );
   readonly betOptionLoading = signal(true);
   readonly betOptionLoadFailed = signal(false);
   readonly showSalesOptions = computed(() => {
@@ -115,7 +132,8 @@ export class GameSettingsDialog {
   readonly feedback = computed(() => this.saveSettings.feedback());
 
   constructor() {
-    this.api.getBetOptionConfig(this.data.game.gameCode, { suppressShellFeedback: true })
+    this.api
+      .getBetOptionConfig(this.data.game.gameCode, { suppressShellFeedback: true })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: config => {
@@ -135,7 +153,9 @@ export class GameSettingsDialog {
     submitForm(this.form, async () => {
       this.saveSettings.execute({
         settings: this.toRequest(this.model()),
-        betOptions: this.showSalesOptions() ? this.toBetOptionsRequest(this.betOptionConfig()) : null,
+        betOptions: this.showSalesOptions()
+          ? this.toBetOptionsRequest(this.betOptionConfig())
+          : null,
         pricingOdds: this.toPricingOddsRequest(),
         deletePricingOdds: this.toPricingDeleteRequest(),
       });
@@ -202,26 +222,39 @@ export class GameSettingsDialog {
     payoutRuleType: 'STAKE_MULTIPLIER' | 'FIXED_AMOUNT',
   ): void {
     if (!pricingVariantCode) return;
-    this.pricingGroups.update(groups => groups.map(group => {
-      if (group.id !== groupId) return group;
-      return {
-        ...group,
-        variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? {
-              ...variant,
-              payoutRuleType,
-              odds: payoutRuleType === 'FIXED_AMOUNT' ? null : variant.odds,
-              fixedAmount: payoutRuleType === 'STAKE_MULTIPLIER' ? null : variant.fixedAmount,
-              value: payoutRuleType === 'FIXED_AMOUNT'
-                ? (variant.fixedAmount === null || variant.fixedAmount === undefined ? this.notConfiguredLabel() : `${variant.fixedAmount}`)
-                : (variant.odds === null || variant.odds === undefined ? this.notConfiguredLabel() : `×${variant.odds}`),
-            }
-          : variant),
-      };
-    }));
+    this.pricingGroups.update(groups =>
+      groups.map(group => {
+        if (group.id !== groupId) return group;
+        return {
+          ...group,
+          variants: group.variants.map(variant =>
+            variant.pricingVariantCode === pricingVariantCode
+              ? {
+                  ...variant,
+                  payoutRuleType,
+                  odds: payoutRuleType === 'FIXED_AMOUNT' ? null : variant.odds,
+                  fixedAmount: payoutRuleType === 'STAKE_MULTIPLIER' ? null : variant.fixedAmount,
+                  value:
+                    payoutRuleType === 'FIXED_AMOUNT'
+                      ? variant.fixedAmount === null || variant.fixedAmount === undefined
+                        ? this.notConfiguredLabel()
+                        : `${variant.fixedAmount}`
+                      : variant.odds === null || variant.odds === undefined
+                        ? this.notConfiguredLabel()
+                        : `×${variant.odds}`,
+                }
+              : variant,
+          ),
+        };
+      }),
+    );
   }
 
-  updatePricingFixedAmount(groupId: string, pricingVariantCode: string | null, rawValue: string): void {
+  updatePricingFixedAmount(
+    groupId: string,
+    pricingVariantCode: string | null,
+    rawValue: string,
+  ): void {
     if (!pricingVariantCode) return;
     const normalized = rawValue.trim();
     if (normalized === '') {
@@ -236,51 +269,67 @@ export class GameSettingsDialog {
 
   clearPricingOdds(groupId: string, pricingVariantCode: string | null): void {
     if (!pricingVariantCode) return;
-    this.pricingGroups.update(groups => groups.map(group => {
-      if (group.id !== groupId) return group;
-      return {
-        ...group,
-        variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? { ...variant, odds: null, fixedAmount: null, value: this.notConfiguredLabel() }
-          : variant),
-      };
-    }));
+    this.pricingGroups.update(groups =>
+      groups.map(group => {
+        if (group.id !== groupId) return group;
+        return {
+          ...group,
+          variants: group.variants.map(variant =>
+            variant.pricingVariantCode === pricingVariantCode
+              ? { ...variant, odds: null, fixedAmount: null, value: this.notConfiguredLabel() }
+              : variant,
+          ),
+        };
+      }),
+    );
   }
 
   private setPricingOdds(groupId: string, pricingVariantCode: string, odds: number | null): void {
-    this.pricingGroups.update(groups => groups.map(group => {
-      if (group.id !== groupId) return group;
-      return {
-        ...group,
-        variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? {
-              ...variant,
-              odds,
-              payoutRuleType: 'STAKE_MULTIPLIER',
-              fixedAmount: null,
-              value: odds === null ? this.notConfiguredLabel() : `×${odds}`,
-            }
-          : variant),
-      };
-    }));
+    this.pricingGroups.update(groups =>
+      groups.map(group => {
+        if (group.id !== groupId) return group;
+        return {
+          ...group,
+          variants: group.variants.map(variant =>
+            variant.pricingVariantCode === pricingVariantCode
+              ? {
+                  ...variant,
+                  odds,
+                  payoutRuleType: 'STAKE_MULTIPLIER',
+                  fixedAmount: null,
+                  value: odds === null ? this.notConfiguredLabel() : `×${odds}`,
+                }
+              : variant,
+          ),
+        };
+      }),
+    );
   }
 
-  private setPricingFixedAmount(groupId: string, pricingVariantCode: string, fixedAmount: number | null): void {
-    this.pricingGroups.update(groups => groups.map(group => {
-      if (group.id !== groupId) return group;
-      return {
-        ...group,
-        variants: group.variants.map(variant => variant.pricingVariantCode === pricingVariantCode
-          ? {
-              ...variant,
-              odds: null,
-              payoutRuleType: 'FIXED_AMOUNT',
-              fixedAmount,
-              value: fixedAmount === null ? this.notConfiguredLabel() : `${fixedAmount}`,
-            }
-          : variant),
-      };
-    }));
+  private setPricingFixedAmount(
+    groupId: string,
+    pricingVariantCode: string,
+    fixedAmount: number | null,
+  ): void {
+    this.pricingGroups.update(groups =>
+      groups.map(group => {
+        if (group.id !== groupId) return group;
+        return {
+          ...group,
+          variants: group.variants.map(variant =>
+            variant.pricingVariantCode === pricingVariantCode
+              ? {
+                  ...variant,
+                  odds: null,
+                  payoutRuleType: 'FIXED_AMOUNT',
+                  fixedAmount,
+                  value: fixedAmount === null ? this.notConfiguredLabel() : `${fixedAmount}`,
+                }
+              : variant,
+          ),
+        };
+      }),
+    );
   }
 
   private toRequest(value: GameSettingsFormModel): UpdateGameSettingsRequest {
@@ -291,32 +340,44 @@ export class GameSettingsDialog {
       maxStake: value.maxStake,
       displayOrder: value.displayOrder,
       availabilityEnabled: value.availabilityEnabled,
-      startLocalTime: value.availabilityEnabled ? (value.startLocalTime || null) : null,
-      endLocalTime: value.availabilityEnabled ? (value.endLocalTime || null) : null,
+      startLocalTime: value.availabilityEnabled ? value.startLocalTime || null : null,
+      endLocalTime: value.availabilityEnabled ? value.endLocalTime || null : null,
     };
   }
 
   private saveGameConfig(req: SaveGameConfigRequest): Observable<void> {
     const options = { suppressShellFeedback: true };
-    let save$: Observable<unknown> = this.api.updateGameSettings(this.data.game.gameCode, req.settings, options);
+    let save$: Observable<unknown> = this.api.updateGameSettings(
+      this.data.game.gameCode,
+      req.settings,
+      options,
+    );
     const betOptions = req.betOptions;
     if (betOptions && !this.betOptionLoadFailed()) {
       save$ = save$.pipe(
-        concatMap(() => this.api.updateBetOptionConfig(this.data.game.gameCode, betOptions, options)),
+        concatMap(() =>
+          this.api.updateBetOptionConfig(this.data.game.gameCode, betOptions, options),
+        ),
       );
     }
 
     if (req.pricingOdds.length > 0) {
       save$ = save$.pipe(
-        concatMap(() => forkJoin(req.pricingOdds.map(item => this.pricingApi.upsertTenantOdds(item, options)))
-          .pipe(map(() => undefined))),
+        concatMap(() =>
+          forkJoin(
+            req.pricingOdds.map(item => this.pricingApi.upsertTenantOdds(item, options)),
+          ).pipe(map(() => undefined)),
+        ),
       );
     }
 
     if (req.deletePricingOdds.length > 0) {
       save$ = save$.pipe(
-        concatMap(() => forkJoin(req.deletePricingOdds.map(item => this.pricingApi.deleteTenantOdds(item, options)))
-          .pipe(map(() => undefined))),
+        concatMap(() =>
+          forkJoin(
+            req.deletePricingOdds.map(item => this.pricingApi.deleteTenantOdds(item, options)),
+          ).pipe(map(() => undefined)),
+        ),
       );
     }
 
@@ -331,7 +392,7 @@ export class GameSettingsDialog {
       if (!config) return config;
       return {
         ...config,
-        betTypes: config.betTypes.map(item => item.betType === betType ? updater(item) : item),
+        betTypes: config.betTypes.map(item => (item.betType === betType ? updater(item) : item)),
       };
     });
   }
@@ -343,7 +404,9 @@ export class GameSettingsDialog {
   ): void {
     this.updateBetType(betType, current => ({
       ...current,
-      options: current.options.map(option => option.code === optionCode ? updater(option) : option),
+      options: current.options.map(option =>
+        option.code === optionCode ? updater(option) : option,
+      ),
     }));
   }
 
@@ -368,26 +431,30 @@ export class GameSettingsDialog {
   }
 
   private toPricingOddsRequest(): readonly UpsertTenantOddsRequest[] {
-    return this.pricingGroups().flatMap(group => group.variants
-      .filter(variant => variant.pricingVariantCode && this.isPricingConfigured(variant))
-      .map(variant => ({
-        gameCode: this.data.game.gameCode,
-        pricingVariantCode: variant.pricingVariantCode ?? '',
-        betType: variant.betType,
-        betOption: variant.betOption,
-        odds: variant.payoutRuleType === 'FIXED_AMOUNT' ? null : variant.odds,
-        payoutRuleType: variant.payoutRuleType,
-        fixedAmount: variant.payoutRuleType === 'FIXED_AMOUNT' ? variant.fixedAmount : null,
-      })));
+    return this.pricingGroups().flatMap(group =>
+      group.variants
+        .filter(variant => variant.pricingVariantCode && this.isPricingConfigured(variant))
+        .map(variant => ({
+          gameCode: this.data.game.gameCode,
+          pricingVariantCode: variant.pricingVariantCode ?? '',
+          betType: variant.betType,
+          betOption: variant.betOption,
+          odds: variant.payoutRuleType === 'FIXED_AMOUNT' ? null : variant.odds,
+          payoutRuleType: variant.payoutRuleType,
+          fixedAmount: variant.payoutRuleType === 'FIXED_AMOUNT' ? variant.fixedAmount : null,
+        })),
+    );
   }
 
   private toPricingDeleteRequest(): readonly DeleteTenantOddsRequest[] {
-    return this.pricingGroups().flatMap(group => group.variants
-      .filter(variant => variant.pricingVariantCode && !this.isPricingConfigured(variant))
-      .map(variant => ({
-        gameCode: this.data.game.gameCode,
-        pricingVariantCode: variant.pricingVariantCode ?? '',
-      })));
+    return this.pricingGroups().flatMap(group =>
+      group.variants
+        .filter(variant => variant.pricingVariantCode && !this.isPricingConfigured(variant))
+        .map(variant => ({
+          gameCode: this.data.game.gameCode,
+          pricingVariantCode: variant.pricingVariantCode ?? '',
+        })),
+    );
   }
 
   private isPricingConfigured(variant: TenantGameOddGroupView['variants'][number]): boolean {
@@ -397,7 +464,9 @@ export class GameSettingsDialog {
     return variant.odds !== null && variant.odds !== undefined;
   }
 
-  private toPricingGroups(groups: NonNullable<TenantGameView['betOptionGroups']>): readonly TenantGameOddGroupView[] {
+  private toPricingGroups(
+    groups: NonNullable<TenantGameView['betOptionGroups']>,
+  ): readonly TenantGameOddGroupView[] {
     return groups.map(group => ({
       ...group,
       variants: group.variants.map(variant => ({

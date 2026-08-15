@@ -749,7 +749,8 @@
           "description": "Configurez le montant que le client peut gagner pour chaque option supportée."
         },
         "advanced": {
-          "title": "Options avancées"
+          "title": "Options avancées",
+          "summary": "Nom POS et ordre d'affichage"
         },
         "salesOptions": {
           "title": "Modes de vente avancés",

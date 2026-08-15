@@ -5,65 +5,70 @@
 >
   <form class="game-settings-dialog__form" (submit)="submit($event)">
     @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
-      <tch-section-error [title]="errorVm.title" [message]="errorVm.message" [severity]="errorVm.severity" />
+    <tch-section-error
+      [title]="errorVm.title"
+      [message]="errorVm.message"
+      [severity]="errorVm.severity"
+    />
     }
 
-    <section class="game-settings-dialog__intro" [attr.aria-label]="'admin.games.settings.intro.aria' | translate">
-      <span class="material-symbols-outlined" aria-hidden="true">casino</span>
-      <div>
-        <strong>{{ 'admin.games.settings.intro.title' | translate }}</strong>
-        <p>{{ 'admin.games.settings.intro.message' | translate }}</p>
-      </div>
-    </section>
-
-    <section class="game-settings-dialog__section">
-      <div class="game-settings-dialog__section-header">
-        <h3>{{ 'admin.games.settings.sell.title' | translate }}</h3>
-        <p>{{ 'admin.games.settings.sell.description' | translate }}</p>
-      </div>
-
-      <div class="game-settings-dialog__toggle-row">
+    <tch-admin-form-shell maxWidth="none">
+      <section
+        class="game-settings-dialog__intro"
+        [attr.aria-label]="'admin.games.settings.intro.aria' | translate"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">casino</span>
         <div>
-          <strong>{{ 'admin.games.settings.field.visibleInPos' | translate }}</strong>
-          <p>{{ 'admin.games.settings.sell.visibleInPosHelp' | translate }}</p>
+          <strong>{{ 'admin.games.settings.intro.title' | translate }}</strong>
+          <p>{{ 'admin.games.settings.intro.message' | translate }}</p>
         </div>
-        <mat-checkbox [formField]="form.visibleInPos" />
-      </div>
-    </section>
+      </section>
 
-    <section class="game-settings-dialog__section">
-      <div class="game-settings-dialog__section-header">
-        <h3>{{ 'admin.games.settings.stakes.title' | translate }}</h3>
-        <p>{{ 'admin.games.settings.stakes.description' | translate }}</p>
-      </div>
-
-      <div class="game-settings-dialog__row">
-        <mat-form-field appearance="outline" class="game-settings-dialog__field">
-          <mat-label>{{ 'admin.games.settings.field.minStake' | translate }}</mat-label>
-          <input matInput type="number" [formField]="form.minStake" />
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="game-settings-dialog__field">
-          <mat-label>{{ 'admin.games.settings.field.maxStake' | translate }}</mat-label>
-          <input matInput type="number" [formField]="form.maxStake" />
-        </mat-form-field>
-      </div>
-    </section>
-
-    <section class="game-settings-dialog__section">
-      <div class="game-settings-dialog__section-header">
-        <h3>{{ 'admin.games.settings.availability.title' | translate }}</h3>
-        <p>{{ 'admin.games.settings.availability.description' | translate }}</p>
-      </div>
-
-      <div class="game-settings-dialog__toggle-row">
-        <div>
-          <strong>{{ 'admin.games.settings.field.availabilityEnabled' | translate }}</strong>
-          <p>{{ 'admin.games.settings.availability.enabledHelp' | translate }}</p>
+      <tch-admin-form-section
+        icon="point_of_sale"
+        [title]="'admin.games.settings.sell.title' | translate"
+        [description]="'admin.games.settings.sell.description' | translate"
+      >
+        <div class="game-settings-dialog__toggle-row">
+          <div>
+            <strong>{{ 'admin.games.settings.field.visibleInPos' | translate }}</strong>
+            <p>{{ 'admin.games.settings.sell.visibleInPosHelp' | translate }}</p>
+          </div>
+          <mat-checkbox [formField]="form.visibleInPos" />
         </div>
-        <mat-checkbox [formField]="form.availabilityEnabled" />
-      </div>
+      </tch-admin-form-section>
 
-      @if (model().availabilityEnabled) {
+      <tch-admin-form-section
+        icon="payments"
+        [title]="'admin.games.settings.stakes.title' | translate"
+        [description]="'admin.games.settings.stakes.description' | translate"
+      >
+        <div class="game-settings-dialog__row">
+          <mat-form-field appearance="outline" class="game-settings-dialog__field">
+            <mat-label>{{ 'admin.games.settings.field.minStake' | translate }}</mat-label>
+            <input matInput type="number" [formField]="form.minStake" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="game-settings-dialog__field">
+            <mat-label>{{ 'admin.games.settings.field.maxStake' | translate }}</mat-label>
+            <input matInput type="number" [formField]="form.maxStake" />
+          </mat-form-field>
+        </div>
+      </tch-admin-form-section>
+
+      <tch-admin-form-section
+        icon="event_available"
+        [title]="'admin.games.settings.availability.title' | translate"
+        [description]="'admin.games.settings.availability.description' | translate"
+      >
+        <div class="game-settings-dialog__toggle-row">
+          <div>
+            <strong>{{ 'admin.games.settings.field.availabilityEnabled' | translate }}</strong>
+            <p>{{ 'admin.games.settings.availability.enabledHelp' | translate }}</p>
+          </div>
+          <mat-checkbox [formField]="form.availabilityEnabled" />
+        </div>
+
+        @if (model().availabilityEnabled) {
         <div class="game-settings-dialog__row">
           <mat-form-field appearance="outline" class="game-settings-dialog__field">
             <mat-label>{{ 'admin.games.settings.field.startLocalTime' | translate }}</mat-label>
@@ -74,206 +79,222 @@
             <input matInput [formField]="form.endLocalTime" placeholder="20:00" />
           </mat-form-field>
         </div>
-      }
+        }
 
-      <a class="game-settings-dialog__inline-link" mat-button routerLink="/app/admin/games/channel-matrix">
-        <span class="material-symbols-outlined" aria-hidden="true">rule_settings</span>
-        {{ 'admin.games.settings.availability.review' | translate }}
-      </a>
-    </section>
+        <a
+          class="game-settings-dialog__inline-link"
+          mat-button
+          routerLink="/app/admin/games/channel-matrix"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">rule_settings</span>
+          {{ 'admin.games.settings.availability.review' | translate }}
+        </a>
+      </tch-admin-form-section>
 
-    @if (showSalesOptions()) {
-      <section class="game-settings-dialog__section game-settings-dialog__section--advanced">
-        <div class="game-settings-dialog__section-header">
-          <h3>{{ 'admin.games.settings.salesOptions.title' | translate }}</h3>
-          <p>{{ 'admin.games.settings.salesOptions.description' | translate }}</p>
-        </div>
-
+      @if (showSalesOptions()) {
+      <tch-admin-form-section
+        icon="tune"
+        [title]="'admin.games.settings.salesOptions.title' | translate"
+        [description]="'admin.games.settings.salesOptions.description' | translate"
+      >
         @if (betOptionLoading()) {
-          <p class="game-settings-dialog__muted">{{ 'common.loading' | translate }}</p>
+        <p class="game-settings-dialog__muted">{{ 'common.loading' | translate }}</p>
         } @else if (betOptionLoadFailed()) {
-          <p class="game-settings-dialog__muted">{{ 'admin.games.settings.salesOptions.loadFailed' | translate }}</p>
+        <p class="game-settings-dialog__muted">
+          {{ 'admin.games.settings.salesOptions.loadFailed' | translate }}
+        </p>
         } @else if (betOptionConfig(); as config) {
-          <div class="game-settings-dialog__bet-types">
-            @for (betType of config.betTypes; track betType.betType) {
-              <div class="game-settings-dialog__bet-type">
-                <div class="game-settings-dialog__bet-type-header">
-                  <strong>{{ betType.betType | consoleBetLabel:null }}</strong>
-                  <mat-form-field appearance="outline" class="game-settings-dialog__policy-field">
-                    <mat-label>{{ 'admin.games.settings.salesOptions.selectionPolicy' | translate }}</mat-label>
-                    <mat-select
-                      [value]="betType.selectionPolicy"
-                      (selectionChange)="updateSelectionPolicy(betType.betType, $event.value)"
-                    >
-                      @for (policy of selectionPolicies; track policy) {
-                        <mat-option [value]="policy">
-                          {{ ('admin.games.settings.salesOptions.policy.' + policy) | translate }}
-                        </mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                </div>
+        <div class="game-settings-dialog__bet-types">
+          @for (betType of config.betTypes; track betType.betType) {
+          <div class="game-settings-dialog__bet-type">
+            <div class="game-settings-dialog__bet-type-header">
+              <strong>{{ betType.betType | consoleBetLabel:null }}</strong>
+              <mat-form-field appearance="outline" class="game-settings-dialog__policy-field">
+                <mat-label
+                  >{{ 'admin.games.settings.salesOptions.selectionPolicy' | translate }}</mat-label
+                >
+                <mat-select
+                  [value]="betType.selectionPolicy"
+                  (selectionChange)="updateSelectionPolicy(betType.betType, $event.value)"
+                >
+                  @for (policy of selectionPolicies; track policy) {
+                  <mat-option [value]="policy">
+                    {{ ('admin.games.settings.salesOptions.policy.' + policy) | translate }}
+                  </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
 
-                <div class="game-settings-dialog__options">
-                  @for (option of betType.options; track option.code) {
-                    <div class="game-settings-dialog__option">
-                      <div class="game-settings-dialog__option-main">
-                        <span class="game-settings-dialog__option-title">
-                          <span class="game-settings-dialog__option-label">{{ betType.betType | consoleBetLabel:option.code }}</span>
-                          <tch-status-badge
-                            [status]="optionStatus(option)"
-                            [label]="optionStatusLabelKey(option) | translate"
-                          />
-                        </span>
-                        @if (option.description) {
-                          <span class="game-settings-dialog__muted">{{ option.description }}</span>
-                        }
-                      </div>
-                      <div class="game-settings-dialog__option-actions">
-                        <mat-checkbox
-                          [checked]="option.enabled"
-                          (change)="toggleOptionEnabled(betType.betType, option.code, $event.checked)"
-                        >
-                          {{ 'admin.games.settings.salesOptions.enabled' | translate }}
-                        </mat-checkbox>
-                        <mat-checkbox
-                          [checked]="option.visibleInPos"
-                          [disabled]="!option.enabled"
-                          (change)="toggleOptionVisibleInPos(betType.betType, option.code, $event.checked)"
-                        >
-                          {{ 'admin.games.settings.salesOptions.visibleInPos' | translate }}
-                        </mat-checkbox>
-                      </div>
-                    </div>
+            <div class="game-settings-dialog__options">
+              @for (option of betType.options; track option.code) {
+              <div class="game-settings-dialog__option">
+                <div class="game-settings-dialog__option-main">
+                  <span class="game-settings-dialog__option-title">
+                    <span class="game-settings-dialog__option-label"
+                      >{{ betType.betType | consoleBetLabel:option.code }}</span
+                    >
+                    <tch-status-badge
+                      [status]="optionStatus(option)"
+                      [label]="optionStatusLabelKey(option) | translate"
+                    />
+                  </span>
+                  @if (option.description) {
+                  <span class="game-settings-dialog__muted">{{ option.description }}</span>
                   }
                 </div>
-
-                <mat-form-field appearance="outline" class="game-settings-dialog__field">
-                  <mat-label>{{ 'admin.games.settings.salesOptions.defaultOption' | translate }}</mat-label>
-                  <mat-select
-                    [value]="betType.defaultOption"
-                    (selectionChange)="updateDefaultOption(betType.betType, $event.value)"
+                <div class="game-settings-dialog__option-actions">
+                  <mat-checkbox
+                    [checked]="option.enabled"
+                    (change)="toggleOptionEnabled(betType.betType, option.code, $event.checked)"
                   >
-                    <mat-option [value]="null">{{ 'admin.games.settings.salesOptions.noDefaultOption' | translate }}</mat-option>
-                    @for (option of betType.options; track option.code) {
-                      <mat-option [value]="option.code" [disabled]="!option.enabled">
-                        {{ betType.betType | consoleBetLabel:option.code }}
-                      </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
+                    {{ 'admin.games.settings.salesOptions.enabled' | translate }}
+                  </mat-checkbox>
+                  <mat-checkbox
+                    [checked]="option.visibleInPos"
+                    [disabled]="!option.enabled"
+                    (change)="toggleOptionVisibleInPos(betType.betType, option.code, $event.checked)"
+                  >
+                    {{ 'admin.games.settings.salesOptions.visibleInPos' | translate }}
+                  </mat-checkbox>
+                </div>
               </div>
-            }
-          </div>
-        }
-      </section>
-    }
-
-    @if (pricingGroups().length) {
-      <section class="game-settings-dialog__section">
-        <div class="game-settings-dialog__section-header">
-          <h3>{{ 'admin.games.settings.payouts.title' | translate }}</h3>
-          <p>{{ 'admin.games.settings.payouts.description' | translate }}</p>
-        </div>
-
-        <div class="game-settings-dialog__pricing-groups">
-          @for (group of pricingGroups(); track group.id) {
-            <div class="game-settings-dialog__pricing-group">
-              <strong class="game-settings-dialog__option-label">{{ group.label }}</strong>
-              <div class="game-settings-dialog__pricing-variants">
-                @for (variant of group.variants; track variant.pricingVariantCode ?? variant.label) {
-                  <div class="game-settings-dialog__pricing-variant">
-                    <span class="game-settings-dialog__pricing-label">{{ variant.label }}</span>
-                    <div class="game-settings-dialog__pricing-control">
-                      <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
-                        <mat-label>{{ 'console.pricingForm.field.payoutRuleType' | translate }}</mat-label>
-                        <mat-select
-                          [value]="variant.payoutRuleType"
-                          [disabled]="!variant.pricingVariantCode"
-                          (selectionChange)="updatePricingRuleType(group.id, variant.pricingVariantCode ?? null, $event.value)"
-                        >
-                          <mat-option value="STAKE_MULTIPLIER">
-                            {{ 'console.pricingForm.payoutRuleType.STAKE_MULTIPLIER' | translate }}
-                          </mat-option>
-                          <mat-option value="FIXED_AMOUNT">
-                            {{ 'console.pricingForm.payoutRuleType.FIXED_AMOUNT' | translate }}
-                          </mat-option>
-                        </mat-select>
-                      </mat-form-field>
-                      @if (variant.payoutRuleType === 'FIXED_AMOUNT') {
-                        <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
-                          <mat-label>{{ 'console.pricingForm.field.fixedAmount' | translate }}</mat-label>
-                          <input
-                            matInput
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            [placeholder]="notConfiguredLabel()"
-                            [value]="variant.fixedAmount ?? ''"
-                            [disabled]="!variant.pricingVariantCode"
-                            (input)="updatePricingFixedAmount(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
-                          />
-                        </mat-form-field>
-                      } @else {
-                        <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
-                          <mat-label>{{ 'domain.entity.odds' | translate }}</mat-label>
-                          <input
-                            matInput
-                            type="number"
-                            min="0.0001"
-                            step="0.01"
-                            [placeholder]="notConfiguredLabel()"
-                            [value]="variant.odds ?? ''"
-                            [disabled]="!variant.pricingVariantCode"
-                            (input)="updatePricingOdds(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
-                          />
-                        </mat-form-field>
-                      }
-                      <button
-                        class="game-settings-dialog__clear-pricing"
-                        type="button"
-                        mat-icon-button
-                        [disabled]="!variant.pricingVariantCode || (variant.odds === null || variant.odds === undefined) && (variant.fixedAmount === null || variant.fixedAmount === undefined)"
-                        (click)="clearPricingOdds(group.id, variant.pricingVariantCode ?? null)"
-                        [attr.aria-label]="'admin.games.settings.options.clearPricing' | translate"
-                      >
-                        <span class="material-symbols-outlined" aria-hidden="true">delete</span>
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
+              }
             </div>
+
+            <mat-form-field appearance="outline" class="game-settings-dialog__field">
+              <mat-label
+                >{{ 'admin.games.settings.salesOptions.defaultOption' | translate }}</mat-label
+              >
+              <mat-select
+                [value]="betType.defaultOption"
+                (selectionChange)="updateDefaultOption(betType.betType, $event.value)"
+              >
+                <mat-option [value]="null"
+                  >{{ 'admin.games.settings.salesOptions.noDefaultOption' | translate }}</mat-option
+                >
+                @for (option of betType.options; track option.code) {
+                <mat-option [value]="option.code" [disabled]="!option.enabled">
+                  {{ betType.betType | consoleBetLabel:option.code }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
           }
         </div>
-      </section>
-    }
-
-    <section class="game-settings-dialog__section game-settings-dialog__section--advanced">
-      <details class="game-settings-dialog__details">
-        <summary>
-          <span>{{ 'admin.games.settings.advanced.title' | translate }}</span>
-          <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
-        </summary>
-
-        <div class="game-settings-dialog__details-body">
-          <mat-form-field appearance="outline" class="game-settings-dialog__field">
-            <mat-label>{{ 'admin.games.settings.field.displayName' | translate }}</mat-label>
-            <input
-              matInput
-              autocomplete="off"
-              [formField]="form.displayName"
-              [placeholder]="data.game.gameCode | consoleGameName:data.game.catalogName"
-            />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="game-settings-dialog__field">
-            <mat-label>{{ 'admin.games.settings.field.displayOrder' | translate }}</mat-label>
-            <input matInput type="number" [formField]="form.displayOrder" />
-          </mat-form-field>
+        }
+      </tch-admin-form-section>
+      } @if (pricingGroups().length) {
+      <tch-admin-form-section
+        icon="price_change"
+        [title]="'admin.games.settings.payouts.title' | translate"
+        [description]="'admin.games.settings.payouts.description' | translate"
+      >
+        <div class="game-settings-dialog__pricing-groups">
+          @for (group of pricingGroups(); track group.id) {
+          <div class="game-settings-dialog__pricing-group">
+            <strong class="game-settings-dialog__option-label">{{ group.label }}</strong>
+            <div class="game-settings-dialog__pricing-variants">
+              @for (variant of group.variants; track variant.pricingVariantCode ?? variant.label) {
+              <div class="game-settings-dialog__pricing-variant">
+                <span class="game-settings-dialog__pricing-label">{{ variant.label }}</span>
+                <div class="game-settings-dialog__pricing-control">
+                  <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
+                    <mat-label
+                      >{{ 'console.pricingForm.field.payoutRuleType' | translate }}</mat-label
+                    >
+                    <mat-select
+                      [value]="variant.payoutRuleType"
+                      [disabled]="!variant.pricingVariantCode"
+                      (selectionChange)="updatePricingRuleType(group.id, variant.pricingVariantCode ?? null, $event.value)"
+                    >
+                      <mat-option value="STAKE_MULTIPLIER">
+                        {{ 'console.pricingForm.payoutRuleType.STAKE_MULTIPLIER' | translate }}
+                      </mat-option>
+                      <mat-option value="FIXED_AMOUNT">
+                        {{ 'console.pricingForm.payoutRuleType.FIXED_AMOUNT' | translate }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  @if (variant.payoutRuleType === 'FIXED_AMOUNT') {
+                  <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
+                    <mat-label>{{ 'console.pricingForm.field.fixedAmount' | translate }}</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      [placeholder]="notConfiguredLabel()"
+                      [value]="variant.fixedAmount ?? ''"
+                      [disabled]="!variant.pricingVariantCode"
+                      (input)="updatePricingFixedAmount(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
+                    />
+                  </mat-form-field>
+                  } @else {
+                  <mat-form-field appearance="outline" class="game-settings-dialog__pricing-field">
+                    <mat-label>{{ 'domain.entity.odds' | translate }}</mat-label>
+                    <input
+                      matInput
+                      type="number"
+                      min="0.0001"
+                      step="0.01"
+                      [placeholder]="notConfiguredLabel()"
+                      [value]="variant.odds ?? ''"
+                      [disabled]="!variant.pricingVariantCode"
+                      (input)="updatePricingOdds(group.id, variant.pricingVariantCode ?? null, $any($event.target).value)"
+                    />
+                  </mat-form-field>
+                  }
+                  <button
+                    class="game-settings-dialog__clear-pricing"
+                    type="button"
+                    mat-icon-button
+                    [disabled]="!variant.pricingVariantCode || (variant.odds === null || variant.odds === undefined) && (variant.fixedAmount === null || variant.fixedAmount === undefined)"
+                    (click)="clearPricingOdds(group.id, variant.pricingVariantCode ?? null)"
+                    [attr.aria-label]="'admin.games.settings.options.clearPricing' | translate"
+                  >
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+          }
         </div>
-      </details>
-    </section>
+      </tch-admin-form-section>
+      }
+
+      <tch-admin-form-section
+        icon="manufacturing"
+        [title]="'admin.games.settings.advanced.title' | translate"
+      >
+        <details class="game-settings-dialog__details">
+          <summary>
+            <span>{{ 'admin.games.settings.advanced.summary' | translate }}</span>
+            <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
+          </summary>
+
+          <div class="game-settings-dialog__details-body">
+            <mat-form-field appearance="outline" class="game-settings-dialog__field">
+              <mat-label>{{ 'admin.games.settings.field.displayName' | translate }}</mat-label>
+              <input
+                matInput
+                autocomplete="off"
+                [formField]="form.displayName"
+                [placeholder]="data.game.gameCode | consoleGameName:data.game.catalogName"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="game-settings-dialog__field">
+              <mat-label>{{ 'admin.games.settings.field.displayOrder' | translate }}</mat-label>
+              <input matInput type="number" [formField]="form.displayOrder" />
+            </mat-form-field>
+          </div>
+        </details>
+      </tch-admin-form-section>
+    </tch-admin-form-shell>
   </form>
 
   <button actions mat-button mat-dialog-close [disabled]="saveSettings.pending()">
@@ -288,8 +309,9 @@
     (click)="submit($event)"
   >
     @if (saveSettings.pending()) {
-      <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true">progress_activity</span>
-    }
-    {{ 'common.save' | translate }}
+    <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true"
+      >progress_activity</span
+    >
+    } {{ 'common.save' | translate }}
   </button>
 </tch-admin-dialog-shell>

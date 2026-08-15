@@ -2165,7 +2165,8 @@
           "description": "Configure how much the customer can win for each supported option."
         },
         "advanced": {
-          "title": "Advanced options"
+          "title": "Advanced options",
+          "summary": "POS name and display order"
         },
         "salesOptions": {
           "title": "Advanced sales modes",
