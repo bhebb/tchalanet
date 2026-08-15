@@ -66,4 +66,8 @@ describe(MaryajGameSettingsPanelComponent.name, () => {
     expect(component.readinessTone('BLOCKED')).toBe('danger');
     expect(component.readinessTone('UNKNOWN')).toBe('neutral');
   });
+
+  it('keeps draw availability navigation on the dedicated matrix route', () => {
+    expect(component.availabilityRoute).toBe('/app/admin/games/channel-matrix');
+  });
 });

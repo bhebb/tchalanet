@@ -29,6 +29,8 @@ import { TenantGamePricingView } from '../../../../games-pricing/data-access/adm
 export class MaryajGameSettingsPanelComponent {
   private readonly translate = inject(TranslateService);
 
+  readonly availabilityRoute = '/app/admin/games/channel-matrix';
+
   readonly game = input<TenantGamePricingView | null>(null);
   readonly configure = output<TenantGamePricingView>();
 

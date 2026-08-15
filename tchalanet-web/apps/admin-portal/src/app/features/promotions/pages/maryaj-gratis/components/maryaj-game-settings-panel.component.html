@@ -58,7 +58,7 @@
       <div class="maryaj-game-settings__item">
         <dt>{{ 'admin.maryajGratis.game.availability' | translate }}</dt>
         <dd>{{ 'admin.maryajGratis.game.availabilitySummary' | translate }}</dd>
-        <a class="maryaj-game-settings__link" routerLink="/app/admin/games/channel-matrix">
+        <a class="maryaj-game-settings__link" [routerLink]="availabilityRoute">
           {{ 'admin.maryajGratis.game.availabilityAction' | translate }}
         </a>
       </div>

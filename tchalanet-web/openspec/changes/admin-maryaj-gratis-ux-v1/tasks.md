@@ -81,7 +81,7 @@ full brief is complete.
 - [x] Clarify what `Limite le vant yo` means in business language.
 - [x] Rename the availability checkbox if it controls participation in draw-specific availability rules.
 - [x] Keep draw-level availability owned by the existing availability-by-draw surface.
-- [ ] Add focused tests for availability navigation.
+- [x] Add focused tests for availability navigation.
 
 ## 7. Game Editor - Opsyon Jwet
 
