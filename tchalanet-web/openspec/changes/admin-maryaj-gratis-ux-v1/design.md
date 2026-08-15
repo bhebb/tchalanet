@@ -110,9 +110,10 @@ in `tasks.md`.
 
 ## Game Editing
 
-The game section summarizes game readiness and routes to the existing games-pricing dialog. The
-dedicated route or full-height responsive editor is tracked as follow-up work because it touches the
-shared game editor surface beyond Maryaj Gratis.
+The game section summarizes game readiness and routes to the shared games-pricing editor page at
+`/app/admin/games/:gameCode/settings`. The editor page owns loading, saving, cancellation, and API
+mapping, while the form body is rendered by the stateless shared game settings editor component used
+by both the general games configuration flow and Maryaj Gratis.
 
 ## Styling And Theming
 

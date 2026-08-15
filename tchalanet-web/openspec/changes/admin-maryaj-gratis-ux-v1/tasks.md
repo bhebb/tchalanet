@@ -57,6 +57,7 @@ full brief is complete.
 - [x] Keep save actions reachable without trapping the admin in a very long dialog.
 - [x] Structure the game editing surface as Vant, Miz, Disponibilite, Opsyon jwet, Barem/Gany, and Opsyon avanse.
 - [x] Keep Maryaj Gratis game editing on the same shared game-settings surface contract as other games.
+- [x] Remove the legacy compact game settings dialog after routing all game settings edits to the shared page.
 
 ## 4. Game Editor - Vant
 
@@ -235,6 +236,7 @@ full brief is complete.
 - [ ] Add main page coverage for generation error state if supported.
 - [x] Add focused game editor navigation coverage for POS visibility, activation state, stake values, and reload after save.
 - [ ] Add game editor coverage for POS visibility, activation, stake validation, availability navigation, option toggles, payout edit/delete, save/cancel/dirty behavior.
+- [x] Add routed game settings page coverage for selected game loading, return navigation, save API mapping, option toggles, and payout edit/delete mapping.
 - [x] Add focused offer editor coverage for fixed and per-amount attribution payloads.
 - [x] Add focused offer editor coverage for pause/resume and advanced priority preservation.
 - [x] Add focused tier editor coverage for add/open-ended behavior and invalid open-ended ordering.

@@ -35,7 +35,7 @@ The most visible problems are:
 - Game section and editor:
   - show stake, payout/pricing option summary, readiness, and availability as a compact summary;
   - keep the game editor owned by the games configuration feature;
-  - plan a follow-up dedicated route or responsive full-height editor for the full game form.
+  - use the shared routed games configuration editor for the full game form.
 - Offer section and editor:
   - show start/end, campaign status, attribution mode, and tier rules as readable business copy;
   - map permanent offers to `Pa gen fen` / equivalent locale copy instead of exposing the backend's
@@ -58,8 +58,7 @@ The most visible problems are:
 - Existing routes remain valid.
 - Existing promotion and game APIs remain the source of truth.
 - No backend semantic change is required by this UX pass.
-- Existing games configuration dialog remains used for game editing until the dedicated editor
-  follow-up is implemented.
+- Games configuration editing now uses a shared routed page instead of the former compact dialog.
 
 ## Non-Goals
 
@@ -68,4 +67,4 @@ The most visible problems are:
 - Do not embed the draw/game matrix in the Maryaj Gratis page.
 - Do not make priority a required daily-admin concept.
 - Do not invent frontend payout or eligibility calculations.
-- Do not refactor all games-pricing dialogs in this change unless required by Maryaj Gratis.
+- Do not change unrelated games-pricing behavior beyond routing game settings to the shared editor.
