@@ -184,10 +184,10 @@ full brief is complete.
 - [ ] Verify all Maryaj Gratis edit surfaces at approximately 360 px first.
 - [x] Avoid nested card to card to field structures on the main page.
 - [ ] Avoid simply stacking desktop form groups in the game and offer editors.
-- [ ] Keep touch targets comfortable.
-- [ ] Keep save/cancel actions reachable.
-- [ ] Ensure sticky action areas do not obscure fields.
-- [ ] Ensure mobile viewport does not hide the last form controls.
+- [x] Keep touch targets comfortable in the offer editor at 360 px.
+- [x] Keep offer editor save/cancel actions reachable at 360 px.
+- [x] Ensure the offer editor sticky action area does not obscure the last tier controls.
+- [x] Ensure the 360 px mobile viewport does not hide the last offer form controls.
 - [ ] Validate keyboard-open behavior for numeric inputs and selects.
 - [x] Use existing project responsive breakpoints and theme tokens in touched styles.
 
@@ -242,7 +242,7 @@ full brief is complete.
 - [ ] Capture 360 px screenshots for main page, game editor, offer editor, and tier editor.
 - [ ] Capture desktop screenshots.
 - [ ] Verify keyboard-open behavior on mobile.
-- [ ] Verify sticky save footer does not cover fields.
+- [x] Verify the offer editor sticky save footer does not cover fields at 360 px.
 - [ ] Resolve local `pnpm nx build admin-portal` deadlock or validate the build in CI.
 
 ## 20. Definition Of Done

@@ -130,8 +130,21 @@
 }
 
 .maryaj-offer__actions--center {
+  position: sticky;
+  z-index: 1;
+  bottom: 0;
+  flex-direction: column-reverse;
   justify-content: center;
   margin-top: 1rem;
+  margin-inline: -1rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+  padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom));
+  background: var(--tch-color-surface);
+}
+
+.maryaj-offer__actions--center button {
+  min-height: 2.75rem;
+  width: 100%;
 }
 
 .maryaj-offer__setup {
@@ -311,6 +324,10 @@
   gap: 0.25rem;
 }
 
+.maryaj-offer__tier-actions button {
+  min-height: 2.75rem;
+}
+
 .maryaj-offer__tier-editor {
   display: grid;
   grid-template-columns: 1fr;
@@ -364,6 +381,18 @@
 
   .maryaj-offer__attribution-fields--single {
     grid-template-columns: minmax(0, 24rem);
+  }
+
+  .maryaj-offer__actions--center {
+    position: static;
+    flex-direction: row;
+    margin-inline: 0;
+    border-top: 0;
+    padding: 0;
+  }
+
+  .maryaj-offer__actions--center button {
+    width: auto;
   }
 
   .maryaj-offer__tiers-head {
