@@ -53,6 +53,14 @@ describe(MaryajOfferPanelComponent.name, () => {
     expect(component.isTierOpenEnded(0)).toBe(false);
   });
 
+  it('maps campaign statuses to shared console status tones', () => {
+    expect(component.statusTone('ACTIVE')).toBe('success');
+    expect(component.statusTone('PAUSED')).toBe('warning');
+    expect(component.statusTone('DRAFT')).toBe('warning');
+    expect(component.statusTone('ARCHIVED')).toBe('danger');
+    expect(component.statusTone('INACTIVE')).toBe('neutral');
+  });
+
   function form() {
     return formBuilder.group({
       quantityTiers: formBuilder.array([

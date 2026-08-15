@@ -9,12 +9,10 @@
   @if (campaign() && !editing()) {
     @if (campaign(); as campaign) {
       <div actions class="maryaj-offer__toolbar">
-        <span
-          class="maryaj-offer__status"
-          [class.maryaj-offer__status--active]="campaign.status === 'ACTIVE'"
-        >
-          {{ statusLabel(campaign.status) }}
-        </span>
+        <tch-admin-status-pill
+          [label]="statusLabel(campaign.status)"
+          [tone]="statusTone(campaign.status)"
+        />
         @if (campaign.status !== 'ACTIVE') {
           <button
             mat-flat-button
@@ -32,7 +30,8 @@
           </button>
         }
         <button
-          mat-stroked-button
+          mat-flat-button
+          color="primary"
           data-testid="maryaj-gratis-edit-offer"
           [disabled]="saving()"
           (click)="editOffer.emit()"

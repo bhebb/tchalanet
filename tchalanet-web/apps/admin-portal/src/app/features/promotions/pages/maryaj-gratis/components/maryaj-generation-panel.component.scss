@@ -23,13 +23,16 @@
 
 .maryaj-generation__facts dt {
   color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-label-medium);
+  font: var(--tch-typescale-label-small);
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .maryaj-generation__facts dd {
   margin: 0;
   color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-title-small);
+  font: var(--tch-typescale-title-medium);
+  font-weight: 600;
 }
 
 .maryaj-generation__form {
@@ -55,14 +58,17 @@
 
 .maryaj-generation__selection span {
   color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-label-medium);
+  font: var(--tch-typescale-label-small);
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .maryaj-generation__selection strong {
   display: block;
   margin-top: 0.25rem;
   color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-title-small);
+  font: var(--tch-typescale-title-medium);
+  font-weight: 600;
 }
 
 .maryaj-generation__selection p {

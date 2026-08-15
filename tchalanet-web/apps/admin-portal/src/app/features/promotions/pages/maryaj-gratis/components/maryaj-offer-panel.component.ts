@@ -11,7 +11,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { AdminSectionCardComponent } from '@tch/ui/console';
+import {
+  AdminSectionCardComponent,
+  AdminStatusPillComponent,
+  type AdminStatusTone,
+} from '@tch/ui/console';
 import {
   MaryajQuantityTier,
   PromotionCampaignStatus,
@@ -36,6 +40,7 @@ import {
     MatInputModule,
     MatSelectModule,
     AdminSectionCardComponent,
+    AdminStatusPillComponent,
   ],
   templateUrl: './maryaj-offer-panel.component.html',
   styleUrls: ['./maryaj-offer-panel.component.scss'],
@@ -73,6 +78,13 @@ export class MaryajOfferPanelComponent {
       case 'ARCHIVED':
         return this.translate.instant('admin.maryajGratis.offer.status.archived');
     }
+  }
+
+  statusTone(status: PromotionCampaignStatus): AdminStatusTone {
+    if (status === 'ACTIVE') return 'success';
+    if (status === 'PAUSED' || status === 'DRAFT') return 'warning';
+    if (status === 'ARCHIVED') return 'danger';
+    return 'neutral';
   }
 
   effectParam(name: string): string {

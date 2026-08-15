@@ -36,13 +36,19 @@
 .maryaj-game-settings__item dt,
 .maryaj-game-settings__hint {
   color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-body-small);
+  font: var(--tch-typescale-label-small);
+  font-weight: 600;
+}
+
+.maryaj-game-settings__item dt {
+  text-transform: uppercase;
 }
 
 .maryaj-game-settings__item dd {
   margin: 0;
   color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-title-small);
+  font: var(--tch-typescale-title-medium);
+  font-weight: 600;
   line-height: 1.35;
 }
 
@@ -65,6 +71,8 @@
 
 .maryaj-game-settings__hint {
   margin: 0;
+  font: var(--tch-typescale-body-small);
+  font-weight: 400;
 }
 
 @include ui.up(expanded) {
