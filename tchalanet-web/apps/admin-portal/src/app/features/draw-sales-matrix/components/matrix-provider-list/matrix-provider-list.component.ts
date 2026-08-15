@@ -34,6 +34,7 @@ export class DrawSalesMatrixProviderListComponent {
   readonly actionErrors = input<Readonly<Record<string, TchErrorViewModel>>>({});
   readonly actionNotices = input<Readonly<Record<string, string>>>({});
   readonly pendingEnabled = input<Readonly<Record<string, boolean>>>({});
+  readonly canManage = input(true);
 
   readonly gameAction = output<MatrixProviderGameActionEvent>();
 

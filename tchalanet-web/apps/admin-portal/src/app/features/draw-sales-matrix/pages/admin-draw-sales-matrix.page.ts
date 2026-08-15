@@ -4,6 +4,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromProblemDetail } from '@tch/api';
 import type { ProblemDetail } from '@tch/api';
+import { AccessService } from '@tch/core/auth';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
@@ -50,8 +51,10 @@ interface MatrixToggleGameInput extends MatrixGameMutationInput {
 })
 export class AdminDrawSalesMatrixPage {
   private readonly api = inject(AdminDrawSalesMatrixApi);
+  private readonly access = inject(AccessService);
   private readonly translate = inject(TranslateService);
 
+  readonly canManageMatrix = computed(() => this.access.can({ permission: 'game-pricing.update' }));
   readonly matrixResource = this.api.getMatrixResource({ suppressShellFeedback: true });
   readonly matrixError = resourceErrorVm(this.matrixResource, 'admin.setup.draw_sales_matrix');
   readonly matrix = computed(() => this.matrixResource.value() ?? null);
@@ -118,6 +121,7 @@ export class AdminDrawSalesMatrixPage {
   }
 
   offerGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
+    if (!this.canManageMatrix()) return;
     const drawChannelId = slot.channel?.drawChannelId.value;
     if (!drawChannelId) return;
     const tenantGameId = game.tenantGameId.value;
@@ -137,6 +141,7 @@ export class AdminDrawSalesMatrixPage {
   }
 
   toggleGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
+    if (!this.canManageMatrix()) return;
     const drawChannelId = slot.channel?.drawChannelId.value;
     if (!drawChannelId) return;
     const tenantGameId = game.tenantGameId.value;

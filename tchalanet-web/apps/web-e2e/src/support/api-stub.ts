@@ -473,6 +473,81 @@ const drawChannelsStub = [
   },
 ];
 
+const drawSalesMatrixStub = {
+  summary: {
+    providerCount: 1,
+    slotCount: 1,
+    configuredChannelCount: 1,
+    activeChannelCount: 1,
+    supportedTenantGameCount: 2,
+    offeredChannelGameCount: 2,
+    saleReadyChannelGameCount: 2,
+    missingStakeConfigCount: 0,
+    missingLimitCount: 0,
+  },
+  providers: [
+    {
+      providerCode: 'NY',
+      slots: [
+        {
+          slotKey: 'NY_MID',
+          labelKey: null,
+          resultSlot: {
+            resultSlotId: { value: 'result-slot-ny-mid' },
+            drawTime: '14:30:00',
+            daysOfWeek: 'MON-SUN',
+            active: true,
+          },
+          channel: {
+            drawChannelId: { value: 'channel-ny-mid' },
+            channelCode: 'HT_NY_MID',
+            active: true,
+            configured: true,
+            drawTime: '14:30:00',
+            salesOpenTime: '05:30:00',
+            cutoffSec: 300,
+            defaultSource: 'EXTERNAL',
+            sortOrder: 1,
+            dependsOnChannelId: null,
+          },
+          games: [
+            {
+              gameCode: 'HT_BOLET',
+              tenantGameId: { value: 'game-bolet' },
+              displayName: 'Bolèt',
+              enabledForTenant: true,
+              visibleInPos: true,
+              offeredOnChannel: true,
+              enabledOnChannel: true,
+              minStake: 1,
+              maxStake: 1000000,
+              limits: { configured: true, assignments: [] },
+              saleReady: true,
+              warnings: [],
+            },
+            {
+              gameCode: 'HT_MARYAJ_GRATIS',
+              tenantGameId: { value: 'game-maryaj-gratis' },
+              displayName: 'Maryaj gratis',
+              enabledForTenant: true,
+              visibleInPos: true,
+              offeredOnChannel: true,
+              enabledOnChannel: true,
+              minStake: 1,
+              maxStake: 1,
+              limits: { configured: true, assignments: [] },
+              saleReady: true,
+              warnings: [],
+            },
+          ],
+          slotReady: true,
+          warnings: [],
+        },
+      ],
+    },
+  ],
+};
+
 const sellerReportStub = {
   analytics: {
     available: true,
@@ -538,6 +613,11 @@ const sellerReportStub = {
   ],
 };
 
+const tenantAdminPermissions = [
+  'draw_channel.manage',
+  'game-pricing.update',
+];
+
 /**
  * Minimal `/runtime/private` bootstrap for a super-admin. Shape follows
  * `RuntimeBootstrapResponse` (see refreshSession); refine against a real run if
@@ -587,7 +667,7 @@ export const tenantAdminPrivateBootstrap = {
     mustCompleteProfile: false,
   },
   tenantContext: { tenantId: 'stub-tenant', tenantCode: 'STUB', tenantName: 'Stub Tenant' },
-  entitlements: { roles: ['TENANT_ADMIN'], permissions: [] },
+  entitlements: { roles: ['TENANT_ADMIN'], permissions: tenantAdminPermissions },
   readiness: { status: 'READY', checks: [] },
   notifications: { unreadCount: 0, criticalCount: 0 },
   navigationDrawer: null,
@@ -598,6 +678,12 @@ export const tenantAdminPrivateBootstrap = {
   settings: null,
   portalConfig: null,
   notices: [],
+} as const;
+
+/** Tenant-admin runtime without setup mutation permissions. */
+export const tenantAdminReadonlyPrivateBootstrap = {
+  ...tenantAdminPrivateBootstrap,
+  entitlements: { roles: ['TENANT_ADMIN'], permissions: [] },
 } as const;
 
 /** `/runtime/private` bootstrap after a super-admin handoff into tenant support mode. */
@@ -802,6 +888,12 @@ export class ApiStub {
     await this.apiRoute(/\/tenant\/subscription(?:\?|$)/, (r) => json(r, envelope(subscriptionStub)));
     await this.apiRoute(/\/admin\/tenant-config(?:\?|$)/, (r) => json(r, envelope(tenantConfigStub)));
     await this.apiRoute(/\/admin\/setup\/games-pricing(?:\?|$)/, (r) => json(r, envelope(gamesPricingStub)));
+    await this.apiRoute(/\/admin\/games\/[^/]+\/(?:enable|disable)(?:\?|$)/, r =>
+      r.request().method() === 'POST' ? json(r, envelope(null)) : unexpectedApiCall(r),
+    );
+    await this.apiRoute(/\/admin\/games\/[^/]+\/bet-options(?:\?|$)/, r =>
+      json(r, envelope({ gameCode: 'HT_BOLET', betTypes: [] })),
+    );
     await this.apiRoute(/\/admin\/promotions\/campaigns(?:\?|$)/, (r) =>
       json(r, envelope(page([maryajCampaignStub]))),
     );
@@ -1061,9 +1153,28 @@ export class ApiStub {
       );
     });
 
+    await this.apiRoute(/\/tenant\/draw-channels\/[^/]+\/active(?:\?|$)/, r =>
+      r.request().method() === 'PATCH' ? json(r, envelope(null)) : unexpectedApiCall(r),
+    );
+
     await this.apiRoute(/\/tenant\/draw-channels(?:\?|$)/, r =>
       json(r, envelope(drawChannelsStub)),
     );
+  }
+
+  /** Deterministic game-by-draw matrix data and successful mutations. */
+  async adminDrawSalesMatrix(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.apiRoute(/\/admin\/setup\/draw-sales-matrix(?:\?|$)/, r =>
+      json(r, envelope(drawSalesMatrixStub)),
+    );
+    await this.apiRoute(/\/admin\/draw-channels\/[^/]+\/tenant-games\/[^/]+(?:\?|$)/, r => {
+      if (r.request().method() === 'PATCH' || r.request().method() === 'PUT') {
+        return json(r, envelope(null));
+      }
+      return unexpectedApiCall(r);
+    });
   }
 
   /** Inject a blocking failure for the terminal detail resource. */
