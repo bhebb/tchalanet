@@ -1710,7 +1710,7 @@
         "eyebrow": "Génération",
         "title": "Génération des Maryaj gratuits",
         "description": "Contrôle comment les numéros Maryaj gratuits sont générés et régénérés.",
-        "selection": "Sélection",
+        "selection": "Numéros",
         "retry": "Régénération",
         "retryCount": "{{count}} tentative(s)",
         "notUsed": "Non utilisé avec la sélection manuelle",

@@ -45,4 +45,11 @@ describe(MaryajGameSettingsPanelComponent.name, () => {
     expect(component.readinessLabel('READY')).toBe('Pare');
     expect(component.readinessLabel('UNKNOWN')).toBe('UNKNOWN');
   });
+
+  it('maps readiness states to shared console status tones', () => {
+    expect(component.readinessTone('READY')).toBe('success');
+    expect(component.readinessTone('TODO')).toBe('warning');
+    expect(component.readinessTone('BLOCKED')).toBe('danger');
+    expect(component.readinessTone('UNKNOWN')).toBe('neutral');
+  });
 });

@@ -13,19 +13,6 @@
   gap: 0.75rem;
 }
 
-.maryaj-game-settings__status {
-  border-radius: var(--tch-radius-pill);
-  padding: 0.25rem 0.75rem;
-  background: var(--tch-color-surface-container);
-  color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-label-medium);
-}
-
-.maryaj-game-settings__status--ready {
-  background: var(--tch-color-success-container);
-  color: var(--tch-color-on-success-container);
-}
-
 .maryaj-game-settings__grid {
   display: grid;
   grid-template-columns: 1fr;

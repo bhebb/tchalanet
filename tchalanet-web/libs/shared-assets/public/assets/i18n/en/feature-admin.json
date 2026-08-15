@@ -1015,7 +1015,7 @@
         "eyebrow": "Generation",
         "title": "Free Maryaj generation",
         "description": "Control how Free Maryaj numbers are generated and regenerated.",
-        "selection": "Selection",
+        "selection": "Numbers",
         "retry": "Regeneration",
         "retryCount": "{{count}} attempt(s)",
         "notUsed": "Not used with manual selection",

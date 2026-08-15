@@ -170,6 +170,7 @@ full brief is complete.
 - [x] Pilot the shared console section card on the Generation section instead of a local card shell.
 - [x] Use the shared console section card on the Maryaj Gratis game section.
 - [x] Use the shared console section card on the Maryaj Gratis offer section.
+- [x] Use the shared console status pill for Maryaj Gratis readiness instead of a local badge style.
 - [x] Keep only exceptional warnings visually prominent.
 
 ## 16. Mobile-First Behavior

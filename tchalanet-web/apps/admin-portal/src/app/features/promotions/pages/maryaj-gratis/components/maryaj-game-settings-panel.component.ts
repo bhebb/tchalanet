@@ -4,14 +4,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { AdminSectionCardComponent } from '@tch/ui/console';
+import {
+  AdminSectionCardComponent,
+  AdminStatusPillComponent,
+  type AdminStatusTone,
+} from '@tch/ui/console';
 import { TenantGamePricingView } from '../../../../games-pricing/data-access/admin-games-pricing.models';
 
 @Component({
   selector: 'tch-maryaj-game-settings-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslatePipe, MatButtonModule, MatIconModule, RouterLink, AdminSectionCardComponent],
+  imports: [
+    TranslatePipe,
+    MatButtonModule,
+    MatIconModule,
+    RouterLink,
+    AdminSectionCardComponent,
+    AdminStatusPillComponent,
+  ],
   templateUrl: './maryaj-game-settings-panel.component.html',
   styleUrls: ['./maryaj-game-settings-panel.component.scss'],
 })
@@ -46,5 +57,12 @@ export class MaryajGameSettingsPanelComponent {
     const key = `admin.maryajGratis.game.readiness.${status}`;
     const translated = this.translate.instant(key);
     return translated === key ? status : translated;
+  }
+
+  readinessTone(status: string): AdminStatusTone {
+    if (status === 'READY') return 'success';
+    if (status === 'TODO') return 'warning';
+    if (status === 'BLOCKED') return 'danger';
+    return 'neutral';
   }
 }
