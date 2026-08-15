@@ -55,6 +55,11 @@ describe(AdminMaryajGratisPage.name, () => {
     const game = maryajGame({
       tenantStatus: 'NEEDS_CONFIG',
       visibleInPos: false,
+      readiness: {
+        status: 'TODO',
+        label: 'Pou konfigire',
+        reason: 'missing pricing',
+      },
       limits: {
         minStake: 5,
         maxStake: 5000,
@@ -69,7 +74,7 @@ describe(AdminMaryajGratisPage.name, () => {
     expect(dialog.open).toHaveBeenCalledWith(
       GameSettingsDialog,
       expect.objectContaining({
-        data: {
+        data: expect.objectContaining({
           game: expect.objectContaining({
             gameCode: 'HT_MARYAJ_GRATIS',
             enabled: true,
@@ -79,7 +84,11 @@ describe(AdminMaryajGratisPage.name, () => {
             readyForSale: false,
             betOptions,
           }),
-        },
+        }),
+        width: 'min(48rem, 100vw)',
+        maxWidth: '100vw',
+        height: 'min(54rem, 100dvh)',
+        maxHeight: '100dvh',
       }),
     );
   });
