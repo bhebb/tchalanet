@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TenantGamePricingView } from '../../../../games-pricing/data-access/admin-games-pricing.models';
@@ -9,7 +10,7 @@ import { TenantGamePricingView } from '../../../../games-pricing/data-access/adm
   selector: 'tch-maryaj-game-settings-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslatePipe, MatButtonModule, MatIconModule],
+  imports: [TranslatePipe, MatButtonModule, MatIconModule, RouterLink],
   templateUrl: './maryaj-game-settings-panel.component.html',
   styleUrls: ['./maryaj-game-settings-panel.component.scss'],
 })
@@ -37,6 +38,12 @@ export class MaryajGameSettingsPanelComponent {
   oddsLabel(odds: number | null): string {
     if (odds === null) return this.translate.instant('admin.maryajGratis.game.notConfigured');
     return `x${odds.toLocaleString('fr')}`;
+  }
+
+  oddsSummary(): string {
+    const odds = this.game()?.odds ?? [];
+    const labels = odds.map(odd => this.gainOptionLabel(odd.pricingVariantCode, odd.label));
+    return labels.length ? labels.join(' + ') : this.translate.instant('common.not_available');
   }
 
   readinessLabel(status: string): string {

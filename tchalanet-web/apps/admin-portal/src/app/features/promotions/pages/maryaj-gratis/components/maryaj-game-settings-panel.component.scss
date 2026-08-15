@@ -117,6 +117,16 @@
   line-height: 1.4;
 }
 
+.maryaj-game-settings__link {
+  color: var(--tch-color-primary);
+  font: var(--tch-typescale-label-medium);
+  text-decoration: none;
+}
+
+.maryaj-game-settings__link:hover {
+  text-decoration: underline;
+}
+
 .maryaj-game-settings__odds {
   display: flex;
   flex-wrap: wrap;
@@ -156,9 +166,5 @@
 
   .maryaj-game-settings__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .maryaj-game-settings__item--wide {
-    grid-column: span 3;
   }
 }

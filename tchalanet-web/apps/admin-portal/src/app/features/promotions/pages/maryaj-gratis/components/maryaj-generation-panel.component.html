@@ -1,0 +1,31 @@
+<section
+  id="generation"
+  class="maryaj-generation"
+  aria-labelledby="maryaj-generation-title"
+  data-testid="maryaj-gratis-generation-panel"
+>
+  <div class="maryaj-generation__header">
+    <span class="maryaj-generation__icon">
+      <mat-icon>auto_awesome</mat-icon>
+    </span>
+    <div>
+      <p class="maryaj-generation__eyebrow">
+        {{ 'admin.maryajGratis.generation.eyebrow' | translate }}
+      </p>
+      <h3 id="maryaj-generation-title" class="maryaj-generation__title">
+        {{ 'admin.maryajGratis.generation.title' | translate }}
+      </h3>
+    </div>
+  </div>
+
+  <dl class="maryaj-generation__facts">
+    <div>
+      <dt>{{ 'admin.maryajGratis.generation.selection' | translate }}</dt>
+      <dd>{{ selectionLabel() }}</dd>
+    </div>
+    <div>
+      <dt>{{ 'admin.maryajGratis.generation.retry' | translate }}</dt>
+      <dd>{{ regenerationLabel() }}</dd>
+    </div>
+  </dl>
+</section>

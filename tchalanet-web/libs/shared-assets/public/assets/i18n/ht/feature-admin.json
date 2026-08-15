@@ -801,7 +801,7 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Konfigire jwèt Maryaj la ak òf liy gratis otomatik la.",
+      "description": "Konfigire jwèt Maryaj gratis la, òf gratis la, ak jenerasyon nimewo yo.",
       "action": {
         "refresh": "Rafrechi"
       },
@@ -827,6 +827,16 @@
           "READY": "Pare",
           "TODO": "Pou konfigire",
           "BLOCKED": "Pa disponib"
+        },
+        "stake": "Miz",
+        "availability": "Disponibilite",
+        "availabilitySummary": "Jere pa tiraj",
+        "availabilityAction": "Ale nan Disponibilite pa tiraj",
+        "missingReason": {
+          "absent": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt santral la.",
+          "inactive": "Jwèt Maryaj gratis la dezaktive pou santral sa a.",
+          "needsConfig": "Jwèt Maryaj gratis la bezwen miz ak barèm anvan li ka vann.",
+          "unavailable": "Jwèt Maryaj gratis la pa disponib pou santral sa a."
         }
       },
       "summary": {
@@ -865,7 +875,7 @@
         "activeEyebrow": "Òf aktif",
         "campaignCode": "Kanpay santral · {{count}} règ",
         "pause": "Mete an poz",
-        "permanent": "Pa gen fen ki prevwa",
+        "permanent": "Pa gen fen",
         "technicalDate": "Dat teknik:",
         "attributionMode": "Mòd atribisyon",
         "mode": {
@@ -924,8 +934,8 @@
           }
         },
         "schedule": {
-          "endHint": "Dat obligatwa. Pou yon òf pèmanan, itilize yon dat ki lwen.",
-          "priorityHint": "Yon pi gwo valè bay priyorite si gen plizyè pwomosyon."
+          "priorityHint": "Yon pi gwo valè bay priyorite si gen plizyè pwomosyon.",
+          "noEndDate": "Pa gen dat fen"
         },
         "tiers": {
           "title": "Palye lavant",
@@ -936,24 +946,71 @@
           "to": "Jiska",
           "openEnded": "Vid = ak plis",
           "quantity": "Maryaj gratis",
-          "delete": "Efase palye a"
+          "delete": "Efase palye a",
+          "readDescription": "Règ ki di konbyen Maryaj gratis yon tikè resevwa.",
+          "empty": "Pa gen palye konfigire.",
+          "range": "{{min}} – {{max}}",
+          "openRange": "{{min}} +",
+          "rule": "{{range}} → {{quantity}} Maryaj gratis"
         },
         "perAmount": {
           "step": "Tranch lavant",
           "stepHint": "Kantite peye ki deklanche yon tranch.",
           "quantity": "Maryaj gratis pou chak tranch",
           "max": "Limit liy gratis",
-          "maxHint": "Maksimòm ki jenere pou yon tikè."
+          "maxHint": "Maksimòm ki jenere pou yon tikè.",
+          "rule": "{{quantity}} Maryaj gratis pou chak {{amount}}, jiska {{max}}"
         },
         "fixed": {
-          "quantity": "Kantite Maryaj gratis pa tikè"
+          "quantity": "Kantite Maryaj gratis pa tikè",
+          "rule": "{{quantity}} Maryaj gratis pa tikè"
         },
         "regeneration": {
           "enable": "Vandè a ka rejenerasyon nimewo yo anvan konfimasyon",
           "allowed": "Rejenerasyon otorize",
           "hint": "Konbyen fwa nimewo yo ka kreye ankò anvan tikè a konfime."
         },
-        "activate": "Aktive Maryaj gratis"
+        "activate": "Aktive Maryaj gratis",
+        "lifecycle": {
+          "title": "Dire òf la"
+        },
+        "attribution": {
+          "title": "Atribisyon"
+        },
+        "advanced": {
+          "title": "Opsyon avanse",
+          "copy": "Pou itilize sèlman si plizyè òf ka aktif an menm tan."
+        }
+      },
+      "amount": {
+        "htg": "{{amount}} HTG"
+      },
+      "feedback": {
+        "activated": "Maryaj gratis aktive.",
+        "saved": "Konfigirasyon Maryaj gratis la anrejistre.",
+        "ruleMissing": "Nou pa ka jwenn règ Maryaj gratis la pou modifye.",
+        "campaignMissing": "Nou pa ka jwenn òf Maryaj gratis la."
+      },
+      "validation": {
+        "tiersRequired": "Ajoute omwen yon palye Maryaj gratis.",
+        "tierMinInvalid": "Montan kòmansman palye {{position}} lan pa valid.",
+        "tierQuantityInvalid": "Kantite palye {{position}} lan pa valid.",
+        "tierMaxInvalid": "Montan fen palye {{position}} lan pa valid.",
+        "tierMaxBeforeMin": "Montan fen palye {{position}} lan dwe pi gran pase montan kòmansman an.",
+        "openEndedLast": "Palye san montan fen an dwe dènye palye a.",
+        "tierOverlap": "Palye {{position}} lan kwaze ak palye anvan an.",
+        "dateRequired": "Antre yon dat kòmansman ak yon dat fen ki valid.",
+        "endAfterStart": "Dat fen an dwe vini apre dat kòmansman an."
+      },
+      "generation": {
+        "eyebrow": "Jenerasyon",
+        "title": "Jenerasyon Maryaj gratis",
+        "selection": "Seleksyon",
+        "retry": "Rejenerasyon",
+        "retryCount": "{{count}} tantativ",
+        "notUsed": "Pa itilize ak seleksyon manyèl",
+        "regenerable": "Wi",
+        "notRegenerable": "Non"
       }
     },
     "limits": {

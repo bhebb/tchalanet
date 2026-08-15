@@ -110,6 +110,61 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(request.items[0].params['maxQuantity']).toBe(5);
   });
 
+  it('treats a long-running persisted campaign as having no admin-facing end date', () => {
+    const campaign = campaignWithTiers(undefined, {
+      startsAt: '2026-07-01T00:00:00Z',
+      endsAt: '2036-07-01T23:59:59Z',
+    });
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaign], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(of(campaign));
+    gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+    promotionsApi.updateCampaign.mockReturnValue(of(campaign));
+    promotionsApi.updateRuleEffects.mockReturnValue(of(campaign));
+
+    store.load();
+
+    expect(store.form.controls.noEndDate.value).toBe(true);
+
+    store.startEditingOffer();
+    store.saveOffer();
+
+    const request = promotionsApi.updateCampaign.mock.calls.at(-1)?.[1];
+    expect(request).toEqual(
+      expect.objectContaining({
+        startsAt: expect.any(String),
+        endsAt: expect.any(String),
+      }),
+    );
+    expect(Date.parse(request.endsAt) - Date.parse(request.startsAt)).toBeGreaterThan(
+      9 * 365 * 24 * 60 * 60 * 1000,
+    );
+  });
+
+  it('keeps an explicit end date editable instead of converting it to no end date', () => {
+    const campaign = campaignWithTiers(undefined, {
+      startsAt: '2026-07-01T00:00:00Z',
+      endsAt: '2026-12-31T23:59:59Z',
+    });
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaign], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(of(campaign));
+    gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+    promotionsApi.updateCampaign.mockReturnValue(of(campaign));
+    promotionsApi.updateRuleEffects.mockReturnValue(of(campaign));
+
+    store.load();
+
+    expect(store.form.controls.noEndDate.value).toBe(false);
+
+    store.startEditingOffer();
+    store.form.controls.endsAt.setValue(new Date('2027-01-15T12:00:00Z'));
+    store.saveOffer();
+
+    const request = promotionsApi.updateCampaign.mock.calls.at(-1)?.[1];
+    expect(Date.parse(request.endsAt) - Date.parse(request.startsAt)).toBeLessThan(
+      365 * 24 * 60 * 60 * 1000,
+    );
+  });
+
   it('keeps the page ready when tenant game configuration cannot be loaded', () => {
     promotionsApi.listCampaigns.mockReturnValue(of({ items: [], total: 0 }));
     gamesPricingApi.getGamesPricing.mockReturnValue(
@@ -136,6 +191,7 @@ function campaignWithTiers(
     { minPaidAmount: 500, maxPaidAmount: 999, quantity: 2 },
     { minPaidAmount: 1000, maxPaidAmount: null, quantity: 4 },
   ],
+  metadata: Partial<Pick<PromotionCampaignView, 'startsAt' | 'endsAt'>> = {},
 ): PromotionCampaignView {
   return {
     id: 'campaign-1',
@@ -143,8 +199,8 @@ function campaignWithTiers(
     name: 'Maryaj gratis',
     status: 'ACTIVE',
     priority: 10,
-    startsAt: null,
-    endsAt: null,
+    startsAt: metadata.startsAt ?? null,
+    endsAt: metadata.endsAt ?? null,
     rules: [
       {
         id: 'rule-1',

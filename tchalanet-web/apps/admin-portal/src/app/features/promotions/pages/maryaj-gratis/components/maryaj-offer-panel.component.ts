@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import {
+  MaryajQuantityTier,
   PromotionCampaignStatus,
   PromotionCampaignView,
   PromotionConfigItem,
@@ -80,7 +81,11 @@ export class MaryajOfferPanelComponent {
   }
 
   showCampaignEndDate(campaign: PromotionCampaignView): boolean {
-    return !!campaign.endsAt && this.isLongRunningMaryajCampaign(campaign);
+    return !!campaign.endsAt && !this.isPermanentCampaign(campaign);
+  }
+
+  isPermanentCampaign(campaign: PromotionCampaignView): boolean {
+    return !campaign.endsAt || this.isLongRunningMaryajCampaign(campaign);
   }
 
   selectionLabel(): string {
@@ -101,8 +106,48 @@ export class MaryajOfferPanelComponent {
     return this.form().get('quantityTiers') as FormArray;
   }
 
+  effectQuantityTiers(): readonly MaryajQuantityTier[] {
+    const raw = this.effect()?.params?.['quantityTiers'];
+    if (!Array.isArray(raw)) return [];
+    return raw.map(item => {
+      const tier = item as Record<string, unknown>;
+      return {
+        minPaidAmount: this.numberValue(tier['minPaidAmount'], 0),
+        maxPaidAmount:
+          tier['maxPaidAmount'] == null ? null : this.numberValue(tier['maxPaidAmount'], 0),
+        quantity: this.numberValue(tier['quantity'], 0),
+      };
+    });
+  }
+
+  tierRuleLabel(tier: MaryajQuantityTier): string {
+    const min = this.formatAmount(tier.minPaidAmount);
+    const max = tier.maxPaidAmount == null ? null : this.formatAmount(tier.maxPaidAmount);
+    const range = max
+      ? this.translate.instant('admin.maryajGratis.offer.tiers.range', { min, max })
+      : this.translate.instant('admin.maryajGratis.offer.tiers.openRange', { min });
+    return this.translate.instant('admin.maryajGratis.offer.tiers.rule', {
+      range,
+      quantity: tier.quantity,
+    });
+  }
+
   tierLabel(index: number): string {
     return this.translate.instant('admin.maryajGratis.offer.tiers.tier', { index: index + 1 });
+  }
+
+  fixedQuantityRule(): string {
+    return this.translate.instant('admin.maryajGratis.offer.fixed.rule', {
+      quantity: this.effectParam('quantity'),
+    });
+  }
+
+  perAmountRule(): string {
+    return this.translate.instant('admin.maryajGratis.offer.perAmount.rule', {
+      quantity: this.effectParam('quantityPerStep'),
+      amount: this.formatAmount(this.numberValue(this.effectParam('stepPaidAmount'), 0)),
+      max: this.effectParam('maxQuantity'),
+    });
   }
 
   private isLongRunningMaryajCampaign(campaign: PromotionCampaignView): boolean {
@@ -113,5 +158,20 @@ export class MaryajOfferPanelComponent {
 
     const nineYearsMs = 9 * 365 * 24 * 60 * 60 * 1000;
     return endsAt - startsAt >= nineYearsMs;
+  }
+
+  private formatAmount(value: number): string {
+    return this.translate.instant('admin.maryajGratis.amount.htg', {
+      amount: value.toLocaleString('fr'),
+    });
+  }
+
+  private numberValue(value: unknown, fallback: number): number {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string' && value.trim() !== '') {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+    return fallback;
   }
 }

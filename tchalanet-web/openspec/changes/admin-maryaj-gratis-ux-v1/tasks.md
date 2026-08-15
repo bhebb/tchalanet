@@ -201,7 +201,8 @@ full brief is complete.
 - [x] Run strict i18n audit.
 - [x] Run admin portal TypeScript check.
 - [x] Run admin portal lint.
-- [x] Run admin portal unit tests.
+- [ ] Run admin portal unit tests cleanly; latest full run timed out in unrelated app, draw, game-card,
+      and financial specs.
 - [x] Run web-e2e lint.
 - [x] Run admin-business e2e outside the sandbox; Maryaj path passes, but unrelated setup printing and limits scenarios currently fail.
 - [ ] Add main page coverage for active game plus active offer.

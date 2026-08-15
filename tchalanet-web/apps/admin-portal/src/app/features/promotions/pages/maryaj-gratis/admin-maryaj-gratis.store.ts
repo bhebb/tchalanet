@@ -25,6 +25,7 @@ type MaryajChoiceMode = 'AUTO_GENERATE' | 'SELLER_SELECTS';
 
 const MARYAJ_GRATIS_GAME_CODE = 'HT_MARYAJ_GRATIS';
 const MARYAJ_GRATIS_GAME_CODES = new Set([MARYAJ_GRATIS_GAME_CODE, 'HT_MARYAJ_GRATUIT']);
+const PERMANENT_CAMPAIGN_YEARS = 10;
 
 @Injectable()
 export class AdminMaryajGratisStore {
@@ -52,13 +53,13 @@ export class AdminMaryajGratisStore {
   readonly isMaryajGameReady = computed(() => this.maryajGame()?.tenantStatus === 'ACTIVE');
   readonly maryajGameMissingReason = computed(() => {
     const game = this.maryajGame();
-    if (!game) return 'Le jeu Maryaj gratis est absent de la configuration tenant.';
+    if (!game) return this.translate.instant('admin.maryajGratis.game.missingReason.absent');
     if (game.tenantStatus === 'INACTIVE')
-      return 'Le jeu Maryaj gratuit est désactivé pour ce tenant.';
+      return this.translate.instant('admin.maryajGratis.game.missingReason.inactive');
     if (game.tenantStatus === 'NEEDS_CONFIG')
-      return 'Le jeu Maryaj gratuit doit avoir ses limites et son barème configurés.';
+      return this.translate.instant('admin.maryajGratis.game.missingReason.needsConfig');
     if (game.tenantStatus === 'UNAVAILABLE')
-      return 'Le jeu Maryaj gratuit n’est pas disponible pour ce tenant.';
+      return this.translate.instant('admin.maryajGratis.game.missingReason.unavailable');
     return null;
   });
   readonly maryajEffect = computed(() => this.findMaryajEffect(this.maryajCampaign() ?? null));
@@ -66,7 +67,8 @@ export class AdminMaryajGratisStore {
 
   readonly form = this.fb.nonNullable.group({
     startsAt: [new Date(), Validators.required],
-    endsAt: [this.addYears(new Date(), 10), Validators.required],
+    noEndDate: [true],
+    endsAt: [this.addYears(new Date(), PERMANENT_CAMPAIGN_YEARS)],
     priority: [100, [Validators.required, Validators.min(0), Validators.max(100000)]],
     payoutBaseAmount: [50, [Validators.required, Validators.min(1)]],
     quantityMode: [
@@ -169,7 +171,8 @@ export class AdminMaryajGratisStore {
     if (this.saving()) return;
     if (!this.isMaryajGameReady()) {
       this.snackBar.open(
-        this.maryajGameMissingReason() ?? 'Configurez le jeu Maryaj gratuit avant activation.',
+        this.maryajGameMissingReason() ??
+          this.translate.instant('admin.maryajGratis.game.missingReason.needsConfig'),
         'OK',
         { duration: 5000 },
       );
@@ -233,7 +236,13 @@ export class AdminMaryajGratisStore {
             this.patchFormFromEffect(effect);
           }
           this.saving.set(false);
-          this.snackBar.open('Maryaj gratis activé.', 'OK', { duration: 3000 });
+          this.snackBar.open(
+            this.translate.instant('admin.maryajGratis.feedback.activated'),
+            'OK',
+            {
+              duration: 3000,
+            },
+          );
         },
         error: (err: unknown) => {
           this.saving.set(false);
@@ -291,7 +300,7 @@ export class AdminMaryajGratisStore {
     const campaignId = promotionIdValue(campaign.id);
     const ruleId = promotionIdValue(rule.id);
     if (!campaignId || !ruleId) {
-      this.snackBar.open('Impossible de retrouver la règle Maryaj gratis à modifier.', 'OK', {
+      this.snackBar.open(this.translate.instant('admin.maryajGratis.feedback.ruleMissing'), 'OK', {
         duration: 5000,
       });
       return;
@@ -318,7 +327,9 @@ export class AdminMaryajGratisStore {
           }
           this.editingOffer.set(false);
           this.saving.set(false);
-          this.snackBar.open('Configuration Maryaj gratis mise à jour.', 'OK', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('admin.maryajGratis.feedback.saved'), 'OK', {
+            duration: 3000,
+          });
         },
         error: (err: unknown) => {
           this.saving.set(false);
@@ -365,9 +376,11 @@ export class AdminMaryajGratisStore {
     const campaignId = promotionIdValue(campaign.id);
     if (!campaignId) {
       this.saving.set(false);
-      this.snackBar.open('Impossible de retrouver la campagne Maryaj gratis.', 'OK', {
-        duration: 5000,
-      });
+      this.snackBar.open(
+        this.translate.instant('admin.maryajGratis.feedback.campaignMissing'),
+        'OK',
+        { duration: 5000 },
+      );
       return;
     }
     const request =
@@ -429,12 +442,18 @@ export class AdminMaryajGratisStore {
     readonly priority: number;
   } {
     const value = this.form.getRawValue();
+    const startsAt = this.instantFromDate(value.startsAt, 'start') ?? new Date().toISOString();
+    const technicalEndDate = this.addYears(
+      this.dateFromInstant(startsAt),
+      PERMANENT_CAMPAIGN_YEARS,
+    ).toISOString();
     return {
       name: campaign.name || 'Maryaj gratis',
       description: null,
-      startsAt: this.instantFromDate(value.startsAt, 'start') ?? new Date().toISOString(),
-      endsAt:
-        this.instantFromDate(value.endsAt, 'end') ?? this.addYears(new Date(), 10).toISOString(),
+      startsAt,
+      endsAt: value.noEndDate
+        ? technicalEndDate
+        : (this.instantFromDate(value.endsAt, 'end') ?? technicalEndDate),
       priority: Number(value.priority),
     };
   }
@@ -444,7 +463,11 @@ export class AdminMaryajGratisStore {
     this.form.patchValue(
       {
         startsAt: campaign.startsAt ? this.dateFromInstant(campaign.startsAt) : now,
-        endsAt: campaign.endsAt ? this.dateFromInstant(campaign.endsAt) : this.addYears(now, 10),
+        noEndDate:
+          !campaign.endsAt || this.isLongRunningCampaign(campaign.startsAt, campaign.endsAt),
+        endsAt: campaign.endsAt
+          ? this.dateFromInstant(campaign.endsAt)
+          : this.addYears(now, PERMANENT_CAMPAIGN_YEARS),
         priority: campaign.priority,
       },
       { emitEvent: false },
@@ -623,30 +646,36 @@ export class AdminMaryajGratisStore {
   private quantityTiersValidationError(): string | null {
     if (this.form.controls.quantityMode.value !== 'TIERED_PAID_AMOUNT') return null;
     const tiers = this.quantityTiersPayload();
-    if (!tiers.length) return 'Ajoutez au moins un palier Maryaj gratis.';
+    if (!tiers.length) return this.translate.instant('admin.maryajGratis.validation.tiersRequired');
 
     let previousMax: number | null = null;
     for (const [index, tier] of tiers.entries()) {
       const position = index + 1;
       if (!Number.isFinite(tier.minPaidAmount) || tier.minPaidAmount <= 0) {
-        return `Le montant de départ du palier ${position} est invalide.`;
+        return this.translate.instant('admin.maryajGratis.validation.tierMinInvalid', { position });
       }
       if (!Number.isFinite(tier.quantity) || tier.quantity <= 0) {
-        return `La quantité du palier ${position} est invalide.`;
+        return this.translate.instant('admin.maryajGratis.validation.tierQuantityInvalid', {
+          position,
+        });
       }
       if (tier.maxPaidAmount != null) {
         if (!Number.isFinite(tier.maxPaidAmount) || tier.maxPaidAmount <= 0) {
-          return `Le montant final du palier ${position} est invalide.`;
+          return this.translate.instant('admin.maryajGratis.validation.tierMaxInvalid', {
+            position,
+          });
         }
         if (tier.maxPaidAmount < tier.minPaidAmount) {
-          return `Le montant final du palier ${position} doit être supérieur au montant de départ.`;
+          return this.translate.instant('admin.maryajGratis.validation.tierMaxBeforeMin', {
+            position,
+          });
         }
       }
       if (previousMax == null && index > 0) {
-        return 'Le palier sans montant final doit être le dernier.';
+        return this.translate.instant('admin.maryajGratis.validation.openEndedLast');
       }
       if (previousMax != null && tier.minPaidAmount <= previousMax) {
-        return `Le palier ${position} chevauche le palier précédent.`;
+        return this.translate.instant('admin.maryajGratis.validation.tierOverlap', { position });
       }
       previousMax = tier.maxPaidAmount;
     }
@@ -657,12 +686,26 @@ export class AdminMaryajGratisStore {
   private campaignMetadataValidationError(): string | null {
     const value = this.form.getRawValue();
     const startsAt = this.instantFromDate(value.startsAt, 'start');
-    const endsAt = this.instantFromDate(value.endsAt, 'end');
-    if (!startsAt || !endsAt) return 'Renseignez une date de début et une date de fin valides.';
+    const endsAt = value.noEndDate ? null : this.instantFromDate(value.endsAt, 'end');
+    if (!startsAt || (!value.noEndDate && !endsAt)) {
+      return this.translate.instant('admin.maryajGratis.validation.dateRequired');
+    }
+    if (value.noEndDate) return null;
+    if (!endsAt) {
+      return this.translate.instant('admin.maryajGratis.validation.dateRequired');
+    }
     if (new Date(startsAt).getTime() >= new Date(endsAt).getTime()) {
-      return 'La date de fin doit être après la date de début.';
+      return this.translate.instant('admin.maryajGratis.validation.endAfterStart');
     }
     return null;
+  }
+
+  private isLongRunningCampaign(startsAt: string | null, endsAt: string | null): boolean {
+    if (!startsAt || !endsAt) return false;
+    const start = new Date(startsAt).getTime();
+    const end = new Date(endsAt).getTime();
+    if (!Number.isFinite(start) || !Number.isFinite(end)) return false;
+    return end - start >= (PERMANENT_CAMPAIGN_YEARS - 1) * 365 * 24 * 60 * 60 * 1000;
   }
 
   private quantityTiersParam(params: Record<string, unknown>): readonly MaryajQuantityTier[] {

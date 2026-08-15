@@ -15,12 +15,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
-import { AdminDetailLayoutComponent, AdminPageShellComponent } from '@tch/ui/console';
+import { AdminPageShellComponent } from '@tch/ui/console';
 import { TenantGameView } from '../../../games-pricing/data-access/games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
 import { GameSettingsDialog } from '../../../games-pricing/components/dialogs/game-settings.dialog';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
-import { MaryajConfigSummaryComponent } from './components/maryaj-config-summary.component';
+import { MaryajGenerationPanelComponent } from './components/maryaj-generation-panel.component';
 import { MaryajGameSettingsPanelComponent } from './components/maryaj-game-settings-panel.component';
 import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.component';
 
@@ -31,9 +31,8 @@ import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.compo
   imports: [
     MatButtonModule,
     MatIconModule,
-    AdminDetailLayoutComponent,
     AdminPageShellComponent,
-    MaryajConfigSummaryComponent,
+    MaryajGenerationPanelComponent,
     MaryajGameSettingsPanelComponent,
     MaryajOfferPanelComponent,
     TchErrorPanel,
@@ -77,10 +76,6 @@ export class AdminMaryajGratisPage implements OnInit {
     ref.afterClosed().subscribe(ok => {
       if (ok) this.store.load();
     });
-  }
-
-  regenerableLabel(): string {
-    return this.store.form.controls.regenerableBeforeConfirm.value ? 'Oui' : 'Non';
   }
 
   private scrollToFragment(fragment: string | null): void {

@@ -42,43 +42,33 @@
     [severity]="actionError.severity"
   />
   }
-  <tch-admin-detail-layout class="maryaj-page__layout">
-    <div main>
-      <div class="maryaj-page__stack" data-testid="admin-maryaj-gratis-page">
-        <tch-maryaj-game-settings-panel
-          [game]="store.maryajGame()"
-          (configure)="openGameSettings($event)"
-        />
-        <tch-maryaj-offer-panel
-          [campaign]="store.maryajCampaign() ?? null"
-          [effect]="store.maryajEffect()"
-          [form]="store.form"
-          [saving]="store.saving()"
-          [gameReady]="store.isMaryajGameReady()"
-          [editing]="store.editingOffer()"
-          (activateCampaign)="store.activate($event)"
-          (pauseCampaign)="store.pause($event)"
-          (instantiateOffer)="store.instantiate()"
-          (editOffer)="store.startEditingOffer()"
-          (cancelEdit)="store.cancelEditingOffer()"
-          (saveOffer)="store.saveOffer()"
-          (addQuantityTier)="store.addQuantityTier()"
-          (removeQuantityTier)="store.removeQuantityTier($event)"
-          (manualSelectionChange)="store.setSellerSelectionEnabled($event)"
-        />
-      </div>
-    </div>
-
-    <div aside>
-      <tch-maryaj-config-summary
-        [gameReady]="store.isMaryajGameReady()"
-        [campaign]="store.maryajCampaign() ?? null"
-        [effect]="store.maryajEffect()"
-        [form]="store.form"
-        [editing]="store.editingOffer()"
-        [regenerableLabel]="regenerableLabel()"
-      />
-    </div>
-  </tch-admin-detail-layout>
+  <div class="maryaj-page__stack" data-testid="admin-maryaj-gratis-page">
+    <tch-maryaj-game-settings-panel
+      [game]="store.maryajGame()"
+      (configure)="openGameSettings($event)"
+    />
+    <tch-maryaj-offer-panel
+      [campaign]="store.maryajCampaign() ?? null"
+      [effect]="store.maryajEffect()"
+      [form]="store.form"
+      [saving]="store.saving()"
+      [gameReady]="store.isMaryajGameReady()"
+      [editing]="store.editingOffer()"
+      (activateCampaign)="store.activate($event)"
+      (pauseCampaign)="store.pause($event)"
+      (instantiateOffer)="store.instantiate()"
+      (editOffer)="store.startEditingOffer()"
+      (cancelEdit)="store.cancelEditingOffer()"
+      (saveOffer)="store.saveOffer()"
+      (addQuantityTier)="store.addQuantityTier()"
+      (removeQuantityTier)="store.removeQuantityTier($event)"
+      (manualSelectionChange)="store.setSellerSelectionEnabled($event)"
+    />
+    <tch-maryaj-generation-panel
+      [effect]="store.maryajEffect()"
+      [form]="store.form"
+      [editing]="store.editingOffer()"
+    />
+  </div>
   }
 </tch-admin-page-shell>

@@ -44,33 +44,31 @@
 
   @if (game(); as game) {
     <dl class="maryaj-game-settings__grid">
-      <div class="maryaj-game-settings__item maryaj-game-settings__item--wide">
+      <div class="maryaj-game-settings__item">
+        <dt>{{ 'admin.maryajGratis.game.stake' | translate }}</dt>
+        <dd>
+          {{ formatAmount(game.limits.minStake, game.limits.currency) }}
+          –
+          {{ formatAmount(game.limits.maxStake, game.limits.currency) }}
+        </dd>
+      </div>
+      <div class="maryaj-game-settings__item">
         <dt>{{ 'admin.maryajGratis.game.pricingOptions' | translate }}</dt>
-        <dd>{{ game.pricingProfileLabel ?? ('admin.maryajGratis.game.standard' | translate) }}</dd>
-        <p>{{ 'admin.maryajGratis.game.pricingHint' | translate }}</p>
-        @if (game.odds.length > 0) {
-          <div class="maryaj-game-settings__odds">
-            @for (odd of game.odds; track odd.pricingVariantCode ?? odd.label) {
-              <span>
-                <strong>{{ gainOptionLabel(odd.pricingVariantCode, odd.label) }}</strong>
-                {{ oddsLabel(odd.odds) }}
-              </span>
-            }
-          </div>
-        }
+        <dd>{{ oddsSummary() }}</dd>
+        <p>
+          {{
+            game.pricingProfileLabel
+              ? (game.pricingProfileLabel | translate)
+              : ('admin.maryajGratis.game.standard' | translate)
+          }}
+        </p>
       </div>
       <div class="maryaj-game-settings__item">
-        <dt>{{ 'admin.maryajGratis.game.minimumStake' | translate }}</dt>
-        <dd>{{ formatAmount(game.limits.minStake, game.limits.currency) }}</dd>
-      </div>
-      <div class="maryaj-game-settings__item">
-        <dt>{{ 'admin.maryajGratis.game.maximumStake' | translate }}</dt>
-        <dd>{{ formatAmount(game.limits.maxStake, game.limits.currency) }}</dd>
-      </div>
-      <div class="maryaj-game-settings__item maryaj-game-settings__item--wide">
-        <dt>{{ 'admin.maryajGratis.game.maxPerDraw' | translate }}</dt>
-        <dd>{{ formatAmount(game.limits.maxPerDraw, game.limits.currency) }}</dd>
-        <p>{{ 'admin.maryajGratis.game.maxPerDrawHint' | translate }}</p>
+        <dt>{{ 'admin.maryajGratis.game.availability' | translate }}</dt>
+        <dd>{{ 'admin.maryajGratis.game.availabilitySummary' | translate }}</dd>
+        <a class="maryaj-game-settings__link" routerLink="/app/admin/games/channel-matrix">
+          {{ 'admin.maryajGratis.game.availabilityAction' | translate }}
+        </a>
       </div>
     </dl>
 

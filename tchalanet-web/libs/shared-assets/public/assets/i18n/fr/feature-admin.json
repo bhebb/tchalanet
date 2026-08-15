@@ -1495,7 +1495,7 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Configurez le jeu Maryaj et son offre automatique de lignes gratuites.",
+      "description": "Configurez le jeu Maryaj gratis, son offre gratuite et la génération des numéros.",
       "action": {
         "refresh": "Rafraîchir"
       },
@@ -1521,6 +1521,16 @@
           "READY": "Prêt",
           "TODO": "À configurer",
           "BLOCKED": "Non disponible"
+        },
+        "stake": "Mise",
+        "availability": "Disponibilité",
+        "availabilitySummary": "Gérée par tirage",
+        "availabilityAction": "Aller à Disponibilité par tirage",
+        "missingReason": {
+          "absent": "Le jeu Maryaj gratis est absent de la configuration du santral.",
+          "inactive": "Le jeu Maryaj gratis est désactivé pour ce santral.",
+          "needsConfig": "Le jeu Maryaj gratis doit avoir ses mises et barèmes configurés avant la vente.",
+          "unavailable": "Le jeu Maryaj gratis n’est pas disponible pour ce santral."
         }
       },
       "summary": {
@@ -1559,7 +1569,7 @@
         "activeEyebrow": "Offre active",
         "campaignCode": "Campagne du santral · {{count}} règle(s)",
         "pause": "Mettre en pause",
-        "permanent": "Sans fin prévue",
+        "permanent": "Pas de fin",
         "technicalDate": "Date technique :",
         "attributionMode": "Mode d’attribution",
         "mode": {
@@ -1618,8 +1628,8 @@
           }
         },
         "schedule": {
-          "endHint": "Date obligatoire. Pour une offre permanente, utilisez une date lointaine.",
-          "priorityHint": "Plus haut = prioritaire si plusieurs promotions sont applicables."
+          "priorityHint": "Plus haut = prioritaire si plusieurs promotions sont applicables.",
+          "noEndDate": "Pas de date de fin"
         },
         "tiers": {
           "title": "Paliers de vente",
@@ -1630,24 +1640,71 @@
           "to": "À",
           "openEnded": "Vide = et plus",
           "quantity": "Maryaj gratuits",
-          "delete": "Supprimer le palier"
+          "delete": "Supprimer le palier",
+          "readDescription": "Règles qui indiquent combien de Maryaj gratis un ticket reçoit.",
+          "empty": "Aucun palier configuré.",
+          "range": "{{min}} – {{max}}",
+          "openRange": "{{min}} +",
+          "rule": "{{range}} → {{quantity}} Maryaj gratis"
         },
         "perAmount": {
           "step": "Tranche de vente",
           "stepHint": "Montant payé qui déclenche une tranche.",
           "quantity": "Maryaj gratuits par tranche",
           "max": "Plafond de lignes gratuites",
-          "maxHint": "Maximum généré pour un ticket."
+          "maxHint": "Maximum généré pour un ticket.",
+          "rule": "{{quantity}} Maryaj gratis par {{amount}}, jusqu’à {{max}}"
         },
         "fixed": {
-          "quantity": "Nombre de Maryaj gratuits par ticket"
+          "quantity": "Nombre de Maryaj gratuits par ticket",
+          "rule": "{{quantity}} Maryaj gratis par ticket"
         },
         "regeneration": {
           "enable": "Le vendeur peut régénérer les numéros avant validation",
           "allowed": "Régénérations autorisées",
           "hint": "Nombre de fois où les numéros peuvent être recréés avant validation du ticket."
         },
-        "activate": "Activer Maryaj gratis"
+        "activate": "Activer Maryaj gratis",
+        "lifecycle": {
+          "title": "Durée de l’offre"
+        },
+        "attribution": {
+          "title": "Attribution"
+        },
+        "advanced": {
+          "title": "Options avancées",
+          "copy": "À utiliser seulement si plusieurs offres peuvent être actives en même temps."
+        }
+      },
+      "amount": {
+        "htg": "{{amount}} HTG"
+      },
+      "feedback": {
+        "activated": "Maryaj gratis activé.",
+        "saved": "Configuration Maryaj gratis enregistrée.",
+        "ruleMissing": "Impossible de retrouver la règle Maryaj gratis à modifier.",
+        "campaignMissing": "Impossible de retrouver l’offre Maryaj gratis."
+      },
+      "validation": {
+        "tiersRequired": "Ajoutez au moins un palier Maryaj gratis.",
+        "tierMinInvalid": "Le montant de départ du palier {{position}} est invalide.",
+        "tierQuantityInvalid": "La quantité du palier {{position}} est invalide.",
+        "tierMaxInvalid": "Le montant final du palier {{position}} est invalide.",
+        "tierMaxBeforeMin": "Le montant final du palier {{position}} doit être supérieur au montant de départ.",
+        "openEndedLast": "Le palier sans montant final doit être le dernier.",
+        "tierOverlap": "Le palier {{position}} chevauche le palier précédent.",
+        "dateRequired": "Renseignez une date de début et une date de fin valides.",
+        "endAfterStart": "La date de fin doit être après la date de début."
+      },
+      "generation": {
+        "eyebrow": "Génération",
+        "title": "Génération des Maryaj gratuits",
+        "selection": "Sélection",
+        "retry": "Régénération",
+        "retryCount": "{{count}} tentative(s)",
+        "notUsed": "Non utilisé avec la sélection manuelle",
+        "regenerable": "Oui",
+        "notRegenerable": "Non"
       }
     },
     "limits": {
