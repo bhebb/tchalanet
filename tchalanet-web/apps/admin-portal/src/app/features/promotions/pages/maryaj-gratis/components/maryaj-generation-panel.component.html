@@ -50,15 +50,29 @@
       }
     </form>
   } @else {
-    <dl class="maryaj-generation__facts">
-      <div>
-        <dt>{{ 'admin.maryajGratis.generation.selection' | translate }}</dt>
-        <dd>{{ selectionLabel() }}</dd>
+    @if (configured()) {
+      <dl class="maryaj-generation__facts">
+        <div>
+          <dt>{{ 'admin.maryajGratis.generation.selection' | translate }}</dt>
+          <dd>{{ selectionLabel() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.generation.retry' | translate }}</dt>
+          <dd>{{ regenerationLabel() }}</dd>
+        </div>
+      </dl>
+    } @else {
+      <div class="maryaj-generation__empty" data-testid="maryaj-gratis-generation-empty">
+        <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+        <div>
+          <p class="maryaj-generation__empty-title">
+            {{ 'admin.maryajGratis.generation.empty.title' | translate }}
+          </p>
+          <p class="maryaj-generation__empty-copy">
+            {{ 'admin.maryajGratis.generation.empty.copy' | translate }}
+          </p>
+        </div>
       </div>
-      <div>
-        <dt>{{ 'admin.maryajGratis.generation.retry' | translate }}</dt>
-        <dd>{{ regenerationLabel() }}</dd>
-      </div>
-    </dl>
+    }
   }
 </tch-admin-section-card>

@@ -1028,6 +1028,11 @@
         "selection": "Numbers",
         "retry": "Regeneration",
         "retryCount": "{{count}} attempt(s)",
+        "notConfigured": "Not configured",
+        "empty": {
+          "title": "Generation is not set up yet.",
+          "copy": "Set up the free offer to define how numbers are generated."
+        },
         "notUsed": "Not used with manual selection",
         "regenerable": "Yes",
         "notRegenerable": "No"

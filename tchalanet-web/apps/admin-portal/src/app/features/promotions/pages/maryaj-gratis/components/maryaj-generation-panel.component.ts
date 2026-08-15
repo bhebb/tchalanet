@@ -33,7 +33,14 @@ export class MaryajGenerationPanelComponent {
   readonly editing = input.required<boolean>();
   readonly manualSelectionChange = output<boolean>();
 
+  configured(): boolean {
+    return this.editing() || this.effect() !== null;
+  }
+
   selectionLabel(): string {
+    if (!this.configured()) {
+      return this.translate.instant('admin.maryajGratis.generation.notConfigured');
+    }
     const choiceMode = this.value('choiceMode');
     return choiceMode === 'SELLER_SELECTS'
       ? this.translate.instant('admin.maryajGratis.offer.selection.manual')
@@ -41,6 +48,9 @@ export class MaryajGenerationPanelComponent {
   }
 
   regenerationLabel(): string {
+    if (!this.configured()) {
+      return this.translate.instant('admin.maryajGratis.generation.notConfigured');
+    }
     if (this.value('choiceMode') === 'SELLER_SELECTS') {
       return this.translate.instant('admin.maryajGratis.generation.notUsed');
     }

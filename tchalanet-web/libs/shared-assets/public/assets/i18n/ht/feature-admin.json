@@ -1028,6 +1028,11 @@
         "selection": "Nimewo",
         "retry": "Rejenerasyon",
         "retryCount": "{{count}} tantativ",
+        "notConfigured": "Pa konfigire",
+        "empty": {
+          "title": "Jenerasyon an poko konfigire.",
+          "copy": "Konfigire òf gratis la pou defini kijan nimewo yo ap jenere."
+        },
         "notUsed": "Pa itilize ak seleksyon manyèl",
         "regenerable": "Wi",
         "notRegenerable": "Non"

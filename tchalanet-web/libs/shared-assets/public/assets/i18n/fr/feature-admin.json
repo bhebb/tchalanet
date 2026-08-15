@@ -1723,6 +1723,11 @@
         "selection": "Numéros",
         "retry": "Régénération",
         "retryCount": "{{count}} tentative(s)",
+        "notConfigured": "Non configuré",
+        "empty": {
+          "title": "La génération n’est pas encore configurée.",
+          "copy": "Configurez l’offre gratuite pour définir comment les numéros sont générés."
+        },
         "notUsed": "Non utilisé avec la sélection manuelle",
         "regenerable": "Oui",
         "notRegenerable": "Non"

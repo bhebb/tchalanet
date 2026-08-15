@@ -46,6 +46,7 @@ full brief is complete.
 - [x] Move generation edit controls out of the offer editor and into the generation section.
 - [x] Show a compact read-only empty state when no Maryaj Gratis offer campaign exists.
 - [x] Show a compact read-only empty state when the Maryaj Gratis game is missing.
+- [x] Show a compact read-only empty state when Maryaj Gratis generation settings are missing.
 - [ ] Move rarely used generation knobs under Advanced settings if product confirms they are not normal tenant-admin controls.
 
 ## 3. Replace Long Game Configuration Modal
@@ -224,6 +225,7 @@ full brief is complete.
 - [ ] Add main page coverage for ended offer.
 - [ ] Add main page coverage for zero, one, and multiple tiers.
 - [x] Add focused coverage for automatic generation and manual selection behavior.
+- [x] Add focused coverage for missing generation settings in read mode.
 - [ ] Add main page coverage for generation error state if supported.
 - [ ] Add game editor coverage for POS visibility, activation, stake validation, availability navigation, option toggles, payout edit/delete, save/cancel/dirty behavior.
 - [ ] Add offer editor coverage for start date, no end date, explicit end date, attribution mode changes, tier add/edit/delete, open-ended final tier, invalid ranges, pause/resume, and advanced value preservation.

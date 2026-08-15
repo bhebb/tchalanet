@@ -39,6 +39,15 @@ describe(MaryajGenerationPanelComponent.name, () => {
     expect(component.manualSelectionEnabled()).toBe(true);
   });
 
+  it('does not invent generation settings when read mode has no effect', () => {
+    (component as unknown as { editing: () => boolean }).editing = () => false;
+    (component as unknown as { effect: () => null }).effect = () => null;
+
+    expect(component.configured()).toBe(false);
+    expect(component.selectionLabel()).toBe('admin.maryajGratis.generation.notConfigured');
+    expect(component.regenerationLabel()).toBe('admin.maryajGratis.generation.notConfigured');
+  });
+
   it('emits manual selection changes from the generation panel', () => {
     const emit = vi.spyOn(component.manualSelectionChange, 'emit');
 
