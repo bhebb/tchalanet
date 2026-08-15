@@ -41,6 +41,8 @@ export class TenantGameCardComponent {
   readonly game = input.required<TenantGamePricingView>();
   readonly actionError = input<TenantGameCardError | null>(null);
   readonly saving = input(false);
+  readonly pendingEnabled = input<boolean | null>(null);
+  readonly canManage = input(true);
 
   readonly activate  = output<string>();
   readonly disable   = output<string>();
@@ -51,12 +53,13 @@ export class TenantGameCardComponent {
 
   onToggle(enabled: boolean): void {
     const game = this.game();
-    if (game.tenantStatus === 'UNAVAILABLE') return;
+    if (!this.canManage() || game.tenantStatus === 'UNAVAILABLE') return;
     if (enabled) this.activate.emit(game.gameCode);
     else this.disable.emit(game.gameCode);
   }
 
   onConfigure(): void {
+    if (!this.canManage()) return;
     this.configure.emit(this.game().gameCode);
   }
 
@@ -121,6 +124,8 @@ export class TenantGameCardComponent {
   }
 
   saleEnabled(game: TenantGamePricingView): boolean {
+    const pending = this.pendingEnabled();
+    if (pending !== null) return pending;
     return game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG';
   }
 

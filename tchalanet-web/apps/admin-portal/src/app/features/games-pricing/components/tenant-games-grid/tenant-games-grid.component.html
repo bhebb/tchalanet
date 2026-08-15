@@ -11,6 +11,8 @@
       [game]="game"
       [actionError]="actionError(game.gameCode)"
       [saving]="saving(game.gameCode)"
+      [pendingEnabled]="pendingGameEnabled(game.gameCode)"
+      [canManage]="canManage()"
       (activate)="activate.emit($event)"
       (disable)="disable.emit($event)"
       (configure)="configure.emit($event)"

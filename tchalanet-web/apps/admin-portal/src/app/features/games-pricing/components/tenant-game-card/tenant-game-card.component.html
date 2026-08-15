@@ -26,7 +26,7 @@
         type="button"
         class="gp-game-card__sale-toggle"
         [class.gp-game-card__sale-toggle--on]="saleEnabled(g)"
-        [disabled]="g.tenantStatus === 'UNAVAILABLE' || saving()"
+        [disabled]="!canManage() || g.tenantStatus === 'UNAVAILABLE' || saving()"
         [attr.aria-pressed]="saleEnabled(g)"
         [attr.aria-label]="
           (saleEnabled(g)
@@ -89,7 +89,7 @@
       mat-flat-button
       color="primary"
       class="gp-game-card__primary-action"
-      [disabled]="g.tenantStatus === 'UNAVAILABLE' || saving()"
+      [disabled]="!canManage() || g.tenantStatus === 'UNAVAILABLE' || saving()"
       (click)="onConfigure()"
     >
       {{ configureLabelKey(g) | translate }}

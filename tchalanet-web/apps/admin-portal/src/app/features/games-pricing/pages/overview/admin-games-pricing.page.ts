@@ -7,6 +7,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { webAppErrorFromNotice, webAppErrorFromProblemDetail } from '@tch/api';
 import type { ApiNotice, ApiResponse, ProblemDetail } from '@tch/api';
+import { AccessService } from '@tch/core/auth';
 import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminEmptyStateComponent } from '@tch/ui/console';
@@ -64,6 +65,7 @@ const MARYAJ_GRATIS_GAME_CODES = new Set(['HT_MARYAJ_GRATIS', 'HT_MARYAJ_GRATUIT
 export class AdminGamesPricingPage {
   private readonly api = inject(AdminGamesPricingApiService);
   private readonly dialog = inject(MatDialog);
+  private readonly access = inject(AccessService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
@@ -73,6 +75,7 @@ export class AdminGamesPricingPage {
 
   readonly fromSetup = computed(() => this.queryParamMap().get('from') === 'setup');
   readonly setupReturnFragment = 'setup-required-title';
+  readonly canManageGames = computed(() => this.access.can({ permission: 'game-pricing.update' }));
   readonly gamesResponseResource = this.api.getGamesPricingResponseResource({
     suppressShellFeedback: true,
   });
@@ -91,6 +94,7 @@ export class AdminGamesPricingPage {
   readonly matrixSummary = computed(() => this.buildOverviewSummary(this.games()));
   readonly issues = computed(() => this.buildOverviewIssues(this.games()));
   readonly actionErrors = signal<Readonly<Record<string, TenantGameCardError>>>({});
+  readonly pendingGameEnabled = signal<Readonly<Record<string, boolean>>>({});
   readonly savingGames = computed<ReadonlySet<string>>(() => {
     const pending = new Set<string>();
     for (const game of this.games()) {
@@ -103,8 +107,9 @@ export class AdminGamesPricingPage {
   readonly enableGame = tchMutation<string, void>({
     run: gameCode => this.api.enableGame(gameCode, { suppressShellFeedback: true }),
     source: 'admin.setup.games_pricing.enable',
-    onSuccess: () => this.load(),
+    onSuccess: () => this.load(true),
     onError: (err, gameCode) => {
+      this.clearPendingGameEnabled(gameCode);
       this.setActionError(gameCode, err);
       return true;
     },
@@ -112,8 +117,9 @@ export class AdminGamesPricingPage {
   readonly disableGame = tchMutation<string, void>({
     run: gameCode => this.api.disableGame(gameCode, { suppressShellFeedback: true }),
     source: 'admin.setup.games_pricing.disable',
-    onSuccess: () => this.load(),
+    onSuccess: () => this.load(true),
     onError: (err, gameCode) => {
+      this.clearPendingGameEnabled(gameCode);
       this.setActionError(gameCode, err);
       return true;
     },
@@ -141,22 +147,26 @@ export class AdminGamesPricingPage {
     ];
   });
 
-  load(): void {
+  load(preserveActionFeedback = false): void {
     this.actionErrors.set({});
+    if (!preserveActionFeedback) this.pendingGameEnabled.set({});
     this.gamesResponseResource.reload();
   }
 
   onActivate(gameCode: string): void {
+    if (!this.canManageGames()) return;
     this.clearActionError(gameCode);
-    this.enableGame.execute(gameCode, { key: gameCode });
+    this.executeEnableGame(gameCode);
   }
 
   onDisable(gameCode: string): void {
+    if (!this.canManageGames()) return;
     this.clearActionError(gameCode);
     this.confirmDisableGame(gameCode);
   }
 
   onConfigure(gameCode: string): void {
+    if (!this.canManageGames()) return;
     if (MARYAJ_GRATIS_GAME_CODES.has(gameCode)) {
       void this.router.navigate(['/app/admin/maryaj-gratis'], {
         queryParams: this.setupFlowQueryParams(),
@@ -228,8 +238,31 @@ export class AdminGamesPricingPage {
       })
       .afterClosed()
       .subscribe(result => {
-        if (result?.confirmed) this.disableGame.execute(gameCode, { key: gameCode });
+        if (result?.confirmed) this.executeDisableGame(gameCode);
       });
+  }
+
+  private executeEnableGame(gameCode: string): void {
+    this.setPendingGameEnabled(gameCode, true);
+    this.enableGame.execute(gameCode, { key: gameCode });
+  }
+
+  private executeDisableGame(gameCode: string): void {
+    this.setPendingGameEnabled(gameCode, false);
+    this.disableGame.execute(gameCode, { key: gameCode });
+  }
+
+  private setPendingGameEnabled(gameCode: string, enabled: boolean): void {
+    this.pendingGameEnabled.update(current => ({ ...current, [gameCode]: enabled }));
+  }
+
+  private clearPendingGameEnabled(gameCode: string): void {
+    this.pendingGameEnabled.update(current => {
+      if (current[gameCode] === undefined) return current;
+      const next = { ...current };
+      delete next[gameCode];
+      return next;
+    });
   }
 
   private clearActionError(gameCode: string): void {
