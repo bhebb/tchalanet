@@ -1686,10 +1686,12 @@
         },
         "activate": "Activer Maryaj gratis",
         "lifecycle": {
-          "title": "Durée de l’offre"
+          "title": "Durée de l’offre",
+          "description": "Choisissez quand l’offre commence et si elle a une date de fin."
         },
         "attribution": {
-          "title": "Attribution"
+          "title": "Attribution",
+          "description": "Définissez combien de Maryaj gratis un ticket reçoit."
         },
         "advanced": {
           "title": "Options avancées",

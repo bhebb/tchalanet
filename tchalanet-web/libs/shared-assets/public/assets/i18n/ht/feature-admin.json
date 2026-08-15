@@ -991,10 +991,12 @@
         },
         "activate": "Aktive Maryaj gratis",
         "lifecycle": {
-          "title": "Dire òf la"
+          "title": "Dire òf la",
+          "description": "Chwazi kilè òf la kòmanse epi si li gen dat fen."
         },
         "attribution": {
-          "title": "Atribisyon"
+          "title": "Atribisyon",
+          "description": "Defini konbyen Maryaj gratis yon tikè resevwa."
         },
         "advanced": {
           "title": "Opsyon avanse",

@@ -246,7 +246,7 @@ full brief is complete.
 - [x] Maryaj Gratis no longer feels like one giant form on the main page.
 - [x] Main page clearly separates Jwet, Of, and Jenerasyon.
 - [x] Game editing clearly separates Vant, Miz, Disponibilite, Opsyon jwet, and Barem.
-- [ ] Offer editing clearly separates lifecycle, attribution, tiers, and advanced settings in a mobile-first surface.
+- [x] Offer editing clearly separates lifecycle, attribution, tiers, and advanced settings in a mobile-first surface.
 - [x] Permanent offers no longer expose a fake far-future date to the admin.
 - [x] Priority is no longer a primary field unless product later proves it is required.
 - [x] Tiers are readable as business rules before they are editable as form fields.

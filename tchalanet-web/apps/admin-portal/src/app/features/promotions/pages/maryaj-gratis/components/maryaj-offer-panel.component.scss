@@ -166,61 +166,11 @@
   font: var(--tch-typescale-body-medium);
 }
 
-.maryaj-offer__preview {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding: 0.875rem 1rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-md);
-  color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-body-medium);
-}
-
-.maryaj-offer__preview mat-icon {
-  color: var(--tch-color-primary);
-}
-
-.maryaj-offer__mode {
-  display: grid;
-  gap: 0.25rem;
-  margin-top: 1rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-md);
-  padding: 0.875rem 1rem;
-  background: var(--tch-color-surface-container-low);
-}
-
-.maryaj-offer__mode span {
-  color: var(--tch-color-on-surface-variant);
-  font: var(--tch-typescale-label-small);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.maryaj-offer__mode strong {
-  color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-body-large);
-  font-weight: 400;
-}
-
-.maryaj-offer__mode p {
-  margin: 0;
-  color: var(--tch-color-on-surface-variant);
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-
 .maryaj-offer__form {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 1.25rem;
   margin-top: 1.25rem;
-}
-
-.maryaj-offer__section-title {
-  padding-top: 0.5rem;
 }
 
 .maryaj-offer__form mat-checkbox {
@@ -232,6 +182,41 @@
 }
 
 .maryaj-offer__schedule {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.maryaj-offer__edit-section {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--tch-color-outline-variant);
+}
+
+.maryaj-offer__edit-section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.maryaj-offer__edit-section-head {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.maryaj-offer__edit-section-head h4 {
+  margin: 0;
+  color: var(--tch-color-on-surface);
+  font: var(--tch-typescale-title-small);
+}
+
+.maryaj-offer__edit-section-head p {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant);
+  font: var(--tch-typescale-body-small);
+}
+
+.maryaj-offer__attribution-fields {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
@@ -366,11 +351,19 @@
   }
 
   .maryaj-offer__form {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .maryaj-offer__schedule {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .maryaj-offer__attribution-fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .maryaj-offer__attribution-fields--single {
+    grid-template-columns: minmax(0, 24rem);
   }
 
   .maryaj-offer__tiers-head {

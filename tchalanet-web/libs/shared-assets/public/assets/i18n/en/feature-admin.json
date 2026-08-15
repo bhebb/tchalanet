@@ -991,10 +991,12 @@
         },
         "activate": "Activate Free Maryaj",
         "lifecycle": {
-          "title": "Offer duration"
+          "title": "Offer duration",
+          "description": "Choose when the offer starts and whether it has an end date."
         },
         "attribution": {
-          "title": "Allocation"
+          "title": "Allocation",
+          "description": "Define how many Free Maryaj a ticket receives."
         },
         "advanced": {
           "title": "Advanced options",
