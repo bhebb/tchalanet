@@ -153,7 +153,7 @@ full brief is complete.
 - [x] Confirm before pausing because it immediately affects customer eligibility.
 - [x] Keep current campaign status obvious in the offer section.
 - [x] Do not mix campaign active state with game active state.
-- [ ] Add focused tests for resume.
+- [x] Add focused tests for resume.
 
 ## 14. Advanced Settings
 

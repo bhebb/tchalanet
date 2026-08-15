@@ -336,19 +336,25 @@ describe(AdminMaryajGratisStore.name, () => {
     );
   });
 
-  it('pauses and resumes the campaign through the promotion API', () => {
+  it('pauses the campaign through the promotion API', () => {
     const activeCampaign = campaignWithTiers();
     const pausedCampaign: PromotionCampaignView = { ...activeCampaign, status: 'PAUSED' };
-    const resumedCampaign: PromotionCampaignView = { ...activeCampaign, status: 'ACTIVE' };
     loadCampaign(activeCampaign);
     promotionsApi.pauseCampaign.mockReturnValue(of(pausedCampaign));
-    promotionsApi.activateCampaign.mockReturnValue(of(resumedCampaign));
 
     store.pause(activeCampaign);
 
     expect(promotionsApi.pauseCampaign).toHaveBeenCalledWith('campaign-1');
     expect(store.maryajCampaign()?.status).toBe('PAUSED');
     expect(store.saving()).toBe(false);
+  });
+
+  it('resumes the campaign through the promotion API', () => {
+    const activeCampaign = campaignWithTiers();
+    const pausedCampaign: PromotionCampaignView = { ...activeCampaign, status: 'PAUSED' };
+    const resumedCampaign: PromotionCampaignView = { ...activeCampaign, status: 'ACTIVE' };
+    loadCampaign(pausedCampaign);
+    promotionsApi.activateCampaign.mockReturnValue(of(resumedCampaign));
 
     store.activate(pausedCampaign);
 
