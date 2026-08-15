@@ -62,12 +62,12 @@
       (saveOffer)="store.saveOffer()"
       (addQuantityTier)="store.addQuantityTier()"
       (removeQuantityTier)="store.removeQuantityTier($event)"
-      (manualSelectionChange)="store.setSellerSelectionEnabled($event)"
     />
     <tch-maryaj-generation-panel
       [effect]="store.maryajEffect()"
       [form]="store.form"
       [editing]="store.editingOffer()"
+      (manualSelectionChange)="store.setSellerSelectionEnabled($event)"
     />
   </div>
   }

@@ -369,45 +369,6 @@
           <input matInput type="number" min="1" max="10" step="1" formControlName="quantity" />
         </mat-form-field>
       }
-
-      <section class="maryaj-offer__selection maryaj-offer__field--wide">
-        <div>
-          <span>{{ 'admin.maryajGratis.offer.selection.title' | translate }}</span>
-          <strong>{{ 'admin.maryajGratis.offer.selection.auto' | translate }}</strong>
-          <p>{{ 'admin.maryajGratis.offer.selection.description' | translate }}</p>
-        </div>
-        <mat-checkbox
-          data-testid="maryaj-gratis-seller-selects-toggle"
-          [checked]="manualSelectionEnabled()"
-          (change)="manualSelectionChange.emit($event.checked)"
-        >
-          {{ 'admin.maryajGratis.offer.selection.enableManual' | translate }}
-        </mat-checkbox>
-      </section>
-
-      @if (autoGenerationEnabled()) {
-        <mat-checkbox formControlName="regenerableBeforeConfirm">
-          {{ 'admin.maryajGratis.offer.regeneration.enable' | translate }}
-        </mat-checkbox>
-
-        <mat-form-field appearance="outline">
-          <mat-label>{{ 'admin.maryajGratis.offer.regeneration.allowed' | translate }}</mat-label>
-          <input
-            matInput
-            type="number"
-            min="0"
-            max="20"
-            step="1"
-            formControlName="maxRegenerationsBeforeConfirm"
-          />
-          <mat-hint>{{ 'admin.maryajGratis.offer.regeneration.hint' | translate }}</mat-hint>
-        </mat-form-field>
-      } @else {
-        <div class="maryaj-offer__manual-note maryaj-offer__field--wide">
-          <mat-icon>person_edit</mat-icon>
-          <span>{{ 'admin.maryajGratis.offer.selection.manualNote' | translate }}</span>
-        </div>
-      }
     </form>
 
     <div class="maryaj-offer__actions maryaj-offer__actions--center">

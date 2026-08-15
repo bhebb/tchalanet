@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { PromotionConfigItem } from '../../../data-access/admin-promotions-api.service';
@@ -9,7 +12,14 @@ import { PromotionConfigItem } from '../../../data-access/admin-promotions-api.s
   selector: 'tch-maryaj-generation-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, TranslatePipe],
+  imports: [
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    TranslatePipe,
+  ],
   templateUrl: './maryaj-generation-panel.component.html',
   styleUrls: ['./maryaj-generation-panel.component.scss'],
 })
@@ -19,6 +29,7 @@ export class MaryajGenerationPanelComponent {
   readonly effect = input<PromotionConfigItem | null>(null);
   readonly form = input.required<FormGroup>();
   readonly editing = input.required<boolean>();
+  readonly manualSelectionChange = output<boolean>();
 
   selectionLabel(): string {
     const choiceMode = this.value('choiceMode');
@@ -34,6 +45,14 @@ export class MaryajGenerationPanelComponent {
     return this.translate.instant('admin.maryajGratis.generation.retryCount', {
       count: this.value('maxRegenerationsBeforeConfirm') ?? '0',
     });
+  }
+
+  manualSelectionEnabled(): boolean {
+    return this.form().get('choiceMode')?.value === 'SELLER_SELECTS';
+  }
+
+  autoGenerationEnabled(): boolean {
+    return this.form().get('choiceMode')?.value === 'AUTO_GENERATE';
   }
 
   private value(name: string): string | null {

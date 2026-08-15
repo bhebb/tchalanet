@@ -43,6 +43,7 @@ full brief is complete.
 - [x] Show campaign status, start date, business-facing end state, attribution mode, and tiers.
 - [x] Keep Pause/Resume separate from Edit.
 - [x] Keep generation/retry behavior visually separate from offer thresholds.
+- [x] Move generation edit controls out of the offer editor and into the generation section.
 - [ ] Move rarely used generation knobs under Advanced settings if product confirms they are not normal tenant-admin controls.
 
 ## 3. Replace Long Game Configuration Modal
@@ -212,7 +213,8 @@ full brief is complete.
 - [ ] Add main page coverage for scheduled future offer.
 - [ ] Add main page coverage for ended offer.
 - [ ] Add main page coverage for zero, one, and multiple tiers.
-- [ ] Add main page coverage for automatic generation and generation error state if supported.
+- [x] Add focused coverage for automatic generation and manual selection behavior.
+- [ ] Add main page coverage for generation error state if supported.
 - [ ] Add game editor coverage for POS visibility, activation, stake validation, availability navigation, option toggles, payout edit/delete, save/cancel/dirty behavior.
 - [ ] Add offer editor coverage for start date, no end date, explicit end date, attribution mode changes, tier add/edit/delete, open-ended final tier, invalid ranges, pause/resume, and advanced value preservation.
 - [ ] Add e2e/visual guard for no raw translation keys.
