@@ -1978,6 +1978,11 @@
         "configureChannels": "Configurer les canaux de tirage",
         "refresh": "Actualiser"
       },
+      "search": {
+        "placeholder": "Chercher un tirage ou un jeu...",
+        "results": "{{count}} tirage(s) affiché(s)",
+        "empty": "Aucun tirage ne correspond à cette recherche."
+      },
       "summary": {
         "aria": "Résumé de la matrice des jeux par tirage",
         "saleReady": "Prêts à vendre",

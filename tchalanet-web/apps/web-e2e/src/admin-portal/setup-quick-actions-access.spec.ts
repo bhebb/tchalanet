@@ -71,6 +71,13 @@ test.describe('Admin setup quick actions access', () => {
     await expect(gameSwitch).toHaveAttribute('aria-pressed', 'false');
 
     await page.goto('/app/admin/games/channel-matrix');
+    const matrixSearch = page.getByPlaceholder(/Chèche tiraj oswa jwèt|Search draws or games|Chercher un tirage ou un jeu/);
+    await expect(matrixSearch).toBeVisible();
+    await matrixSearch.fill('maryaj gratis');
+    await expandFirstMatrixSlot(page);
+    await expect(page.locator('tch-draw-sales-matrix-game-card').filter({ hasText: /Maryaj gratis/ })).toBeVisible();
+    await expect(page.locator('tch-draw-sales-matrix-game-card').filter({ hasText: /Bolèt|Bolet/ })).toHaveCount(0);
+    await matrixSearch.fill('');
     await expandFirstMatrixSlot(page);
     const matrixGame = page.locator('tch-draw-sales-matrix-game-card').filter({ hasText: /Bolèt|Bolet/ }).first();
     const matrixSwitch = matrixGame.locator('.matrix-game__switch');

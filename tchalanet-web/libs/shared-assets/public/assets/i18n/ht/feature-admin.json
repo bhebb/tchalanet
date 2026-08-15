@@ -1285,6 +1285,11 @@
         "configureChannels": "Konfigire règ tiraj yo",
         "refresh": "Rafrechi"
       },
+      "search": {
+        "placeholder": "Chèche tiraj oswa jwèt...",
+        "results": "{{count}} tiraj afiche",
+        "empty": "Pa gen tiraj ki koresponn ak rechèch la."
+      },
       "summary": {
         "aria": "Rezime matriks jwèt pa règ tiraj",
         "saleReady": "Pare pou vann",

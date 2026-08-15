@@ -17,16 +17,36 @@
     (retry)="load()"
   >
     <ng-template tchAsyncReady>
-      @if (activeMatrix(); as matrixVm) {
+      @if (filteredMatrix(); as matrixVm) {
+        <div class="matrix-page__filters">
+          <label class="matrix-page__search-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+            <input
+              class="matrix-page__search"
+              type="search"
+              [placeholder]="'admin.drawSalesMatrix.search.placeholder' | translate"
+              [value]="searchQuery()"
+              (input)="searchQuery.set($any($event.target).value)"
+            />
+          </label>
+        </div>
+        <p class="matrix-page__count">
+          {{ 'admin.drawSalesMatrix.search.results' | translate: { count: matrixVm.summary.slotCount } }}
+        </p>
+        @if (matrixVm.providers.length === 0) {
+          <p class="matrix-page__empty">
+            {{ 'admin.drawSalesMatrix.search.empty' | translate }}
+          </p>
+        } @else {
         <tch-draw-sales-matrix-provider-list
           [providers]="matrixVm.providers"
           [actingKey]="acting()"
           [actionErrors]="actionErrors()"
-          [actionNotices]="actionNotices()"
           [pendingEnabled]="pendingEnabled()"
           [canManage]="canManageMatrix()"
           (gameAction)="onMatrixGameAction($event)"
         />
+        }
       }
     </ng-template>
   </tch-async-view>

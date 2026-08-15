@@ -1285,6 +1285,11 @@
         "configureChannels": "Configure draw channels",
         "refresh": "Refresh"
       },
+      "search": {
+        "placeholder": "Search draws or games...",
+        "results": "{{count}} draw(s) shown",
+        "empty": "No draw matches this search."
+      },
       "summary": {
         "aria": "Games by draw matrix summary",
         "saleReady": "Ready to sell",
