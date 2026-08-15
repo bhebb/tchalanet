@@ -9,9 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import {
@@ -21,7 +19,7 @@ import {
   TchLoading,
   TchSectionError,
 } from '@tch/ui/components';
-import { AdminPageShellComponent } from '@tch/ui/console';
+import { AdminPageShellComponent, AdminRefreshButtonComponent } from '@tch/ui/console';
 import { TenantGameView } from '../../../games-pricing/data-access/games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
 import { GameSettingsDialog } from '../../../games-pricing/components/dialogs/game-settings.dialog';
@@ -36,9 +34,8 @@ import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.compo
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatButtonModule,
-    MatIconModule,
     AdminPageShellComponent,
+    AdminRefreshButtonComponent,
     MaryajGenerationPanelComponent,
     MaryajGameSettingsPanelComponent,
     MaryajOfferPanelComponent,

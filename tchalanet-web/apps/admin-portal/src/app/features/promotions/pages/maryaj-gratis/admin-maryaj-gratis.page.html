@@ -3,14 +3,12 @@
   [description]="'admin.maryajGratis.description' | translate"
 >
   <div actions>
-    <button
-      mat-stroked-button
+    <tch-admin-refresh-button
+      [label]="'admin.maryajGratis.action.refresh' | translate"
       [disabled]="store.state() === 'loading' || store.saving()"
-      (click)="store.load()"
-    >
-      <mat-icon>refresh</mat-icon>
-      {{ 'admin.maryajGratis.action.refresh' | translate }}
-    </button>
+      [busy]="store.state() === 'loading'"
+      (refreshRequested)="store.load()"
+    />
   </div>
 
   @if (store.state() === 'loading') {
