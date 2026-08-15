@@ -1709,7 +1709,7 @@
       "generation": {
         "eyebrow": "Génération",
         "title": "Génération des Maryaj gratuits",
-        "description": "Contrôle comment les numéros Maryaj gratuits sont choisis ou régénérés.",
+        "description": "Contrôle comment les numéros Maryaj gratuits sont générés et régénérés.",
         "selection": "Sélection",
         "retry": "Régénération",
         "retryCount": "{{count}} tentative(s)",
