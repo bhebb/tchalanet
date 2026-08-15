@@ -14,6 +14,7 @@ import {
 import {
   ChannelGameSetupView,
   SlotMatrixView,
+  matrixEntityIdValue,
 } from '../../data-access/admin-draw-sales-matrix-api.service';
 import {
   DrawSalesMatrixGameCardComponent,
@@ -75,8 +76,9 @@ export class DrawSalesMatrixSlotPanelComponent {
   protected readonly availableCount = computed(() => this.availableGames().length);
 
   protected feedbackKey(slot: SlotMatrixView, game: ChannelGameSetupView): string | null {
-    const drawChannelId = slot.channel?.drawChannelId.value;
-    return drawChannelId ? `${drawChannelId}:${game.tenantGameId.value}` : null;
+    const drawChannelId = matrixEntityIdValue(slot.channel?.drawChannelId);
+    const tenantGameId = matrixEntityIdValue(game.tenantGameId);
+    return drawChannelId && tenantGameId ? `${drawChannelId}:${tenantGameId}` : null;
   }
 
   protected isActing(slot: SlotMatrixView, game: ChannelGameSetupView): boolean {

@@ -17,6 +17,7 @@ import {
   MatrixSummary,
   ProviderMatrixView,
   TenantDrawSalesMatrixView,
+  matrixEntityIdValue,
 } from '../data-access/admin-draw-sales-matrix-api.service';
 import {
   DrawSalesMatrixProviderListComponent,
@@ -122,9 +123,10 @@ export class AdminDrawSalesMatrixPage {
 
   offerGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
     if (!this.canManageMatrix()) return;
-    const drawChannelId = slot.channel?.drawChannelId.value;
+    const drawChannelId = matrixEntityIdValue(slot.channel?.drawChannelId);
     if (!drawChannelId) return;
-    const tenantGameId = game.tenantGameId.value;
+    const tenantGameId = matrixEntityIdValue(game.tenantGameId);
+    if (!tenantGameId) return;
     const key = this.actingKey(drawChannelId, tenantGameId);
     this.acting.set(key);
     this.setPendingEnabled(key, true);
@@ -142,9 +144,10 @@ export class AdminDrawSalesMatrixPage {
 
   toggleGame(slot: SlotMatrixView, game: ChannelGameSetupView): void {
     if (!this.canManageMatrix()) return;
-    const drawChannelId = slot.channel?.drawChannelId.value;
+    const drawChannelId = matrixEntityIdValue(slot.channel?.drawChannelId);
     if (!drawChannelId) return;
-    const tenantGameId = game.tenantGameId.value;
+    const tenantGameId = matrixEntityIdValue(game.tenantGameId);
+    if (!tenantGameId) return;
     const key = this.actingKey(drawChannelId, tenantGameId);
     this.acting.set(key);
     this.clearActionError(key);
@@ -273,7 +276,7 @@ function summarizeMatrix(providers: readonly ProviderMatrixView[]): MatrixSummar
     slotCount: slots.length,
     configuredChannelCount: slots.filter(slot => slot.channel !== null).length,
     activeChannelCount: slots.filter(slot => slot.channel?.active === true).length,
-    supportedTenantGameCount: new Set(games.map(game => game.tenantGameId.value)).size,
+    supportedTenantGameCount: new Set(games.map(game => matrixEntityIdValue(game.tenantGameId)).filter(Boolean)).size,
     offeredChannelGameCount: games.filter(game => game.offeredOnChannel).length,
     saleReadyChannelGameCount: games.filter(game => game.saleReady).length,
     missingStakeConfigCount: games.filter(game => game.offeredOnChannel && (game.minStake === null || game.maxStake === null)).length,

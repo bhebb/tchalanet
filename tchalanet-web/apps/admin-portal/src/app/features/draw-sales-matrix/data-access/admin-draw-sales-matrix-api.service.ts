@@ -27,6 +27,13 @@ export interface LimitAssignmentRow {
   params: unknown;
 }
 
+export type MatrixEntityId = string | { value: string };
+
+export function matrixEntityIdValue(id: MatrixEntityId | null | undefined): string | null {
+  if (typeof id === 'string') return id;
+  return id?.value ?? null;
+}
+
 export interface LimitsSetupView {
   configured: boolean;
   assignments: LimitAssignmentRow[];
@@ -34,7 +41,7 @@ export interface LimitsSetupView {
 
 export interface ChannelGameSetupView {
   gameCode: string;
-  tenantGameId: { value: string };
+  tenantGameId: MatrixEntityId;
   displayName: string | null;
   enabledForTenant: boolean;
   visibleInPos: boolean;
@@ -48,7 +55,7 @@ export interface ChannelGameSetupView {
 }
 
 export interface DrawChannelSetupView {
-  drawChannelId: { value: string };
+  drawChannelId: MatrixEntityId;
   channelCode: string;
   active: boolean;
   configured: boolean;
@@ -57,11 +64,11 @@ export interface DrawChannelSetupView {
   cutoffSec: number;
   defaultSource: string | null;
   sortOrder: number;
-  dependsOnChannelId: { value: string } | null;
+  dependsOnChannelId: MatrixEntityId | null;
 }
 
 export interface ResultSlotSetupView {
-  resultSlotId: { value: string };
+  resultSlotId: MatrixEntityId;
   drawTime: string | null;
   daysOfWeek: string | null;
   active: boolean;
