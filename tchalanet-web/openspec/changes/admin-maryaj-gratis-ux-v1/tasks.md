@@ -232,6 +232,7 @@ full brief is complete.
 - [x] Add focused coverage for automatic generation and manual selection behavior.
 - [x] Add focused coverage for missing generation settings in read mode.
 - [ ] Add main page coverage for generation error state if supported.
+- [x] Add focused game editor navigation coverage for POS visibility, activation state, stake values, and reload after save.
 - [ ] Add game editor coverage for POS visibility, activation, stake validation, availability navigation, option toggles, payout edit/delete, save/cancel/dirty behavior.
 - [x] Add focused offer editor coverage for fixed and per-amount attribution payloads.
 - [x] Add focused offer editor coverage for pause/resume and advanced priority preservation.
