@@ -124,10 +124,6 @@ export class TenantGameCardComponent {
     return game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG';
   }
 
-  posLabelKey(game: TenantGamePricingView): string {
-    return game.visibleInPos ? 'admin.gamesPricing.card.posYes' : 'admin.gamesPricing.card.posNo';
-  }
-
   availabilityLabelKey(game: TenantGamePricingView): string {
     if (game.tenantStatus === 'UNAVAILABLE' || game.tenantStatus === 'INACTIVE') {
       return 'admin.gamesPricing.card.availabilityUnavailable';
