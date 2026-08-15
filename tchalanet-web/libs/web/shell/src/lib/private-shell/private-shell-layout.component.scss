@@ -49,6 +49,107 @@
   background: var(--tch-color-surface-container-high);
 }
 
+/* ── Contexte tenant/plateforme (desktop/tablette) ──────────────────────── */
+
+.top-bar-context {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0 1.5rem;
+}
+
+.top-bar-context__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.top-bar-context__sep {
+  flex: none;
+  color: var(--tch-color-on-surface-variant);
+  user-select: none;
+}
+
+.top-bar-context__scope {
+  flex: none;
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.9375rem;
+}
+
+/* ── Sélecteur de langue compact (desktop/tablette) ─────────────────────── */
+
+.lang-selector {
+  position: relative;
+}
+
+.lang-selector__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.625rem;
+  border: 0;
+  border-radius: var(--tch-radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.lang-selector__trigger:hover,
+.lang-selector__trigger[aria-expanded='true'] {
+  background: var(--tch-color-surface-container-high);
+  color: var(--tch-color-primary);
+}
+
+.lang-selector__panel {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: var(--tch-z-popover, 200);
+  display: grid;
+  min-width: 9rem;
+  padding: 0.25rem;
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: var(--tch-radius-md);
+  background: var(--tch-color-surface-container-low);
+  box-shadow: var(--tch-elevation-2, 0 8px 24px rgba(0, 0, 0, 0.18));
+}
+
+.lang-selector__option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  border-radius: var(--tch-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.lang-selector__option:hover {
+  background: var(--tch-color-surface-container-high);
+  color: var(--tch-color-primary);
+}
+
+.lang-selector__option.is-active {
+  font-weight: 700;
+  color: var(--tch-color-primary);
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(12rem, 16rem) 1fr;
