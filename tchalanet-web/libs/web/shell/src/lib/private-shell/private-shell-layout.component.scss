@@ -85,13 +85,11 @@
   .top-app-bar {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto auto;
-    grid-template-areas:
-      "menu brand bell avatar"
-      "title title utilities utilities";
-    gap: 0.5rem 0.75rem;
+    grid-template-areas: 'menu brand bell avatar';
+    gap: 0 0.625rem;
     min-height: auto;
-    padding: calc(0.75rem + env(safe-area-inset-top, 0px))
-      calc(1rem + env(safe-area-inset-right, 0px)) 0.75rem
+    padding: calc(0.4rem + env(safe-area-inset-top, 0px))
+      calc(1rem + env(safe-area-inset-right, 0px)) 0.4rem
       calc(1rem + env(safe-area-inset-left, 0px));
   }
 
@@ -101,11 +99,7 @@
   }
 
   .top-app-bar > strong {
-    grid-area: title;
-    align-self: center;
-    font-size: 1rem;
-    line-height: 1.25;
-    min-width: 0;
+    display: none;
   }
 
   .utilities {
@@ -121,9 +115,8 @@
     justify-self: end;
   }
 
-  .mode-toggle {
-    grid-area: utilities;
-    justify-self: end;
+  .mode-toggle--desktop {
+    display: none;
   }
 
   .utilities tch-user-menu {
@@ -149,8 +142,116 @@
     transform: translateX(-100%);
     transition: transform 0.2s ease;
     z-index: var(--tch-z-drawer, 300);
+    overflow-x: hidden;
     overflow-y: auto;
     box-shadow: var(--tch-elevation-2, 0 8px 24px rgba(0, 0, 0, 0.18));
+  }
+
+  .drawer-context {
+    margin: 0 0.75rem 0.25rem;
+    padding: 0.25rem 0.75rem 0.75rem;
+    border-bottom: 1px solid var(--tch-color-outline-variant);
+  }
+
+  .drawer-context__label {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+    min-width: 0;
+  }
+
+  .drawer-context__name {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--tch-color-on-surface);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drawer-context__scope {
+    color: var(--tch-color-on-surface-variant);
+    font-size: 0.8125rem;
+    font-weight: 650;
+    line-height: 1.2;
+  }
+
+  .drawer-settings {
+    display: grid;
+    gap: 0.125rem;
+    padding: 0.5rem 0.75rem 0;
+    border-top: 1px solid var(--tch-color-outline-variant);
+  }
+
+  .drawer-settings__row,
+  .drawer-settings__option {
+    align-items: center;
+    border: 0;
+    border-radius: var(--tch-radius-md);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: 0.75rem;
+    min-height: var(--tch-touch-target, 48px);
+    padding: 0 0.75rem;
+    text-align: start;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .drawer-settings__row:hover,
+  .drawer-settings__row[aria-expanded='true'],
+  .drawer-settings__option:hover,
+  .drawer-settings__option--active {
+    background: var(--tch-color-surface-container-high);
+    color: var(--tch-color-primary);
+  }
+
+  .drawer-settings__icon {
+    align-items: center;
+    background: var(--tch-color-surface-container-high);
+    border-radius: var(--tch-radius-md);
+    color: var(--tch-color-on-surface-variant);
+    display: flex;
+    flex: none;
+    font-size: 1.125rem;
+    height: 2.25rem;
+    justify-content: center;
+    width: 2.25rem;
+  }
+
+  .drawer-settings__label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .drawer-settings__chevron {
+    flex: none;
+    font-size: 1.25rem;
+    opacity: 0.55;
+  }
+
+  .drawer-settings__row[aria-expanded='true'] .drawer-settings__chevron {
+    transform: rotate(90deg);
+  }
+
+  .drawer-settings__panel {
+    display: grid;
+    gap: 0.125rem;
+    padding: 0.125rem 0 0.35rem 3rem;
+  }
+
+  .drawer-settings__option {
+    justify-content: space-between;
+    min-height: 2.5rem;
+    padding-inline: 0.75rem;
   }
 
   .workspace.is-drawer-open .drawer {

@@ -684,7 +684,7 @@
       "action": {
         "backToSetup": "Back to setup",
         "pricing": "View pricing",
-        "availability": "Games by draw",
+        "availability": "Availability by draw",
         "refresh": "Refresh"
       },
       "table": {
@@ -790,7 +790,7 @@
           "edit": "Edit",
           "unavailable": "Unavailable",
           "maryaj": "Configure free Maryaj",
-          "availability": "Games by draw"
+          "availability": "Availability by draw"
         }
       },
       "confirm": {
@@ -1291,7 +1291,7 @@
         "empty": "No draw matches this search."
       },
       "summary": {
-        "aria": "Games by draw matrix summary",
+        "aria": "Availability by draw summary",
         "saleReady": "Ready to sell",
         "offeredGames": "Offered games",
         "activeChannels": "Active channels",
@@ -1745,8 +1745,8 @@
       }
     },
     "drawChannels": {
-      "title": "Draw channels",
-      "description": "Configure lottery sources, result sources, and active draw times for this operator.",
+      "title": "Draw configuration",
+      "description": "Configure lottery sources, result sources, and active draws for this operator.",
       "status": {
         "active": "Active",
         "needsConfig": "Needs setup",
@@ -1754,10 +1754,11 @@
         "unavailable": "Unavailable"
       },
       "summary": {
-        "aria": "Draw channels summary",
+        "aria": "Draw configuration summary",
         "availableStates": "Lottery sources",
         "activeStates": "Active sources",
-        "activeChannels": "Active slots",
+        "activeChannels": "Active",
+        "inactiveChannels": "Inactive",
         "todo": "Needs setup"
       },
       "profile": {
@@ -1821,7 +1822,7 @@
         "title": "Action unavailable",
         "configureUnavailable": "Direct configuration for {{provider}} will be available soon.",
         "saved": "{{provider}} configuration saved.",
-        "channelSaved": "Draw channel settings saved."
+        "channelSaved": "Draw configuration saved."
       },
       "confirm": {
         "disableTitle": "Disable {{name}}?",

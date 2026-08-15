@@ -7,6 +7,33 @@ import { TenantGamePricingView } from '../../data-access/admin-games-pricing.mod
 import { TenantGameCardComponent } from './tenant-game-card.component';
 
 describe(TenantGameCardComponent.name, () => {
+  it('renders the game card with draw-channel style key-value facts and no repeated setup action', () => {
+    TestBed.configureTestingModule({
+      imports: [TenantGameCardComponent],
+      providers: [provideNoopAnimations(), provideTranslateService()],
+    });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('ht', translations);
+    translate.use('ht');
+
+    const fixture = TestBed.createComponent(TenantGameCardComponent);
+    fixture.componentRef.setInput('game', activeGame);
+
+    fixture.detectChanges();
+
+    const text = normalizedText(fixture.nativeElement.textContent as string);
+    expect(text).toContain('Bolèt');
+    expect(text).toContain('HT_BOLET');
+    expect(text).toContain('Miz: 1-1000000 HTG');
+    expect(text).toContain('Barèm: estanda · 1 opsyon');
+    expect(text).toContain('Disponib pou vann');
+    expect(text).toContain('Konfigire');
+    expect(text).not.toContain('Machin vant');
+    expect(text).not.toContain('Jwèt pa tiraj');
+    expect(text.match(/Miz:/g)).toHaveLength(1);
+    expect(text.match(/Barèm:/g)).toHaveLength(1);
+  });
+
   it('disables game mutation actions when the user cannot manage game pricing', () => {
     TestBed.configureTestingModule({
       imports: [TenantGameCardComponent],
@@ -46,6 +73,10 @@ describe(TenantGameCardComponent.name, () => {
     expect(toggle.getAttribute('aria-pressed')).toBe('false');
   });
 });
+
+function normalizedText(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
 
 const activeGame: TenantGamePricingView = {
   gameCode: 'HT_BOLET',

@@ -2,11 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { Component, Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { ActionItem, NavigationSection, actionRoute } from '@tch/api';
 import { AUTH_CLIENT, AuthClient } from '@tch/core/auth';
+import { i18nFeature } from '@tch/core/i18n';
 import { TchBreakpointService } from '@tch/ui/components';
 import { themeStoreProvider } from '@tch/ui/theme';
 
@@ -103,6 +105,8 @@ function configure(isWide: Signal<boolean>) {
         { path: 'app/admin/company/identity', component: Blank },
       ]),
       provideTranslateService(),
+      provideStore({}),
+      provideState(i18nFeature),
       provideHttpClient(),
       themeStoreProvider,
       { provide: AUTH_CLIENT, useValue: authClient },
@@ -245,7 +249,10 @@ describe('private shell drawer — replié (< 840px)', () => {
 
     const footer = all(fixture, '.drawer-nav__footer li').map(n => n.textContent ?? '');
     expect(footer.some(text => text.includes('nav.company'))).toBe(true);
-    expect(footer.some(text => text.includes('nav.help'))).toBe(true);
+    expect(footer.some(text => text.includes('nav.help'))).toBe(false);
+    expect(el(fixture, '[data-testid="private-shell-help-link"]')?.textContent).toContain(
+      'nav.help',
+    );
   });
 
   it('still opens the panel of a footer entry that has children', async () => {

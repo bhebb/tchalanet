@@ -21,6 +21,7 @@
       "collapse": "Collapse"
     },
     "theme_toggle": "Toggle theme",
+    "language_switcher": "Change language",
     "toggle_menu": "Toggle menu",
     "admin": {
       "section": {
@@ -55,9 +56,9 @@
       "seller_terminal_active": "Active sellers",
       "seller_terminal_list": "Seller list",
       "seller_terminal_new": "Create seller",
-      "draw_sales_matrix": "Games by draw",
+      "draw_sales_matrix": "Availability by draw",
       "games_available": "Available games",
-      "games_channel_matrix": "Games by draw",
+      "games_channel_matrix": "Availability by draw",
       "limits_rules": "Rules guide",
       "draws": "Draws",
       "sellers": "Sellers",
@@ -69,7 +70,7 @@
       "draws_closed": "Closed draws",
       "draws_past": "Past draws",
       "draws_results": "Results",
-      "draws_matrix": "Games by draw",
+      "draws_matrix": "Availability by draw",
       "draws_channels": "Configure draws",
       "limits_section": "Limits",
       "limits_overview": "Limits overview",

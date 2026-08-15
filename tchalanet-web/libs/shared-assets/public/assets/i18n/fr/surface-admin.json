@@ -21,6 +21,7 @@
       "collapse": "Réduire"
     },
     "theme_toggle": "Thème clair/sombre",
+    "language_switcher": "Changer de langue",
     "toggle_menu": "Ouvrir/fermer le menu",
     "admin": {
       "section": {
@@ -57,9 +58,9 @@
       "seller_terminal_new": "Créer un vendeur",
       "seller_terminal_add": "Créer un vendeur",
       "seller_terminal_active": "Vendeurs actifs",
-      "draw_sales_matrix": "Jeux par tirage",
+      "draw_sales_matrix": "Disponibilité par tirage",
       "games_available": "Jeux disponibles",
-      "games_channel_matrix": "Jeux par tirage",
+      "games_channel_matrix": "Disponibilité par tirage",
       "limits_rules": "Guide des règles",
       "draws": "Tirages",
       "sellers": "Vendeurs",
@@ -71,7 +72,7 @@
       "draws_closed": "Tirages fermés",
       "draws_past": "Tirages passés",
       "draws_results": "Résultats",
-      "draws_matrix": "Jeux par tirage",
+      "draws_matrix": "Disponibilité par tirage",
       "draws_channels": "Configurer les tirages",
       "limits_section": "Limites",
       "limits_overview": "Vue d’ensemble des limites",

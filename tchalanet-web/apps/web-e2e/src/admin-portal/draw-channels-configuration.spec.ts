@@ -22,7 +22,11 @@ test.describe('Admin draw-channel configuration — desktop', () => {
   test('renders draw-channel configuration as a sellable draw list', async ({ page }) => {
     await page.goto('/app/admin/draw-channels');
 
-    await expect(page.getByRole('heading', { name: /Canaux de tirage|Kanal tiraj/ })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: /Configuration des tirages|Konfigirasyon tiraj yo|Draw configuration/,
+      }),
+    ).toBeVisible();
     await expect(page.getByText(/5 canal|5 kanal|5 draw channel/)).toBeVisible();
 
     const firstCard = page.locator('.dc-channel-card').first();
@@ -37,9 +41,9 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await expect(
       firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }),
     ).toBeVisible();
-    await expect(
-      firstCard.getByRole('button', { name: /Voir détails|Gade detay|View details/ }),
-    ).toBeVisible();
+    await firstCard.getByRole('button', { name: /Plus d’actions|Plis aksyon|More actions/ }).click();
+    await expect(page.getByRole('menuitem', { name: /Voir détails|Gade detay|View details/ })).toBeVisible();
+    await page.keyboard.press('Escape');
     await firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog.getByRole('heading', { name: /Vente|Vant|Sales/ })).toBeVisible();
@@ -55,7 +59,8 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await expect(dialog).toContainText(/Tous les jours|Chak jou|Every day/);
     await page.keyboard.press('Escape');
 
-    await firstCard.getByRole('button', { name: /Voir détails|Gade detay|View details/ }).click();
+    await firstCard.getByRole('button', { name: /Plus d’actions|Plis aksyon|More actions/ }).click();
+    await page.getByRole('menuitem', { name: /Voir détails|Gade detay|View details/ }).click();
     await expect(page).toHaveURL(/\/app\/admin\/draw-channels\/channel-ht-1000$/);
     await expect(
       page.getByTestId('admin-page-header').getByRole('heading', { name: /Texas · 1000/ }),

@@ -11,11 +11,25 @@ import {
   input,
   model,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { ActionItem, NavigationSection } from '@tch/api';
+import {
+  ActionItem,
+  NavigationSection,
+  actionHref,
+  actionQueryParams,
+  actionRoute,
+  actionText,
+  isExternalAction,
+  isRouteAction,
+} from '@tch/api';
+import { PrivateBootstrapStore } from '@tch/core/auth';
+import { I18nFacade } from '@tch/core/i18n';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import { PrivateNotificationBellComponent } from '@tch/notifications';
 import {
   TchBrand,
@@ -24,9 +38,25 @@ import {
   TchSidebarNav,
   TchUserMenu,
 } from '@tch/ui/components';
+import { ThemeMode, ThemeStore } from '@tch/ui/theme';
 
 import { ShellFeedbackOutletComponent } from '../feedback/shell-feedback-outlet.component';
 import { ShellFeedbackVerbosity } from '../feedback/shell-feedback.model';
+
+interface ShellLanguageOption {
+  readonly id: string;
+  readonly label: string;
+  readonly shortLabel: string;
+}
+
+const SHELL_LANGUAGES: readonly ShellLanguageOption[] = [
+  { id: 'ht', label: 'Kreyòl', shortLabel: 'HT' },
+  { id: 'fr', label: 'Français', shortLabel: 'FR' },
+  { id: 'en', label: 'English', shortLabel: 'EN' },
+];
+
+const SHELL_THEME_MODES: readonly ThemeMode[] = ['system', 'light', 'dark'];
+type ShellSettingsPanel = 'language' | 'theme';
 
 /**
  * Shell des consoles privées.
@@ -44,6 +74,7 @@ import { ShellFeedbackVerbosity } from '../feedback/shell-feedback.model';
     TchDrawerNav,
     TchSidebarNav,
     TchUserMenu,
+    RouterLink,
     TranslatePipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +86,10 @@ export class PrivateShellLayoutComponent {
   private readonly document = inject(DOCUMENT);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly breakpoints = inject(TchBreakpointService);
+  private readonly bootstrap = inject(PrivateBootstrapStore);
+  protected readonly theme = inject(ThemeStore);
+  protected readonly i18n = inject(I18nFacade);
+  private readonly runtimeSettings = inject(RuntimeSettingsStore);
 
   readonly brand = input.required<ActionItem>();
   readonly titleKey = input('');
@@ -70,7 +105,47 @@ export class PrivateShellLayoutComponent {
   readonly profileRequested = output<void>();
   readonly logoutRequested = output<void>();
 
+  readonly actionRoute = actionRoute;
+  readonly actionHref = actionHref;
+  readonly actionQueryParams = actionQueryParams;
+  readonly actionText = actionText;
+  readonly isExternalAction = isExternalAction;
+  readonly isRouteAction = isRouteAction;
+
   readonly themeIcon = computed(() => (this.darkMode() ? 'light_mode' : 'dark_mode'));
+  readonly settingsPanel = signal<ShellSettingsPanel | null>(null);
+  readonly drawerTenantName = computed(() => {
+    // 1. Nom renseigné par la page dashboard (applyTenantDashboardSettings)
+    const fromSettings = this.runtimeSettings.settings().values['tenant.displayName'];
+    if (typeof fromSettings === 'string' && fromSettings.trim()) {
+      return fromSettings.trim();
+    }
+    // 2. Fallback : contexte du bootstrap (/runtime/private)
+    const ctx = this.bootstrap.tenantContext();
+    return (ctx?.tenantName?.trim() || ctx?.tenantCode?.trim() || '').trim();
+  });
+  /** Afficher l'étiquette "Plateforme" uniquement quand l'espace est explicitement PLATFORM.
+   * En ADMIN pré-bootstrap (space = null) on préfère le blanc à "Plateforme" trompeur. */
+  readonly drawerShowPlatformLabel = computed(() => this.bootstrap.space() === 'PLATFORM');
+  readonly drawerScopeKey = computed(() => 'surface.tenant_admin');
+  readonly drawerSecondary = computed(() => this.secondary().filter(item => item.id !== 'help'));
+  readonly helpAction = computed(() => this.secondary().find(item => item.id === 'help') ?? null);
+  readonly availableLanguages = computed(() => {
+    const supported = new Set(this.i18n.languages());
+    const configured = SHELL_LANGUAGES.filter(language => supported.has(language.id));
+    return configured.length > 0 ? configured : SHELL_LANGUAGES;
+  });
+  readonly currentLanguage = computed(() => {
+    const current = this.i18n.currentLanguage();
+    return (
+      this.availableLanguages().find(language => language.id === current) ??
+      this.availableLanguages()[0] ??
+      SHELL_LANGUAGES[0]
+    );
+  });
+  readonly themeModes = SHELL_THEME_MODES;
+  readonly currentThemeMode = computed(() => this.theme.activeTheme().mode);
+  readonly currentThemeLabelKey = computed(() => `theme.modes.${this.currentThemeMode()}`);
 
   /** Sous 840px le drawer se superpose au contenu ; au-dessus il est permanent. */
   readonly overlayMode = computed(() => !this.breakpoints.isWide());
@@ -147,8 +222,27 @@ export class PrivateShellLayoutComponent {
     this.drawerNav()?.openCategoryId.set(null);
   }
 
+  toggleSettingsPanel(panel: ShellSettingsPanel): void {
+    this.settingsPanel.update(open => (open === panel ? null : panel));
+  }
+
+  setLanguage(language: string): void {
+    this.i18n.setCurrent(language);
+    this.settingsPanel.set(null);
+  }
+
+  setThemeMode(mode: ThemeMode): void {
+    this.theme.setMode(mode);
+    this.settingsPanel.set(null);
+  }
+
   /** Escape referme un niveau à la fois : d'abord le panneau de catégorie, puis le drawer. */
   onEscape(): void {
+    if (this.settingsPanel()) {
+      this.settingsPanel.set(null);
+      return;
+    }
+
     if (!this.drawerModal()) return;
 
     const nav = this.drawerNav();

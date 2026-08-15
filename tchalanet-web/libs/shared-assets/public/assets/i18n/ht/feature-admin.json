@@ -684,7 +684,7 @@
       "action": {
         "backToSetup": "Retounen nan konfigirasyon",
         "pricing": "Gade barèm yo",
-        "availability": "Jwèt pa tiraj",
+        "availability": "Disponibilite pa tiraj",
         "refresh": "Rafrechi"
       },
       "table": {
@@ -790,7 +790,7 @@
           "edit": "Modifye",
           "unavailable": "Pa disponib",
           "maryaj": "Konfigire Maryaj gratis",
-          "availability": "Jwèt pa tiraj"
+          "availability": "Disponibilite pa tiraj"
         }
       },
       "confirm": {
@@ -1745,8 +1745,8 @@
       }
     },
     "drawChannels": {
-      "title": "Kanal tiraj",
-      "description": "Konfigire founisè yo, sous rezilta yo, ak lè tiraj aktif pou santral la.",
+      "title": "Konfigirasyon tiraj yo",
+      "description": "Konfigire founisè yo, sous rezilta yo, ak tiraj ki aktif pou santral la.",
       "status": {
         "active": "Aktif",
         "needsConfig": "Pou konfigire",
@@ -1754,10 +1754,11 @@
         "unavailable": "Pa disponib"
       },
       "summary": {
-        "aria": "Rezime kanal tiraj yo",
+        "aria": "Rezime konfigirasyon tiraj yo",
         "availableStates": "Founisè",
         "activeStates": "Founisè aktif",
-        "activeChannels": "Lè aktif",
+        "activeChannels": "Aktif",
+        "inactiveChannels": "Inaktif",
         "todo": "Pou konfigire"
       },
       "profile": {
@@ -1821,7 +1822,7 @@
         "title": "Aksyon pa disponib",
         "configureUnavailable": "Konfigirasyon dirèk pou {{provider}} ap disponib byento.",
         "saved": "Konfigirasyon {{provider}} anrejistre.",
-        "channelSaved": "Kanal tiraj la anrejistre."
+        "channelSaved": "Konfigirasyon tiraj la anrejistre."
       },
       "confirm": {
         "disableTitle": "Dezaktive {{name}}?",

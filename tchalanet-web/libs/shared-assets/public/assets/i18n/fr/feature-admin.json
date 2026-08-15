@@ -396,8 +396,8 @@
       }
     },
     "drawChannels": {
-      "title": "Canaux de tirage",
-      "description": "Configurez les fournisseurs de tirage, les sources de résultats et les heures de vente actives pour votre espace.",
+      "title": "Configuration des tirages",
+      "description": "Configurez les fournisseurs, les sources de résultats et les tirages actifs pour votre espace.",
       "status": {
         "active": "Actif",
         "needsConfig": "À configurer",
@@ -405,10 +405,11 @@
         "unavailable": "Non disponible"
       },
       "summary": {
-        "aria": "Résumé des canaux de tirage",
+        "aria": "Résumé de la configuration des tirages",
         "availableStates": "Fournisseurs",
         "activeStates": "Fournisseurs actifs",
-        "activeChannels": "Créneaux actifs",
+        "activeChannels": "Actifs",
+        "inactiveChannels": "Inactifs",
         "todo": "À configurer"
       },
       "profile": {
@@ -472,7 +473,7 @@
         "title": "Action non disponible",
         "configureUnavailable": "La configuration directe de {{provider}} sera bientôt disponible.",
         "saved": "Configuration de {{provider}} enregistrée.",
-        "channelSaved": "Configuration du canal de tirage enregistrée."
+        "channelSaved": "Configuration du tirage enregistrée."
       },
       "confirm": {
         "disableTitle": "Désactiver {{name}} ?",
@@ -1377,7 +1378,7 @@
       "action": {
         "backToSetup": "Retour à la configuration",
         "pricing": "Voir les barèmes",
-        "availability": "Jeux par tirage",
+        "availability": "Disponibilité par tirage",
         "refresh": "Rafraîchir"
       },
       "table": {
@@ -1483,7 +1484,7 @@
           "edit": "Modifier",
           "unavailable": "Non disponible",
           "maryaj": "Configurer Maryaj gratis",
-          "availability": "Jeux par tirage"
+          "availability": "Disponibilité par tirage"
         }
       },
       "confirm": {

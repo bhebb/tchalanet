@@ -82,6 +82,7 @@ test.describe('Admin setup quick actions access', () => {
     const matrixGame = page.locator('tch-draw-sales-matrix-game-card').filter({ hasText: /Bolèt|Bolet/ }).first();
     const matrixSwitch = matrixGame.locator('.matrix-game__switch');
     await expect(matrixSwitch).toBeEnabled();
+    await expect(matrixGame).not.toContainText(/\bON\b|Pare/);
     await Promise.all([
       page.waitForRequest(
         request =>
@@ -91,6 +92,7 @@ test.describe('Admin setup quick actions access', () => {
       matrixSwitch.click(),
     ]);
     await expect(matrixSwitch).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.getByText(/Aksyon fèt|Action completed|Action effectuée/)).toHaveCount(0);
   });
 
   test('disables the same quick actions for an admin without setup mutation permissions', async ({
