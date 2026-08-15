@@ -2150,6 +2150,10 @@
         "sell": {
           "title": "Vant",
           "description": "Kontwole kijan jwèt la parèt pou vandè yo.",
+          "activationTitle": "Jwèt aktive",
+          "activationHelp": "Aktivasyon jwèt la fèt nan lis Jwèt disponib la.",
+          "activationEnabled": "Aktive",
+          "activationDisabled": "Inaktif",
           "visibleInPosHelp": "Si li etenn, jwèt la rete konfigire men vandè yo p ap wè li nan POS."
         },
         "stakes": {

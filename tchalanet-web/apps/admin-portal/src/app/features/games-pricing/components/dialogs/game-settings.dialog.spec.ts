@@ -70,6 +70,20 @@ describe(GameSettingsDialog.name, () => {
     expect(gamesApi.updateGameSettings).not.toHaveBeenCalled();
   });
 
+  it('saves POS visibility without changing game activation', () => {
+    component.model.update(value => ({ ...value, visibleInPos: false }));
+
+    component.submit(new Event('submit'));
+
+    expect(gamesApi.updateGameSettings).toHaveBeenCalledWith(
+      'HT_MARYAJ_GRATIS',
+      expect.objectContaining({
+        visibleInPos: false,
+      }),
+      { suppressShellFeedback: true },
+    );
+  });
+
   function game(): TenantGameView {
     return {
       gameCode: 'HT_MARYAJ_GRATIS',

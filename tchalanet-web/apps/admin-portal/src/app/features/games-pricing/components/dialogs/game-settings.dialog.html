@@ -29,6 +29,20 @@
         [title]="'admin.games.settings.sell.title' | translate"
         [description]="'admin.games.settings.sell.description' | translate"
       >
+        <div class="game-settings-dialog__readonly-row">
+          <div>
+            <strong>{{ 'admin.games.settings.sell.activationTitle' | translate }}</strong>
+            <p>{{ 'admin.games.settings.sell.activationHelp' | translate }}</p>
+          </div>
+          <span class="game-settings-dialog__readonly-value">
+            {{
+              (data.game.enabled
+                ? 'admin.games.settings.sell.activationEnabled'
+                : 'admin.games.settings.sell.activationDisabled'
+              ) | translate
+            }}
+          </span>
+        </div>
         <div class="game-settings-dialog__toggle-row">
           <div>
             <strong>{{ 'admin.games.settings.field.visibleInPos' | translate }}</strong>

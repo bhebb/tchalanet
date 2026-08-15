@@ -717,6 +717,10 @@
         "sell": {
           "title": "Vente",
           "description": "Contrôlez comment le jeu apparaît aux vendeurs.",
+          "activationTitle": "Jeu activé",
+          "activationHelp": "L’activation du jeu se gère depuis la liste des jeux disponibles.",
+          "activationEnabled": "Activé",
+          "activationDisabled": "Inactif",
           "visibleInPosHelp": "Si désactivé, le jeu reste configuré mais les vendeurs ne le verront pas au POS."
         },
         "stakes": {

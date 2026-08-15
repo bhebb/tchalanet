@@ -2150,6 +2150,10 @@
         "sell": {
           "title": "Sales",
           "description": "Control how the game appears to sellers.",
+          "activationTitle": "Game enabled",
+          "activationHelp": "Game activation is managed from the Available games list.",
+          "activationEnabled": "Enabled",
+          "activationDisabled": "Inactive",
           "visibleInPosHelp": "When off, the game stays configured but sellers will not see it in POS."
         },
         "stakes": {

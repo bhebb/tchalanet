@@ -60,10 +60,10 @@ full brief is complete.
 ## 4. Game Editor - Vant
 
 - [x] Replace verbose repeated copy with one short section description.
-- [ ] Clearly distinguish game enabled for tenant from visible/usable on POS.
+- [x] Clearly distinguish game enabled for tenant from visible/usable on POS.
 - [x] Review and simplify current labels such as `Vann jwet sa a` and `Montre jwet sa a nan POS`.
-- [ ] Preserve safe quick activation behavior if backend support is valid.
-- [ ] Add focused tests for POS visibility toggle and game activation.
+- [x] Preserve safe quick activation behavior if backend support is valid.
+- [x] Add focused tests for POS visibility toggle and game activation.
 
 ## 5. Game Editor - Miz
 
