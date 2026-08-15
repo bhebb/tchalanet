@@ -47,7 +47,7 @@ full brief is complete.
 - [x] Show a compact read-only empty state when no Maryaj Gratis offer campaign exists.
 - [x] Show a compact read-only empty state when the Maryaj Gratis game is missing.
 - [x] Show a compact read-only empty state when Maryaj Gratis generation settings are missing.
-- [ ] Move rarely used generation knobs under Advanced settings if product confirms they are not normal tenant-admin controls.
+- [x] Keep generation retry controls in the Generation section because they are normal tenant-admin controls.
 
 ## 3. Replace Long Game Configuration Modal
 
@@ -159,8 +159,8 @@ full brief is complete.
 
 - [x] Create a secondary advanced section for priority.
 - [x] Preserve advanced values when collapsed.
-- [ ] Decide whether retry count, generation strategy details, campaign identifier, technical dates, or low-level selection behavior belong in advanced settings.
-- [ ] Add concise help text only where needed.
+- [x] Decide whether retry count, generation strategy details, campaign identifier, technical dates, or low-level selection behavior belong in advanced settings.
+- [x] Add concise help text only where needed.
 
 ## 15. Main-Page Summary Cleanup
 

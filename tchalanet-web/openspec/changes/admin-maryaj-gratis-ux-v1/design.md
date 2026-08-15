@@ -81,6 +81,19 @@ Permanent offers are represented with a boolean UI control. The store maps `noEn
 current backend-compatible far-future `endsAt` value; admins never need to see or understand the
 technical representation.
 
+Advanced settings decision for this pass:
+
+- `priority` stays in the offer advanced section because it only matters when multiple promotions
+  can overlap.
+- retry count stays in the Generation section, because it directly answers how free Maryaj numbers
+  can be regenerated before confirmation.
+- `generationStrategy` remains internal. The current UI exposes automatic vs seller selection as
+  business language, and the store maps automatic selection to the backend `RANDOM` strategy.
+- campaign identifiers, backend-compatible far-future dates, and other technical campaign values
+  are not exposed in the tenant-admin editor.
+- low-level selection behavior is represented by the Generation section toggle, not by an advanced
+  technical field.
+
 ## Tier Editing
 
 Read mode shows business rules:
