@@ -2131,27 +2131,27 @@
           "message": "These values control POS display and accepted stakes for this operator. Reference payouts and pricing remain managed by Tchalanet."
         },
         "sell": {
-          "title": "Sell this game",
-          "description": "Control whether sellers can use this game in POS.",
-          "visibleInPosHelp": "Show this game as a choice when a seller creates a ticket."
+          "title": "Sales",
+          "description": "Control how the game appears to sellers.",
+          "visibleInPosHelp": "When off, the game stays configured but sellers will not see it in POS."
         },
         "stakes": {
           "title": "Stakes",
-          "description": "Set the minimum and maximum amount a seller can accept for this game."
+          "description": "Set the minimum and maximum limits per line."
         },
         "availability": {
           "title": "Availability",
-          "description": "Use draw availability to decide where this game can be sold.",
-          "enabledHelp": "Allow this game to participate in sales availability rules.",
-          "review": "Review draw availability"
+          "description": "Choose whether this game follows draw availability rules.",
+          "enabledHelp": "When enabled, times and draws can limit where this game is sold.",
+          "review": "Draw availability"
         },
         "field": {
           "displayName": "POS display name",
-          "minStake": "Minimum stake per line",
-          "maxStake": "Maximum stake per line",
+          "minStake": "Minimum",
+          "maxStake": "Maximum",
           "displayOrder": "Display order",
-          "visibleInPos": "Show this game in POS",
-          "availabilityEnabled": "Restrict sales hours",
+          "visibleInPos": "Visible in POS",
+          "availabilityEnabled": "Follow availability rules",
           "startLocalTime": "Start time (HH:mm)",
           "endLocalTime": "End time (HH:mm)"
         },

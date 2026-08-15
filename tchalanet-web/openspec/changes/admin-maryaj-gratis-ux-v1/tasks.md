@@ -56,27 +56,27 @@ full brief is complete.
 
 ## 4. Game Editor - Vant
 
-- [ ] Replace verbose repeated copy with one short section description.
+- [x] Replace verbose repeated copy with one short section description.
 - [ ] Clearly distinguish game enabled for tenant from visible/usable on POS.
-- [ ] Review and simplify current labels such as `Vann jwet sa a` and `Montre jwet sa a nan POS`.
+- [x] Review and simplify current labels such as `Vann jwet sa a` and `Montre jwet sa a nan POS`.
 - [ ] Preserve safe quick activation behavior if backend support is valid.
 - [ ] Add focused tests for POS visibility toggle and game activation.
 
 ## 5. Game Editor - Miz
 
-- [ ] Group min/max stake inputs together.
-- [ ] Use clear HTG suffixes.
+- [x] Group min/max stake inputs together.
+- [x] Use clear HTG suffixes.
 - [ ] Format large values for readability, such as `10 000 000 HTG`.
 - [ ] Keep structural validation close to fields.
-- [ ] Avoid duplicating min/max values in multiple sections.
+- [x] Avoid duplicating min/max values in multiple sections.
 - [ ] Add focused tests for stake min/max validation.
 
 ## 6. Game Editor - Disponibilite
 
 - [x] Keep a clear link/action to `Disponibilite pa tiraj`.
 - [x] Do not embed the full draw/game matrix in the Maryaj Gratis form.
-- [ ] Clarify what `Limite le vant yo` means in business language.
-- [ ] Rename the availability checkbox if it controls participation in draw-specific availability rules.
+- [x] Clarify what `Limite le vant yo` means in business language.
+- [x] Rename the availability checkbox if it controls participation in draw-specific availability rules.
 - [x] Keep draw-level availability owned by the existing availability-by-draw surface.
 - [ ] Add focused tests for availability navigation.
 

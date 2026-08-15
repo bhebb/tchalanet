@@ -715,27 +715,27 @@
           "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes de référence restent gérés par Tchalanet."
         },
         "sell": {
-          "title": "Vendre ce jeu",
-          "description": "Contrôlez si les vendeurs peuvent utiliser ce jeu dans le POS.",
-          "visibleInPosHelp": "Afficher ce jeu comme choix quand un vendeur crée un ticket."
+          "title": "Vente",
+          "description": "Contrôlez comment le jeu apparaît aux vendeurs.",
+          "visibleInPosHelp": "Si désactivé, le jeu reste configuré mais les vendeurs ne le verront pas au POS."
         },
         "stakes": {
           "title": "Mises",
-          "description": "Définissez le montant minimum et maximum accepté pour ce jeu."
+          "description": "Définissez les limites minimum et maximum par ligne."
         },
         "availability": {
           "title": "Disponibilité",
-          "description": "Utilisez la disponibilité par tirage pour choisir où ce jeu peut être vendu.",
-          "enabledHelp": "Autoriser ce jeu à participer aux règles de disponibilité de vente.",
-          "review": "Vérifier la disponibilité par tirage"
+          "description": "Choisissez si ce jeu suit les règles de disponibilité par tirage.",
+          "enabledHelp": "Quand cette option est active, les heures et tirages peuvent limiter où ce jeu est vendu.",
+          "review": "Disponibilité par tirage"
         },
         "field": {
           "displayName": "Nom affiché au POS",
-          "minStake": "Mise minimum par ligne",
-          "maxStake": "Mise maximum par ligne",
+          "minStake": "Minimum",
+          "maxStake": "Maximum",
           "displayOrder": "Ordre d'affichage",
-          "visibleInPos": "Afficher ce jeu dans le POS",
-          "availabilityEnabled": "Restreindre les horaires de vente",
+          "visibleInPos": "Visible au POS",
+          "availabilityEnabled": "Suivre les règles de disponibilité",
           "startLocalTime": "Heure de début (HH:mm)",
           "endLocalTime": "Heure de fin (HH:mm)"
         },

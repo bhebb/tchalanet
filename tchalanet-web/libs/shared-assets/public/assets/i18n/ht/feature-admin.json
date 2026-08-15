@@ -2131,27 +2131,27 @@
           "message": "Valè sa yo kontwole afichaj POS la ak miz santral la aksepte. Gany ak barèm global yo rete jere nan katalòg platfòm nan."
         },
         "sell": {
-          "title": "Vann jwèt sa a",
-          "description": "Kontwole si vandè yo ka itilize jwèt sa a nan POS la.",
-          "visibleInPosHelp": "Montre jwèt sa a kòm yon chwa lè vandè a ap kreye yon tikè."
+          "title": "Vant",
+          "description": "Kontwole kijan jwèt la parèt pou vandè yo.",
+          "visibleInPosHelp": "Si li etenn, jwèt la rete konfigire men vandè yo p ap wè li nan POS."
         },
         "stakes": {
           "title": "Miz",
-          "description": "Mete kantite minimòm ak maksimòm vandè a ka aksepte pou jwèt sa a."
+          "description": "Mete limit minimòm ak maksimòm pa liy."
         },
         "availability": {
           "title": "Disponibilite",
-          "description": "Sèvi ak disponiblite pa tiraj pou chwazi kote jwèt sa a ka vann.",
-          "enabledHelp": "Pèmèt jwèt sa a antre nan règ disponiblite pou vann.",
-          "review": "Verifye disponiblite pa tiraj"
+          "description": "Chwazi si jwèt sa a suiv règ disponiblite pa tiraj yo.",
+          "enabledHelp": "Lè sa aktive, lè ak tiraj yo ka limite kote jwèt sa a vann.",
+          "review": "Disponibilite pa tiraj"
         },
         "field": {
           "displayName": "Non ki parèt nan POS",
-          "minStake": "Miz minimòm pa liy",
-          "maxStake": "Miz maksimòm pa liy",
+          "minStake": "Minimòm",
+          "maxStake": "Maksimòm",
           "displayOrder": "Lòd afichaj",
-          "visibleInPos": "Montre jwèt sa a nan POS",
-          "availabilityEnabled": "Limite lè vant yo",
+          "visibleInPos": "Vizib sou POS",
+          "availabilityEnabled": "Swiv règ disponiblite",
           "startLocalTime": "Lè kòmansman (HH:mm)",
           "endLocalTime": "Lè fen (HH:mm)"
         },
