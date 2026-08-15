@@ -11,6 +11,7 @@ import {
   GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
   GameSettingsDialog,
 } from '../../../games-pricing/components/dialogs/game-settings.dialog';
+import { toTenantGameSettingsView } from '../../../games-pricing/data-access/tenant-game-settings-adapter';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { AdminMaryajGratisPage } from './admin-maryaj-gratis.page';
 
@@ -78,15 +79,7 @@ describe(AdminMaryajGratisPage.name, () => {
       GameSettingsDialog,
       expect.objectContaining({
         data: expect.objectContaining({
-          game: expect.objectContaining({
-            gameCode: 'HT_MARYAJ_GRATIS',
-            enabled: true,
-            visibleInPos: false,
-            minStake: 5,
-            maxStake: 5000,
-            readyForSale: false,
-            betOptions,
-          }),
+          game: toTenantGameSettingsView(game),
         }),
         ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
       }),

@@ -35,6 +35,7 @@ import {
   GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
   GameSettingsDialog,
 } from '../../components/dialogs/game-settings.dialog';
+import { toTenantGameSettingsView } from '../../data-access/tenant-game-settings-adapter';
 
 interface GamesOverviewSummary {
   readonly catalogGameCount: number;
@@ -181,28 +182,8 @@ export class AdminGamesPricingPage {
     const game = this.games().find(g => g.gameCode === gameCode);
     if (!game) return;
 
-    // Reconstruct a minimal TenantGameView for the dialog
-    const dialogGame = {
-      gameCode: game.gameCode,
-      catalogName: game.gameName,
-      displayName: game.gameName,
-      category: null,
-      enabled: game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG',
-      visibleInPos: game.visibleInPos,
-      displayOrder: 0,
-      minStake: game.limits.minStake,
-      maxStake: game.limits.maxStake,
-      availabilityEnabled: false,
-      availabilityDays: null,
-      startLocalTime: null,
-      endLocalTime: null,
-      readyForSale: game.readiness.status === 'READY',
-      betOptions: game.odds,
-      betOptionGroups: game.oddsGroups,
-    };
-
     const ref = this.dialog.open(GameSettingsDialog, {
-      data: { game: dialogGame },
+      data: { game: toTenantGameSettingsView(game) },
       ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
     });
     ref.afterClosed().subscribe(ok => {

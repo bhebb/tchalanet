@@ -20,12 +20,12 @@ import {
   TchSectionError,
 } from '@tch/ui/components';
 import { AdminPageShellComponent, AdminRefreshButtonComponent } from '@tch/ui/console';
-import { TenantGameView } from '../../../games-pricing/data-access/games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
 import {
   GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
   GameSettingsDialog,
 } from '../../../games-pricing/components/dialogs/game-settings.dialog';
+import { toTenantGameSettingsView } from '../../../games-pricing/data-access/tenant-game-settings-adapter';
 import { PromotionCampaignView } from '../../data-access/admin-promotions-api.service';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { MaryajGenerationPanelComponent } from './components/maryaj-generation-panel.component';
@@ -76,7 +76,7 @@ export class AdminMaryajGratisPage implements OnInit {
 
   openGameSettings(game: TenantGamePricingView): void {
     const ref = this.dialog.open(GameSettingsDialog, {
-      data: { game: this.toDialogGame(game) },
+      data: { game: toTenantGameSettingsView(game) },
       ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
     });
     ref.afterClosed().subscribe(ok => {
@@ -105,26 +105,5 @@ export class AdminMaryajGratisPage implements OnInit {
   private scrollToFragment(fragment: string | null): void {
     if (!fragment || this.store.state() !== 'ready') return;
     setTimeout(() => this.viewportScroller.scrollToAnchor(fragment));
-  }
-
-  private toDialogGame(game: TenantGamePricingView): TenantGameView {
-    return {
-      gameCode: game.gameCode,
-      catalogName: game.gameName,
-      displayName: game.gameName,
-      category: null,
-      enabled: game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG',
-      visibleInPos: game.visibleInPos,
-      displayOrder: 0,
-      minStake: game.limits.minStake,
-      maxStake: game.limits.maxStake,
-      availabilityEnabled: false,
-      availabilityDays: null,
-      startLocalTime: null,
-      endLocalTime: null,
-      readyForSale: game.readiness.status === 'READY',
-      betOptions: game.odds,
-      betOptionGroups: game.oddsGroups,
-    };
   }
 }
