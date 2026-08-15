@@ -1,4 +1,4 @@
-import { ActionItem, NavigationSection } from '@tch/api';
+import { ActionItem, NavigationDestination, NavigationSection } from '@tch/api';
 
 import {
   RuntimeNavigationDrawer,
@@ -53,7 +53,7 @@ function actionFromRuntime(entry: RuntimeNavigationEntry): ActionItem | null {
   const id = text(entry.id);
   const labelKey = text(entry.labelKey) || text(entry.label_key);
   const label = text(entry.label);
-  const path = text(entry.path);
+  const destination = destinationFromRuntime(entry);
   const children = (entry.children ?? [])
     .map(actionFromRuntime)
     .filter((item): item is ActionItem => item !== null);
@@ -65,8 +65,9 @@ function actionFromRuntime(entry: RuntimeNavigationEntry): ActionItem | null {
     kind: text(entry.type) || 'link',
     labelKey: labelKey || undefined,
     label: label || null,
-    destination: path ? { kind: routeKind(entry.kind), value: path } : undefined,
+    destination,
     icon: text(entry.icon) || null,
+    activeRoutes: stringList(entry.activeRoutes) ?? stringList(entry.active_routes),
     activeMatch: text(entry.activeMatch) || text(entry.active_match) || null,
     disabled: entry.disabled ?? false,
     reasonKey: text(entry.reasonKey) || text(entry.reason_key) || null,
@@ -75,8 +76,23 @@ function actionFromRuntime(entry: RuntimeNavigationEntry): ActionItem | null {
   };
 }
 
+function destinationFromRuntime(entry: RuntimeNavigationEntry): NavigationDestination | undefined {
+  const destinationValue = text(entry.destination?.value);
+  if (destinationValue) {
+    return { kind: routeKind(entry.destination?.kind), value: destinationValue };
+  }
+  const path = text(entry.path);
+  return path ? { kind: routeKind(entry.kind), value: path } : undefined;
+}
+
 function routeKind(kind: string | null | undefined): 'route' | 'url' {
   return kind === 'external' || kind === 'url' ? 'url' : 'route';
+}
+
+function stringList(value: readonly string[] | null | undefined): readonly string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const items = value.map(text).filter(Boolean);
+  return items.length ? items : undefined;
 }
 
 function text(value: string | null | undefined): string {

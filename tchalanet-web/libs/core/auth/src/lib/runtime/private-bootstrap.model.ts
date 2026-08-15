@@ -56,9 +56,12 @@ export interface RuntimeNavigationEntry {
   readonly label_key?: string | null;
   readonly labelKey?: string | null;
   readonly label?: string | null;
+  readonly destination?: RuntimeNavigationDestination | null;
   readonly path?: string | null;
   readonly kind?: string | null;
   readonly icon?: string | null;
+  readonly active_routes?: readonly string[] | null;
+  readonly activeRoutes?: readonly string[] | null;
   readonly active_match?: string | null;
   readonly activeMatch?: string | null;
   readonly disabled?: boolean | null;
@@ -66,6 +69,11 @@ export interface RuntimeNavigationEntry {
   readonly reasonKey?: string | null;
   readonly badge?: unknown;
   readonly children?: readonly RuntimeNavigationEntry[] | null;
+}
+
+export interface RuntimeNavigationDestination {
+  readonly kind?: string | null;
+  readonly value?: string | null;
 }
 
 export interface AuthenticatedUserView {
