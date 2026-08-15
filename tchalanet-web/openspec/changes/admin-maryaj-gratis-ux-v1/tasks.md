@@ -221,13 +221,13 @@ full brief is complete.
 - [x] Run web-e2e lint.
 - [x] Run admin-business e2e outside the sandbox; Maryaj path passes, but unrelated setup printing and limits scenarios currently fail.
 - [x] Add main page coverage for active game plus active offer.
-- [ ] Add main page coverage for active game plus paused offer.
+- [x] Add main page coverage for active game plus paused offer.
 - [ ] Add main page coverage for game incomplete.
 - [ ] Add main page coverage for offer incomplete.
 - [x] Add main page coverage for permanent/no-end-date offer.
 - [ ] Add main page coverage for scheduled future offer.
 - [ ] Add main page coverage for ended offer.
-- [ ] Add main page coverage for zero and one tiers.
+- [x] Add main page coverage for zero and one tiers.
 - [x] Add main page coverage for multiple tiers.
 - [x] Add focused coverage for automatic generation and manual selection behavior.
 - [x] Add focused coverage for missing generation settings in read mode.

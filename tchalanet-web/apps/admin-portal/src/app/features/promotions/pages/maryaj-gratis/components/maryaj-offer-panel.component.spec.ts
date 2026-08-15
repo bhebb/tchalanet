@@ -65,9 +65,12 @@ describe(MaryajOfferPanelComponent.name, () => {
     expect(component.statusTone('INACTIVE')).toBe('neutral');
   });
 
-  it('keeps active and paused offer statuses business-facing', () => {
+  it('keeps offer statuses business-facing', () => {
     expect(component.statusLabel('ACTIVE')).toBe('Aktif');
     expect(component.statusLabel('PAUSED')).toBe('An poz');
+    expect(component.statusLabel('DRAFT')).toBe('Bouyon');
+    expect(component.statusLabel('INACTIVE')).toBe('Inaktif');
+    expect(component.statusLabel('ARCHIVED')).toBe('Achive');
   });
 
   it('treats no-end and long-running campaign dates as permanent', () => {
@@ -90,16 +93,21 @@ describe(MaryajOfferPanelComponent.name, () => {
     ).toBe(false);
   });
 
-  it('reads zero, one, and multiple tier rules for summary display', () => {
+  it('reads zero tier rules for summary display', () => {
     setEffect({ quantityTiers: [] });
     expect(component.effectQuantityTiers()).toEqual([]);
+  });
 
+  it('reads one tier rule for summary display', () => {
     setEffect({ quantityTiers: [{ minPaidAmount: 100, maxPaidAmount: 199, quantity: 1 }] });
+
     expect(component.effectQuantityTiers()).toHaveLength(1);
     const firstTier = component.effectQuantityTiers().at(0);
     if (!firstTier) throw new Error('Expected one tier');
     expect(component.tierRuleLabel(firstTier)).toBe('100 HTG – 199 HTG → 1 Maryaj gratis');
+  });
 
+  it('reads multiple tier rules for summary display', () => {
     setEffect({
       quantityTiers: [
         { minPaidAmount: 100, maxPaidAmount: 199, quantity: 1 },
@@ -146,6 +154,9 @@ describe(MaryajOfferPanelComponent.name, () => {
       'admin.maryajGratis.amount.htg': '{{amount}} HTG',
       'admin.maryajGratis.offer.status.active': 'Aktif',
       'admin.maryajGratis.offer.status.paused': 'An poz',
+      'admin.maryajGratis.offer.status.draft': 'Bouyon',
+      'admin.maryajGratis.offer.status.inactive': 'Inaktif',
+      'admin.maryajGratis.offer.status.archived': 'Achive',
       'admin.maryajGratis.offer.tiers.openRange': '{{min}} +',
       'admin.maryajGratis.offer.tiers.range': '{{min}} – {{max}}',
       'admin.maryajGratis.offer.tiers.rule': '{{range}} → {{quantity}} Maryaj gratis',
