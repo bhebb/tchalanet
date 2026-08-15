@@ -133,7 +133,9 @@
 
   <div class="dc-channel-card__actions">
     <button
-      mat-stroked-button
+      mat-flat-button
+      color="primary"
+      class="dc-channel-card__primary-action"
       [disabled]="!slot.channelId || saving()"
       (click)="configure.emit(slot)"
     >
