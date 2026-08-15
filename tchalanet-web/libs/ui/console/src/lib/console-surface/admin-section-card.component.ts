@@ -149,6 +149,17 @@ export interface AdminSectionCardError {
         tch-card {
           grid-template-columns: minmax(0, 1fr) auto auto;
           align-items: center;
+          position: relative;
+        }
+
+        tch-card::before {
+          content: '';
+          grid-column: 1 / -1;
+          grid-row: 1;
+          align-self: end;
+          width: 100%;
+          border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
+          pointer-events: none;
         }
 
         .section-card__header {
@@ -157,11 +168,11 @@ export interface AdminSectionCardError {
           grid-column: 1;
           grid-row: 1;
           padding: 1rem 1.5rem;
+          border-bottom: none;
         }
 
         .section-card__status,
         .section-card__actions {
-          border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
           padding: 1rem 1.5rem 1rem 0;
           flex-shrink: 0;
           grid-row: 1;
