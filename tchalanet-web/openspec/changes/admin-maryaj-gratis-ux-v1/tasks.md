@@ -220,20 +220,21 @@ full brief is complete.
 - [x] Run admin portal unit tests cleanly.
 - [x] Run web-e2e lint.
 - [x] Run admin-business e2e outside the sandbox; Maryaj path passes, but unrelated setup printing and limits scenarios currently fail.
-- [ ] Add main page coverage for active game plus active offer.
+- [x] Add main page coverage for active game plus active offer.
 - [ ] Add main page coverage for active game plus paused offer.
 - [ ] Add main page coverage for game incomplete.
 - [ ] Add main page coverage for offer incomplete.
-- [ ] Add main page coverage for permanent/no-end-date offer.
+- [x] Add main page coverage for permanent/no-end-date offer.
 - [ ] Add main page coverage for scheduled future offer.
 - [ ] Add main page coverage for ended offer.
-- [ ] Add main page coverage for zero, one, and multiple tiers.
+- [ ] Add main page coverage for zero and one tiers.
+- [x] Add main page coverage for multiple tiers.
 - [x] Add focused coverage for automatic generation and manual selection behavior.
 - [x] Add focused coverage for missing generation settings in read mode.
 - [ ] Add main page coverage for generation error state if supported.
 - [ ] Add game editor coverage for POS visibility, activation, stake validation, availability navigation, option toggles, payout edit/delete, save/cancel/dirty behavior.
 - [ ] Add offer editor coverage for start date, no end date, explicit end date, attribution mode changes, tier add/edit/delete, open-ended final tier, invalid ranges, pause/resume, and advanced value preservation.
-- [ ] Add e2e/visual guard for no raw translation keys.
+- [x] Add e2e/visual guard for no raw translation keys.
 - [ ] Capture 360 px screenshots for main page, game editor, offer editor, and tier editor.
 - [ ] Capture desktop screenshots.
 - [ ] Verify keyboard-open behavior on mobile.

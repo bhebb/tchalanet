@@ -28,7 +28,33 @@ export class AdminMaryajGratisPage {
     await expect(this.gamePanel).toBeVisible();
     await expect(this.offerPanel).toBeVisible();
     await expect(this.generationPanel).toBeVisible();
+  }
+
+  async expectMainSummaryDisplay(): Promise<void> {
+    await expect(this.gamePanel).toContainText('Jwèt la');
+    await expect(this.gamePanel).toContainText('Pare');
+    await expect(this.gamePanel).toContainText('Miz');
+    await expect(this.gamePanel).toContainText('1 HTG – 10 000 000 HTG');
+    await expect(this.gamePanel).toContainText('Egzak + Reverse');
+    await expect(this.gamePanel).toContainText('Disponibilite pa tiraj');
+
+    await expect(this.offerPanel).toContainText('Òf gratis la');
+    await expect(this.offerPanel).toContainText('Aktif');
+    await expect(this.offerPanel).toContainText('Kòmansman');
     await expect(this.offerPanel).toContainText('Pa gen fen');
+    await expect(this.offerPanel).toContainText('Mòd atribisyon');
+    await expect(this.offerPanel).toContainText('Pa palye');
+    await expect(this.offerPanel).toContainText('100 HTG – 199 HTG → 1 Maryaj gratis');
+    await expect(this.offerPanel).toContainText('200 HTG – 499 HTG → 2 Maryaj gratis');
+    await expect(this.offerPanel).toContainText('500 HTG + → 3 Maryaj gratis');
+
+    await expect(this.generationPanel).toContainText('Jenerasyon');
+    await expect(this.generationPanel).toContainText('Nimewo');
+    await expect(this.generationPanel).toContainText('Tchalanet jenere yo otomatikman');
+    await expect(this.generationPanel).toContainText('3 tantativ');
+
+    await expect(this.root).not.toContainText('admin.maryajGratis');
+    await expect(this.root).not.toContainText('admin.gamesPricing');
     await expect(this.offerPanel).not.toContainText('2036');
   }
 
