@@ -245,6 +245,32 @@ describe(AdminMaryajGratisStore.name, () => {
     );
   });
 
+  it('sends an edited start date and maps no-end offers to a long-running campaign', () => {
+    const campaign = campaignWithTiers(undefined, {
+      startsAt: '2026-07-01T00:00:00Z',
+      endsAt: '2026-12-31T23:59:59Z',
+    });
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaign], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(of(campaign));
+    gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+    promotionsApi.updateCampaign.mockReturnValue(of(campaign));
+    promotionsApi.updateRuleEffects.mockReturnValue(of(campaign));
+
+    store.load();
+    store.startEditingOffer();
+    store.form.controls.startsAt.setValue(new Date(2026, 8, 15));
+    store.form.controls.noEndDate.setValue(true);
+    store.saveOffer();
+
+    const request = promotionsApi.updateCampaign.mock.calls.at(-1)?.[1];
+    expect(new Date(request.startsAt).getFullYear()).toBe(2026);
+    expect(new Date(request.startsAt).getMonth()).toBe(8);
+    expect(new Date(request.startsAt).getDate()).toBe(15);
+    expect(Date.parse(request.endsAt) - Date.parse(request.startsAt)).toBeGreaterThan(
+      9 * 365 * 24 * 60 * 60 * 1000,
+    );
+  });
+
   it('sends fixed attribution without tier or per-amount fields', () => {
     loadEditableCampaign();
     store.form.controls.quantityMode.setValue('FIXED');
