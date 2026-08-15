@@ -14,4 +14,9 @@ export const adminGamesPricingRoutes: Route[] = [
         m => m.AdminDrawSalesMatrixPage,
       ),
   },
+  {
+    path: ':gameCode/settings',
+    loadComponent: () =>
+      import('./pages/settings/admin-game-settings.page').then(m => m.AdminGameSettingsPage),
+  },
 ];

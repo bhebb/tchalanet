@@ -31,11 +31,6 @@ import {
 } from '../../components/games-setup-summary/games-setup-summary.component';
 import { TenantGameCardError } from '../../components/tenant-game-card/tenant-game-card.component';
 import { TenantGamesGridComponent } from '../../components/tenant-games-grid/tenant-games-grid.component';
-import {
-  GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
-  GameSettingsDialog,
-} from '../../components/dialogs/game-settings.dialog';
-import { toTenantGameSettingsView } from '../../data-access/tenant-game-settings-adapter';
 
 interface GamesOverviewSummary {
   readonly catalogGameCount: number;
@@ -179,15 +174,8 @@ export class AdminGamesPricingPage {
       return;
     }
 
-    const game = this.games().find(g => g.gameCode === gameCode);
-    if (!game) return;
-
-    const ref = this.dialog.open(GameSettingsDialog, {
-      data: { game: toTenantGameSettingsView(game) },
-      ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
-    });
-    ref.afterClosed().subscribe(ok => {
-      if (ok) this.load();
+    void this.router.navigate(['/app/admin/games', gameCode, 'settings'], {
+      queryParams: this.setupFlowQueryParams(),
     });
   }
 

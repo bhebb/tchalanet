@@ -2193,6 +2193,10 @@
           "message": "Your changes will not be saved.",
           "action": "Leave without saving"
         },
+        "empty": {
+          "title": "Game not found.",
+          "message": "Go back to the games list and choose the game you want to edit."
+        },
         "payouts": {
           "title": "Payouts",
           "description": "Configure how much the customer can win for each supported option.",

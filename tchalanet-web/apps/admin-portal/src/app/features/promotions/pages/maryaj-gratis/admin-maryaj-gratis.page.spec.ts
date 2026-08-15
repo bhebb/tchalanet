@@ -1,22 +1,18 @@
 import { ViewportScroller } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
-import {
-  GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
-  GameSettingsDialog,
-} from '../../../games-pricing/components/dialogs/game-settings.dialog';
-import { toTenantGameSettingsView } from '../../../games-pricing/data-access/tenant-game-settings-adapter';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { AdminMaryajGratisPage } from './admin-maryaj-gratis.page';
 
 describe(AdminMaryajGratisPage.name, () => {
   let dialog: { open: ReturnType<typeof vi.fn> };
+  let router: { navigate: ReturnType<typeof vi.fn> };
   let store: { load: ReturnType<typeof vi.fn>; state: ReturnType<typeof vi.fn> };
   let page: AdminMaryajGratisPage;
 
@@ -26,74 +22,57 @@ describe(AdminMaryajGratisPage.name, () => {
         afterClosed: () => of(false),
       })),
     };
+    router = {
+      navigate: vi.fn(),
+    };
     store = {
       load: vi.fn(),
       state: vi.fn(() => 'ready'),
     };
+  });
 
+  function configurePage(queryParams: Record<string, string> = {}): void {
+    const queryParamMap = convertToParamMap(queryParams);
     TestBed.configureTestingModule({
       providers: [
-        { provide: ActivatedRoute, useValue: { fragment: of(null), snapshot: { fragment: null } } },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            fragment: of(null),
+            queryParamMap: of(queryParamMap),
+            snapshot: { fragment: null, queryParamMap },
+          },
+        },
         { provide: ViewportScroller, useValue: { scrollToAnchor: vi.fn() } },
         { provide: MatDialog, useValue: dialog },
+        { provide: Router, useValue: router },
         { provide: TranslateService, useValue: { instant: (key: string) => key } },
         { provide: AdminMaryajGratisStore, useValue: store },
       ],
     });
     page = TestBed.runInInjectionContext(() => new AdminMaryajGratisPage());
-  });
+  }
 
-  it('opens the shared game editor with Maryaj game configuration values', () => {
-    const betOptions = [
-      {
-        label: 'Exact',
-        value: 'EXACT',
-        odds: null,
-        payoutRuleType: 'FIXED_AMOUNT' as const,
-        fixedAmount: 500,
-        betType: 'MARYAJ',
-        betOption: 1,
-        pricingVariantCode: 'MARRIAGE_EXACT_ORDER',
-      },
-    ];
-    const game = maryajGame({
-      tenantStatus: 'NEEDS_CONFIG',
-      visibleInPos: false,
-      readiness: {
-        status: 'TODO',
-        label: 'Pou konfigire',
-        reason: 'missing pricing',
-      },
-      limits: {
-        minStake: 5,
-        maxStake: 5000,
-        maxPerDraw: null,
-        currency: 'HTG',
-      },
-      odds: betOptions,
-    });
-
-    page.openGameSettings(game);
-
-    expect(dialog.open).toHaveBeenCalledWith(
-      GameSettingsDialog,
-      expect.objectContaining({
-        data: expect.objectContaining({
-          game: toTenantGameSettingsView(game),
-        }),
-        ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
-      }),
-    );
-  });
-
-  it('reloads Maryaj Gratis data after the shared game editor saves changes', () => {
-    dialog.open.mockReturnValueOnce({
-      afterClosed: () => of(true),
-    });
+  it('navigates to the shared routed game editor for Maryaj game configuration', () => {
+    configurePage();
 
     page.openGameSettings(maryajGame());
 
-    expect(store.load).toHaveBeenCalledOnce();
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/app/admin/games', 'HT_MARYAJ_GRATIS', 'settings'],
+      { queryParams: { returnTo: 'maryaj-gratis' } },
+    );
+  });
+
+  it('preserves setup navigation context when opening the routed game editor', () => {
+    configurePage({ from: 'setup' });
+
+    page.openGameSettings(maryajGame());
+
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/app/admin/games', 'HT_MARYAJ_GRATIS', 'settings'],
+      { queryParams: { returnTo: 'maryaj-gratis', from: 'setup' } },
+    );
   });
 
   function maryajGame(overrides: Partial<TenantGamePricingView> = {}): TenantGamePricingView {

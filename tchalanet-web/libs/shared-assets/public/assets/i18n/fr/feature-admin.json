@@ -758,6 +758,10 @@
           "message": "Vos changements ne seront pas enregistrés.",
           "action": "Quitter sans enregistrer"
         },
+        "empty": {
+          "title": "Jeu introuvable.",
+          "message": "Retournez à la liste des jeux et choisissez le jeu à modifier."
+        },
         "payouts": {
           "title": "Barèmes",
           "description": "Configurez le montant que le client peut gagner pour chaque option supportée.",

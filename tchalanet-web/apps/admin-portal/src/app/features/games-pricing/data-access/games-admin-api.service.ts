@@ -115,6 +115,13 @@ export class GamesAdminApiService {
     return this.backend.get<TenantGameView[]>('/admin/games', options);
   }
 
+  listEnabledGamesResource(options?: TchRequestOptions) {
+    return this.backend.getResource<TenantGameView[]>(() => ({
+      path: '/admin/games',
+      options,
+    }));
+  }
+
   listCatalogGames(options?: TchRequestOptions): Observable<CatalogGameView[]> {
     return this.backend.get<CatalogGameView[]>('/admin/games/catalog', options);
   }
@@ -127,12 +134,32 @@ export class GamesAdminApiService {
     return this.backend.post<void>(`/admin/games/${gameCode}/disable`, {}, options);
   }
 
-  updateGameSettings(gameCode: string, req: UpdateGameSettingsRequest, options?: TchRequestOptions): Observable<void> {
+  updateGameSettings(
+    gameCode: string,
+    req: UpdateGameSettingsRequest,
+    options?: TchRequestOptions,
+  ): Observable<void> {
     return this.backend.patch<void>(`/admin/games/${gameCode}/settings`, req, options);
   }
 
-  getBetOptionConfig(gameCode: string, options?: TchRequestOptions): Observable<TenantGameBetOptionConfigView> {
-    return this.backend.get<TenantGameBetOptionConfigView>(`/admin/games/${gameCode}/bet-options`, options);
+  getBetOptionConfig(
+    gameCode: string,
+    options?: TchRequestOptions,
+  ): Observable<TenantGameBetOptionConfigView> {
+    return this.backend.get<TenantGameBetOptionConfigView>(
+      `/admin/games/${gameCode}/bet-options`,
+      options,
+    );
+  }
+
+  getBetOptionConfigResource(
+    gameCode: () => string | null | undefined,
+    options?: TchRequestOptions,
+  ) {
+    return this.backend.getResource<TenantGameBetOptionConfigView>(() => {
+      const code = gameCode();
+      return code ? { path: `/admin/games/${code}/bet-options`, options } : undefined;
+    });
   }
 
   updateBetOptionConfig(

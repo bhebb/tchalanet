@@ -4,11 +4,12 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   effect,
   inject,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
@@ -21,11 +22,6 @@ import {
 } from '@tch/ui/components';
 import { AdminPageShellComponent, AdminRefreshButtonComponent } from '@tch/ui/console';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
-import {
-  GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
-  GameSettingsDialog,
-} from '../../../games-pricing/components/dialogs/game-settings.dialog';
-import { toTenantGameSettingsView } from '../../../games-pricing/data-access/tenant-game-settings-adapter';
 import { PromotionCampaignView } from '../../data-access/admin-promotions-api.service';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { MaryajGenerationPanelComponent } from './components/maryaj-generation-panel.component';
@@ -53,11 +49,16 @@ import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.compo
 })
 export class AdminMaryajGratisPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly viewportScroller = inject(ViewportScroller);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
   readonly store = inject(AdminMaryajGratisStore);
+  readonly fromSetup = computed(() => this.queryParamMap().get('from') === 'setup');
 
   constructor() {
     effect(() => {
@@ -75,12 +76,11 @@ export class AdminMaryajGratisPage implements OnInit {
   }
 
   openGameSettings(game: TenantGamePricingView): void {
-    const ref = this.dialog.open(GameSettingsDialog, {
-      data: { game: toTenantGameSettingsView(game) },
-      ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
-    });
-    ref.afterClosed().subscribe(ok => {
-      if (ok) this.store.load();
+    void this.router.navigate(['/app/admin/games', game.gameCode, 'settings'], {
+      queryParams: {
+        returnTo: 'maryaj-gratis',
+        ...(this.fromSetup() ? { from: 'setup' } : {}),
+      },
     });
   }
 

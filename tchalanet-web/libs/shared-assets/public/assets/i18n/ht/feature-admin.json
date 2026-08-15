@@ -2193,6 +2193,10 @@
           "message": "Chanjman ou fè yo p ap anrejistre.",
           "action": "Kite san anrejistre"
         },
+        "empty": {
+          "title": "Jwèt la pa jwenn.",
+          "message": "Retounen nan lis jwèt yo epi chwazi jwèt ou vle modifye a."
+        },
         "payouts": {
           "title": "Barèm",
           "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte.",
