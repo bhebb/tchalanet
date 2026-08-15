@@ -286,6 +286,42 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(request.items[0].params['quantityTiers']).toBeUndefined();
   });
 
+  it('switches attribution mode controls between tiers, fixed, and per-amount fields', () => {
+    loadEditableCampaign();
+    const form = store.form;
+    const tiers = store.quantityTiers();
+
+    expect(form.controls.quantityMode.value).toBe('TIERED_PAID_AMOUNT');
+    expect(tiers.enabled).toBe(true);
+    expect(form.controls.stepPaidAmount.disabled).toBe(true);
+    expect(form.controls.quantityPerStep.disabled).toBe(true);
+    expect(form.controls.maxQuantity.disabled).toBe(true);
+
+    form.controls.quantityMode.setValue('FIXED');
+
+    expect(tiers.disabled).toBe(true);
+    expect(form.controls.stepPaidAmount.disabled).toBe(true);
+    expect(form.controls.quantityPerStep.disabled).toBe(true);
+    expect(form.controls.maxQuantity.disabled).toBe(true);
+
+    form.controls.quantityMode.setValue('PER_PAID_AMOUNT');
+
+    expect(tiers.disabled).toBe(true);
+    expect(form.controls.stepPaidAmount.enabled).toBe(true);
+    expect(form.controls.quantityPerStep.enabled).toBe(true);
+    expect(form.controls.maxQuantity.enabled).toBe(true);
+    expect(form.controls.stepPaidAmount.value).toBe(1000);
+    expect(form.controls.quantityPerStep.value).toBe(2);
+    expect(form.controls.maxQuantity.value).toBe(10);
+
+    form.controls.quantityMode.setValue('TIERED_PAID_AMOUNT');
+
+    expect(tiers.enabled).toBe(true);
+    expect(form.controls.stepPaidAmount.disabled).toBe(true);
+    expect(form.controls.quantityPerStep.disabled).toBe(true);
+    expect(form.controls.maxQuantity.disabled).toBe(true);
+  });
+
   it('preserves advanced campaign priority when saving the offer', () => {
     loadEditableCampaign();
     store.form.controls.priority.setValue(77);

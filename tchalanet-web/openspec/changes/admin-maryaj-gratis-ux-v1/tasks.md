@@ -127,7 +127,7 @@ full brief is complete.
 - [x] Use business-facing labels for supported modes in the new copy.
 - [x] Reveal tier controls when tiered attribution is selected.
 - [x] Hide tier controls when the selected mode does not use them.
-- [ ] Add focused tests for attribution mode changes.
+- [x] Add focused tests for attribution mode changes.
 
 ## 12. Rework Tier Configuration / Palye
 
