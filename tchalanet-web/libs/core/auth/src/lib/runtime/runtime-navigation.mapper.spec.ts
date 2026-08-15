@@ -82,6 +82,68 @@ describe('sectionsFromRuntimeNavigation', () => {
     ]);
   });
 
+  it('reads normalized runtime destinations, not only legacy path fields', () => {
+    const drawer: RuntimeNavigationDrawer = {
+      sections: [
+        {
+          id: 'config',
+          labelKey: 'nav.admin.section.config',
+          items: [
+            {
+              id: 'setup',
+              labelKey: 'nav.admin.general_configuration',
+              kind: 'link',
+              destination: { kind: 'route', value: '/app/admin/setup' },
+            },
+            {
+              id: 'games',
+              labelKey: 'nav.admin.games_available',
+              kind: 'link',
+              activeRoutes: ['/app/admin/pricing'],
+              activeMatch: 'exact',
+              destination: { kind: 'route', value: '/app/admin/games' },
+            },
+            {
+              id: 'company',
+              labelKey: 'nav.admin.company',
+              kind: 'link',
+              destination: { kind: 'route', value: '/app/admin/business-profile' },
+              children: [
+                {
+                  id: 'company-settings',
+                  labelKey: 'nav.admin.company_settings',
+                  kind: 'link',
+                  destination: { kind: 'route', value: '/app/admin/company/settings' },
+                },
+              ],
+            },
+            {
+              id: 'help',
+              labelKey: 'nav.admin.help',
+              kind: 'link',
+              destination: { kind: 'url', value: 'https://docs.tchalanet.com/admin' },
+            },
+          ],
+        },
+      ],
+    };
+
+    const sections = sectionsFromRuntimeNavigation(drawer);
+    const items = sections?.[0]?.items ?? [];
+
+    expect(items.map(item => [item.id, item.destination])).toEqual([
+      ['setup', { kind: 'route', value: '/app/admin/setup' }],
+      ['games', { kind: 'route', value: '/app/admin/games' }],
+      ['company', { kind: 'route', value: '/app/admin/business-profile' }],
+      ['help', { kind: 'url', value: 'https://docs.tchalanet.com/admin' }],
+    ]);
+    expect(items.find(item => item.id === 'games')?.activeRoutes).toEqual(['/app/admin/pricing']);
+    expect(items.find(item => item.id === 'company')?.children?.[0]?.destination).toEqual({
+      kind: 'route',
+      value: '/app/admin/company/settings',
+    });
+  });
+
   it('returns null when the backend sends no sections, so the static fallback applies', () => {
     expect(sectionsFromRuntimeNavigation({ sections: [] })).toBeNull();
     expect(sectionsFromRuntimeNavigation(null)).toBeNull();
