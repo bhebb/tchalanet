@@ -155,6 +155,7 @@ export interface AdminSectionCardError {
           display: flex;
           align-items: center;
           grid-column: 1;
+          grid-row: 1;
           padding: 1rem 1.5rem;
         }
 
@@ -163,6 +164,15 @@ export interface AdminSectionCardError {
           border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
           padding: 1rem 1.5rem 1rem 0;
           flex-shrink: 0;
+          grid-row: 1;
+        }
+
+        .section-card__status {
+          grid-column: 2;
+        }
+
+        .section-card__actions {
+          grid-column: 3;
         }
 
         .section-card__error,
