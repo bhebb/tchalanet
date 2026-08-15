@@ -54,6 +54,8 @@ export interface AdminSectionCardError {
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       :host {
         display: block;
       }
@@ -130,7 +132,7 @@ export interface AdminSectionCardError {
         font-family: 'Material Symbols Outlined';
       }
 
-      @media (min-width: 840px) {
+      @include ui.up(expanded) {
         .section-card__header {
           display: flex;
           align-items: center;
