@@ -86,7 +86,9 @@
 
   <div class="gp-game-card__actions">
     <button
-      mat-stroked-button
+      mat-flat-button
+      color="primary"
+      class="gp-game-card__primary-action"
       [disabled]="g.tenantStatus === 'UNAVAILABLE' || saving()"
       (click)="onConfigure()"
     >

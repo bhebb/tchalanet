@@ -219,6 +219,10 @@
       min-height: 2.75rem;
     }
   }
+
+  &__primary-action {
+    min-width: 8.75rem;
+  }
 }
 
 @include ui.up(expanded) {
