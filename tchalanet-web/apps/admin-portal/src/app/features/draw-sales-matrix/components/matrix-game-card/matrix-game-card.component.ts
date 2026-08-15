@@ -48,6 +48,7 @@ export class DrawSalesMatrixGameCardComponent {
   readonly actionError = input<TchErrorViewModel | null>(null);
   readonly actionNotice = input<string | null>(null);
   readonly pendingEnabled = input<boolean | null>(null);
+  readonly canManage = input(true);
 
   readonly gameAction = output<MatrixGameActionEvent>();
 

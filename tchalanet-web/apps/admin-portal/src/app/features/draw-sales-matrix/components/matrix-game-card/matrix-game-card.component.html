@@ -55,7 +55,7 @@
       class="matrix-game__switch"
       [class.matrix-game__switch--active]="switchEnabled()"
       type="button"
-      [disabled]="acting()"
+      [disabled]="!canManage() || acting()"
       [attr.aria-pressed]="switchEnabled()"
       [attr.aria-label]="
         (switchEnabled()

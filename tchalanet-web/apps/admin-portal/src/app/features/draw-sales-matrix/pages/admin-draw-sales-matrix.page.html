@@ -24,6 +24,7 @@
           [actionErrors]="actionErrors()"
           [actionNotices]="actionNotices()"
           [pendingEnabled]="pendingEnabled()"
+          [canManage]="canManageMatrix()"
           (gameAction)="onMatrixGameAction($event)"
         />
       }
