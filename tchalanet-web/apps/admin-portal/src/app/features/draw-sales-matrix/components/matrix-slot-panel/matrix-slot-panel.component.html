@@ -2,7 +2,23 @@
 <mat-expansion-panel>
   <mat-expansion-panel-header class="matrix-slot-panel__header">
     <mat-panel-title class="matrix-slot-header">
-      <tch-console-draw-slot-identity [identity]="identity()" density="compact" />
+      <div class="matrix-slot-header__identity">
+        <tch-console-draw-slot-identity
+          [identity]="identity()"
+          density="compact"
+          [showTechnicalMeta]="false"
+        />
+        <p class="matrix-slot-note">
+          @if (slotVm.channel?.drawTime; as drawTime) {
+            <span>{{ drawTime | slice: 0 : 5 }}</span>
+          }
+          @if (cutoffMinutes(slotVm); as minutes) {
+            <span>
+              {{ 'admin.drawSalesMatrix.channel.cutoffShort' | translate: { minutes } }}
+            </span>
+          }
+        </p>
+      </div>
       <span class="matrix-slot-header__meta">
         <strong>
           {{
@@ -33,17 +49,6 @@
       </span>
     </mat-panel-title>
   </mat-expansion-panel-header>
-
-  <p class="matrix-slot-note">
-    @if (slotVm.channel?.drawTime; as drawTime) {
-      <span>{{ drawTime | slice: 0 : 5 }}</span>
-    }
-    @if (cutoffMinutes(slotVm); as minutes) {
-      <span>
-        {{ 'admin.drawSalesMatrix.channel.cutoffShort' | translate: { minutes } }}
-      </span>
-    }
-  </p>
 
   <div class="matrix-games">
     @for (game of availableGames(); track game.gameCode) {

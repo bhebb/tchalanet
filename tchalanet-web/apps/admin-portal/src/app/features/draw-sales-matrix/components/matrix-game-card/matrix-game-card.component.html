@@ -57,6 +57,12 @@
       type="button"
       [disabled]="acting()"
       [attr.aria-pressed]="gameVm.offeredOnChannel && gameVm.enabledOnChannel"
+      [attr.aria-label]="
+        (gameVm.offeredOnChannel && gameVm.enabledOnChannel
+          ? 'admin.drawSalesMatrix.game.action.on'
+          : 'admin.drawSalesMatrix.game.action.off'
+        ) | translate
+      "
       (click)="
         gameAction.emit({
           action: mode() === 'available' ? 'offer' : 'toggle',
@@ -67,14 +73,6 @@
       <span class="matrix-game__switch-track" aria-hidden="true">
         <span class="matrix-game__switch-thumb"></span>
       </span>
-      <strong>
-        {{
-          (gameVm.offeredOnChannel && gameVm.enabledOnChannel
-            ? 'admin.drawSalesMatrix.game.action.on'
-            : 'admin.drawSalesMatrix.game.action.off'
-          ) | translate
-        }}
-      </strong>
     </button>
   }
 </div>
