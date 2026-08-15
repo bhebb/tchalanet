@@ -198,6 +198,7 @@ full brief is complete.
 ## 19. Tests
 
 - [x] Add unit coverage for no-end-date hydration and save mapping.
+- [x] Add focused coverage for Maryaj Gratis game summary amount formatting and business labels.
 - [x] Update Maryaj e2e page object for game, offer, generation panels and hidden `2036`.
 - [x] Run strict i18n audit.
 - [x] Run admin portal TypeScript check.

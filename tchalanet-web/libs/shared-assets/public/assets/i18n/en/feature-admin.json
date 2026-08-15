@@ -830,7 +830,7 @@
         },
         "stake": "Stake",
         "availability": "Availability",
-        "availabilitySummary": "Managed by draw",
+        "availabilitySummary": "Managed on each draw",
         "availabilityAction": "Go to Availability by draw",
         "missingReason": {
           "absent": "Free Maryaj is missing from the operator game configuration.",

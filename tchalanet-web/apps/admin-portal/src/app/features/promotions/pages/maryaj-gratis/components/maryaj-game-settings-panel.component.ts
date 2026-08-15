@@ -35,11 +35,6 @@ export class MaryajGameSettingsPanelComponent {
     return fallback;
   }
 
-  oddsLabel(odds: number | null): string {
-    if (odds === null) return this.translate.instant('admin.maryajGratis.game.notConfigured');
-    return `x${odds.toLocaleString('fr')}`;
-  }
-
   oddsSummary(): string {
     const odds = this.game()?.odds ?? [];
     const labels = odds.map(odd => this.gainOptionLabel(odd.pricingVariantCode, odd.label));
@@ -47,6 +42,8 @@ export class MaryajGameSettingsPanelComponent {
   }
 
   readinessLabel(status: string): string {
-    return this.translate.instant(`admin.maryajGratis.game.readiness.${status}`);
+    const key = `admin.maryajGratis.game.readiness.${status}`;
+    const translated = this.translate.instant(key);
+    return translated === key ? status : translated;
   }
 }

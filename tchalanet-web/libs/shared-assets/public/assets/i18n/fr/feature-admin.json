@@ -1524,7 +1524,7 @@
         },
         "stake": "Mise",
         "availability": "Disponibilité",
-        "availabilitySummary": "Gérée par tirage",
+        "availabilitySummary": "Gérée sur chaque tirage",
         "availabilityAction": "Aller à Disponibilité par tirage",
         "missingReason": {
           "absent": "Le jeu Maryaj gratis est absent de la configuration du santral.",

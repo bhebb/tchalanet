@@ -127,29 +127,6 @@
   text-decoration: underline;
 }
 
-.maryaj-game-settings__odds {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.375rem;
-}
-
-.maryaj-game-settings__odds span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-pill);
-  padding: 0.375rem 0.625rem;
-  background: var(--tch-color-surface-container-low);
-  color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-label-medium);
-}
-
-.maryaj-game-settings__odds strong {
-  color: var(--tch-color-primary);
-}
-
 .maryaj-game-settings__hint {
   margin: 0;
 }
