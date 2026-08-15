@@ -112,10 +112,7 @@ export class PrivateShellLayoutComponent {
 
   readonly themeIcon = computed(() => (this.darkMode() ? 'light_mode' : 'dark_mode'));
   readonly settingsPanel = signal<ShellSettingsPanel | null>(null);
-  readonly drawerTenantName = computed(() => {
-    const tenant = this.bootstrap.tenantContext();
-    return (tenant?.tenantName?.trim() || tenant?.tenantCode?.trim() || '').trim();
-  });
+  readonly drawerTenantName = computed(() => this.bootstrap.tenantContext()?.tenantName?.trim() ?? '');
   readonly drawerScopeKey = computed(() => 'surface.tenant_admin');
   readonly drawerSecondary = computed(() => this.secondary().filter(item => item.id !== 'help'));
   readonly helpAction = computed(() => this.secondary().find(item => item.id === 'help') ?? null);
