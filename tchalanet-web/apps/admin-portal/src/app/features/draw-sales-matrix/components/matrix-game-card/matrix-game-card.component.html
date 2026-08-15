@@ -42,13 +42,6 @@
         [message]="err.message"
         [severity]="err.severity"
       />
-    } @else if (actionNotice(); as notice) {
-      <tch-section-error
-        class="matrix-game__error"
-        [title]="'admin.drawSalesMatrix.feedback.actionDone' | translate"
-        [message]="notice"
-        severity="info"
-      />
     }
 
     <button

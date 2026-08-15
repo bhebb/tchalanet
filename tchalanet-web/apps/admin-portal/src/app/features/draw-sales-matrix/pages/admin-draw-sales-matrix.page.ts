@@ -9,7 +9,6 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import { ErrorViewModel, toErrorViewModel } from '@tch/web/errors';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { resourceErrorVm, tchMutation, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
-import { consoleGameName } from '@tch/web/console';
 import {
   AdminDrawSalesMatrixApi,
   SlotMatrixView,
@@ -28,7 +27,6 @@ interface MatrixGameMutationInput {
   readonly key: string;
   readonly drawChannelId: string;
   readonly tenantGameId: string;
-  readonly game: ChannelGameSetupView;
 }
 
 interface MatrixToggleGameInput extends MatrixGameMutationInput {
@@ -63,18 +61,20 @@ export class AdminDrawSalesMatrixPage {
     const matrix = this.matrix();
     return matrix ? activeOnlyMatrix(matrix) : null;
   });
+  readonly searchQuery = signal('');
+  readonly filteredMatrix = computed(() => {
+    const matrix = this.activeMatrix();
+    if (!matrix) return null;
+    return filterMatrix(matrix, this.searchQuery());
+  });
   readonly acting = signal<string | null>(null); // key = `${drawChannelId}:${tenantGameId}`
   readonly actionErrors = signal<Readonly<Record<string, ErrorViewModel>>>({});
-  readonly actionNotices = signal<Readonly<Record<string, string>>>({});
   readonly pendingEnabled = signal<Readonly<Record<string, boolean>>>({});
   readonly offerGameMutation = tchMutation<MatrixGameMutationInput, unknown>({
     run: input => this.api.offerGame(input.drawChannelId, input.tenantGameId, { suppressShellFeedback: true }),
     source: 'admin.setup.draw_sales_matrix.offer',
-    onSuccess: (_result, input) => {
+    onSuccess: () => {
       this.acting.set(null);
-      this.setActionNotice(input.key, this.translate.instant('admin.drawSalesMatrix.feedback.added', {
-        game: this.gameLabel(input.game),
-      }));
       this.load(true);
     },
     onError: (err, input) => {
@@ -88,12 +88,8 @@ export class AdminDrawSalesMatrixPage {
     run: input =>
       this.api.toggleGame(input.drawChannelId, input.tenantGameId, input.enabled, { suppressShellFeedback: true }),
     source: 'admin.setup.draw_sales_matrix.toggle',
-    onSuccess: (_result, input) => {
+    onSuccess: () => {
       this.acting.set(null);
-      this.setActionNotice(input.key, this.translate.instant(
-        input.enabled ? 'admin.drawSalesMatrix.feedback.activated' : 'admin.drawSalesMatrix.feedback.disabled',
-        { game: this.gameLabel(input.game) },
-      ));
       this.load(true);
     },
     onError: (err, input) => {
@@ -107,7 +103,6 @@ export class AdminDrawSalesMatrixPage {
   load(preserveActionFeedback = false): void {
     if (!preserveActionFeedback) {
       this.actionErrors.set({});
-      this.actionNotices.set({});
       this.pendingEnabled.set({});
     }
     this.matrixResource.reload();
@@ -131,12 +126,10 @@ export class AdminDrawSalesMatrixPage {
     this.acting.set(key);
     this.setPendingEnabled(key, true);
     this.clearActionError(key);
-    this.clearActionNotice(key);
     this.offerGameMutation.execute({
       key,
       drawChannelId,
       tenantGameId,
-      game,
     }, {
       key,
     });
@@ -151,30 +144,16 @@ export class AdminDrawSalesMatrixPage {
     const key = this.actingKey(drawChannelId, tenantGameId);
     this.acting.set(key);
     this.clearActionError(key);
-    this.clearActionNotice(key);
     const newEnabled = !game.enabledOnChannel;
     this.setPendingEnabled(key, newEnabled);
     this.toggleGameMutation.execute({
       key,
       drawChannelId,
       tenantGameId,
-      game,
       enabled: newEnabled,
     }, {
       key,
     });
-  }
-
-  isMaryajGratis(game: ChannelGameSetupView): boolean {
-    return (
-      game.gameCode === 'HT_MARYAJ_GRATUIT' ||
-      game.displayName?.toLowerCase().includes('maryaj gratuit') === true
-    );
-  }
-
-  gameLabel(game: ChannelGameSetupView): string {
-    if (this.isMaryajGratis(game)) return 'Maryaj gratis';
-    return consoleGameName(game.gameCode, game.displayName);
   }
 
   onMatrixGameAction(event: MatrixProviderGameActionEvent): void {
@@ -198,21 +177,8 @@ export class AdminDrawSalesMatrixPage {
     this.actionErrors.update(current => ({ ...current, [key]: error }));
   }
 
-  private setActionNotice(key: string, message: string): void {
-    this.actionNotices.update(current => ({ ...current, [key]: message }));
-  }
-
   private clearActionError(key: string): void {
     this.actionErrors.update(current => {
-      if (!current[key]) return current;
-      const next = { ...current };
-      delete next[key];
-      return next;
-    });
-  }
-
-  private clearActionNotice(key: string): void {
-    this.actionNotices.update(current => {
       if (!current[key]) return current;
       const next = { ...current };
       delete next[key];
@@ -265,6 +231,45 @@ function activeOnlyMatrix(matrix: TenantDrawSalesMatrixView): TenantDrawSalesMat
     providers,
     summary: summarizeMatrix(providers),
   };
+}
+
+function filterMatrix(matrix: TenantDrawSalesMatrixView, searchQuery: string): TenantDrawSalesMatrixView {
+  const query = searchQuery.trim().toLocaleLowerCase();
+  if (!query) return matrix;
+
+  const providers = matrix.providers
+    .map(provider => {
+      const providerMatches = includesQuery(provider.providerCode, query);
+      const slots = provider.slots
+        .map(slot => {
+          const slotMatches =
+            providerMatches ||
+            includesQuery(slot.slotKey, query) ||
+            includesQuery(slot.channel?.channelCode, query) ||
+            includesQuery(slot.channel?.drawTime, query) ||
+            includesQuery(slot.resultSlot.drawTime, query);
+          const games = slotMatches
+            ? slot.games
+            : slot.games.filter(game =>
+                includesQuery(game.gameCode, query) ||
+                includesQuery(game.displayName, query),
+              );
+          return games.length > 0 ? { ...slot, games } : null;
+        })
+        .filter((slot): slot is SlotMatrixView => slot !== null);
+
+      return slots.length > 0 ? { ...provider, slots } : null;
+    })
+    .filter((provider): provider is ProviderMatrixView => provider !== null);
+
+  return {
+    providers,
+    summary: summarizeMatrix(providers),
+  };
+}
+
+function includesQuery(value: string | null | undefined, query: string): boolean {
+  return value?.toLocaleLowerCase().includes(query) === true;
 }
 
 function summarizeMatrix(providers: readonly ProviderMatrixView[]): MatrixSummary {

@@ -1,1 +1,47 @@
+.matrix-page {
+  &__filters {
+    display: flex;
+    margin-bottom: 0.5rem;
+  }
 
+  &__search-wrap {
+    align-items: center;
+    background: var(--tch-color-surface-container-lowest);
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-md);
+    display: flex;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding-inline: 0.875rem;
+    width: 100%;
+
+    .material-symbols-outlined {
+      color: var(--tch-color-on-surface-variant);
+      font-size: 1.25rem;
+    }
+
+    &:focus-within {
+      border-color: var(--tch-color-primary);
+      box-shadow: 0 0 0 var(--tch-focus-ring-width, 2px)
+        color-mix(in oklab, var(--tch-color-primary) 18%, transparent);
+    }
+  }
+
+  &__search {
+    background: transparent;
+    border: 0;
+    color: var(--tch-color-on-surface);
+    flex: 1;
+    font-size: var(--tch-font-size-body-sm);
+    min-width: 0;
+    outline: 0;
+    padding: 0;
+  }
+
+  &__count,
+  &__empty {
+    color: var(--tch-color-on-surface-variant);
+    font-size: var(--tch-font-size-label-sm);
+    margin: 0 0 1rem;
+  }
+}
