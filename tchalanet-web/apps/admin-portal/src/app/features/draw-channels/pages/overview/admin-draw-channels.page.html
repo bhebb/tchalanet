@@ -105,6 +105,8 @@
         <tch-draw-channel-list-item
           [row]="row"
           [saving]="channelSaving(row.slot)"
+          [pendingEnabled]="pendingChannelEnabled(row.slot)"
+          [canManage]="canManageDrawChannels()"
           (configure)="openChannelConfig($event)"
           (details)="openChannelDetails($event)"
           (limits)="openChannelLimits($event)"
