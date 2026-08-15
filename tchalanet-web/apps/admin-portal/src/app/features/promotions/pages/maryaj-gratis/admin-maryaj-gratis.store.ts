@@ -344,10 +344,16 @@ export class AdminMaryajGratisStore {
 
   addQuantityTier(): void {
     const tiers = this.quantityTiers();
-    const last = tiers.at(tiers.length - 1)?.getRawValue() as
-      | Partial<MaryajQuantityTier>
-      | undefined;
-    const nextMin = typeof last?.maxPaidAmount === 'number' ? last.maxPaidAmount + 1 : 1000;
+    const lastControl = tiers.at(tiers.length - 1);
+    const last = lastControl?.getRawValue() as Partial<MaryajQuantityTier> | undefined;
+    const lastMin = typeof last?.minPaidAmount === 'number' ? last.minPaidAmount : 999;
+    let nextMin = 1000;
+    if (typeof last?.maxPaidAmount === 'number') {
+      nextMin = last.maxPaidAmount + 1;
+    } else if (lastControl) {
+      lastControl.get('maxPaidAmount')?.setValue(lastMin);
+      nextMin = lastMin + 1;
+    }
     tiers.push(this.quantityTierGroup(nextMin, null, 1));
   }
 

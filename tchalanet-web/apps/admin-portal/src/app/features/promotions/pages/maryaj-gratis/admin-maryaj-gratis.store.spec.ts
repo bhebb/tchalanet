@@ -112,6 +112,18 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(request.items[0].params['maxQuantity']).toBe(5);
   });
 
+  it('adds a new open-ended tier after the previous maximum paid amount', () => {
+    loadEditableCampaign();
+
+    store.addQuantityTier();
+
+    expect(store.quantityTiers().getRawValue()).toEqual([
+      { minPaidAmount: 500, maxPaidAmount: 999, quantity: 2 },
+      { minPaidAmount: 1000, maxPaidAmount: 1000, quantity: 4 },
+      { minPaidAmount: 1001, maxPaidAmount: null, quantity: 1 },
+    ]);
+  });
+
   it('blocks saving a tiered offer when every quantity tier is removed', () => {
     loadEditableCampaign();
     store.quantityTiers().clear();
@@ -157,6 +169,23 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(snackBar.open).toHaveBeenCalledWith('admin.maryajGratis.validation.tierOverlap', 'OK', {
       duration: 5000,
     });
+    expect(promotionsApi.updateCampaign).not.toHaveBeenCalled();
+    expect(promotionsApi.updateRuleEffects).not.toHaveBeenCalled();
+  });
+
+  it('blocks saving when an open-ended tier is not last', () => {
+    loadEditableCampaign();
+    store.quantityTiers().at(0).patchValue({
+      maxPaidAmount: null,
+    });
+
+    store.saveOffer();
+
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'admin.maryajGratis.validation.openEndedLast',
+      'OK',
+      { duration: 5000 },
+    );
     expect(promotionsApi.updateCampaign).not.toHaveBeenCalled();
     expect(promotionsApi.updateRuleEffects).not.toHaveBeenCalled();
   });
