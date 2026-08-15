@@ -257,6 +257,41 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(request.items[0].params['quantityTiers']).toBeUndefined();
   });
 
+  it('preserves advanced campaign priority when saving the offer', () => {
+    loadEditableCampaign();
+    store.form.controls.priority.setValue(77);
+
+    store.saveOffer();
+
+    expect(promotionsApi.updateCampaign).toHaveBeenCalledWith(
+      'campaign-1',
+      expect.objectContaining({
+        priority: 77,
+      }),
+    );
+  });
+
+  it('pauses and resumes the campaign through the promotion API', () => {
+    const activeCampaign = campaignWithTiers();
+    const pausedCampaign: PromotionCampaignView = { ...activeCampaign, status: 'PAUSED' };
+    const resumedCampaign: PromotionCampaignView = { ...activeCampaign, status: 'ACTIVE' };
+    loadCampaign(activeCampaign);
+    promotionsApi.pauseCampaign.mockReturnValue(of(pausedCampaign));
+    promotionsApi.activateCampaign.mockReturnValue(of(resumedCampaign));
+
+    store.pause(activeCampaign);
+
+    expect(promotionsApi.pauseCampaign).toHaveBeenCalledWith('campaign-1');
+    expect(store.maryajCampaign()?.status).toBe('PAUSED');
+    expect(store.saving()).toBe(false);
+
+    store.activate(pausedCampaign);
+
+    expect(promotionsApi.activateCampaign).toHaveBeenCalledWith('campaign-1');
+    expect(store.maryajCampaign()?.status).toBe('ACTIVE');
+    expect(store.saving()).toBe(false);
+  });
+
   it('keeps the page ready when tenant game configuration cannot be loaded', () => {
     promotionsApi.listCampaigns.mockReturnValue(of({ items: [], total: 0 }));
     gamesPricingApi.getGamesPricing.mockReturnValue(
@@ -271,14 +306,19 @@ describe(AdminMaryajGratisStore.name, () => {
   });
 
   function loadEditableCampaign(): void {
-    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaignWithTiers()], total: 1 }));
-    promotionsApi.getCampaign.mockReturnValue(of(campaignWithTiers()));
-    gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+    loadCampaign(campaignWithTiers());
     promotionsApi.updateCampaign.mockReturnValue(of(campaignWithTiers()));
     promotionsApi.updateRuleEffects.mockReturnValue(of(campaignWithTiers()));
 
-    store.load();
     store.startEditingOffer();
+  }
+
+  function loadCampaign(campaign: PromotionCampaignView): void {
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaign], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(of(campaign));
+    gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+
+    store.load();
   }
 
   function lastRuleEffectsRequest(): UpdatePromotionRuleEffectsRequest {
