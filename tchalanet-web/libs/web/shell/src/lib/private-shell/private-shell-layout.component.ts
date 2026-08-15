@@ -128,6 +128,16 @@ export class PrivateShellLayoutComponent {
    * En ADMIN pré-bootstrap (space = null) on préfère le blanc à "Plateforme" trompeur. */
   readonly drawerShowPlatformLabel = computed(() => this.bootstrap.space() === 'PLATFORM');
   readonly drawerScopeKey = computed(() => 'surface.tenant_admin');
+  /** Nom affiché dans la barre desktop : même logique que le drawer mobile. */
+  readonly topBarContextName = computed(() => {
+    if (this.drawerTenantName()) return this.drawerTenantName();
+    if (this.drawerShowPlatformLabel()) return null; // affiché via topBarScopeLabelKey
+    return null;
+  });
+  /** Clé de scope pour la barre desktop : tient compte de l'espace courant. */
+  readonly topBarScopeLabelKey = computed(() =>
+    this.bootstrap.space() === 'PLATFORM' ? 'surface.platform_admin' : 'surface.tenant_admin',
+  );
   readonly drawerSecondary = computed(() => this.secondary().filter(item => item.id !== 'help'));
   readonly helpAction = computed(() => this.secondary().find(item => item.id === 'help') ?? null);
   readonly availableLanguages = computed(() => {

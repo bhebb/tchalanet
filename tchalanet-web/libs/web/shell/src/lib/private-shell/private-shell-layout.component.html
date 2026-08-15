@@ -12,14 +12,54 @@
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
     </button>
     <tch-brand [brand]="brand()" [showName]="false" />
-    @if (titleKey()) {
+
+    @if (!overlayMode()) {
+      <!-- Contexte tenant/plateforme desktop — remplace le <strong> simple -->
+      <p class="top-bar-context" data-testid="private-shell-top-context">
+        @if (topBarContextName(); as name) {
+          <span class="top-bar-context__name" [title]="name">{{ name }}</span>
+          <span class="top-bar-context__sep" aria-hidden="true">·</span>
+        }
+        <span class="top-bar-context__scope">{{ topBarScopeLabelKey() | translate }}</span>
+      </p>
+    } @else if (titleKey()) {
       <strong>{{ titleKey() | translate }}</strong>
     }
+
     <div class="utilities">
       <div class="projected-utilities">
         <ng-content select="[private-shell-utility]" />
       </div>
       <tch-private-notification-bell />
+      @if (!overlayMode()) {
+        <!-- Sélecteur de langue compact — desktop/tablette uniquement -->
+        <div class="lang-selector" data-testid="private-shell-lang-selector">
+          <button
+            type="button"
+            class="lang-selector__trigger"
+            [attr.aria-expanded]="settingsPanel() === 'language'"
+            [attr.aria-label]="'nav.private.language' | translate"
+            (click)="toggleSettingsPanel('language')"
+          >
+            {{ currentLanguage().shortLabel }}
+          </button>
+          @if (settingsPanel() === 'language') {
+            <div class="lang-selector__panel" role="group">
+              @for (language of availableLanguages(); track language.id) {
+                <button
+                  type="button"
+                  class="lang-selector__option"
+                  [class.is-active]="language.id === currentLanguage().id"
+                  [attr.aria-pressed]="language.id === currentLanguage().id"
+                  (click)="setLanguage(language.id)"
+                >
+                  {{ language.label }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
       <button
         type="button"
         class="mode-toggle mode-toggle--desktop"
