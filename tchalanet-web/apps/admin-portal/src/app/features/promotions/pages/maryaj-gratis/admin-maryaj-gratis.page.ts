@@ -22,7 +22,10 @@ import {
 import { AdminPageShellComponent, AdminRefreshButtonComponent } from '@tch/ui/console';
 import { TenantGameView } from '../../../games-pricing/data-access/games-admin-api.service';
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
-import { GameSettingsDialog } from '../../../games-pricing/components/dialogs/game-settings.dialog';
+import {
+  GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
+  GameSettingsDialog,
+} from '../../../games-pricing/components/dialogs/game-settings.dialog';
 import { PromotionCampaignView } from '../../data-access/admin-promotions-api.service';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { MaryajGenerationPanelComponent } from './components/maryaj-generation-panel.component';
@@ -74,10 +77,7 @@ export class AdminMaryajGratisPage implements OnInit {
   openGameSettings(game: TenantGamePricingView): void {
     const ref = this.dialog.open(GameSettingsDialog, {
       data: { game: this.toDialogGame(game) },
-      width: 'min(48rem, 100vw)',
-      maxWidth: '100vw',
-      height: 'min(54rem, 100dvh)',
-      maxHeight: '100dvh',
+      ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
     });
     ref.afterClosed().subscribe(ok => {
       if (ok) this.store.load();

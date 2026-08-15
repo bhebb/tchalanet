@@ -7,7 +7,10 @@ import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
-import { GameSettingsDialog } from '../../../games-pricing/components/dialogs/game-settings.dialog';
+import {
+  GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
+  GameSettingsDialog,
+} from '../../../games-pricing/components/dialogs/game-settings.dialog';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { AdminMaryajGratisPage } from './admin-maryaj-gratis.page';
 
@@ -85,10 +88,7 @@ describe(AdminMaryajGratisPage.name, () => {
             betOptions,
           }),
         }),
-        width: 'min(48rem, 100vw)',
-        maxWidth: '100vw',
-        height: 'min(54rem, 100dvh)',
-        maxHeight: '100dvh',
+        ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
       }),
     );
   });

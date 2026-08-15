@@ -31,7 +31,10 @@ import {
 } from '../../components/games-setup-summary/games-setup-summary.component';
 import { TenantGameCardError } from '../../components/tenant-game-card/tenant-game-card.component';
 import { TenantGamesGridComponent } from '../../components/tenant-games-grid/tenant-games-grid.component';
-import { GameSettingsDialog } from '../../components/dialogs/game-settings.dialog';
+import {
+  GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
+  GameSettingsDialog,
+} from '../../components/dialogs/game-settings.dialog';
 
 interface GamesOverviewSummary {
   readonly catalogGameCount: number;
@@ -200,9 +203,7 @@ export class AdminGamesPricingPage {
 
     const ref = this.dialog.open(GameSettingsDialog, {
       data: { game: dialogGame },
-      width: 'min(44rem, calc(100vw - 1rem))',
-      maxWidth: 'calc(100vw - 1rem)',
-      maxHeight: 'calc(100dvh - 1rem)',
+      ...GAME_SETTINGS_DIALOG_SURFACE_CONFIG,
     });
     ref.afterClosed().subscribe(ok => {
       if (ok) this.load();

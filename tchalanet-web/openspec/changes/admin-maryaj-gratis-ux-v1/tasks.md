@@ -56,6 +56,7 @@ full brief is complete.
 - [x] Preserve unsaved-change behavior and cancel/save semantics.
 - [x] Keep save actions reachable without trapping the admin in a very long dialog.
 - [x] Structure the game editing surface as Vant, Miz, Disponibilite, Opsyon jwet, Barem/Gany, and Opsyon avanse.
+- [x] Keep Maryaj Gratis game editing on the same shared game-settings surface contract as other games.
 
 ## 4. Game Editor - Vant
 

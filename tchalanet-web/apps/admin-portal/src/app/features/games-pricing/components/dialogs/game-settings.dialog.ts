@@ -68,6 +68,13 @@ interface SaveGameConfigRequest {
   readonly deletePricingOdds: readonly DeleteTenantOddsRequest[];
 }
 
+export const GAME_SETTINGS_DIALOG_SURFACE_CONFIG = {
+  width: 'min(48rem, 100vw)',
+  maxWidth: '100vw',
+  height: 'min(54rem, 100dvh)',
+  maxHeight: '100dvh',
+} as const;
+
 @Component({
   selector: 'tch-game-settings-dialog',
   standalone: true,
