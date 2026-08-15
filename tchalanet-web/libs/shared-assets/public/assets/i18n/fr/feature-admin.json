@@ -1377,6 +1377,7 @@
       "action": {
         "backToSetup": "Retour à la configuration",
         "pricing": "Voir les barèmes",
+        "availability": "Jeux par tirage",
         "refresh": "Rafraîchir"
       },
       "table": {

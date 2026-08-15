@@ -241,7 +241,7 @@ export class AdminGamesPricingPage {
     });
   }
 
-  private setupFlowQueryParams(): Record<string, string> | undefined {
+  protected setupFlowQueryParams(): Record<string, string> | undefined {
     return this.fromSetup() ? { from: 'setup' } : undefined;
   }
 

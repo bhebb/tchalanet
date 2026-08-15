@@ -99,13 +99,5 @@
     >
       {{ configureLabelKey(g) | translate }}
     </button>
-    <button
-      mat-button
-      [disabled]="g.tenantStatus === 'UNAVAILABLE'"
-      (click)="onAvailability()"
-    >
-      <span class="material-symbols-outlined" aria-hidden="true">rule_settings</span>
-      {{ 'admin.gamesPricing.card.action.availability' | translate }}
-    </button>
   </div>
 </article>

@@ -18,6 +18,14 @@
       <span class="material-symbols-outlined">format_list_numbered</span>
       {{ 'admin.gamesPricing.action.pricing' | translate }}
     </a>
+    <a
+      mat-stroked-button
+      routerLink="/app/admin/games/channel-matrix"
+      [queryParams]="setupFlowQueryParams()"
+    >
+      <span class="material-symbols-outlined">rule_settings</span>
+      {{ 'admin.gamesPricing.action.availability' | translate }}
+    </a>
     <button mat-stroked-button (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
       {{ 'admin.gamesPricing.action.refresh' | translate }}

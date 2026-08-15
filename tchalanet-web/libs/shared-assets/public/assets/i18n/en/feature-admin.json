@@ -684,6 +684,7 @@
       "action": {
         "backToSetup": "Back to setup",
         "pricing": "View pricing",
+        "availability": "Games by draw",
         "refresh": "Refresh"
       },
       "table": {

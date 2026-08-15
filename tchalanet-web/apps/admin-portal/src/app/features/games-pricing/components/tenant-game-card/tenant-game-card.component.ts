@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { TchSectionErrorSeverity } from '@tch/ui/components';
@@ -37,7 +36,6 @@ export interface TenantGameCardError {
   styleUrls: ['./tenant-game-card.component.scss'],
 })
 export class TenantGameCardComponent {
-  private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
   readonly game = input.required<TenantGamePricingView>();
@@ -60,12 +58,6 @@ export class TenantGameCardComponent {
 
   onConfigure(): void {
     this.configure.emit(this.game().gameCode);
-  }
-
-  onAvailability(): void {
-    void this.router.navigate(['/app/admin/games/channel-matrix'], {
-      fragment: `game-${this.game().gameCode}`,
-    });
   }
 
   private hasStakeConfig(game: TenantGamePricingView): boolean {
