@@ -60,6 +60,7 @@
         [actionError]="actionError(slotVm, game)"
         [actionNotice]="actionNotice(slotVm, game)"
         [pendingEnabled]="pendingGameEnabled(slotVm, game)"
+        [canManage]="canManage()"
         (gameAction)="onGameAction($event)"
       />
     }

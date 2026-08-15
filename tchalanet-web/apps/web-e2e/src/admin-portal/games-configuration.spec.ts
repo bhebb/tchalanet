@@ -28,10 +28,13 @@ test.describe('Admin games configuration — desktop', () => {
     await expect(firstCard).toContainText(/Barème|Barèm|Payouts/);
     await expect(firstCard).toContainText(/Disponibilité|Disponib|Available/);
     await expect(
-      firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }),
+      firstCard.getByRole('button', { name: /Modifier le jeu|Modifye jwèt la|Edit game|Configurer|Konfigire|Configure/ }),
     ).toBeVisible();
     await expect(
       firstCard.getByRole('button', { name: /Jeux par tirage|Jwèt pa tiraj|Games by draw/ }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole('link', { name: /Disponibilité|Disponibilite|Jeux par tirage|Jwèt pa tiraj|Games by draw/ }),
     ).toBeVisible();
 
     const needsAttentionCard = page.locator('.gp-game-card--attention').filter({ hasText: /Loto 4/ });
