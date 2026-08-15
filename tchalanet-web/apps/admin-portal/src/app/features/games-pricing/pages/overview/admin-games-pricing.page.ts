@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -63,9 +64,15 @@ const MARYAJ_GRATIS_GAME_CODES = new Set(['HT_MARYAJ_GRATIS', 'HT_MARYAJ_GRATUIT
 export class AdminGamesPricingPage {
   private readonly api = inject(AdminGamesPricingApiService);
   private readonly dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
 
+  readonly fromSetup = computed(() => this.queryParamMap().get('from') === 'setup');
+  readonly setupReturnFragment = 'setup-required-title';
   readonly gamesResponseResource = this.api.getGamesPricingResponseResource({
     suppressShellFeedback: true,
   });
@@ -151,7 +158,10 @@ export class AdminGamesPricingPage {
 
   onConfigure(gameCode: string): void {
     if (MARYAJ_GRATIS_GAME_CODES.has(gameCode)) {
-      void this.router.navigate(['/app/admin/maryaj-gratis'], { fragment: 'game' });
+      void this.router.navigate(['/app/admin/maryaj-gratis'], {
+        queryParams: this.setupFlowQueryParams(),
+        fragment: 'game',
+      });
       return;
     }
 
@@ -229,6 +239,10 @@ export class AdminGamesPricingPage {
       delete next[gameCode];
       return next;
     });
+  }
+
+  private setupFlowQueryParams(): Record<string, string> | undefined {
+    return this.fromSetup() ? { from: 'setup' } : undefined;
   }
 
   private buildOverviewSummary(games: readonly TenantGamePricingView[]): GamesOverviewSummary {

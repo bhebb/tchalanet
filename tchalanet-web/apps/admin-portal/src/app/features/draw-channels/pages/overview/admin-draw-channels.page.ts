@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -72,10 +73,15 @@ export class AdminDrawChannelsPage {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private handledDeepLinkKey: string | null = null;
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
 
   readonly providersResource = this.api.getDrawChannelProvidersResource({
     suppressShellFeedback: true,
   });
+  readonly fromSetup = computed(() => this.queryParamMap().get('from') === 'setup');
+  readonly setupReturnFragment = 'setup-required-title';
   readonly providersError = resourceErrorVm(this.providersResource, 'admin.setup.draw_channels');
   readonly allProviders = computed(() => this.providersResource.value() ?? []);
   readonly activeFilter = signal<ActiveFilter>('all');
@@ -166,12 +172,15 @@ export class AdminDrawChannelsPage {
 
   openChannelDetails(slot: DrawChannelSlotConfigView): void {
     if (!slot.channelId) return;
-    void this.router.navigate(['/app/admin/draw-channels', slot.channelId]);
+    void this.router.navigate(['/app/admin/draw-channels', slot.channelId], {
+      queryParams: this.setupFlowQueryParams(),
+    });
   }
 
   openChannelLimits(slot: DrawChannelSlotConfigView): void {
     if (!slot.channelId) return;
     void this.router.navigate(['/app/admin/draw-channels', slot.channelId], {
+      queryParams: this.setupFlowQueryParams(),
       fragment: 'limits',
     });
   }
@@ -236,6 +245,10 @@ export class AdminDrawChannelsPage {
 
   private activationBlocked(slot: DrawChannelSlotConfigView): boolean {
     return !slot.drawTime || slot.resultSlotActive === false;
+  }
+
+  private setupFlowQueryParams(): Record<string, string> | undefined {
+    return this.fromSetup() ? { from: 'setup' } : undefined;
   }
 
   private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {

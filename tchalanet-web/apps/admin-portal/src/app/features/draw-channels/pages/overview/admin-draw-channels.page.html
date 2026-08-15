@@ -3,10 +3,17 @@
   [description]="'admin.drawChannels.description' | translate"
 >
   <div actions>
-    <a mat-stroked-button routerLink="/app/admin/setup" class="dc-page__back-btn">
+    @if (fromSetup()) {
+    <a
+      mat-stroked-button
+      routerLink="/app/admin/setup"
+      [fragment]="setupReturnFragment"
+      class="dc-page__back-btn"
+    >
       <span class="material-symbols-outlined">arrow_back</span>
       {{ 'admin.drawChannels.actions.backToSetup' | translate }}
     </a>
+    }
     <tch-admin-refresh-button
       [label]="'admin.drawChannels.actions.refresh' | translate"
       [disabled]="providersResource.status() === 'loading' || providersResource.status() === 'reloading'"

@@ -682,7 +682,7 @@
       "description": "Chwazi jwèt santral la sipòte epi konplete paramèt vant yo.",
       "loading": "Chajman jwèt yo...",
       "action": {
-        "backToSetup": "Konfigirasyon jeneral",
+        "backToSetup": "Retounen nan konfigirasyon",
         "pricing": "Gade barèm yo",
         "refresh": "Rafrechi"
       },
@@ -1959,7 +1959,7 @@
       "salesCutoff": "Vant fèmen: {{minutes}} min anvan tiraj",
       "salesCutoffMissing": "Vant fèmen: Pa defini",
       "actions": {
-        "backToSetup": "Konfigirasyon jeneral",
+        "backToSetup": "Retounen nan konfigirasyon",
         "refresh": "Rafrechi",
         "configure": "Konfigire",
         "configureChannel": "Konfigire kanal la",

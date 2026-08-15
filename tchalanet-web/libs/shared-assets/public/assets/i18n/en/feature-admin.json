@@ -682,7 +682,7 @@
       "description": "Choose the games supported by this operator and complete their sales settings.",
       "loading": "Loading games...",
       "action": {
-        "backToSetup": "General setup",
+        "backToSetup": "Back to setup",
         "pricing": "View pricing",
         "refresh": "Refresh"
       },
@@ -1959,7 +1959,7 @@
       "salesCutoff": "Sales close: {{minutes}} min before draw",
       "salesCutoffMissing": "Sales close: Not defined",
       "actions": {
-        "backToSetup": "General setup",
+        "backToSetup": "Back to setup",
         "refresh": "Refresh",
         "configure": "Configure",
         "configureChannel": "Configure channel",
