@@ -5,11 +5,17 @@
         <span class="material-symbols-outlined" aria-hidden="true">business</span>
         {{ provider.providerCode }}
       </h3>
-      <div class="matrix-provider__facts">
-        <span>{{ 'admin.drawSalesMatrix.provider.slots' | translate: { count: slotCount(provider) } }}</span>
-        <span>{{ 'admin.drawSalesMatrix.provider.offered' | translate: { count: offeredCount(provider) } }}</span>
-        <span>{{ 'admin.drawSalesMatrix.provider.ready' | translate: { count: saleReadyCount(provider) } }}</span>
-      </div>
+      <p class="matrix-provider__summary">
+        {{
+          'admin.drawSalesMatrix.provider.summary'
+            | translate
+              : {
+                  slots: slotCount(provider),
+                  active: activeGameCount(provider),
+                  total: availableTenantGameCount(provider)
+                }
+        }}
+      </p>
     </header>
 
     <mat-accordion class="matrix-provider__slots" multi>
@@ -20,6 +26,7 @@
           [actingKey]="actingKey()"
           [actionErrors]="actionErrors()"
           [actionNotices]="actionNotices()"
+          [pendingEnabled]="pendingEnabled()"
           (gameAction)="onGameAction($event)"
         />
       }

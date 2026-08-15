@@ -100,7 +100,10 @@ public class StaticPageModelTemplateLoader {
   }
 
   private boolean boolOrDefault(JsonNode node) {
-    var value = node.get("default");
+    var value = node.get("isDefault");
+    if (value == null || value.isNull()) {
+      value = node.get("default");
+    }
     return value == null || value.isNull() || value.asBoolean();
   }
 

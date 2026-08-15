@@ -1,8 +1,7 @@
 @let gameVm = game();
-<article
+<div
   class="matrix-game matrix-game--{{ mode() }}"
-  [class.matrix-game--ready]="gameVm.saleReady"
-  [class.matrix-game--disabled]="mode() === 'offered' && !gameVm.enabledOnChannel"
+  [class.matrix-game--off]="!switchEnabled()"
 >
   <div class="matrix-game__header">
     <span class="matrix-game__logo" aria-hidden="true">
@@ -12,12 +11,6 @@
         {{ gameVm.gameCode | consoleGameLogoText:gameVm.displayName }}
       }
     </span>
-    @if (mode() === 'offered') {
-      <tch-status-badge
-        [status]="gameStatus(gameVm)"
-        [label]="gameStatusLabelKey(gameVm) | translate"
-      />
-    }
     <a class="matrix-game__name" routerLink="/app/admin/games" [fragment]="'game-' + gameVm.gameCode">
       {{ gameVm.gameCode | consoleGameName:gameVm.displayName }}
     </a>
@@ -58,35 +51,28 @@
       />
     }
 
-    <div class="matrix-game__actions">
-      @if (mode() === 'available') {
-        <button
-          mat-flat-button
-          color="primary"
-          class="matrix-game__btn"
-          type="button"
-          [disabled]="acting()"
-          (click)="gameAction.emit({ action: 'offer', game: gameVm })"
-        >
-          <mat-icon>add</mat-icon>
-          {{ 'admin.drawSalesMatrix.game.action.add' | translate }}
-        </button>
-      } @else {
-        <button
-          class="matrix-game__switch"
-          [class.matrix-game__switch--active]="gameVm.enabledOnChannel"
-          type="button"
-          [disabled]="acting()"
-          [attr.aria-pressed]="gameVm.enabledOnChannel"
-          (click)="gameAction.emit({ action: 'toggle', game: gameVm })"
-        >
-          <span></span>
-          <strong>
-            {{ (gameVm.enabledOnChannel ? 'admin.drawSalesMatrix.game.action.disable' : 'admin.drawSalesMatrix.game.action.activate') | translate }}
-          </strong>
-          <mat-icon>{{ gameVm.enabledOnChannel ? 'toggle_on' : 'toggle_off' }}</mat-icon>
-        </button>
-      }
-    </div>
+    <button
+      class="matrix-game__switch"
+      [class.matrix-game__switch--active]="switchEnabled()"
+      type="button"
+      [disabled]="acting()"
+      [attr.aria-pressed]="switchEnabled()"
+      [attr.aria-label]="
+        (switchEnabled()
+          ? 'admin.drawSalesMatrix.game.action.on'
+          : 'admin.drawSalesMatrix.game.action.off'
+        ) | translate
+      "
+      (click)="
+        gameAction.emit({
+          action: mode() === 'available' ? 'offer' : 'toggle',
+          game: gameVm
+        })
+      "
+    >
+      <span class="matrix-game__switch-track" aria-hidden="true">
+        <span class="matrix-game__switch-thumb"></span>
+      </span>
+    </button>
   }
-</article>
+</div>

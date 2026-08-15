@@ -3,10 +3,6 @@
   [description]="'admin.drawSalesMatrix.description' | translate"
 >
   <div actions>
-    <a mat-stroked-button routerLink="/app/admin/draw-channels">
-      <span class="material-symbols-outlined">settings_input_component</span>
-      {{ 'admin.drawSalesMatrix.action.configureChannels' | translate }}
-    </a>
     <button mat-stroked-button (click)="load()">
       <span class="material-symbols-outlined">refresh</span>
       {{ 'admin.drawSalesMatrix.action.refresh' | translate }}
@@ -22,12 +18,12 @@
   >
     <ng-template tchAsyncReady>
       @if (activeMatrix(); as matrixVm) {
-        <tch-draw-sales-matrix-summary [summary]="matrixVm.summary" />
         <tch-draw-sales-matrix-provider-list
           [providers]="matrixVm.providers"
           [actingKey]="acting()"
           [actionErrors]="actionErrors()"
           [actionNotices]="actionNotices()"
+          [pendingEnabled]="pendingEnabled()"
           (gameAction)="onMatrixGameAction($event)"
         />
       }

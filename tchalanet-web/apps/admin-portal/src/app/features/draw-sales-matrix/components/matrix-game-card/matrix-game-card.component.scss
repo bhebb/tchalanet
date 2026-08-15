@@ -1,39 +1,33 @@
-@use 'breakpoints' as ui;
-
 .matrix-game {
-  align-items: stretch;
-  background: var(--tch-color-surface-container-lowest, var(--tch-color-surface));
-  border: 1px solid var(--tch-color-outline-variant);
-  border-left: 3px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-md);
+  align-items: center;
+  border-block-start: 1px solid var(--tch-color-outline-variant);
   display: grid;
-  gap: 0.75rem;
-  overflow: hidden;
-  padding: 0.75rem;
+  gap: 0.5rem 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  padding-block: 0.5rem;
 
-  &--ready {
-    border-left-color: var(--tch-color-status-ready, #10b981);
+  &:first-child {
+    border-block-start: 0;
   }
 
-  &--disabled {
-    opacity: 0.65;
-  }
-
-  &--available {
-    background: transparent;
-    border-style: dashed;
+  &--off {
+    .matrix-game__name,
+    .matrix-game__logo {
+      opacity: 0.68;
+    }
   }
 
   &__header {
     align-items: center;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.625rem;
+    gap: 0.625rem;
     min-width: 0;
   }
 
   &__logo {
     background: var(--tch-color-surface);
+    border: 1px solid var(--tch-color-outline-variant);
     border-radius: var(--tch-radius-sm);
     color: var(--tch-color-on-primary-container);
     display: inline-grid;
@@ -55,9 +49,8 @@
 
   &__name {
     color: var(--tch-color-on-surface);
-    flex: 1 1 9rem;
     font-size: var(--tch-font-size-body-md, 0.875rem);
-    font-weight: var(--tch-weight-bold, 700);
+    font-weight: var(--tch-weight-semibold, 600);
     min-width: 0;
     overflow: hidden;
     text-decoration: none;
@@ -71,13 +64,66 @@
     }
   }
 
+  &__switch {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: var(--tch-color-on-surface-variant);
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: flex-end;
+    min-height: 2rem;
+    padding: 0;
+
+    &:disabled {
+      cursor: progress;
+      opacity: 0.7;
+    }
+  }
+
+  &__switch-track {
+    background: var(--tch-color-surface-container-highest);
+    border-radius: var(--tch-radius-pill);
+    display: inline-flex;
+    height: 1.25rem;
+    position: relative;
+    transition: background 0.18s ease;
+    width: 2.25rem;
+  }
+
+  &__switch-thumb {
+    background: var(--tch-color-surface-container-lowest);
+    border-radius: var(--tch-radius-pill);
+    box-shadow: var(--tch-elevation-1, 0 1px 2px rgba(0, 0, 0, 0.2));
+    height: 0.875rem;
+    inset-block-start: 0.1875rem;
+    inset-inline-start: 0.1875rem;
+    position: absolute;
+    transition: transform 0.18s ease;
+    width: 0.875rem;
+  }
+
+  &__switch--active {
+    color: var(--tch-color-primary);
+
+    .matrix-game__switch-track {
+      background: var(--tch-color-primary);
+    }
+
+    .matrix-game__switch-thumb {
+      transform: translateX(1rem);
+    }
+  }
+
   &__warnings {
+    grid-column: 1 / -1;
     list-style: none;
     margin: 0;
     padding: 0;
 
     li {
       align-items: center;
+      color: var(--tch-color-on-surface-variant);
       display: flex;
       font-size: var(--tch-font-size-label-sm);
       gap: 0.25rem;
@@ -92,6 +138,7 @@
   }
 
   &__warning-icon {
+    font-family: 'Material Symbols Outlined';
     font-size: 0.875rem;
 
     &--error {
@@ -109,110 +156,7 @@
 
   &__error {
     display: block;
-    margin-top: 0.5rem;
-  }
-
-  &__actions {
-    align-items: center;
-    display: flex;
-    justify-content: stretch;
-  }
-
-  &__btn {
-    font-size: var(--tch-font-size-label-sm);
-    line-height: 1.2;
-    min-height: 2.25rem;
-    padding: 0 0.75rem;
-    width: 100%;
-
-    mat-icon {
-      font-size: 1.125rem;
-      height: 1.125rem;
-      margin-inline-end: 0.25rem;
-      width: 1.125rem;
-    }
-  }
-
-  &__switch {
-    align-items: center;
-    background: transparent;
-    border: 1px solid var(--tch-color-outline-variant);
-    border-radius: var(--tch-radius-pill);
-    color: var(--tch-color-on-surface-variant);
-    cursor: pointer;
-    display: inline-flex;
-    gap: 0.5rem;
-    justify-content: center;
-    min-height: 2.5rem;
-    padding: 0.25rem 0.75rem 0.25rem 0.25rem;
-    width: 100%;
-
-    span {
-      background: var(--tch-color-surface-container-highest);
-      border-radius: var(--tch-radius-pill);
-      display: inline-flex;
-      height: 1.25rem;
-      position: relative;
-      width: 2.25rem;
-
-      &::after {
-        background: var(--tch-color-surface-container-lowest);
-        border-radius: var(--tch-radius-pill);
-        content: '';
-        height: 0.875rem;
-        inset-block-start: 0.1875rem;
-        inset-inline-start: 0.1875rem;
-        position: absolute;
-        transition: transform 0.18s ease;
-        width: 0.875rem;
-      }
-    }
-
-    strong {
-      font-size: var(--tch-font-size-label-sm);
-      font-weight: var(--tch-weight-bold);
-    }
-
-    mat-icon {
-      font-size: 1.125rem;
-      height: 1.125rem;
-      width: 1.125rem;
-    }
-
-    &--active {
-      border-color: color-mix(in oklab, var(--tch-color-primary) 48%, var(--tch-color-outline-variant));
-      color: var(--tch-color-primary);
-
-      span {
-        background: var(--tch-color-primary);
-
-        &::after {
-          transform: translateX(1rem);
-        }
-      }
-    }
-
-    &:disabled {
-      cursor: progress;
-      opacity: 0.7;
-    }
-  }
-}
-
-@include ui.up(medium) {
-  .matrix-game {
-    align-items: center;
-    grid-template-columns: minmax(0, 1fr) auto;
-
-    &__warnings,
-    &__error {
-      grid-column: 1 / -1;
-    }
-
-    &__btn,
-    &__switch {
-      min-width: 11rem;
-      width: auto;
-    }
+    grid-column: 1 / -1;
+    margin-top: 0.25rem;
   }
 }

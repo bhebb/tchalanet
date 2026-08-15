@@ -82,7 +82,8 @@ public class RuntimeBootstrapService {
     RuntimeI18nBundle i18n = resolveI18n(settings.locale(), space, notices);
     RuntimeReadinessView readiness = readinessFacade.readiness(ctx, space);
     RuntimeNotificationSummary notifications = resolveNotifications(ctx, currentUser, notices);
-    Map<String, Object> navigationDrawer = navigationResolver.resolve(space);
+    Map<String, Object> navigationDrawer =
+        navigationResolver.resolve(space, ctx, settings.locale());
     PageModelRef pageModelRef = pageModelRefResolver.resolve(space);
     String entryRoute = resolveEntryRoute(currentUser, accessSnapshot, pageModelRef);
 
@@ -166,7 +167,7 @@ public class RuntimeBootstrapService {
     var i18n = resolveI18n(settings.locale(), space, notices);
     var readiness = readinessFacade.readiness(ctx, space);
     var pageModelRef = pageModelRefResolver.resolve(space);
-    var navigationDrawer = navigationResolver.resolve(space);
+    var navigationDrawer = navigationResolver.resolve(space, ctx, settings.locale());
     return new RuntimeBootstrapResponse(
         space,
         user,

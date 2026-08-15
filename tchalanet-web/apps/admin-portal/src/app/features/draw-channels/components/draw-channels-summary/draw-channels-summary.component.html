@@ -1,28 +1,16 @@
-<div class="tch-metric-grid">
-  <tch-admin-metric-card
-    icon="map"
-    tone="info"
-    [label]="'admin.drawChannels.summary.availableStates' | translate"
-    [value]="totalCount().toString()"
-  />
-
-  <tch-admin-metric-card
-    icon="check_circle"
-    tone="positive"
-    [label]="'admin.drawChannels.summary.activeStates' | translate"
-    [value]="activeCount().toString()"
-  />
-
-  <tch-admin-metric-card
-    icon="confirmation_number"
-    [label]="'admin.drawChannels.summary.activeChannels' | translate"
-    [value]="activeChannels().toString()"
-  />
-
-  <tch-admin-metric-card
-    icon="error_outline"
-    tone="warning"
-    [label]="'admin.drawChannels.summary.todo' | translate"
-    [value]="todoCount().toString()"
-  />
-</div>
+<p class="draw-channels-summary" [attr.aria-label]="'admin.drawChannels.summary.aria' | translate">
+  <span class="draw-channels-summary__item">
+    <span class="draw-channels-summary__value">{{ totalCount() }}</span>
+    <span>{{ 'admin.drawChannels.summary.availableStates' | translate }}</span>
+  </span>
+  <span aria-hidden="true">·</span>
+  <span class="draw-channels-summary__item">
+    <span class="draw-channels-summary__value">{{ activeChannels() }}</span>
+    <span>{{ 'admin.drawChannels.summary.activeChannels' | translate }}</span>
+  </span>
+  <span aria-hidden="true">·</span>
+  <span class="draw-channels-summary__item">
+    <span class="draw-channels-summary__value">{{ todoCount() }}</span>
+    <span>{{ 'admin.drawChannels.summary.todo' | translate }}</span>
+  </span>
+</p>

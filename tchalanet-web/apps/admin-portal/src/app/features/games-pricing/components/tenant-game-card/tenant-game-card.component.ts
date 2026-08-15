@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { TchSectionErrorSeverity } from '@tch/ui/components';
@@ -37,12 +36,13 @@ export interface TenantGameCardError {
   styleUrls: ['./tenant-game-card.component.scss'],
 })
 export class TenantGameCardComponent {
-  private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
   readonly game = input.required<TenantGamePricingView>();
   readonly actionError = input<TenantGameCardError | null>(null);
   readonly saving = input(false);
+  readonly pendingEnabled = input<boolean | null>(null);
+  readonly canManage = input(true);
 
   readonly activate  = output<string>();
   readonly disable   = output<string>();
@@ -53,19 +53,14 @@ export class TenantGameCardComponent {
 
   onToggle(enabled: boolean): void {
     const game = this.game();
-    if (game.tenantStatus === 'UNAVAILABLE') return;
+    if (!this.canManage() || game.tenantStatus === 'UNAVAILABLE') return;
     if (enabled) this.activate.emit(game.gameCode);
     else this.disable.emit(game.gameCode);
   }
 
   onConfigure(): void {
+    if (!this.canManage()) return;
     this.configure.emit(this.game().gameCode);
-  }
-
-  onAvailability(): void {
-    void this.router.navigate(['/app/admin/games/channel-matrix'], {
-      fragment: `game-${this.game().gameCode}`,
-    });
   }
 
   private hasStakeConfig(game: TenantGamePricingView): boolean {
@@ -129,11 +124,9 @@ export class TenantGameCardComponent {
   }
 
   saleEnabled(game: TenantGamePricingView): boolean {
+    const pending = this.pendingEnabled();
+    if (pending !== null) return pending;
     return game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG';
-  }
-
-  posLabelKey(game: TenantGamePricingView): string {
-    return game.visibleInPos ? 'admin.gamesPricing.card.posYes' : 'admin.gamesPricing.card.posNo';
   }
 
   availabilityLabelKey(game: TenantGamePricingView): string {
@@ -171,7 +164,11 @@ export class TenantGameCardComponent {
   }
 
   private pricingProfileLabel(profile: string): string {
-    return profile.startsWith('admin.') ? this.t(profile) : profile;
+    const label = profile.startsWith('admin.') ? this.t(profile) : profile;
+    const fieldLabel = this.t('admin.gamesPricing.card.fact.payouts');
+    return label.toLocaleLowerCase().startsWith(fieldLabel.toLocaleLowerCase())
+      ? label.slice(fieldLabel.length).trim()
+      : label;
   }
 
   private t(key: string, params?: Record<string, unknown>): string {

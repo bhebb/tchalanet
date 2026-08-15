@@ -34,6 +34,8 @@ export class DrawChannelListItemComponent {
 
   readonly row = input.required<DrawChannelListItemView>();
   readonly saving = input(false);
+  readonly pendingEnabled = input<boolean | null>(null);
+  readonly canManage = input(true);
 
   readonly configure = output<DrawChannelSlotConfigView>();
   readonly details = output<DrawChannelSlotConfigView>();
@@ -41,6 +43,7 @@ export class DrawChannelListItemComponent {
   readonly toggleEnabled = output<boolean>();
 
   readonly providerLogoUrl = computed(() => consoleLotteryProviderLogoUrl(this.row().providerCode));
+  readonly switchEnabled = computed(() => this.pendingEnabled() ?? this.row().slot.enabled);
 
   statusLabelKey(status: DrawChannelListStatus): string {
     return `admin.drawChannels.list.status.${status}`;

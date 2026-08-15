@@ -405,6 +405,7 @@
         "unavailable": "Non disponible"
       },
       "summary": {
+        "aria": "Résumé des canaux de tirage",
         "availableStates": "Fournisseurs",
         "activeStates": "Fournisseurs actifs",
         "activeChannels": "Créneaux actifs",
@@ -632,6 +633,13 @@
         "viewDetails": "Voir les détails",
         "more": "Plus d'actions"
       },
+      "table": {
+        "channel": "Canal",
+        "result": "Résultat",
+        "schedule": "Tirage",
+        "availability": "Disponibilité",
+        "actions": "Actions"
+      },
       "detail": {
         "titleFallback": "Détails du canal de tirage",
         "description": "{{code}} · {{timezone}}",
@@ -768,7 +776,7 @@
       "title": "Grille de cotes",
       "description": "Cotes par défaut pour tous les types de mises.",
       "actions": {
-        "backToSetup": "Configuration générale",
+        "backToSetup": "Retour à la configuration",
         "backToGames": "Jeux disponibles",
         "edit": "Modifier la cote"
       },
@@ -1367,9 +1375,16 @@
       "description": "Choisissez les jeux supportés par ce santral et complétez leurs spécificités de vente.",
       "loading": "Chargement des jeux...",
       "action": {
-        "backToSetup": "Configuration générale",
+        "backToSetup": "Retour à la configuration",
         "pricing": "Voir les barèmes",
+        "availability": "Jeux par tirage",
         "refresh": "Rafraîchir"
+      },
+      "table": {
+        "game": "Jeu",
+        "setup": "Paramètres",
+        "availability": "Disponibilité",
+        "actions": "Actions"
       },
       "empty": {
         "title": "Aucun jeu disponible",
@@ -1377,6 +1392,11 @@
       },
       "summary": {
         "aria": "Résumé des jeux disponibles",
+        "compact": {
+          "games": "jeux",
+          "active": "actifs",
+          "needsConfig": "à configurer"
+        },
         "systemGames": {
           "label": "Jeux système",
           "help": "Jeux disponibles pour ce santral."
@@ -1433,7 +1453,7 @@
         "saleDisabledShort": "Non vendu",
         "stakeUnavailable": "Mise indisponible",
         "stakeConfigured": "Mise configurée",
-        "stakeRange": "Mises : {{min}}-{{max}} {{currency}}",
+        "stakeRange": "{{min}}-{{max}} {{currency}}",
         "stakeMissing": "Mise non configurée",
         "notConfigured": "Non configuré",
         "pricingMissing": "Barème non configuré",
@@ -1951,8 +1971,8 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Jeux par tirage",
-      "description": "Activez ou désactivez les jeux par canal. La configuration du canal se fait dans la fiche du canal de tirage.",
+      "title": "Disponibilité par tirage",
+      "description": "Activez les jeux vendables sur chaque tirage.",
       "loading": "Chargement de la matrice...",
       "action": {
         "configureChannels": "Configurer les canaux de tirage",
@@ -1968,7 +1988,9 @@
         "missingLimits": "Plafond par tirage à vérifier"
       },
       "provider": {
+        "summary": "{{slots}} tirage(s) · {{active}}/{{total}} jeux disponibles",
         "slots": "{{count}} créneau(x)",
+        "available": "{{active}}/{{total}} jeux disponibles",
         "offered": "{{count}} jeu(x) offert(s)",
         "ready": "{{count}} vendable(s)"
       },
@@ -1978,7 +2000,8 @@
           "review": "À vérifier",
           "notConfigured": "Non configuré"
         },
-        "offeredCount": "{{active}} jeu(x) actif(s) sur {{offered}} offert(s)",
+        "gamesCount": "{{active}}/{{total}} jeux",
+        "offeredCount": "{{active}} jeu(x) actif(s) sur {{total}}",
         "activeGamesLabel": "Jeux actifs",
         "offeredGamesLabel": "Jeux offerts",
         "availableGamesLabel": "À ajouter",
@@ -1990,13 +2013,14 @@
         "settingsTitle": "Paramètres du tirage",
         "salesOpen": "Ouverture vente : {{value}}",
         "cutoff": "Ce tirage arrête la vente {{minutes}} minute(s) avant {{drawTime}}.",
+        "cutoffShort": "Fermeture vente {{minutes}} min avant",
         "activeGames": "{{count}} jeu(x) actif(s)",
         "availableToAdd": "{{count}} jeu(x) disponible(s) à ajouter",
         "dependsOnAnother": "Dépend d'un autre canal",
         "matrixHelp": "Cette matrice sert à activer l'offre de jeux. Pour changer l'heure, le cutoff ou le rattachement, ouvrez la configuration du canal.",
         "missingHelp": "Ce créneau n'a pas encore de canal de vente configuré.",
         "configureChannels": "Configurer les canaux",
-        "editChannel": "Modifier le canal"
+        "editChannel": "Modifier la règle de tirage"
       },
       "section": {
         "offered": "Offre active sur ce canal",
@@ -2038,6 +2062,8 @@
           "add": "Ajouter",
           "activate": "Activer",
           "disable": "Désactiver",
+          "on": "ON",
+          "off": "OFF",
           "remove": "Retirer du canal"
         }
       },

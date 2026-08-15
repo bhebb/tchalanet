@@ -2,120 +2,78 @@
 <mat-expansion-panel>
   <mat-expansion-panel-header class="matrix-slot-panel__header">
     <mat-panel-title class="matrix-slot-header">
-      <tch-console-draw-slot-identity [identity]="identity()" density="compact" />
+      <div class="matrix-slot-header__identity">
+        <tch-console-draw-slot-identity
+          [identity]="identity()"
+          density="compact"
+          [showTechnicalMeta]="false"
+        />
+        <p class="matrix-slot-note">
+          @if (slotVm.channel?.drawTime; as drawTime) {
+            <span>{{ drawTime | slice: 0 : 5 }}</span>
+          }
+          @if (cutoffMinutes(slotVm); as minutes) {
+            <span>
+              {{ 'admin.drawSalesMatrix.channel.cutoffShort' | translate: { minutes } }}
+            </span>
+          }
+        </p>
+      </div>
       <span class="matrix-slot-header__meta">
-        <tch-status-badge [status]="slotStatus(slotVm)" [label]="slotStatusLabelKey(slotVm) | translate" />
-        <span>
-          {{ 'admin.drawSalesMatrix.slot.offeredCount' | translate: { active: activeOfferedCount(), offered: offeredCount() } }}
-        </span>
+        <strong>
+          {{
+            'admin.drawSalesMatrix.slot.gamesCount'
+              | translate: { active: activeOfferedCount(), total: availableCount() }
+          }}
+        </strong>
         @if (!slotVm.channel) {
           <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.slot.channelMissing' | translate }}</span>
         } @else if (!slotVm.channel.active) {
           <span class="matrix-badge matrix-badge--warn">{{ 'admin.drawSalesMatrix.slot.channelInactive' | translate }}</span>
         }
+        <a
+          mat-icon-button
+          class="matrix-slot-header__action"
+          routerLink="/app/admin/draw-channels"
+          [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
+          [attr.aria-label]="
+            (slotVm.channel
+              ? 'admin.drawSalesMatrix.channel.editChannel'
+              : 'admin.drawSalesMatrix.channel.configureChannels'
+            ) | translate
+          "
+          (click)="$event.stopPropagation()"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+        </a>
       </span>
     </mat-panel-title>
   </mat-expansion-panel-header>
 
-  @if (slotVm.channel; as channel) {
-    <div class="matrix-slot-overview">
-      <div class="matrix-slot-overview__item">
-        <span>{{ 'admin.drawSalesMatrix.slot.activeGamesLabel' | translate }}</span>
-        <strong>{{ activeOfferedCount() }}</strong>
-      </div>
-      <div class="matrix-slot-overview__item">
-        <span>{{ 'admin.drawSalesMatrix.slot.offeredGamesLabel' | translate }}</span>
-        <strong>{{ offeredCount() }}</strong>
-      </div>
-      <div class="matrix-slot-overview__item">
-        <span>{{ 'admin.drawSalesMatrix.slot.availableGamesLabel' | translate }}</span>
-        <strong>{{ availableGames().length }}</strong>
-      </div>
-    </div>
+  <div class="matrix-games">
+    @for (game of availableGames(); track game.gameCode) {
+      <tch-draw-sales-matrix-game-card
+        [mode]="game.offeredOnChannel ? 'offered' : 'available'"
+        [game]="game"
+        [channel]="slotVm.channel"
+        [acting]="isActing(slotVm, game)"
+        [actionError]="actionError(slotVm, game)"
+        [actionNotice]="actionNotice(slotVm, game)"
+        [pendingEnabled]="pendingGameEnabled(slotVm, game)"
+        (gameAction)="onGameAction($event)"
+      />
+    }
+  </div>
 
-    <div class="matrix-channel-info">
-      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">schedule</span>
-      <div class="matrix-channel-info__body">
-        <span class="matrix-channel-info__title">
-          {{ 'admin.drawSalesMatrix.channel.settingsTitle' | translate }}
-        </span>
-        <span class="matrix-channel-info__facts">
-          <span>{{ 'admin.drawSalesMatrix.channel.salesOpen' | translate: { value: channel.salesOpenTime ?? '-' } }}</span>
-          <span>
-            {{
-              'admin.drawSalesMatrix.channel.cutoff'
-                | translate
-                  : {
-                      minutes: cutoffMinutes(channel.cutoffSec),
-                      drawTime: channel.drawTime ?? '-'
-                    }
-            }}
-          </span>
-          @if (channel.dependsOnChannelId) {
-            <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.channel.dependsOnAnother' | translate }}</span>
-          }
-        </span>
-      </div>
-      <a
-        mat-stroked-button
-        class="matrix-channel-info__cta"
-        routerLink="/app/admin/draw-channels"
-        [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
-      >
-        {{ 'admin.drawSalesMatrix.channel.editChannel' | translate }}
-      </a>
-    </div>
-  } @else {
-    <div class="matrix-channel-info matrix-channel-info--missing">
-      <span class="material-symbols-outlined matrix-channel-info__icon" aria-hidden="true">router</span>
-      <span class="matrix-channel-info__body">{{ 'admin.drawSalesMatrix.channel.missingHelp' | translate }}</span>
-      <a
-        mat-stroked-button
-        class="matrix-channel-info__cta"
-        routerLink="/app/admin/draw-channels"
-        [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
-      >
-        {{ 'admin.drawSalesMatrix.channel.configureChannels' | translate }}
-      </a>
-    </div>
-  }
-
-  @if (offeredGames().length > 0) {
-    <p class="matrix-section-label">{{ 'admin.drawSalesMatrix.section.offered' | translate }}</p>
-    <div class="matrix-games">
-      @for (game of offeredGames(); track game.gameCode) {
-        <tch-draw-sales-matrix-game-card
-          mode="offered"
-          [game]="game"
-          [channel]="slotVm.channel"
-          [acting]="isActing(slotVm, game)"
-          [actionError]="actionError(slotVm, game)"
-          [actionNotice]="actionNotice(slotVm, game)"
-          (gameAction)="onGameAction($event)"
-        />
-      }
-    </div>
-  } @else {
-    <div class="matrix-empty-offer">
-      <span class="material-symbols-outlined" aria-hidden="true">info</span>
-      <p>{{ 'admin.drawSalesMatrix.section.noOfferedGames' | translate }}</p>
-    </div>
-  }
-
-  @if (slotVm.channel && availableGames().length > 0) {
-    <p class="matrix-section-label matrix-section-label--secondary">{{ 'admin.drawSalesMatrix.section.available' | translate }}</p>
-    <div class="matrix-games matrix-games--available">
-      @for (game of availableGames(); track game.gameCode) {
-        <tch-draw-sales-matrix-game-card
-          mode="available"
-          [game]="game"
-          [channel]="slotVm.channel"
-          [acting]="isActing(slotVm, game)"
-          [actionError]="actionError(slotVm, game)"
-          [actionNotice]="actionNotice(slotVm, game)"
-          (gameAction)="onGameAction($event)"
-        />
-      }
-    </div>
+  @if (slotVm.channel) {
+    <a
+      mat-button
+      class="matrix-slot-edit"
+      routerLink="/app/admin/draw-channels"
+      [queryParams]="{ provider: providerCode(), slot: slotVm.slotKey }"
+    >
+      {{ 'admin.drawSalesMatrix.channel.editChannel' | translate }}
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+    </a>
   }
 </mat-expansion-panel>

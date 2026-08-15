@@ -682,9 +682,16 @@
       "description": "Chwazi jwèt santral la sipòte epi konplete paramèt vant yo.",
       "loading": "Chajman jwèt yo...",
       "action": {
-        "backToSetup": "Konfigirasyon jeneral",
+        "backToSetup": "Retounen nan konfigirasyon",
         "pricing": "Gade barèm yo",
+        "availability": "Jwèt pa tiraj",
         "refresh": "Rafrechi"
+      },
+      "table": {
+        "game": "Jwèt",
+        "setup": "Paramèt",
+        "availability": "Disponibilite",
+        "actions": "Aksyon"
       },
       "empty": {
         "title": "Pa gen jwèt disponib",
@@ -692,6 +699,11 @@
       },
       "summary": {
         "aria": "Rezime jwèt disponib yo",
+        "compact": {
+          "games": "jwèt",
+          "active": "aktif",
+          "needsConfig": "pou konfigire"
+        },
         "systemGames": {
           "label": "Jwèt sistèm",
           "help": "Jwèt ki disponib pou santral sa a."
@@ -748,7 +760,7 @@
         "saleDisabledShort": "Pa vann",
         "stakeUnavailable": "Miz pa disponib",
         "stakeConfigured": "Miz konfigire",
-        "stakeRange": "Miz: {{min}}-{{max}} {{currency}}",
+        "stakeRange": "{{min}}-{{max}} {{currency}}",
         "stakeMissing": "Miz pa konfigire",
         "notConfigured": "Pa konfigire",
         "pricingMissing": "Barèm pa konfigire",
@@ -1266,8 +1278,8 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Jwèt pa tiraj",
-      "description": "Aktive oswa dezaktive jwèt yo pa règ tiraj. Lè, fèmti vant ak lyen règ la modifye nan fich règ tiraj la.",
+      "title": "Disponibilite pa tiraj",
+      "description": "Aktive jwèt ki ka vann sou chak tiraj.",
       "loading": "Chajman matriks la...",
       "action": {
         "configureChannels": "Konfigire règ tiraj yo",
@@ -1283,7 +1295,9 @@
         "missingLimits": "Plafon tiraj pou verifye"
       },
       "provider": {
+        "summary": "{{slots}} tiraj · {{active}}/{{total}} jwèt disponib",
         "slots": "{{count}} lè tiraj",
+        "available": "{{active}}/{{total}} jwèt disponib",
         "offered": "{{count}} jwèt ofri",
         "ready": "{{count}} vendab"
       },
@@ -1293,7 +1307,8 @@
           "review": "Pou verifye",
           "notConfigured": "Pa konfigire"
         },
-        "offeredCount": "{{active}} jwèt aktif sou {{offered}} jwèt yo ofri",
+        "gamesCount": "{{active}}/{{total}} jwèt",
+        "offeredCount": "{{active}} jwèt aktif sou {{total}}",
         "activeGamesLabel": "Jwèt aktif",
         "offeredGamesLabel": "Jwèt yo ofri",
         "availableGamesLabel": "Pou ajoute",
@@ -1305,13 +1320,14 @@
         "settingsTitle": "Paramèt tiraj",
         "salesOpen": "Ouvèti vant : {{value}}",
         "cutoff": "Tiraj sa a sispann vann tikè {{minutes}} minit avan {{drawTime}}.",
+        "cutoffShort": "Fèmen vant {{minutes}} min avan",
         "activeGames": "{{count}} jwèt aktif",
         "availableToAdd": "{{count}} jwèt disponib pou ajoute",
         "dependsOnAnother": "Depann de yon lòt règ",
         "matrixHelp": "Matriks sa a jere òf jwèt la. Pou chanje lè, fèmti vant oswa lyen règ la, ouvri konfigirasyon règ tiraj la.",
         "missingHelp": "Lè tiraj sa a poko gen règ vant konfigire.",
         "configureChannels": "Konfigire règ yo",
-        "editChannel": "Modifye règ la"
+        "editChannel": "Modifye règ tiraj"
       },
       "section": {
         "offered": "Òf aktif sou règ sa a",
@@ -1353,6 +1369,8 @@
           "add": "Ajoute",
           "activate": "Aktive",
           "disable": "Dezaktive",
+          "on": "ON",
+          "off": "OFF",
           "remove": "Retire nan kanal la"
         }
       },
@@ -1731,6 +1749,7 @@
         "unavailable": "Pa disponib"
       },
       "summary": {
+        "aria": "Rezime kanal tiraj yo",
         "availableStates": "Founisè",
         "activeStates": "Founisè aktif",
         "activeChannels": "Lè aktif",
@@ -1947,7 +1966,7 @@
       "salesCutoff": "Vant fèmen: {{minutes}} min anvan tiraj",
       "salesCutoffMissing": "Vant fèmen: Pa defini",
       "actions": {
-        "backToSetup": "Konfigirasyon jeneral",
+        "backToSetup": "Retounen nan konfigirasyon",
         "refresh": "Rafrechi",
         "configure": "Konfigire",
         "configureChannel": "Konfigire kanal la",
@@ -1957,6 +1976,13 @@
         "viewGeneratedDraws": "Gade tiraj yo",
         "viewDetails": "Gade detay",
         "more": "Plis aksyon"
+      },
+      "table": {
+        "channel": "Kanal",
+        "result": "Rezilta",
+        "schedule": "Lè tiraj",
+        "availability": "Disponibilite",
+        "actions": "Aksyon"
       },
       "detail": {
         "titleFallback": "Detay kanal tiraj",

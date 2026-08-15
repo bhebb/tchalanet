@@ -1,10 +1,18 @@
 <div class="tenant-games-grid">
+  <div class="tenant-games-grid__header" aria-hidden="true">
+    <span>{{ 'admin.gamesPricing.table.game' | translate }}</span>
+    <span>{{ 'admin.gamesPricing.table.setup' | translate }}</span>
+    <span>{{ 'admin.gamesPricing.table.availability' | translate }}</span>
+    <span>{{ 'admin.gamesPricing.table.actions' | translate }}</span>
+  </div>
   @for (game of games(); track game.gameCode) {
     <tch-tenant-game-card
       [attr.id]="'game-' + game.gameCode"
       [game]="game"
       [actionError]="actionError(game.gameCode)"
       [saving]="saving(game.gameCode)"
+      [pendingEnabled]="pendingGameEnabled(game.gameCode)"
+      [canManage]="canManage()"
       (activate)="activate.emit($event)"
       (disable)="disable.emit($event)"
       (configure)="configure.emit($event)"

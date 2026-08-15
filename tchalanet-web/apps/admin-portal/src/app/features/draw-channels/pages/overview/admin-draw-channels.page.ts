@@ -7,10 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { AccessService } from '@tch/core/auth';
 import { TchConfirmDialog, type TchConfirmDialogData, TchNotice } from '@tch/ui/components';
 import {
   AdminEmptyStateComponent,
@@ -38,7 +40,7 @@ import {
   type DrawChannelListStatus,
 } from '../../components/draw-channel-list-item/draw-channel-list-item.component';
 
-type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive' | 'error';
+type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive';
 
 interface ToggleChannelInput {
   readonly slot: DrawChannelSlotConfigView;
@@ -68,18 +70,26 @@ interface ToggleChannelInput {
 export class AdminDrawChannelsPage {
   private readonly api = inject(AdminDrawChannelsApiService);
   private readonly dialog = inject(MatDialog);
+  private readonly access = inject(AccessService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private handledDeepLinkKey: string | null = null;
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
+  });
 
   readonly providersResource = this.api.getDrawChannelProvidersResource({
     suppressShellFeedback: true,
   });
+  readonly fromSetup = computed(() => this.queryParamMap().get('from') === 'setup');
+  readonly setupReturnFragment = 'setup-required-title';
   readonly providersError = resourceErrorVm(this.providersResource, 'admin.setup.draw_channels');
   readonly allProviders = computed(() => this.providersResource.value() ?? []);
   readonly activeFilter = signal<ActiveFilter>('all');
   readonly searchQuery = signal<string>('');
+  readonly pendingChannelActive = signal<Readonly<Record<string, boolean>>>({});
+  readonly canManageDrawChannels = computed(() => this.access.can({ permission: 'draw_channel.manage' }));
   readonly toggleChannel = tchMutation<ToggleChannelInput, unknown>({
     run: input =>
       this.api.setChannelActive(input.slot.channelId ?? '', input.enabled, {
@@ -87,6 +97,10 @@ export class AdminDrawChannelsPage {
       }),
     source: 'admin.setup.draw_channels.toggle',
     onSuccess: () => this.load(true),
+    onError: (_err, input) => {
+      if (input.slot.channelId) this.clearPendingChannelActive(input.slot.channelId);
+      return false;
+    },
   });
 
   readonly channelRows = computed<DrawChannelListItemView[]>(() =>
@@ -114,7 +128,6 @@ export class AdminDrawChannelsPage {
         if (filter === 'active') return row.status === 'active';
         if (filter === 'todo') return row.status === 'attention';
         if (filter === 'inactive') return row.status === 'inactive';
-        if (filter === 'error') return row.slot.resultSlotActive === false;
         return true;
       })
       .filter(
@@ -132,7 +145,6 @@ export class AdminDrawChannelsPage {
     { key: 'active', labelKey: 'admin.drawChannels.filters.active' },
     { key: 'todo', labelKey: 'admin.drawChannels.filters.todo' },
     { key: 'inactive', labelKey: 'admin.drawChannels.filters.inactive' },
-    { key: 'error', labelKey: 'admin.drawChannels.filters.sourceError' },
   ];
 
   constructor() {
@@ -143,11 +155,15 @@ export class AdminDrawChannelsPage {
   }
 
   load(preserveActionFeedback = false): void {
-    if (!preserveActionFeedback) this.toggleChannel.clearFeedback();
+    if (!preserveActionFeedback) {
+      this.toggleChannel.clearFeedback();
+      this.pendingChannelActive.set({});
+    }
     this.providersResource.reload();
   }
 
   toggleChannelEnabled(slot: DrawChannelSlotConfigView, enabled: boolean): void {
+    if (!this.canManageDrawChannels()) return;
     if (!slot.channelId) return;
     if (!enabled) {
       this.confirmDisableChannel(slot);
@@ -157,27 +173,39 @@ export class AdminDrawChannelsPage {
       this.openChannelDialog(slot);
       return;
     }
-    this.toggleChannel.execute({ slot, enabled }, { key: slot.channelId });
+    this.executeToggleChannel(slot, enabled);
   }
 
   openChannelConfig(slot: DrawChannelSlotConfigView): void {
+    if (!this.canManageDrawChannels()) return;
     this.openChannelDialog(slot);
   }
 
   openChannelDetails(slot: DrawChannelSlotConfigView): void {
     if (!slot.channelId) return;
-    void this.router.navigate(['/app/admin/draw-channels', slot.channelId]);
+    void this.router.navigate(['/app/admin/draw-channels', slot.channelId], {
+      queryParams: this.setupFlowQueryParams(),
+    });
   }
 
   openChannelLimits(slot: DrawChannelSlotConfigView): void {
+    if (!this.canManageDrawChannels()) return;
     if (!slot.channelId) return;
     void this.router.navigate(['/app/admin/draw-channels', slot.channelId], {
+      queryParams: this.setupFlowQueryParams(),
       fragment: 'limits',
     });
   }
 
   channelSaving(slot: DrawChannelSlotConfigView): boolean {
     return !!slot.channelId && this.toggleChannel.pending(slot.channelId);
+  }
+
+  pendingChannelEnabled(slot: DrawChannelSlotConfigView): boolean | null {
+    const channelId = slot.channelId;
+    return channelId && this.pendingChannelActive()[channelId] !== undefined
+      ? this.pendingChannelActive()[channelId]
+      : null;
   }
 
   private openChannelDialog(slot: DrawChannelSlotConfigView): void {
@@ -216,9 +244,29 @@ export class AdminDrawChannelsPage {
       .afterClosed()
       .subscribe(result => {
         if (result?.confirmed) {
-          this.toggleChannel.execute({ slot, enabled: false }, { key: channelId });
+          this.executeToggleChannel(slot, false);
         }
       });
+  }
+
+  private executeToggleChannel(slot: DrawChannelSlotConfigView, enabled: boolean): void {
+    const channelId = slot.channelId;
+    if (!channelId) return;
+    this.setPendingChannelActive(channelId, enabled);
+    this.toggleChannel.execute({ slot, enabled }, { key: channelId });
+  }
+
+  private setPendingChannelActive(channelId: string, enabled: boolean): void {
+    this.pendingChannelActive.update(current => ({ ...current, [channelId]: enabled }));
+  }
+
+  private clearPendingChannelActive(channelId: string): void {
+    this.pendingChannelActive.update(current => {
+      if (current[channelId] === undefined) return current;
+      const next = { ...current };
+      delete next[channelId];
+      return next;
+    });
   }
 
   private slotResultMode(slot: DrawChannelSlotConfigView): DrawChannelListResultMode {
@@ -236,6 +284,10 @@ export class AdminDrawChannelsPage {
 
   private activationBlocked(slot: DrawChannelSlotConfigView): boolean {
     return !slot.drawTime || slot.resultSlotActive === false;
+  }
+
+  private setupFlowQueryParams(): Record<string, string> | undefined {
+    return this.fromSetup() ? { from: 'setup' } : undefined;
   }
 
   private handleDeepLinkedChannel(providers: readonly DrawChannelProviderView[]): void {

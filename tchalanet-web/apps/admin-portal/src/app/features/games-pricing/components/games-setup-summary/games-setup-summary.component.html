@@ -1,10 +1,11 @@
-<section class="tch-metric-grid" [attr.aria-label]="'admin.gamesPricing.summary.aria' | translate">
+<p class="games-setup-summary" [attr.aria-label]="'admin.gamesPricing.summary.aria' | translate">
   @for (item of items(); track item.labelKey) {
-    <tch-admin-metric-card
-      [label]="item.labelKey | translate"
-      [value]="item.value.toString()"
-      [hint]="item.helpKey | translate"
-      [tone]="cardTone(item)"
-    />
+    <span class="games-setup-summary__item games-setup-summary__item--{{ item.tone ?? 'neutral' }}">
+      <span class="games-setup-summary__value">{{ item.value }}</span>
+      <span>{{ item.labelKey | translate }}</span>
+    </span>
+    @if (!$last) {
+      <span aria-hidden="true">·</span>
+    }
   }
-</section>
+</p>

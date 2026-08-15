@@ -682,9 +682,16 @@
       "description": "Choose the games supported by this operator and complete their sales settings.",
       "loading": "Loading games...",
       "action": {
-        "backToSetup": "General setup",
+        "backToSetup": "Back to setup",
         "pricing": "View pricing",
+        "availability": "Games by draw",
         "refresh": "Refresh"
+      },
+      "table": {
+        "game": "Game",
+        "setup": "Settings",
+        "availability": "Availability",
+        "actions": "Actions"
       },
       "empty": {
         "title": "No games available",
@@ -692,6 +699,11 @@
       },
       "summary": {
         "aria": "Available games summary",
+        "compact": {
+          "games": "games",
+          "active": "active",
+          "needsConfig": "needs setup"
+        },
         "systemGames": {
           "label": "System games",
           "help": "Games available for this operator."
@@ -748,7 +760,7 @@
         "saleDisabledShort": "Not sold",
         "stakeUnavailable": "Stake unavailable",
         "stakeConfigured": "Stake configured",
-        "stakeRange": "Stakes: {{min}}-{{max}} {{currency}}",
+        "stakeRange": "{{min}}-{{max}} {{currency}}",
         "stakeMissing": "Stake not configured",
         "notConfigured": "Not configured",
         "pricingMissing": "Pricing not configured",
@@ -1266,8 +1278,8 @@
       }
     },
     "drawSalesMatrix": {
-      "title": "Games by draw",
-      "description": "Enable or disable games per channel. Channel timing and routing are edited from the draw channel record.",
+      "title": "Availability by draw",
+      "description": "Enable games that can be sold on each draw.",
       "loading": "Loading matrix...",
       "action": {
         "configureChannels": "Configure draw channels",
@@ -1283,7 +1295,9 @@
         "missingLimits": "Draw cap to review"
       },
       "provider": {
+        "summary": "{{slots}} draw(s) · {{active}}/{{total}} games available",
         "slots": "{{count}} slot(s)",
+        "available": "{{active}}/{{total}} games available",
         "offered": "{{count}} offered game(s)",
         "ready": "{{count}} sellable"
       },
@@ -1293,7 +1307,8 @@
           "review": "Review",
           "notConfigured": "Not configured"
         },
-        "offeredCount": "{{active}} active game(s) out of {{offered}} offered",
+        "gamesCount": "{{active}}/{{total}} games",
+        "offeredCount": "{{active}} active game(s) out of {{total}}",
         "activeGamesLabel": "Active games",
         "offeredGamesLabel": "Offered games",
         "availableGamesLabel": "Can add",
@@ -1305,13 +1320,14 @@
         "settingsTitle": "Draw settings",
         "salesOpen": "Sales open: {{value}}",
         "cutoff": "Sales stop {{minutes}} minute(s) before {{drawTime}}.",
+        "cutoffShort": "Sales close {{minutes}} min before",
         "activeGames": "{{count}} active game(s)",
         "availableToAdd": "{{count}} game(s) available to add",
         "dependsOnAnother": "Depends on another channel",
         "matrixHelp": "This matrix manages the game offer. To change time, cutoff or routing, open the channel configuration.",
         "missingHelp": "This slot does not have a sales channel configured yet.",
         "configureChannels": "Configure channels",
-        "editChannel": "Edit channel"
+        "editChannel": "Edit draw rule"
       },
       "section": {
         "offered": "Active offer on this channel",
@@ -1353,6 +1369,8 @@
           "add": "Add",
           "activate": "Activate",
           "disable": "Disable",
+          "on": "On",
+          "off": "Off",
           "remove": "Remove from channel"
         }
       },
@@ -1731,6 +1749,7 @@
         "unavailable": "Unavailable"
       },
       "summary": {
+        "aria": "Draw channels summary",
         "availableStates": "Lottery sources",
         "activeStates": "Active sources",
         "activeChannels": "Active slots",
@@ -1947,7 +1966,7 @@
       "salesCutoff": "Sales close: {{minutes}} min before draw",
       "salesCutoffMissing": "Sales close: Not defined",
       "actions": {
-        "backToSetup": "General setup",
+        "backToSetup": "Back to setup",
         "refresh": "Refresh",
         "configure": "Configure",
         "configureChannel": "Configure channel",
@@ -1957,6 +1976,13 @@
         "viewGeneratedDraws": "View draws",
         "viewDetails": "View details",
         "more": "More actions"
+      },
+      "table": {
+        "channel": "Channel",
+        "result": "Result",
+        "schedule": "Draw time",
+        "availability": "Availability",
+        "actions": "Actions"
       },
       "detail": {
         "titleFallback": "Draw channel details",

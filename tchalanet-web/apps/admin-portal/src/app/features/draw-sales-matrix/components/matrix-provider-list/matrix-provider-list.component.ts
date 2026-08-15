@@ -33,6 +33,7 @@ export class DrawSalesMatrixProviderListComponent {
   readonly actingKey = input<string | null>(null);
   readonly actionErrors = input<Readonly<Record<string, TchErrorViewModel>>>({});
   readonly actionNotices = input<Readonly<Record<string, string>>>({});
+  readonly pendingEnabled = input<Readonly<Record<string, boolean>>>({});
 
   readonly gameAction = output<MatrixProviderGameActionEvent>();
 
@@ -44,17 +45,17 @@ export class DrawSalesMatrixProviderListComponent {
     return provider.slots.length;
   }
 
-  protected saleReadyCount(provider: ProviderMatrixView): number {
+  protected availableTenantGameCount(provider: ProviderMatrixView): number {
     return provider.slots
       .flatMap(slot => slot.games)
-      .filter(game => game.saleReady)
+      .filter(game => game.enabledForTenant)
       .length;
   }
 
-  protected offeredCount(provider: ProviderMatrixView): number {
+  protected activeGameCount(provider: ProviderMatrixView): number {
     return provider.slots
       .flatMap(slot => slot.games)
-      .filter(game => game.offeredOnChannel)
+      .filter(game => game.enabledForTenant && game.offeredOnChannel && game.enabledOnChannel)
       .length;
   }
 }

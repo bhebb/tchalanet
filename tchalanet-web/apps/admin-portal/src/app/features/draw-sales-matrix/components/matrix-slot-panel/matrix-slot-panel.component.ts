@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { SlicePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { BadgeStatus, TchStatusBadge } from '@tch/ui/components';
 import { TchErrorViewModel } from '@tch/web/errors';
 import {
   ConsoleDrawSlotIdentity,
@@ -35,8 +35,8 @@ export interface MatrixSlotGameActionEvent {
     RouterLink,
     MatButtonModule,
     MatExpansionModule,
+    SlicePipe,
     TranslatePipe,
-    TchStatusBadge,
     ConsoleDrawSlotIdentityComponent,
     DrawSalesMatrixGameCardComponent,
   ],
@@ -49,6 +49,7 @@ export class DrawSalesMatrixSlotPanelComponent {
   readonly actingKey = input<string | null>(null);
   readonly actionErrors = input<Readonly<Record<string, TchErrorViewModel>>>({});
   readonly actionNotices = input<Readonly<Record<string, string>>>({});
+  readonly pendingEnabled = input<Readonly<Record<string, boolean>>>({});
 
   readonly gameAction = output<MatrixSlotGameActionEvent>();
 
@@ -66,33 +67,11 @@ export class DrawSalesMatrixSlotPanelComponent {
     });
   });
 
-  protected readonly offeredGames = computed(() => this.slot().games.filter(game => game.offeredOnChannel));
-  protected readonly availableGames = computed(() =>
-    this.slot().games.filter(game => !game.offeredOnChannel && game.enabledForTenant),
-  );
+  protected readonly availableGames = computed(() => this.slot().games.filter(game => game.enabledForTenant));
   protected readonly activeOfferedCount = computed(() =>
-    this.slot().games.filter(game => game.offeredOnChannel && game.enabledOnChannel).length,
+    this.availableGames().filter(game => game.offeredOnChannel && game.enabledOnChannel).length,
   );
-  protected readonly offeredCount = computed(() =>
-    this.slot().games.filter(game => game.offeredOnChannel).length,
-  );
-
-  protected slotStatus(slot: SlotMatrixView): BadgeStatus {
-    if (slot.slotReady) return 'ready';
-    const hasError = slot.warnings.some(w => w.severity === 'ERROR');
-    return hasError ? 'blocked' : 'warning';
-  }
-
-  protected slotStatusLabelKey(slot: SlotMatrixView): string {
-    if (slot.slotReady) return 'admin.drawSalesMatrix.slot.status.ready';
-    if (slot.channel) return 'admin.drawSalesMatrix.slot.status.review';
-    return 'admin.drawSalesMatrix.slot.status.notConfigured';
-  }
-
-  protected cutoffMinutes(cutoffSec: number | null | undefined): number {
-    if (cutoffSec == null) return 0;
-    return Math.max(0, Math.round(cutoffSec / 60));
-  }
+  protected readonly availableCount = computed(() => this.availableGames().length);
 
   protected feedbackKey(slot: SlotMatrixView, game: ChannelGameSetupView): string | null {
     const drawChannelId = slot.channel?.drawChannelId.value;
@@ -114,11 +93,21 @@ export class DrawSalesMatrixSlotPanelComponent {
     return key ? this.actionNotices()[key] ?? null : null;
   }
 
+  protected pendingGameEnabled(slot: SlotMatrixView, game: ChannelGameSetupView): boolean | null {
+    const key = this.feedbackKey(slot, game);
+    return key && this.pendingEnabled()[key] !== undefined ? this.pendingEnabled()[key] : null;
+  }
+
   protected onGameAction(event: MatrixGameActionEvent): void {
     this.gameAction.emit({
       action: event.action,
       slot: this.slot(),
       game: event.game,
     });
+  }
+
+  protected cutoffMinutes(slot: SlotMatrixView): number | null {
+    const cutoffSec = slot.channel?.cutoffSec;
+    return cutoffSec === undefined || cutoffSec === null ? null : Math.round(cutoffSec / 60);
   }
 }

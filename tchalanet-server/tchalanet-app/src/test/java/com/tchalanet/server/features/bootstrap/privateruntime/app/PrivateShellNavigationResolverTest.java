@@ -1,13 +1,22 @@
 package com.tchalanet.server.features.bootstrap.privateruntime.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.tchalanet.server.common.bus.QueryBus;
+import com.tchalanet.server.common.context.TchRequestContext;
 import com.tchalanet.server.common.json.utils.JsonUtils;
+import com.tchalanet.server.core.pagemodel.api.model.PageModelDoc;
 import com.tchalanet.server.features.bootstrap.privateruntime.model.PrivateBootstrapSpace;
+import com.tchalanet.server.features.pagemodel.dynamic.PageModelDynamicResolver;
 import com.tchalanet.server.features.pagemodel.dynamic.providers.json.PageModelJsonFragmentRegistry;
+import com.tchalanet.server.features.pagemodel.runtime.PageRuntimeAssembler;
+import com.tchalanet.server.features.pagemodel.shared.PageDynamicPayload;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -16,8 +25,7 @@ class PrivateShellNavigationResolverTest {
   @Test
   void cashierDoesNotRequireAWebNavigationDrawerFragment() {
     var resolver =
-        new PrivateShellNavigationResolver(
-            mock(PageModelJsonFragmentRegistry.class), mock(JsonUtils.class));
+        fallbackResolver(mock(PageModelJsonFragmentRegistry.class), mock(JsonUtils.class));
 
     assertThat(resolver.resolve(PrivateBootstrapSpace.CASHIER)).isEmpty();
   }
@@ -34,9 +42,7 @@ class PrivateShellNavigationResolverTest {
   @Test
   @SuppressWarnings("unchecked")
   void loadsTheRealTenantAdminNavigationSplitIntoOperationsAndConfiguration() {
-    var resolver =
-        new PrivateShellNavigationResolver(
-            new PageModelJsonFragmentRegistry(), new JsonUtils(JsonMapper.builder().build()));
+    var resolver = fallbackResolver(new PageModelJsonFragmentRegistry(), jsonUtils());
 
     var navigationDrawer = resolver.resolve(PrivateBootstrapSpace.ADMIN);
     var sections = (List<Map<String, Object>>) navigationDrawer.get("sections");
@@ -76,9 +82,7 @@ class PrivateShellNavigationResolverTest {
   @Test
   @SuppressWarnings("unchecked")
   void fiveGroupsGainedTheirOwnDestination() {
-    var resolver =
-        new PrivateShellNavigationResolver(
-            new PageModelJsonFragmentRegistry(), new JsonUtils(JsonMapper.builder().build()));
+    var resolver = fallbackResolver(new PageModelJsonFragmentRegistry(), jsonUtils());
 
     var navigationDrawer = resolver.resolve(PrivateBootstrapSpace.ADMIN);
     var sections = (List<Map<String, Object>>) navigationDrawer.get("sections");
@@ -114,9 +118,7 @@ class PrivateShellNavigationResolverTest {
   @Test
   @SuppressWarnings("unchecked")
   void platformGroupsWithASingleLandingPageGainedTheirOwnDestination() {
-    var resolver =
-        new PrivateShellNavigationResolver(
-            new PageModelJsonFragmentRegistry(), new JsonUtils(JsonMapper.builder().build()));
+    var resolver = fallbackResolver(new PageModelJsonFragmentRegistry(), jsonUtils());
 
     var navigationDrawer = resolver.resolve(PrivateBootstrapSpace.PLATFORM);
     var sections = (List<Map<String, Object>>) navigationDrawer.get("sections");
@@ -137,6 +139,84 @@ class PrivateShellNavigationResolverTest {
     }
   }
 
+  @Test
+  @SuppressWarnings("unchecked")
+  void resolvesTenantAdminNavigationFromPublishedPageModelBeforeClasspathFallback() {
+    var jsonUtils = jsonUtils();
+    var queryBus = mock(QueryBus.class);
+    var dynamicResolver = mock(PageModelDynamicResolver.class);
+    var ctx = mock(TchRequestContext.class);
+    var doc =
+        new PageModelDoc(
+            new PageModelDoc.Meta(
+                "private.dashboard.tenant_admin",
+                "private",
+                "dashboard",
+                "private_dashboard_tenant_admin",
+                3,
+                List.of("ht"),
+                "ht"),
+            null,
+            new PageModelDoc.Shell(
+                null,
+                null,
+                null,
+                "PrivateShell",
+                new PageModelDoc.WidgetBinding("dynamic", "jsonFile"),
+                Map.of("fileKey", "private_shell_tenant_admin")),
+            new PageModelDoc.Content(null, Map.of()));
+    var publishedDrawer =
+        Map.of(
+            "sections",
+            List.of(
+                Map.of(
+                    "id",
+                    "config",
+                    "items",
+                    List.of(
+                        Map.of(
+                            "id",
+                            "games",
+                            "labelKey",
+                            "nav.admin.games_available",
+                            "path",
+                            "/app/admin/games",
+                            "kind",
+                            "internal"),
+                        Map.of(
+                            "id",
+                            "games-channel-matrix",
+                            "labelKey",
+                            "nav.admin.games_channel_matrix",
+                            "path",
+                            "/app/admin/games/channel-matrix",
+                            "kind",
+                            "internal")))));
+
+    when(ctx.tenantUuid()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000003"));
+    when(queryBus.ask(any())).thenReturn(doc);
+    when(dynamicResolver.resolve(doc, "ht", ctx))
+        .thenReturn(
+            new PageDynamicPayload(
+                Map.of("shell.root", Map.of("navigationDrawer", publishedDrawer)), List.of()));
+
+    var resolver =
+        new PrivateShellNavigationResolver(
+            new PageModelJsonFragmentRegistry(),
+            jsonUtils,
+            queryBus,
+            dynamicResolver,
+            new PageRuntimeAssembler(jsonUtils));
+
+    var navigationDrawer = resolver.resolve(PrivateBootstrapSpace.ADMIN, ctx, "ht");
+    var sections = (List<Map<String, Object>>) navigationDrawer.get("sections");
+    var configItems = (List<Map<String, Object>>) sections.get(0).get("items");
+
+    assertThat(configItems.stream().map(item -> item.get("id")))
+        .containsExactly("games", "games-channel-matrix");
+    assertThat(configItems.get(0)).doesNotContainKey("children");
+  }
+
   @SuppressWarnings("unchecked")
   private static List<Object> itemIds(Map<String, Object> section) {
     return ((List<Map<String, Object>>) section.get("items"))
@@ -153,5 +233,19 @@ class PrivateShellNavigationResolverTest {
   private static Map<String, Object> child(Map<String, Object> group, String id) {
     return ((List<Map<String, Object>>) group.get("children"))
         .stream().filter(item -> id.equals(item.get("id"))).findFirst().orElseThrow();
+  }
+
+  private static PrivateShellNavigationResolver fallbackResolver(
+      PageModelJsonFragmentRegistry registry, JsonUtils jsonUtils) {
+    return new PrivateShellNavigationResolver(
+        registry,
+        jsonUtils,
+        mock(QueryBus.class),
+        mock(PageModelDynamicResolver.class),
+        new PageRuntimeAssembler(jsonUtils));
+  }
+
+  private static JsonUtils jsonUtils() {
+    return new JsonUtils(JsonMapper.builder().build());
   }
 }

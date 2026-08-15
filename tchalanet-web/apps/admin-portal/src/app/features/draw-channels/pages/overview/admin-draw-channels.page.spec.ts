@@ -52,6 +52,42 @@ describe(DrawChannelListItemComponent.name, () => {
     expect(fixture.nativeElement.querySelector('.dc-channel-card__logo img')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('[aria-label="Plis aksyon"]')).not.toBeNull();
   });
+
+  it('disables channel mutation actions when the user cannot manage draw channels', () => {
+    TestBed.configureTestingModule({
+      imports: [DrawChannelListItemComponent],
+      providers: [provideNoopAnimations(), provideTranslateService()],
+    });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('ht', translations);
+    translate.use('ht');
+
+    const fixture = TestBed.createComponent(DrawChannelListItemComponent);
+    fixture.componentRef.setInput('row', {
+      providerCode: 'TX',
+      providerLabel: 'Texas',
+      resultMode: 'AUTO',
+      status: 'active',
+      slot: {
+        channelId: 'channel-ht-tx-1000',
+        slotKey: 'HT_TX_1000',
+        label: 'Texas · 1000',
+        enabled: true,
+        resultSlotActive: true,
+        drawTime: '10:00:00',
+        cutoffTime: '09:55:00',
+        daysOfWeek: 'MON-SUN',
+        defaultSource: 'EXTERNAL',
+      },
+    } satisfies DrawChannelListItemView);
+    fixture.componentRef.setInput('canManage', false);
+
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.dc-channel-card__sale-toggle').disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('.dc-channel-card__primary-action').disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('[aria-label="Plis aksyon"]').disabled).toBe(true);
+  });
 });
 
 const translations = {

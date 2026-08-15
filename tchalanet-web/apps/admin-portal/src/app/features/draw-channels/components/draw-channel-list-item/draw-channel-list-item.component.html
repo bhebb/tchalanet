@@ -28,33 +28,52 @@
       <button
         type="button"
         class="dc-channel-card__sale-toggle"
-        [class.dc-channel-card__sale-toggle--on]="slot.enabled"
-        [disabled]="!slot.channelId || saving()"
-        [attr.aria-pressed]="slot.enabled"
+        [class.dc-channel-card__sale-toggle--on]="switchEnabled()"
+        [disabled]="!canManage() || !slot.channelId || saving()"
+        [attr.aria-pressed]="switchEnabled()"
         [attr.aria-label]="
-          (slot.enabled
+          (switchEnabled()
             ? 'admin.drawChannels.slots.toggle.disable'
             : 'admin.drawChannels.slots.toggle.enable'
           ) | translate
         "
-        (click)="toggleEnabled.emit(!slot.enabled)"
+        (click)="toggleEnabled.emit(!switchEnabled())"
       >
         <span class="dc-channel-card__sale-toggle-track" aria-hidden="true">
           <span class="dc-channel-card__sale-toggle-thumb">
-            @if (slot.enabled) {
+            @if (switchEnabled()) {
               <span class="material-symbols-outlined">check</span>
             }
           </span>
         </span>
         <span class="dc-channel-card__sale-toggle-label">
           {{
-            (slot.enabled
+            (switchEnabled()
               ? 'admin.drawChannels.slots.saleEnabled'
               : 'admin.drawChannels.slots.saleDisabled'
             ) | translate
           }}
         </span>
       </button>
+      <button
+        mat-icon-button
+        type="button"
+        [matMenuTriggerFor]="channelActions"
+        [disabled]="!canManage() || !slot.channelId"
+        [attr.aria-label]="'admin.drawChannels.actions.more' | translate"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+      </button>
+      <mat-menu #channelActions="matMenu">
+        <button mat-menu-item type="button" (click)="details.emit(slot)">
+          <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          <span>{{ 'admin.drawChannels.actions.viewDetails' | translate }}</span>
+        </button>
+        <button mat-menu-item type="button" (click)="limits.emit(slot)">
+          <span class="material-symbols-outlined" aria-hidden="true">shield</span>
+          <span>{{ 'admin.drawChannels.actions.configureLimits' | translate }}</span>
+        </button>
+      </mat-menu>
     </div>
   </header>
 
@@ -87,8 +106,8 @@
       <button
         mat-icon-button
         type="button"
-        class="dc-channel-card__cutoff-edit"
-        [disabled]="!slot.channelId"
+      class="dc-channel-card__cutoff-edit"
+        [disabled]="!canManage() || !slot.channelId"
         [attr.aria-label]="'common.edit' | translate"
         (click)="configure.emit(slot)"
       >
@@ -114,30 +133,13 @@
 
   <div class="dc-channel-card__actions">
     <button
-      mat-stroked-button
-      [disabled]="!slot.channelId || saving()"
+      mat-flat-button
+      color="primary"
+      class="dc-channel-card__primary-action"
+      [disabled]="!canManage() || !slot.channelId || saving()"
       (click)="configure.emit(slot)"
     >
       {{ 'admin.drawChannels.actions.configure' | translate }}
     </button>
-    <button
-      mat-icon-button
-      type="button"
-      [matMenuTriggerFor]="channelActions"
-      [disabled]="!slot.channelId"
-      [attr.aria-label]="'admin.drawChannels.actions.more' | translate"
-    >
-      <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
-    </button>
-    <mat-menu #channelActions="matMenu">
-      <button mat-menu-item type="button" (click)="details.emit(slot)">
-        <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-        <span>{{ 'admin.drawChannels.actions.viewDetails' | translate }}</span>
-      </button>
-      <button mat-menu-item type="button" (click)="limits.emit(slot)">
-        <span class="material-symbols-outlined" aria-hidden="true">shield</span>
-        <span>{{ 'admin.drawChannels.actions.configureLimits' | translate }}</span>
-      </button>
-    </mat-menu>
   </div>
 </article>
