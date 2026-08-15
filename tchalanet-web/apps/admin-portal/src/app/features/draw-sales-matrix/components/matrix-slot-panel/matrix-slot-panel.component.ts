@@ -49,6 +49,7 @@ export class DrawSalesMatrixSlotPanelComponent {
   readonly actingKey = input<string | null>(null);
   readonly actionErrors = input<Readonly<Record<string, TchErrorViewModel>>>({});
   readonly actionNotices = input<Readonly<Record<string, string>>>({});
+  readonly pendingEnabled = input<Readonly<Record<string, boolean>>>({});
 
   readonly gameAction = output<MatrixSlotGameActionEvent>();
 
@@ -90,6 +91,11 @@ export class DrawSalesMatrixSlotPanelComponent {
   protected actionNotice(slot: SlotMatrixView, game: ChannelGameSetupView): string | null {
     const key = this.feedbackKey(slot, game);
     return key ? this.actionNotices()[key] ?? null : null;
+  }
+
+  protected pendingGameEnabled(slot: SlotMatrixView, game: ChannelGameSetupView): boolean | null {
+    const key = this.feedbackKey(slot, game);
+    return key && this.pendingEnabled()[key] !== undefined ? this.pendingEnabled()[key] : null;
   }
 
   protected onGameAction(event: MatrixGameActionEvent): void {

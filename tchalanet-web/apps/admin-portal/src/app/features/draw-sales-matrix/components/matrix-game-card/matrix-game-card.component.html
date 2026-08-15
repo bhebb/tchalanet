@@ -1,7 +1,7 @@
 @let gameVm = game();
 <div
   class="matrix-game matrix-game--{{ mode() }}"
-  [class.matrix-game--off]="!gameVm.enabledOnChannel || !gameVm.offeredOnChannel"
+  [class.matrix-game--off]="!switchEnabled()"
 >
   <div class="matrix-game__header">
     <span class="matrix-game__logo" aria-hidden="true">
@@ -53,12 +53,12 @@
 
     <button
       class="matrix-game__switch"
-      [class.matrix-game__switch--active]="gameVm.offeredOnChannel && gameVm.enabledOnChannel"
+      [class.matrix-game__switch--active]="switchEnabled()"
       type="button"
       [disabled]="acting()"
-      [attr.aria-pressed]="gameVm.offeredOnChannel && gameVm.enabledOnChannel"
+      [attr.aria-pressed]="switchEnabled()"
       [attr.aria-label]="
-        (gameVm.offeredOnChannel && gameVm.enabledOnChannel
+        (switchEnabled()
           ? 'admin.drawSalesMatrix.game.action.on'
           : 'admin.drawSalesMatrix.game.action.off'
         ) | translate

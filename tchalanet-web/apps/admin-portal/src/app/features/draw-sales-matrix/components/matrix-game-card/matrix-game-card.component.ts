@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -47,8 +47,16 @@ export class DrawSalesMatrixGameCardComponent {
   readonly acting = input(false);
   readonly actionError = input<TchErrorViewModel | null>(null);
   readonly actionNotice = input<string | null>(null);
+  readonly pendingEnabled = input<boolean | null>(null);
 
   readonly gameAction = output<MatrixGameActionEvent>();
+
+  protected readonly switchEnabled = computed(() => {
+    const pending = this.pendingEnabled();
+    if (pending !== null) return pending;
+    const game = this.game();
+    return game.offeredOnChannel && game.enabledOnChannel;
+  });
 
   protected severityIcon(warning: SetupWarning): string {
     if (warning.severity === 'ERROR') return 'error';
@@ -57,6 +65,6 @@ export class DrawSalesMatrixGameCardComponent {
   }
 
   protected warningLabelKey(warning: SetupWarning): string {
-    return `admin.drawSalesMatrix.warning.${warning.code}`;
+    return `admin.drawSalesMatrix.warning.${warning.code.replace(/\./g, '_').toUpperCase()}`;
   }
 }

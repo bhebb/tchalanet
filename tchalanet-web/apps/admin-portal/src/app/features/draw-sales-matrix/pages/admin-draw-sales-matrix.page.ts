@@ -62,6 +62,7 @@ export class AdminDrawSalesMatrixPage {
   readonly acting = signal<string | null>(null); // key = `${drawChannelId}:${tenantGameId}`
   readonly actionErrors = signal<Readonly<Record<string, ErrorViewModel>>>({});
   readonly actionNotices = signal<Readonly<Record<string, string>>>({});
+  readonly pendingEnabled = signal<Readonly<Record<string, boolean>>>({});
   readonly offerGameMutation = tchMutation<MatrixGameMutationInput, unknown>({
     run: input => this.api.offerGame(input.drawChannelId, input.tenantGameId, { suppressShellFeedback: true }),
     source: 'admin.setup.draw_sales_matrix.offer',
@@ -74,6 +75,7 @@ export class AdminDrawSalesMatrixPage {
     },
     onError: (err, input) => {
       this.acting.set(null);
+      this.clearPendingEnabled(input.key);
       this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
       return true;
     },
@@ -92,6 +94,7 @@ export class AdminDrawSalesMatrixPage {
     },
     onError: (err, input) => {
       this.acting.set(null);
+      this.clearPendingEnabled(input.key);
       this.setActionError(input.key, err, input.drawChannelId, input.tenantGameId);
       return true;
     },
@@ -101,6 +104,7 @@ export class AdminDrawSalesMatrixPage {
     if (!preserveActionFeedback) {
       this.actionErrors.set({});
       this.actionNotices.set({});
+      this.pendingEnabled.set({});
     }
     this.matrixResource.reload();
   }
@@ -119,6 +123,7 @@ export class AdminDrawSalesMatrixPage {
     const tenantGameId = game.tenantGameId.value;
     const key = this.actingKey(drawChannelId, tenantGameId);
     this.acting.set(key);
+    this.setPendingEnabled(key, true);
     this.clearActionError(key);
     this.clearActionNotice(key);
     this.offerGameMutation.execute({
@@ -140,6 +145,7 @@ export class AdminDrawSalesMatrixPage {
     this.clearActionError(key);
     this.clearActionNotice(key);
     const newEnabled = !game.enabledOnChannel;
+    this.setPendingEnabled(key, newEnabled);
     this.toggleGameMutation.execute({
       key,
       drawChannelId,
@@ -200,6 +206,19 @@ export class AdminDrawSalesMatrixPage {
   private clearActionNotice(key: string): void {
     this.actionNotices.update(current => {
       if (!current[key]) return current;
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  }
+
+  private setPendingEnabled(key: string, enabled: boolean): void {
+    this.pendingEnabled.update(current => ({ ...current, [key]: enabled }));
+  }
+
+  private clearPendingEnabled(key: string): void {
+    this.pendingEnabled.update(current => {
+      if (current[key] === undefined) return current;
       const next = { ...current };
       delete next[key];
       return next;
