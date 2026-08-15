@@ -1294,6 +1294,7 @@
         "missingLimits": "Draw cap to review"
       },
       "provider": {
+        "summary": "{{slots}} draw(s) · {{active}}/{{total}} games available",
         "slots": "{{count}} slot(s)",
         "available": "{{active}}/{{total}} games available",
         "offered": "{{count}} offered game(s)",
@@ -1305,6 +1306,7 @@
           "review": "Review",
           "notConfigured": "Not configured"
         },
+        "gamesCount": "{{active}}/{{total}} games",
         "offeredCount": "{{active}} active game(s) out of {{total}}",
         "activeGamesLabel": "Active games",
         "offeredGamesLabel": "Offered games",

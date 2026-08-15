@@ -1294,6 +1294,7 @@
         "missingLimits": "Plafon tiraj pou verifye"
       },
       "provider": {
+        "summary": "{{slots}} tiraj · {{active}}/{{total}} jwèt disponib",
         "slots": "{{count}} lè tiraj",
         "available": "{{active}}/{{total}} jwèt disponib",
         "offered": "{{count}} jwèt ofri",
@@ -1305,6 +1306,7 @@
           "review": "Pou verifye",
           "notConfigured": "Pa konfigire"
         },
+        "gamesCount": "{{active}}/{{total}} jwèt",
         "offeredCount": "{{active}} jwèt aktif sou {{total}}",
         "activeGamesLabel": "Jwèt aktif",
         "offeredGamesLabel": "Jwèt yo ofri",

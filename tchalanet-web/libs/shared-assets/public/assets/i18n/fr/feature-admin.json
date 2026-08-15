@@ -1987,6 +1987,7 @@
         "missingLimits": "Plafond par tirage à vérifier"
       },
       "provider": {
+        "summary": "{{slots}} tirage(s) · {{active}}/{{total}} jeux disponibles",
         "slots": "{{count}} créneau(x)",
         "available": "{{active}}/{{total}} jeux disponibles",
         "offered": "{{count}} jeu(x) offert(s)",
@@ -1998,6 +1999,7 @@
           "review": "À vérifier",
           "notConfigured": "Non configuré"
         },
+        "gamesCount": "{{active}}/{{total}} jeux",
         "offeredCount": "{{active}} jeu(x) actif(s) sur {{total}}",
         "activeGamesLabel": "Jeux actifs",
         "offeredGamesLabel": "Jeux offerts",

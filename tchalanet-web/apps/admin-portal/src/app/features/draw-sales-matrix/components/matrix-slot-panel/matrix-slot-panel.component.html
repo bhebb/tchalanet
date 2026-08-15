@@ -4,7 +4,12 @@
     <mat-panel-title class="matrix-slot-header">
       <tch-console-draw-slot-identity [identity]="identity()" density="compact" />
       <span class="matrix-slot-header__meta">
-        <strong>{{ activeOfferedCount() }}/{{ availableCount() }}</strong>
+        <strong>
+          {{
+            'admin.drawSalesMatrix.slot.gamesCount'
+              | translate: { active: activeOfferedCount(), total: availableCount() }
+          }}
+        </strong>
         @if (!slotVm.channel) {
           <span class="matrix-badge matrix-badge--neutral">{{ 'admin.drawSalesMatrix.slot.channelMissing' | translate }}</span>
         } @else if (!slotVm.channel.active) {

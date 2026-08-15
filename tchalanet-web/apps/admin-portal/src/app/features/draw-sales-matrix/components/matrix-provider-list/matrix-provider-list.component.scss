@@ -21,22 +21,10 @@
     margin: 0;
   }
 
-  &__facts {
+  &__summary {
     color: var(--tch-color-on-surface-variant);
-    display: flex;
-    flex-wrap: wrap;
     font-size: var(--tch-font-size-label-sm);
-    gap: 0.5rem;
-
-    span {
-      background: transparent;
-      border: 0;
-      padding: 0;
-    }
-
-    span + span::before {
-      content: '· ';
-    }
+    margin: 0;
   }
 
   &__slots {
