@@ -1,72 +1,12 @@
-@use 'breakpoints' as ui;
-
 .maryaj-game-settings {
   display: block;
   scroll-margin-top: 5rem;
 }
 
-.maryaj-game-settings__toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
-}
-
-.maryaj-game-settings__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-  margin: 0;
-}
-
-.maryaj-game-settings__item {
-  display: grid;
-  gap: 0.25rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-md);
-  padding: 0.875rem 1rem;
-  background: var(--tch-color-surface);
-}
-
-.maryaj-game-settings__item--wide {
-  grid-column: auto;
-}
-
-.maryaj-game-settings__item dt,
 .maryaj-game-settings__hint {
   color: var(--tch-color-on-surface-variant);
   font: var(--tch-typescale-label-small);
   font-weight: 600;
-}
-
-.maryaj-game-settings__item dt {
-  text-transform: uppercase;
-}
-
-.maryaj-game-settings__item dd {
-  margin: 0;
-  color: var(--tch-color-on-surface);
-  font: var(--tch-typescale-body-large);
-  font-weight: 400;
-  line-height: 1.35;
-}
-
-.maryaj-game-settings__item p {
-  margin: 0;
-  color: var(--tch-color-on-surface-variant);
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-
-.maryaj-game-settings__link {
-  color: var(--tch-color-primary);
-  font: var(--tch-typescale-label-medium);
-  text-decoration: none;
-}
-
-.maryaj-game-settings__link:hover {
-  text-decoration: underline;
 }
 
 .maryaj-game-settings__empty {
@@ -100,14 +40,4 @@
   margin: 0;
   font: var(--tch-typescale-body-small);
   font-weight: 400;
-}
-
-@include ui.up(expanded) {
-  .maryaj-game-settings__toolbar {
-    justify-content: flex-end;
-  }
-
-  .maryaj-game-settings__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }

@@ -50,7 +50,9 @@ describe(TenantGameCardComponent.name, () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.gp-game-card__sale-toggle').disabled).toBe(true);
-    expect(fixture.nativeElement.querySelector('.gp-game-card__primary-action').disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('.tg-game-settings__primary-action').disabled).toBe(
+      true,
+    );
   });
 
   it('uses the pending sale state while the game mutation is saving', () => {

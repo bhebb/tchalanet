@@ -21,48 +21,16 @@
   </div>
 
   @if (game(); as game) {
-    <div actions class="maryaj-game-settings__toolbar">
-      <button
-        mat-stroked-button
-        type="button"
-        data-testid="maryaj-gratis-configure-game"
-        (click)="configure.emit(game)"
-      >
-        <mat-icon>tune</mat-icon>
-        {{ 'admin.maryajGratis.game.configure' | translate }}
-      </button>
-    </div>
-  }
-
-  @if (game(); as game) {
-    <dl class="maryaj-game-settings__grid">
-      <div class="maryaj-game-settings__item">
-        <dt>{{ 'admin.maryajGratis.game.stake' | translate }}</dt>
-        <dd>
-          {{ formatAmount(game.limits.minStake, game.limits.currency) }}
-          –
-          {{ formatAmount(game.limits.maxStake, game.limits.currency) }}
-        </dd>
-      </div>
-      <div class="maryaj-game-settings__item">
-        <dt>{{ 'admin.maryajGratis.game.pricingOptions' | translate }}</dt>
-        <dd>{{ oddsSummary() }}</dd>
-        <p>
-          {{
-            game.pricingProfileLabel
-              ? (game.pricingProfileLabel | translate)
-              : ('admin.maryajGratis.game.standard' | translate)
-          }}
-        </p>
-      </div>
-      <div class="maryaj-game-settings__item">
-        <dt>{{ 'admin.maryajGratis.game.availability' | translate }}</dt>
-        <dd>{{ 'admin.maryajGratis.game.availabilitySummary' | translate }}</dd>
-        <a class="maryaj-game-settings__link" [routerLink]="availabilityRoute">
-          {{ 'admin.maryajGratis.game.availabilityAction' | translate }}
-        </a>
-      </div>
-    </dl>
+    <tch-tenant-game-settings-summary
+      data-testid="maryaj-gratis-game-summary"
+      presentation="summary"
+      actionVariant="stroked"
+      [game]="game"
+      [actionLabelKey]="'admin.maryajGratis.game.configure'"
+      [actionTestId]="'maryaj-gratis-configure-game'"
+      [availabilityRoute]="availabilityRoute"
+      (configure)="configure.emit($event)"
+    />
 
     @if (readinessReason(game.readiness.reason); as reason) {
       <p class="maryaj-game-settings__hint">{{ reason }}</p>

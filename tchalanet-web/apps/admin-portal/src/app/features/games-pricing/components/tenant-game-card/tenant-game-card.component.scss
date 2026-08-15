@@ -45,8 +45,7 @@
   }
 
   &__name,
-  &__meta,
-  &__availability {
+  &__meta {
     margin: 0;
   }
 
@@ -139,66 +138,6 @@
     }
   }
 
-  &__facts {
-    display: flex;
-    flex-direction: column;
-    gap: 0.375rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  &__fact {
-    align-items: baseline;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    display: flex;
-    gap: 0.35rem;
-    min-width: 0;
-    padding: 0;
-
-    > .material-symbols-outlined {
-      color: var(--tch-color-primary, #1b185a);
-      flex: 0 0 auto;
-      font-size: 1rem;
-      margin-top: 0.1rem;
-    }
-
-    > span:last-child {
-      color: var(--tch-color-on-surface, #1a1c1e);
-      font-size: var(--tch-font-size-body-sm, 0.8125rem);
-      font-weight: var(--tch-weight-semibold, 600);
-      overflow-wrap: anywhere;
-    }
-  }
-
-  &__fact-label {
-    color: var(--tch-color-on-surface-variant, #46464f);
-    font-weight: var(--tch-weight-semibold, 600);
-  }
-
-  &__availability {
-    align-items: center;
-    color: var(--tch-color-on-surface-variant, #46464f);
-    display: inline-flex;
-    font-size: var(--tch-font-size-body-sm, 0.8125rem);
-    font-weight: var(--tch-weight-semibold, 600);
-    gap: 0.35rem;
-
-    .material-symbols-outlined {
-      font-size: 1rem;
-    }
-
-    &--available {
-      color: var(--tch-color-status-success, #0f8b5f);
-    }
-
-    &--attention {
-      color: var(--tch-color-status-warning, #b26a00);
-    }
-  }
-
   &__error {
     background: color-mix(in oklab, var(--tch-color-error, #ba1a1a) 9%, transparent);
     border: 1px solid color-mix(in oklab, var(--tch-color-error, #ba1a1a) 34%, transparent);
@@ -210,18 +149,6 @@
     padding: 0.625rem 0.75rem;
   }
 
-  &__actions {
-    display: grid;
-    gap: 0.5rem;
-
-    button {
-      min-height: 2.75rem;
-    }
-  }
-
-  &__primary-action {
-    min-width: 8.75rem;
-  }
 }
 
 @include ui.up(expanded) {
@@ -236,15 +163,6 @@
 
     &__state-control {
       justify-content: flex-start;
-    }
-
-    &__actions {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    &__facts {
-      gap: 0.25rem;
     }
 
     &__error {

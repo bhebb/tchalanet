@@ -55,27 +55,13 @@
     </div>
   </header>
 
-  <ul class="gp-game-card__facts">
-    <li class="gp-game-card__fact">
-      <span class="material-symbols-outlined" aria-hidden="true">payments</span>
-      <span>
-        <span class="gp-game-card__fact-label">{{ 'admin.gamesPricing.card.fact.stakes' | translate }}:</span>
-        {{ stakeLabel(g) }}
-      </span>
-    </li>
-    <li class="gp-game-card__fact">
-      <span class="material-symbols-outlined" aria-hidden="true">price_check</span>
-      <span>
-        <span class="gp-game-card__fact-label">{{ 'admin.gamesPricing.card.fact.payouts' | translate }}:</span>
-        {{ pricingLabel(g) }}
-      </span>
-    </li>
-  </ul>
-
-  <p class="gp-game-card__availability gp-game-card__availability--{{ availabilityState(g) }}">
-    <span class="material-symbols-outlined" aria-hidden="true">{{ availabilityIcon(g) }}</span>
-    <span>{{ availabilityLabelKey(g) | translate }}</span>
-  </p>
+  <tch-tenant-game-settings-summary
+    [game]="g"
+    [actionLabelKey]="configureLabelKey(g)"
+    [canManage]="canManage()"
+    [saving]="saving()"
+    (configure)="onConfigure($event)"
+  />
 
   @if (actionError(); as error) {
     <div class="gp-game-card__error" role="alert">
@@ -84,15 +70,4 @@
     </div>
   }
 
-  <div class="gp-game-card__actions">
-    <button
-      mat-flat-button
-      color="primary"
-      class="gp-game-card__primary-action"
-      [disabled]="!canManage() || g.tenantStatus === 'UNAVAILABLE' || saving()"
-      (click)="onConfigure()"
-    >
-      {{ configureLabelKey(g) | translate }}
-    </button>
-  </div>
 </article>
