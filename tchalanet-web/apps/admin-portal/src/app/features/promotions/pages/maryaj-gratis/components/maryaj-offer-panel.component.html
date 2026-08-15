@@ -7,24 +7,24 @@
   [description]="'admin.maryajGratis.offer.description' | translate"
 >
   @if (!editing()) {
-    @if (campaign(); as campaign) {
-      <tch-admin-status-pill
-        status
-        [label]="statusLabel(campaign.status)"
-        [tone]="statusTone(campaign.status)"
-      />
-    } @else {
-      <tch-admin-status-pill
-        status
-        [label]="'admin.maryajGratis.offer.status.needsSetup' | translate"
-        tone="warning"
-      />
-    }
+    <div status>
+      @if (campaign(); as campaign) {
+        <tch-admin-status-pill
+          [label]="statusLabel(campaign.status)"
+          [tone]="statusTone(campaign.status)"
+        />
+      } @else {
+        <tch-admin-status-pill
+          [label]="'admin.maryajGratis.offer.status.needsSetup' | translate"
+          tone="warning"
+        />
+      }
+    </div>
   }
 
   @if (!editing()) {
-    @if (campaign(); as campaign) {
-      <div actions class="maryaj-offer__toolbar">
+    <div actions class="maryaj-offer__toolbar">
+      @if (campaign(); as campaign) {
         <button
           class="maryaj-offer__action maryaj-offer__action--edit"
           mat-flat-button
@@ -58,9 +58,7 @@
             {{ 'admin.maryajGratis.offer.pause' | translate }}
           </button>
         }
-      </div>
-    } @else {
-      <div actions class="maryaj-offer__toolbar">
+      } @else {
         <button
           class="maryaj-offer__action maryaj-offer__action--edit"
           mat-flat-button
@@ -72,8 +70,8 @@
           <mat-icon>edit</mat-icon>
           {{ 'admin.maryajGratis.offer.empty.action' | translate }}
         </button>
-      </div>
-    }
+      }
+    </div>
   }
 
   @if (!editing()) {
