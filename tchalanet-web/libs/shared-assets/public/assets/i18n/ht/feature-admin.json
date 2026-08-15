@@ -872,6 +872,8 @@
         }
       },
       "offer": {
+        "title": "Òf Maryaj gratis",
+        "description": "Dat, palye ak kantite Maryaj gratis kliyan yo resevwa.",
         "activeEyebrow": "Òf aktif",
         "campaignCode": "Kanpay santral · {{count}} règ",
         "pause": "Mete an poz",

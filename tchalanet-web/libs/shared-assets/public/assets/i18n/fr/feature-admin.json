@@ -1566,6 +1566,8 @@
         }
       },
       "offer": {
+        "title": "Offre Maryaj gratis",
+        "description": "Dates, paliers et quantité de Maryaj gratuits remis aux clients.",
         "activeEyebrow": "Offre active",
         "campaignCode": "Campagne du santral · {{count}} règle(s)",
         "pause": "Mettre en pause",

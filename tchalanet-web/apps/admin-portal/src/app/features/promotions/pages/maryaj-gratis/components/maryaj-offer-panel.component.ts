@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { AdminSectionCardComponent } from '@tch/ui/console';
 import {
   MaryajQuantityTier,
   PromotionCampaignStatus,
@@ -34,6 +35,7 @@ import {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    AdminSectionCardComponent,
   ],
   templateUrl: './maryaj-offer-panel.component.html',
   styleUrls: ['./maryaj-offer-panel.component.scss'],

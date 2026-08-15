@@ -169,6 +169,7 @@ full brief is complete.
 - [x] Use the shared console refresh button instead of a local header action.
 - [x] Pilot the shared console section card on the Generation section instead of a local card shell.
 - [x] Use the shared console section card on the Maryaj Gratis game section.
+- [x] Use the shared console section card on the Maryaj Gratis offer section.
 - [x] Keep only exceptional warnings visually prominent.
 
 ## 16. Mobile-First Behavior

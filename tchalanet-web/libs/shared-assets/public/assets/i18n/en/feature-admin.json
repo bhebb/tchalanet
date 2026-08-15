@@ -872,6 +872,8 @@
         }
       },
       "offer": {
+        "title": "Free Maryaj offer",
+        "description": "Dates, tiers, and the number of free Maryaj awarded to customers.",
         "activeEyebrow": "Active offer",
         "campaignCode": "Operator campaign · {{count}} rule(s)",
         "pause": "Pause",
