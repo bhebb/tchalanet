@@ -43,6 +43,9 @@
   <div class="maryaj-page__stack" data-testid="admin-maryaj-gratis-page">
     <tch-maryaj-game-settings-panel
       [game]="store.maryajGame()"
+      [saving]="store.saving()"
+      (activate)="store.enableGame($event)"
+      (disable)="confirmDisableGame($event)"
       (configure)="openGameSettings($event)"
     />
     <tch-maryaj-offer-panel

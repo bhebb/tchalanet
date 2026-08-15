@@ -1,41 +1,34 @@
-<tch-admin-section-card
-  id="game"
-  class="maryaj-game-settings"
-  data-testid="maryaj-gratis-game-panel"
-  icon="casino"
-  [title]="'admin.maryajGratis.game.title' | translate"
-  [description]="'admin.maryajGratis.game.subtitle' | translate"
->
-  <div status>
-    @if (game(); as game) {
-      <tch-admin-status-pill
-        [label]="readinessLabel(game.readiness.status)"
-        [tone]="readinessTone(game.readiness.status)"
-      />
-    } @else {
+@if (game(); as game) {
+  <section
+    id="game"
+    class="maryaj-game-settings maryaj-game-settings--card"
+    data-testid="maryaj-gratis-game-panel"
+    [attr.aria-label]="'admin.maryajGratis.game.title' | translate"
+  >
+    <tch-tenant-game-card
+      [game]="game"
+      [saving]="saving()"
+      (activate)="activate.emit($event)"
+      (disable)="disable.emit($event)"
+      (configure)="onConfigure($event)"
+    />
+  </section>
+} @else {
+  <tch-admin-section-card
+    id="game"
+    class="maryaj-game-settings"
+    data-testid="maryaj-gratis-game-panel"
+    icon="casino"
+    [title]="'admin.maryajGratis.game.title' | translate"
+    [description]="'admin.maryajGratis.game.subtitle' | translate"
+  >
+    <div status>
       <tch-admin-status-pill
         [label]="'admin.maryajGratis.game.notConfigured' | translate"
         tone="warning"
       />
-    }
-  </div>
+    </div>
 
-  @if (game(); as game) {
-    <tch-tenant-game-settings-summary
-      data-testid="maryaj-gratis-game-summary"
-      presentation="summary"
-      actionVariant="stroked"
-      [game]="game"
-      [actionLabelKey]="'admin.maryajGratis.game.configure'"
-      [actionTestId]="'maryaj-gratis-configure-game'"
-      [availabilityRoute]="availabilityRoute"
-      (configure)="configure.emit($event)"
-    />
-
-    @if (readinessReason(game.readiness.reason); as reason) {
-      <p class="maryaj-game-settings__hint">{{ reason }}</p>
-    }
-  } @else {
     <div class="maryaj-game-settings__empty" data-testid="maryaj-gratis-game-empty">
       <mat-icon aria-hidden="true">casino</mat-icon>
       <div>
@@ -47,5 +40,5 @@
         </p>
       </div>
     </div>
-  }
-</tch-admin-section-card>
+  </tch-admin-section-card>
+}

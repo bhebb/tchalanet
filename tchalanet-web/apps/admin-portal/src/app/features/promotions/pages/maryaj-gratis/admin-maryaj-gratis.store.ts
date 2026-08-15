@@ -375,6 +375,14 @@ export class AdminMaryajGratisStore {
     this.transition(campaign, 'pause');
   }
 
+  enableGame(gameCode: string): void {
+    this.setGameEnabled(gameCode, true);
+  }
+
+  disableGame(gameCode: string): void {
+    this.setGameEnabled(gameCode, false);
+  }
+
   private transition(campaign: PromotionCampaignView, action: 'activate' | 'pause'): void {
     if (this.saving()) return;
     this.actionError.set(null);
@@ -402,6 +410,26 @@ export class AdminMaryajGratisStore {
       error: (err: unknown) => {
         this.saving.set(false);
         this.actionError.set(this.errorViewModel(err, `admin.maryajGratis.${action}`, 'section'));
+      },
+    });
+  }
+
+  private setGameEnabled(gameCode: string, enabled: boolean): void {
+    if (this.saving()) return;
+    this.actionError.set(null);
+    this.saving.set(true);
+    const request = enabled
+      ? this.gamesPricingApi.enableGame(gameCode, { suppressShellFeedback: true })
+      : this.gamesPricingApi.disableGame(gameCode, { suppressShellFeedback: true });
+
+    request.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.load();
+      },
+      error: (err: unknown) => {
+        this.saving.set(false);
+        this.actionError.set(this.errorViewModel(err, 'admin.maryajGratis.game.action', 'section'));
       },
     });
   }

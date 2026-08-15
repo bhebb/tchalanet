@@ -84,6 +84,26 @@ export class AdminMaryajGratisPage implements OnInit {
     });
   }
 
+  confirmDisableGame(gameCode: string): void {
+    const game = this.store.maryajGame();
+    const name = game?.gameName ?? gameCode;
+    this.dialog
+      .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {
+        data: {
+          title: this.translate.instant('admin.gamesPricing.confirm.disableTitle', { name }),
+          message: this.translate.instant('admin.gamesPricing.confirm.disableMessage'),
+          confirmLabel: this.translate.instant('admin.gamesPricing.confirm.disableAction'),
+          cancelLabel: this.translate.instant('common.cancel'),
+          destructive: true,
+          icon: 'block',
+        },
+      })
+      .afterClosed()
+      .subscribe(result => {
+        if (result?.confirmed) this.store.disableGame(gameCode);
+      });
+  }
+
   confirmPauseOffer(campaign: PromotionCampaignView): void {
     this.dialog
       .open<TchConfirmDialog, TchConfirmDialogData, { confirmed: boolean }>(TchConfirmDialog, {

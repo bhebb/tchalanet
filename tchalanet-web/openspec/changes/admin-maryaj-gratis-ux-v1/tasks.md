@@ -38,6 +38,7 @@ full brief is complete.
 - [x] Keep game readiness/status visible.
 - [x] Keep game code secondary.
 - [x] Remove the oversized navy summary card.
+- [x] Reuse the shared tenant game card for the Maryaj Gratis game display instead of a custom summary layout.
 - [x] Avoid repeating the same active/ready status in multiple places.
 - [x] Keep `Modifye jwet la` distinct from offer configuration.
 - [x] Show campaign status, start date, business-facing end state, attribution mode, and tiers.

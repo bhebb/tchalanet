@@ -26,6 +26,8 @@ describe(AdminMaryajGratisStore.name, () => {
   };
   let gamesPricingApi: {
     getGamesPricing: ReturnType<typeof vi.fn>;
+    enableGame: ReturnType<typeof vi.fn>;
+    disableGame: ReturnType<typeof vi.fn>;
   };
   let snackBar: { open: ReturnType<typeof vi.fn> };
   let store: AdminMaryajGratisStore;
@@ -42,6 +44,8 @@ describe(AdminMaryajGratisStore.name, () => {
     };
     gamesPricingApi = {
       getGamesPricing: vi.fn(),
+      enableGame: vi.fn(),
+      disableGame: vi.fn(),
     };
     snackBar = { open: vi.fn() };
 
@@ -386,6 +390,32 @@ describe(AdminMaryajGratisStore.name, () => {
 
     expect(promotionsApi.activateCampaign).toHaveBeenCalledWith('campaign-1');
     expect(store.maryajCampaign()?.status).toBe('ACTIVE');
+    expect(store.saving()).toBe(false);
+  });
+
+  it('enables and reloads the Maryaj Gratis game through the games API', () => {
+    loadCampaign(campaignWithTiers());
+    gamesPricingApi.enableGame.mockReturnValue(of(undefined));
+
+    store.enableGame('HT_MARYAJ_GRATIS');
+
+    expect(gamesPricingApi.enableGame).toHaveBeenCalledWith('HT_MARYAJ_GRATIS', {
+      suppressShellFeedback: true,
+    });
+    expect(promotionsApi.listCampaigns).toHaveBeenCalledTimes(2);
+    expect(store.saving()).toBe(false);
+  });
+
+  it('disables and reloads the Maryaj Gratis game through the games API', () => {
+    loadCampaign(campaignWithTiers());
+    gamesPricingApi.disableGame.mockReturnValue(of(undefined));
+
+    store.disableGame('HT_MARYAJ_GRATIS');
+
+    expect(gamesPricingApi.disableGame).toHaveBeenCalledWith('HT_MARYAJ_GRATIS', {
+      suppressShellFeedback: true,
+    });
+    expect(promotionsApi.listCampaigns).toHaveBeenCalledTimes(2);
     expect(store.saving()).toBe(false);
   });
 

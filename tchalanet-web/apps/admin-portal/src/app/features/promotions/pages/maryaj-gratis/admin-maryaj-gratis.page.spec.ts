@@ -13,7 +13,12 @@ import { AdminMaryajGratisPage } from './admin-maryaj-gratis.page';
 describe(AdminMaryajGratisPage.name, () => {
   let dialog: { open: ReturnType<typeof vi.fn> };
   let router: { navigate: ReturnType<typeof vi.fn> };
-  let store: { load: ReturnType<typeof vi.fn>; state: ReturnType<typeof vi.fn> };
+  let store: {
+    disableGame: ReturnType<typeof vi.fn>;
+    load: ReturnType<typeof vi.fn>;
+    maryajGame: ReturnType<typeof vi.fn>;
+    state: ReturnType<typeof vi.fn>;
+  };
   let page: AdminMaryajGratisPage;
 
   beforeEach(() => {
@@ -26,7 +31,9 @@ describe(AdminMaryajGratisPage.name, () => {
       navigate: vi.fn(),
     };
     store = {
+      disableGame: vi.fn(),
       load: vi.fn(),
+      maryajGame: vi.fn(() => maryajGame()),
       state: vi.fn(() => 'ready'),
     };
   });
@@ -73,6 +80,28 @@ describe(AdminMaryajGratisPage.name, () => {
       ['/app/admin/games', 'HT_MARYAJ_GRATIS', 'settings'],
       { queryParams: { returnTo: 'maryaj-gratis', from: 'setup' } },
     );
+  });
+
+  it('confirms before disabling Maryaj Gratis from the shared game card', () => {
+    dialog.open.mockReturnValueOnce({
+      afterClosed: () => of({ confirmed: true }),
+    });
+    configurePage();
+
+    page.confirmDisableGame('HT_MARYAJ_GRATIS');
+
+    expect(dialog.open).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        data: expect.objectContaining({
+          title: 'admin.gamesPricing.confirm.disableTitle',
+          message: 'admin.gamesPricing.confirm.disableMessage',
+          confirmLabel: 'admin.gamesPricing.confirm.disableAction',
+          destructive: true,
+        }),
+      }),
+    );
+    expect(store.disableGame).toHaveBeenCalledWith('HT_MARYAJ_GRATIS');
   });
 
   function maryajGame(overrides: Partial<TenantGamePricingView> = {}): TenantGamePricingView {
