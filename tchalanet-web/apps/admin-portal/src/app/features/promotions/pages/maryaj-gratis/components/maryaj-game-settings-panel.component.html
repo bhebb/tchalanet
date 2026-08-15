@@ -6,13 +6,19 @@
   [title]="'admin.maryajGratis.game.title' | translate"
   [description]="'admin.maryajGratis.game.subtitle' | translate"
 >
-  @if (game(); as game) {
-    <tch-admin-status-pill
-      status
-      [label]="readinessLabel(game.readiness.status)"
-      [tone]="readinessTone(game.readiness.status)"
-    />
-  }
+  <div status>
+    @if (game(); as game) {
+      <tch-admin-status-pill
+        [label]="readinessLabel(game.readiness.status)"
+        [tone]="readinessTone(game.readiness.status)"
+      />
+    } @else {
+      <tch-admin-status-pill
+        [label]="'admin.maryajGratis.game.notConfigured' | translate"
+        tone="warning"
+      />
+    }
+  </div>
 
   @if (game(); as game) {
     <div actions class="maryaj-game-settings__toolbar">
@@ -62,8 +68,16 @@
       <p class="maryaj-game-settings__hint">{{ game.readiness.reason }}</p>
     }
   } @else {
-    <p class="maryaj-game-settings__hint">
-      {{ 'admin.maryajGratis.game.missing' | translate }}
-    </p>
+    <div class="maryaj-game-settings__empty" data-testid="maryaj-gratis-game-empty">
+      <mat-icon aria-hidden="true">casino</mat-icon>
+      <div>
+        <p class="maryaj-game-settings__empty-title">
+          {{ 'admin.maryajGratis.game.empty.title' | translate }}
+        </p>
+        <p class="maryaj-game-settings__empty-copy">
+          {{ 'admin.maryajGratis.game.empty.copy' | translate }}
+        </p>
+      </div>
+    </div>
   }
 </tch-admin-section-card>

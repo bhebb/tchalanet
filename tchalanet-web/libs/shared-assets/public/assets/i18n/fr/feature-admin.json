@@ -1527,6 +1527,10 @@
         "availability": "Disponibilité",
         "availabilitySummary": "Gérée sur chaque tirage",
         "availabilityAction": "Disponibilité par tirage →",
+        "empty": {
+          "title": "Le jeu n’est pas encore configuré.",
+          "copy": "Ajoutez Maryaj gratis à la configuration des jeux du santral pour que l’offre puisse fonctionner."
+        },
         "missingReason": {
           "absent": "Le jeu Maryaj gratis est absent de la configuration du santral.",
           "inactive": "Le jeu Maryaj gratis est désactivé pour ce santral.",

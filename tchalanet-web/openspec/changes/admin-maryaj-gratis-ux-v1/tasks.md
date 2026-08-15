@@ -45,6 +45,7 @@ full brief is complete.
 - [x] Keep generation/retry behavior visually separate from offer thresholds.
 - [x] Move generation edit controls out of the offer editor and into the generation section.
 - [x] Show a compact read-only empty state when no Maryaj Gratis offer campaign exists.
+- [x] Show a compact read-only empty state when the Maryaj Gratis game is missing.
 - [ ] Move rarely used generation knobs under Advanced settings if product confirms they are not normal tenant-admin controls.
 
 ## 3. Replace Long Game Configuration Modal
@@ -168,6 +169,7 @@ full brief is complete.
 - [x] Avoid a large hero/summary card that consumes an entire mobile viewport.
 - [x] Prefer compact section summaries with obvious edit actions.
 - [x] Keep missing offer setup as an exceptional state instead of opening the full offer form in the summary view.
+- [x] Keep missing game setup as an exceptional state with the shared status treatment.
 - [x] Use the shared console refresh button instead of a local header action.
 - [x] Pilot the shared console section card on the Generation section instead of a local card shell.
 - [x] Use the shared console section card on the Maryaj Gratis game section.

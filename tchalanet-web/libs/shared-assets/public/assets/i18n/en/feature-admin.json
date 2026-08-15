@@ -832,6 +832,10 @@
         "availability": "Availability",
         "availabilitySummary": "Managed on each draw",
         "availabilityAction": "Availability by draw →",
+        "empty": {
+          "title": "The game is not set up yet.",
+          "copy": "Add Free Maryaj to the operator game configuration so the offer can run."
+        },
         "missingReason": {
           "absent": "Free Maryaj is missing from the operator game configuration.",
           "inactive": "Free Maryaj is disabled for this operator.",

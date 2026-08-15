@@ -832,6 +832,10 @@
         "availability": "Disponibilite",
         "availabilitySummary": "Jere sou chak tiraj",
         "availabilityAction": "Disponibilite pa tiraj →",
+        "empty": {
+          "title": "Jwèt la poko konfigire.",
+          "copy": "Ajoute Maryaj gratis nan konfigirasyon jwèt santral la pou òf la ka mache."
+        },
         "missingReason": {
           "absent": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt santral la.",
           "inactive": "Jwèt Maryaj gratis la dezaktive pou santral sa a.",
