@@ -29,6 +29,7 @@ import {
 } from '@tch/api';
 import { PrivateBootstrapStore } from '@tch/core/auth';
 import { I18nFacade } from '@tch/core/i18n';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import { PrivateNotificationBellComponent } from '@tch/notifications';
 import {
   TchBrand,
@@ -88,6 +89,7 @@ export class PrivateShellLayoutComponent {
   private readonly bootstrap = inject(PrivateBootstrapStore);
   protected readonly theme = inject(ThemeStore);
   protected readonly i18n = inject(I18nFacade);
+  private readonly runtimeSettings = inject(RuntimeSettingsStore);
 
   readonly brand = input.required<ActionItem>();
   readonly titleKey = input('');
@@ -113,6 +115,12 @@ export class PrivateShellLayoutComponent {
   readonly themeIcon = computed(() => (this.darkMode() ? 'light_mode' : 'dark_mode'));
   readonly settingsPanel = signal<ShellSettingsPanel | null>(null);
   readonly drawerTenantName = computed(() => {
+    // 1. Nom renseigné par la page dashboard (applyTenantDashboardSettings)
+    const fromSettings = this.runtimeSettings.settings().values['tenant.displayName'];
+    if (typeof fromSettings === 'string' && fromSettings.trim()) {
+      return fromSettings.trim();
+    }
+    // 2. Fallback : contexte du bootstrap (/runtime/private)
     const ctx = this.bootstrap.tenantContext();
     return (ctx?.tenantName?.trim() || ctx?.tenantCode?.trim() || '').trim();
   });
