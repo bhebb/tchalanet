@@ -29,7 +29,10 @@ import {
   UpsertTenantOddsRequest,
   AdminGamesPricingApiService,
 } from '../../data-access/admin-games-pricing-api.service';
-import { TenantGameOddGroupView } from '../../data-access/admin-games-pricing.models';
+import {
+  TenantGameOddGroupView,
+  TenantGamePricingView,
+} from '../../data-access/admin-games-pricing.models';
 import {
   GamesAdminApiService,
   TenantBetOptionConfigView,
@@ -104,6 +107,9 @@ export class AdminGameSettingsPage {
   readonly returnTo = computed(() => this.queryParamMap().get('returnTo'));
   readonly fromSetup = computed(() => this.queryParamMap().get('from') === 'setup');
   readonly gamesResource = this.api.listEnabledGamesResource({ suppressShellFeedback: true });
+  readonly pricingGamesResource = this.pricingApi.getGamesPricingResource({
+    suppressShellFeedback: true,
+  });
   readonly gamesAsync: TchAsyncSource<readonly TenantGameView[]> = {
     status: () => this.gamesResource.status(),
     value: () => this.gamesResource.value(),
@@ -113,7 +119,14 @@ export class AdminGameSettingsPage {
   readonly game = computed(() => {
     const code = this.gameCode();
     if (!code) return null;
-    return this.gamesResource.value()?.find(candidate => candidate.gameCode === code) ?? null;
+    const game = this.gamesResource.value()?.find(candidate => candidate.gameCode === code) ?? null;
+    if (!game) return null;
+    return this.withPricingDetails(game, this.pricingGame());
+  });
+  readonly pricingGame = computed(() => {
+    const code = this.gameCode();
+    if (!code) return null;
+    return this.pricingGamesResource.value()?.find(candidate => candidate.gameCode === code) ?? null;
   });
   readonly betOptionResource = this.api.getBetOptionConfigResource(this.gameCode, {
     suppressShellFeedback: true,
@@ -177,6 +190,17 @@ export class AdminGameSettingsPage {
     });
 
     effect(() => {
+      const game = this.game();
+      if (!game) return;
+      const pricingGroups = this.toPricingGroups(game.betOptionGroups ?? []);
+      const sourceSnapshot = this.snapshot(pricingGroups);
+      if (sourceSnapshot === this.initialPricingSnapshot()) return;
+      if (this.snapshot(this.pricingGroups()) !== this.initialPricingSnapshot()) return;
+      this.pricingGroups.set(pricingGroups);
+      this.initialPricingSnapshot.set(sourceSnapshot);
+    });
+
+    effect(() => {
       const config = this.betOptionConfig();
       if (!config) return;
       this.initialBetOptionSnapshot.set(this.snapshot(config));
@@ -224,6 +248,7 @@ export class AdminGameSettingsPage {
 
   reload(): void {
     this.gamesResource.reload();
+    this.pricingGamesResource.reload();
     this.betOptionResource.reload();
   }
 
@@ -388,6 +413,19 @@ export class AdminGameSettingsPage {
       availabilityEnabled: game.availabilityEnabled,
       startLocalTime: game.startLocalTime ?? '',
       endLocalTime: game.endLocalTime ?? '',
+    };
+  }
+
+  private withPricingDetails(
+    game: TenantGameView,
+    pricing: TenantGamePricingView | null,
+  ): TenantGameView {
+    if (!pricing) return game;
+    return {
+      ...game,
+      readyForSale: pricing.readiness.status === 'READY',
+      betOptions: pricing.odds,
+      betOptionGroups: pricing.oddsGroups,
     };
   }
 

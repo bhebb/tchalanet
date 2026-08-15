@@ -7,7 +7,10 @@ import { of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { AdminGamesPricingApiService } from '../../data-access/admin-games-pricing-api.service';
-import { TenantGameOddGroupView } from '../../data-access/admin-games-pricing.models';
+import {
+  TenantGameOddGroupView,
+  TenantGamePricingView,
+} from '../../data-access/admin-games-pricing.models';
 import {
   GamesAdminApiService,
   TenantGameBetOptionConfigView,
@@ -117,11 +120,28 @@ describe(AdminGameSettingsPage.name, () => {
       fragment: undefined,
     });
   });
+
+  it('hydrates the editor pricing groups from the games pricing setup source', () => {
+    const { page } = createPage();
+
+    expect(page.game()?.betOptionGroups).toEqual(pricingGroups());
+    expect(page.pricingGroups()).toEqual(pricingGroups());
+  });
+
+  it('reloads both game settings and pricing setup details', () => {
+    const { page, gamesResource, pricingResource } = createPage();
+
+    page.reload();
+
+    expect(gamesResource.reload).toHaveBeenCalled();
+    expect(pricingResource.reload).toHaveBeenCalled();
+  });
 });
 
 function createPage(options: { queryParams?: Record<string, string> } = {}) {
   const gamesResource = resource([game()]);
   const betOptionResource = resource(betOptionConfig());
+  const pricingResource = resource([pricingGame()]);
   const gamesApi = {
     listEnabledGamesResource: vi.fn(() => gamesResource),
     getBetOptionConfigResource: vi.fn(() => betOptionResource),
@@ -129,6 +149,7 @@ function createPage(options: { queryParams?: Record<string, string> } = {}) {
     updateBetOptionConfig: vi.fn(() => of(undefined)),
   };
   const pricingApi = {
+    getGamesPricingResource: vi.fn(() => pricingResource),
     upsertTenantOdds: vi.fn(() => of(undefined)),
     deleteTenantOdds: vi.fn(() => of(undefined)),
   };
@@ -164,7 +185,7 @@ function createPage(options: { queryParams?: Record<string, string> } = {}) {
 
   const page = TestBed.runInInjectionContext(() => new AdminGameSettingsPage());
   TestBed.flushEffects();
-  return { page, gamesApi, pricingApi, router };
+  return { page, gamesApi, pricingApi, router, gamesResource, pricingResource };
 }
 
 function resource<T>(initialValue: T) {
@@ -197,7 +218,32 @@ function game(): TenantGameView {
     endLocalTime: null,
     readyForSale: true,
     betOptions: [],
-    betOptionGroups: pricingGroups(),
+    betOptionGroups: [],
+  };
+}
+
+function pricingGame(): TenantGamePricingView {
+  return {
+    gameCode: 'HT_MARYAJ_GRATIS',
+    tenantGameId: 'tenant-game-maryaj-gratis',
+    gameName: 'Maryaj gratis',
+    catalogStatus: 'AVAILABLE',
+    tenantStatus: 'ACTIVE',
+    visibleInPos: true,
+    pricingProfileLabel: 'admin.gamesPricing.card.standardPricingProfile',
+    odds: pricingGroups().flatMap(group => group.variants),
+    oddsGroups: pricingGroups(),
+    limits: {
+      minStake: 1,
+      maxStake: 10_000_000,
+      maxPerDraw: null,
+      currency: 'HTG',
+    },
+    readiness: {
+      status: 'READY',
+      label: 'admin.gamesPricing.readiness.READY',
+      reason: null,
+    },
   };
 }
 
