@@ -10,8 +10,8 @@
     <div status>
       @if (campaign(); as campaign) {
         <tch-admin-status-pill
-          [label]="statusLabel(campaign.status)"
-          [tone]="statusTone(campaign.status)"
+          [label]="campaignStatusLabel(campaign)"
+          [tone]="campaignStatusTone(campaign)"
         />
       } @else {
         <tch-admin-status-pill

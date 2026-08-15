@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type {
   PromotionCampaignView,
@@ -24,6 +24,10 @@ describe(MaryajOfferPanelComponent.name, () => {
     component = TestBed.runInInjectionContext(() => new MaryajOfferPanelComponent());
     const testForm = form();
     (component as unknown as { form: () => typeof testForm }).form = () => testForm;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('opens a single tier editor at a time', () => {
@@ -71,6 +75,54 @@ describe(MaryajOfferPanelComponent.name, () => {
     expect(component.statusLabel('DRAFT')).toBe('Bouyon');
     expect(component.statusLabel('INACTIVE')).toBe('Inaktif');
     expect(component.statusLabel('ARCHIVED')).toBe('Achive');
+  });
+
+  it('surfaces scheduled and ended campaign lifecycle states from dates', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-15T12:00:00Z'));
+
+    expect(
+      component.campaignStatusLabel(
+        campaign({
+          startsAt: '2026-08-20T00:00:00Z',
+          endsAt: '2026-12-31T23:59:59Z',
+        }),
+      ),
+    ).toBe('Pwograme');
+    expect(
+      component.campaignStatusTone(
+        campaign({
+          startsAt: '2026-08-20T00:00:00Z',
+          endsAt: '2026-12-31T23:59:59Z',
+        }),
+      ),
+    ).toBe('warning');
+
+    expect(
+      component.campaignStatusLabel(
+        campaign({
+          startsAt: '2026-01-01T00:00:00Z',
+          endsAt: '2026-07-31T23:59:59Z',
+        }),
+      ),
+    ).toBe('Fini');
+    expect(
+      component.campaignStatusTone(
+        campaign({
+          startsAt: '2026-01-01T00:00:00Z',
+          endsAt: '2026-07-31T23:59:59Z',
+        }),
+      ),
+    ).toBe('neutral');
+
+    expect(
+      component.campaignStatusLabel(
+        campaign({
+          startsAt: '2026-01-01T00:00:00Z',
+          endsAt: '2036-01-01T23:59:59Z',
+        }),
+      ),
+    ).toBe('Aktif');
   });
 
   it('treats no-end and long-running campaign dates as permanent', () => {
@@ -157,6 +209,8 @@ describe(MaryajOfferPanelComponent.name, () => {
       'admin.maryajGratis.offer.status.draft': 'Bouyon',
       'admin.maryajGratis.offer.status.inactive': 'Inaktif',
       'admin.maryajGratis.offer.status.archived': 'Achive',
+      'admin.maryajGratis.offer.status.scheduled': 'Pwograme',
+      'admin.maryajGratis.offer.status.ended': 'Fini',
       'admin.maryajGratis.offer.tiers.openRange': '{{min}} +',
       'admin.maryajGratis.offer.tiers.range': '{{min}} – {{max}}',
       'admin.maryajGratis.offer.tiers.rule': '{{range}} → {{quantity}} Maryaj gratis',

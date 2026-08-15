@@ -80,11 +80,33 @@ export class MaryajOfferPanelComponent {
     }
   }
 
+  campaignStatusLabel(campaign: PromotionCampaignView): string {
+    if (campaign.status !== 'ACTIVE') return this.statusLabel(campaign.status);
+
+    const lifecycle = this.campaignLifecycle(campaign);
+    if (lifecycle === 'SCHEDULED') {
+      return this.translate.instant('admin.maryajGratis.offer.status.scheduled');
+    }
+    if (lifecycle === 'ENDED') {
+      return this.translate.instant('admin.maryajGratis.offer.status.ended');
+    }
+    return this.statusLabel(campaign.status);
+  }
+
   statusTone(status: PromotionCampaignStatus): AdminStatusTone {
     if (status === 'ACTIVE') return 'success';
     if (status === 'PAUSED' || status === 'DRAFT') return 'warning';
     if (status === 'ARCHIVED') return 'danger';
     return 'neutral';
+  }
+
+  campaignStatusTone(campaign: PromotionCampaignView): AdminStatusTone {
+    if (campaign.status !== 'ACTIVE') return this.statusTone(campaign.status);
+
+    const lifecycle = this.campaignLifecycle(campaign);
+    if (lifecycle === 'SCHEDULED') return 'warning';
+    if (lifecycle === 'ENDED') return 'neutral';
+    return this.statusTone(campaign.status);
   }
 
   effectParam(name: string): string {
@@ -213,6 +235,18 @@ export class MaryajOfferPanelComponent {
 
     const nineYearsMs = 9 * 365 * 24 * 60 * 60 * 1000;
     return endsAt - startsAt >= nineYearsMs;
+  }
+
+  private campaignLifecycle(campaign: PromotionCampaignView): 'CURRENT' | 'SCHEDULED' | 'ENDED' {
+    const now = Date.now();
+    const startsAt = campaign.startsAt ? new Date(campaign.startsAt).getTime() : null;
+    if (startsAt !== null && Number.isFinite(startsAt) && startsAt > now) return 'SCHEDULED';
+
+    if (this.isPermanentCampaign(campaign)) return 'CURRENT';
+    const endsAt = campaign.endsAt ? new Date(campaign.endsAt).getTime() : null;
+    if (endsAt !== null && Number.isFinite(endsAt) && endsAt < now) return 'ENDED';
+
+    return 'CURRENT';
   }
 
   private formatAmount(value: number): string {

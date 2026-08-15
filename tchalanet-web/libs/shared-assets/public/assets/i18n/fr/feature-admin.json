@@ -1631,6 +1631,8 @@
           "draft": "Brouillon",
           "inactive": "Inactif",
           "archived": "Archivé",
+          "scheduled": "Planifiée",
+          "ended": "Terminée",
           "needsSetup": "À configurer"
         },
         "selection": {

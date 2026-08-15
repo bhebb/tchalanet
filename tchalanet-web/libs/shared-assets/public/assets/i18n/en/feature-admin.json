@@ -903,6 +903,8 @@
           "draft": "Draft",
           "inactive": "Inactive",
           "archived": "Archived",
+          "scheduled": "Scheduled",
+          "ended": "Ended",
           "needsSetup": "Needs setup"
         },
         "selection": {

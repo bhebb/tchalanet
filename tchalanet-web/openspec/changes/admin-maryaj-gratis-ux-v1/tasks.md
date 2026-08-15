@@ -225,8 +225,8 @@ full brief is complete.
 - [ ] Add main page coverage for game incomplete.
 - [ ] Add main page coverage for offer incomplete.
 - [x] Add main page coverage for permanent/no-end-date offer.
-- [ ] Add main page coverage for scheduled future offer.
-- [ ] Add main page coverage for ended offer.
+- [x] Add main page coverage for scheduled future offer.
+- [x] Add main page coverage for ended offer.
 - [x] Add main page coverage for zero and one tiers.
 - [x] Add main page coverage for multiple tiers.
 - [x] Add focused coverage for automatic generation and manual selection behavior.
