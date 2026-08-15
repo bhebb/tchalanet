@@ -216,6 +216,47 @@ describe(AdminMaryajGratisStore.name, () => {
     );
   });
 
+  it('sends fixed attribution without tier or per-amount fields', () => {
+    loadEditableCampaign();
+    store.form.controls.quantityMode.setValue('FIXED');
+    store.form.controls.quantity.setValue(3);
+
+    store.saveOffer();
+
+    const request = lastRuleEffectsRequest();
+    expect(request.items[0].params).toEqual(
+      expect.objectContaining({
+        quantityMode: 'FIXED',
+        quantity: 3,
+      }),
+    );
+    expect(request.items[0].params['quantityTiers']).toBeUndefined();
+    expect(request.items[0].params['stepPaidAmount']).toBeUndefined();
+    expect(request.items[0].params['quantityPerStep']).toBeUndefined();
+    expect(request.items[0].params['maxQuantity']).toBeUndefined();
+  });
+
+  it('sends per-amount attribution without tier fields', () => {
+    loadEditableCampaign();
+    store.form.controls.quantityMode.setValue('PER_PAID_AMOUNT');
+    store.form.controls.stepPaidAmount.setValue(250);
+    store.form.controls.quantityPerStep.setValue(2);
+    store.form.controls.maxQuantity.setValue(8);
+
+    store.saveOffer();
+
+    const request = lastRuleEffectsRequest();
+    expect(request.items[0].params).toEqual(
+      expect.objectContaining({
+        quantityMode: 'PER_PAID_AMOUNT',
+        stepPaidAmount: 250,
+        quantityPerStep: 2,
+        maxQuantity: 8,
+      }),
+    );
+    expect(request.items[0].params['quantityTiers']).toBeUndefined();
+  });
+
   it('keeps the page ready when tenant game configuration cannot be loaded', () => {
     promotionsApi.listCampaigns.mockReturnValue(of({ items: [], total: 0 }));
     gamesPricingApi.getGamesPricing.mockReturnValue(
@@ -238,6 +279,12 @@ describe(AdminMaryajGratisStore.name, () => {
 
     store.load();
     store.startEditingOffer();
+  }
+
+  function lastRuleEffectsRequest(): UpdatePromotionRuleEffectsRequest {
+    const request = promotionsApi.updateRuleEffects.mock.calls.at(-1)?.[2];
+    if (!request) throw new Error('Expected updateRuleEffects to be called');
+    return request as UpdatePromotionRuleEffectsRequest;
   }
 });
 

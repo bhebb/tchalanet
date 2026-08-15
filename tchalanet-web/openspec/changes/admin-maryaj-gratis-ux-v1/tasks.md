@@ -233,6 +233,7 @@ full brief is complete.
 - [x] Add focused coverage for missing generation settings in read mode.
 - [ ] Add main page coverage for generation error state if supported.
 - [ ] Add game editor coverage for POS visibility, activation, stake validation, availability navigation, option toggles, payout edit/delete, save/cancel/dirty behavior.
+- [x] Add focused offer editor coverage for fixed and per-amount attribution payloads.
 - [ ] Add offer editor coverage for start date, no end date, explicit end date, attribution mode changes, tier add/edit/delete, open-ended final tier, invalid ranges, pause/resume, and advanced value preservation.
 - [x] Add e2e/visual guard for no raw translation keys.
 - [ ] Capture 360 px screenshots for main page, game editor, offer editor, and tier editor.
