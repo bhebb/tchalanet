@@ -39,7 +39,7 @@ import {
   type DrawChannelListStatus,
 } from '../../components/draw-channel-list-item/draw-channel-list-item.component';
 
-type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive' | 'error';
+type ActiveFilter = 'all' | 'active' | 'todo' | 'inactive';
 
 interface ToggleChannelInput {
   readonly slot: DrawChannelSlotConfigView;
@@ -120,7 +120,6 @@ export class AdminDrawChannelsPage {
         if (filter === 'active') return row.status === 'active';
         if (filter === 'todo') return row.status === 'attention';
         if (filter === 'inactive') return row.status === 'inactive';
-        if (filter === 'error') return row.slot.resultSlotActive === false;
         return true;
       })
       .filter(
@@ -138,7 +137,6 @@ export class AdminDrawChannelsPage {
     { key: 'active', labelKey: 'admin.drawChannels.filters.active' },
     { key: 'todo', labelKey: 'admin.drawChannels.filters.todo' },
     { key: 'inactive', labelKey: 'admin.drawChannels.filters.inactive' },
-    { key: 'error', labelKey: 'admin.drawChannels.filters.sourceError' },
   ];
 
   constructor() {
