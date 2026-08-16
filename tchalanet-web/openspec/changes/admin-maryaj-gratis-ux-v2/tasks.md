@@ -25,13 +25,13 @@ Checkpoint obligatoire : lire ce fichier en début de session et cocher en temps
 
 ## 2. Offer Display — Compact Card
 
-- [ ] Review current `maryaj-offer-panel` read mode against the compact card anatomy in `proposal.md`.
-- [ ] Decide whether to extract a stateless `MaryajOfferCard` (record decision in a comment here).
-- [ ] If extracted: create `MaryajOfferCard` in the promotions feature, stateless, receives
-  `MaryajOffer` as input signal.
-- [ ] If extracted: wire `admin-maryaj-gratis.page` to use `MaryajOfferCard` in read mode.
-- [ ] If extracted: keep the existing `maryaj-offer-panel` for the edit path.
-- [ ] Ensure `Modifye` is primary/filled and `Mete an poz` is secondary/outline in the card.
+- [x] Review current `maryaj-offer-panel` read mode against the compact card anatomy in `proposal.md`.
+- [x] Decide whether to extract a stateless `MaryajOfferCard` — YES, extracted.
+- [x] Create `MaryajOfferCard` in the promotions feature, stateless, receives `PromotionCampaignView`
+  + `PromotionConfigItem` as inputs. Follows TenantGameCard anatomy (article + header + rules + actions).
+- [x] Wire `admin-maryaj-gratis.page` to use `MaryajOfferCard` in read mode.
+- [x] Keep the existing `maryaj-offer-panel` for the edit path only.
+- [x] Ensure `Modifye` is primary/filled and `Mete an poz` is secondary/outline in the card.
 - [ ] Ensure exceptional warnings (missing offer, ended offer, invalid tiers, failed load/save) are
   visible in the card but not in normal state.
 - [ ] Verify offer card at 360 px after any extraction.
