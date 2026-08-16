@@ -136,12 +136,154 @@ describe(AdminGameSettingsPage.name, () => {
     expect(gamesResource.reload).toHaveBeenCalled();
     expect(pricingResource.reload).toHaveBeenCalled();
   });
+
+  // --- POS visibility toggle ---
+
+  it('toggleOptionEnabled disables POS visibility as a side-effect when unchecking', () => {
+    const { page } = createPage();
+    page.toggleOptionEnabled({ betType: 'MARRIAGE_2D2D', optionCode: 2, checked: false });
+    const option = page.betOptionConfig()?.betTypes[0].options.find(o => o.code === 2);
+    expect(option?.enabled).toBe(false);
+    expect(option?.visibleInPos).toBe(false);
+  });
+
+  it('toggleOptionVisibleInPos changes POS visibility without affecting enabled state', () => {
+    const { page } = createPage();
+    page.toggleOptionVisibleInPos({ betType: 'MARRIAGE_2D2D', optionCode: 1, checked: false });
+    const option = page.betOptionConfig()?.betTypes[0].options.find(o => o.code === 1);
+    expect(option?.visibleInPos).toBe(false);
+    expect(option?.enabled).toBe(true);
+  });
+
+  // --- Game activation state ---
+
+  it('game readyForSale is false when pricing readiness is not READY', () => {
+    const { page } = createPage({ pricingReadiness: 'MISSING_REQUIRED_PAYOUT' });
+    expect(page.game()?.readyForSale).toBe(false);
+  });
+
+  // --- Stake min/max validation ---
+
+  it('stakeErrorKey is null for valid stakes at page load', () => {
+    const { page } = createPage();
+    expect(page.stakeErrorKey()).toBeNull();
+  });
+
+  it('stakeErrorKey returns maxAfterMin when minStake exceeds maxStake', () => {
+    const { page } = createPage();
+    page.model.update(m => ({ ...m, minStake: 5000, maxStake: 100 }));
+    expect(page.stakeErrorKey()).toBe('admin.games.settings.stakes.error.maxAfterMin');
+  });
+
+  it('stakeErrorKey returns minPositive for zero minStake', () => {
+    const { page } = createPage();
+    page.model.update(m => ({ ...m, minStake: 0 }));
+    expect(page.stakeErrorKey()).toBe('admin.games.settings.stakes.error.minPositive');
+  });
+
+  it('stakeErrorKey returns maxPositive for negative maxStake', () => {
+    const { page } = createPage();
+    page.model.update(m => ({ ...m, minStake: 1, maxStake: -10 }));
+    expect(page.stakeErrorKey()).toBe('admin.games.settings.stakes.error.maxPositive');
+  });
+
+  // --- Availability times excluded when disabled ---
+
+  it('submit strips availability times when availabilityEnabled is false', () => {
+    const { page, gamesApi } = createPage();
+    page.model.update(m => ({
+      ...m,
+      availabilityEnabled: false,
+      startLocalTime: '08:00',
+      endLocalTime: '20:00',
+    }));
+    page.submit(new Event('submit'));
+    expect(gamesApi.updateGameSettings).toHaveBeenCalledWith(
+      'HT_MARYAJ_GRATIS',
+      expect.objectContaining({ startLocalTime: null, endLocalTime: null }),
+      expect.anything(),
+    );
+  });
+
+  // --- Payout edit flow ---
+
+  it('updatePricingOdds sets odds on the targeted variant', () => {
+    const { page } = createPage();
+    page.updatePricingOdds({ groupId: 'maryaj', pricingVariantCode: 'MARYAJ_EXACT', rawValue: '750' });
+    const variant = page.pricingGroups()[0]?.variants.find(v => v.pricingVariantCode === 'MARYAJ_EXACT');
+    expect(variant?.odds).toBe(750);
+    expect(variant?.payoutRuleType).toBe('STAKE_MULTIPLIER');
+  });
+
+  it('updatePricingOdds ignores non-positive values and leaves variant unchanged', () => {
+    const { page } = createPage();
+    page.updatePricingOdds({ groupId: 'maryaj', pricingVariantCode: 'MARYAJ_EXACT', rawValue: '-5' });
+    const variant = page.pricingGroups()[0]?.variants.find(v => v.pricingVariantCode === 'MARYAJ_EXACT');
+    expect(variant?.odds).toBe(500);
+  });
+
+  // --- Payout delete confirmation dialog ---
+
+  it('requestClearPricingOdds opens a confirmation dialog before deleting', () => {
+    const { page } = createPage();
+    const dialog = TestBed.inject(MatDialog);
+    page.requestClearPricingOdds({ groupId: 'maryaj', pricingVariantCode: 'MARYAJ_EXACT', label: 'Egzak' });
+    expect(dialog.open).toHaveBeenCalled();
+  });
+
+  it('requestClearPricingOdds clears odds and fixedAmount after confirmation', () => {
+    const { page } = createPage();
+    page.requestClearPricingOdds({ groupId: 'maryaj', pricingVariantCode: 'MARYAJ_EXACT', label: 'Egzak' });
+    const variant = page.pricingGroups()[0]?.variants.find(v => v.pricingVariantCode === 'MARYAJ_EXACT');
+    expect(variant?.odds).toBeNull();
+    expect(variant?.fixedAmount).toBeNull();
+  });
+
+  // --- Dirty state and cancel behavior ---
+
+  it('dirty is false before any edits', () => {
+    const { page } = createPage();
+    expect(page.dirty()).toBe(false);
+  });
+
+  it('dirty is true after modifying the model', () => {
+    const { page } = createPage();
+    page.model.update(m => ({ ...m, displayName: 'Changed Name' }));
+    expect(page.dirty()).toBe(true);
+  });
+
+  it('dirty is true after modifying pricing groups', () => {
+    const { page } = createPage();
+    page.updatePricingOdds({ groupId: 'maryaj', pricingVariantCode: 'MARYAJ_EXACT', rawValue: '999' });
+    expect(page.dirty()).toBe(true);
+  });
+
+  it('requestCancel navigates directly when not dirty', () => {
+    const { page, router } = createPage();
+    const dialog = TestBed.inject(MatDialog);
+    page.requestCancel();
+    expect(dialog.open).not.toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalled();
+  });
+
+  it('requestCancel opens discard dialog when dirty and navigates on confirmation', () => {
+    const { page, router } = createPage();
+    const dialog = TestBed.inject(MatDialog);
+    page.model.update(m => ({ ...m, displayName: 'Changed' }));
+    page.requestCancel();
+    expect(dialog.open).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalled();
+  });
 });
 
-function createPage(options: { queryParams?: Record<string, string> } = {}) {
+function createPage(options: { queryParams?: Record<string, string>; pricingReadiness?: string } = {}) {
   const gamesResource = resource([game()]);
   const betOptionResource = resource(betOptionConfig());
-  const pricingResource = resource([pricingGame()]);
+  const readiness = options.pricingReadiness ?? 'READY';
+  const pricingResource = resource([{
+    ...pricingGame(),
+    readiness: { status: readiness, label: `admin.gamesPricing.readiness.${readiness}`, reason: null },
+  }]);
   const gamesApi = {
     listEnabledGamesResource: vi.fn(() => gamesResource),
     getBetOptionConfigResource: vi.fn(() => betOptionResource),

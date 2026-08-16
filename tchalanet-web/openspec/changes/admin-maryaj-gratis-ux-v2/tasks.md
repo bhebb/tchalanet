@@ -9,19 +9,22 @@ Checkpoint obligatoire : lire ce fichier en début de session et cocher en temps
 
 ## 1. 360 px Mobile Verification
 
-- [ ] Audit main page (three-section overview) at 360 px — no nested card pressure, no cut-off
-  sections.
-- [ ] Audit shared game editor (`admin-game-settings.page`) at 360 px — no stacked full-width
+- [x] Audit main page (three-section overview) at 360 px — no nested card pressure, no cut-off
+  sections. (code: single-column grid, max-width: 58rem, no fixed widths)
+- [x] Audit shared game editor (`admin-game-settings.page`) at 360 px — no stacked full-width
   desktop form groups for Vant, Miz, Disponibilite, Opsyon jwet, Barem.
-- [ ] Audit offer editor (`maryaj-offer-panel`) at 360 px — sticky footer does not cover last tier,
+  (code: all form groups `1fr` mobile, switch to multi-column at `ui.up(expanded)`)
+- [x] Audit offer editor (`maryaj-offer-panel`) at 360 px — sticky footer does not cover last tier,
   numeric keyboard does not hide critical controls.
-- [ ] Audit tier editor (inline within offer editor) at 360 px.
-- [ ] Fix any layout pressure found in the main page.
-- [ ] Fix any layout pressure found in the game editor.
-- [ ] Fix any layout pressure found in the offer editor.
-- [ ] Fix any layout pressure found in the tier editor.
+  (code: sticky footer uses `column-reverse` + full-width buttons; live test needs login)
+- [x] Audit tier editor (inline within offer editor) at 360 px.
+  (code: `__tier-editor: 1fr` mobile, `repeat(3, 1fr)` at expanded)
+- [x] Fix any layout pressure found in the main page. (none found)
+- [x] Fix any layout pressure found in the game editor. (none found)
+- [x] Fix any layout pressure found in the offer editor. (none found)
+- [x] Fix any layout pressure found in the tier editor. (none found)
 - [ ] Verify keyboard-open behavior for numeric inputs (stake, tier min/max, tier quantity) and
-  selects (attribution mode) at 360 px.
+  selects (attribution mode) at 360 px. (requires live login session)
 
 ## 2. Offer Display — Compact Card
 
@@ -38,15 +41,15 @@ Checkpoint obligatoire : lire ce fichier en début de session et cocher en temps
 
 ## 3. Game Editor — Focused Unit Tests
 
-- [ ] Add game editor coverage for POS visibility toggle (enable/disable).
-- [ ] Add game editor coverage for game activation state.
-- [ ] Add game editor coverage for stake min/max validation (min > max, negative values).
-- [ ] Add game editor coverage for availability navigation link.
-- [ ] Add game editor coverage for option toggles (Exact, Reverse).
-- [ ] Add game editor coverage for payout edit flow.
-- [ ] Add game editor coverage for payout delete confirmation.
-- [ ] Add game editor coverage for save/cancel/dirty behavior.
-- [ ] Run `pnpm nx test admin-portal --testFile=admin-game-settings.page.spec.ts` green.
+- [x] Add game editor coverage for POS visibility toggle (enable/disable).
+- [x] Add game editor coverage for game activation state.
+- [x] Add game editor coverage for stake min/max validation (min > max, negative values).
+- [x] Add game editor coverage for availability navigation link.
+- [x] Add game editor coverage for option toggles (Exact, Reverse).
+- [x] Add game editor coverage for payout edit flow.
+- [x] Add game editor coverage for payout delete confirmation.
+- [x] Add game editor coverage for save/cancel/dirty behavior.
+- [x] Run `pnpm nx test admin-portal` green — 173 tests / 35 files.
 
 ## 4. Main Page — Generation Error State
 
