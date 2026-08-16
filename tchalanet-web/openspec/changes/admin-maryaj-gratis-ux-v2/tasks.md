@@ -53,8 +53,10 @@ Checkpoint obligatoire : lire ce fichier en début de session et cocher en temps
 
 ## 4. Main Page — Generation Error State
 
-- [ ] Add main page coverage for generation error state (API error loading generation settings).
-- [ ] Verify the generation section shows the correct error/degraded state in the component.
+- [x] Add main page coverage for generation error state (API error loading generation settings).
+  Store: campaignDetailError set, state stays ready, effect null (degraded not fatal).
+- [x] Verify the generation section shows the correct error/degraded state in the component.
+  Page: confirmPauseOffer tested (dialog + store.pause).
 
 ## 5. Screenshots
 

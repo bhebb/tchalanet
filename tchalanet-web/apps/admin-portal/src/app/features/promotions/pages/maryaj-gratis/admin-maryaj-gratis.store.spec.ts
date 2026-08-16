@@ -432,6 +432,23 @@ describe(AdminMaryajGratisStore.name, () => {
     expect(store.gamesError()).not.toBeNull();
   });
 
+  it('sets campaignDetailError when campaign detail load fails, leaving effect null but campaign accessible', () => {
+    promotionsApi.listCampaigns.mockReturnValue(of({ items: [campaignWithoutRules()], total: 1 }));
+    promotionsApi.getCampaign.mockReturnValue(
+      throwError(() => ({ status: 404, error: { title: 'Not found' } })),
+    );
+    gamesPricingApi.getGamesPricing.mockReturnValue(of([maryajGame()]));
+
+    store.load();
+
+    // state stays ready — degraded not fatal
+    expect(store.state()).toBe('ready');
+    expect(store.campaignDetailError()).not.toBeNull();
+    // falls back to basic campaign from list (no rules → no effect)
+    expect(store.maryajCampaign()).not.toBeNull();
+    expect(store.maryajEffect()).toBeNull();
+  });
+
   function loadEditableCampaign(): void {
     loadCampaign(campaignWithTiers());
     promotionsApi.updateCampaign.mockReturnValue(of(campaignWithTiers()));
