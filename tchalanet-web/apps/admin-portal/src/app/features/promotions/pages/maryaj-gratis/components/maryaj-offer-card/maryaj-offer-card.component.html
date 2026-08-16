@@ -38,6 +38,13 @@
     />
   </header>
 
+  @if (inlineWarningKey(); as wKey) {
+    <div class="mg-offer-card__inline-warning" role="status" data-testid="maryaj-offer-card-warning">
+      <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+      <span>{{ wKey | translate }}</span>
+    </div>
+  }
+
   @if (campaign(); as campaign) {
     <div class="mg-offer-card__body">
       <p class="mg-offer-card__mode">
@@ -110,7 +117,13 @@
         </button>
       }
     </div>
-  } @else {
+    @if (actionError(); as err) {
+    <div class="mg-offer-card__action-error" role="alert" data-testid="maryaj-offer-card-error">
+      <strong>{{ err.title }}</strong>
+      <span>{{ err.message }}</span>
+    </div>
+  }
+} @else {
     <div class="mg-offer-card__empty" data-testid="maryaj-gratis-offer-card-empty">
       <p class="mg-offer-card__empty-copy">
         {{ 'admin.maryajGratis.offer.empty.copy' | translate }}

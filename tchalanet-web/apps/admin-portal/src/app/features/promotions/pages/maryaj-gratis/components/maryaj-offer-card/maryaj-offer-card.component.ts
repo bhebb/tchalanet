@@ -13,6 +13,11 @@ import {
 
 type OfferCardStatus = 'active' | 'scheduled' | 'ended' | 'paused' | 'inactive' | 'empty';
 
+export interface OfferCardError {
+  readonly title: string;
+  readonly message: string;
+}
+
 @Component({
   selector: 'tch-maryaj-offer-card',
   standalone: true,
@@ -26,6 +31,7 @@ export class MaryajOfferCardComponent {
 
   readonly campaign = input<PromotionCampaignView | null>(null);
   readonly effect = input<PromotionConfigItem | null>(null);
+  readonly actionError = input<OfferCardError | null>(null);
   readonly saving = input(false);
   readonly gameReady = input(true);
   readonly canManage = input(true);
@@ -54,6 +60,15 @@ export class MaryajOfferCardComponent {
       case 'empty': return 'warning';
       default: return 'neutral';
     }
+  });
+
+  readonly inlineWarningKey = computed<string | null>(() => {
+    if (this.cardStatus() === 'ended') return 'admin.maryajGratis.offer.warning.ended';
+    const mode = this.effect()?.params?.['quantityMode'];
+    if (mode === 'TIERED_PAID_AMOUNT' && this.effectQuantityTiers().length === 0) {
+      return 'admin.maryajGratis.offer.warning.noTiers';
+    }
+    return null;
   });
 
   readonly statusLabelKey = computed<string>(() => {

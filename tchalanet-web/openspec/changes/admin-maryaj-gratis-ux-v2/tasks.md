@@ -32,9 +32,9 @@ Checkpoint obligatoire : lire ce fichier en début de session et cocher en temps
 - [x] Wire `admin-maryaj-gratis.page` to use `MaryajOfferCard` in read mode.
 - [x] Keep the existing `maryaj-offer-panel` for the edit path only.
 - [x] Ensure `Modifye` is primary/filled and `Mete an poz` is secondary/outline in the card.
-- [ ] Ensure exceptional warnings (missing offer, ended offer, invalid tiers, failed load/save) are
+- [x] Ensure exceptional warnings (missing offer, ended offer, invalid tiers, failed load/save) are
   visible in the card but not in normal state.
-- [ ] Verify offer card at 360 px after any extraction.
+- [x] Verify offer card at 360 px after any extraction.
 
 ## 3. Game Editor — Focused Unit Tests
 

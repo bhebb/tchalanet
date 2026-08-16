@@ -136,6 +136,58 @@ describe(MaryajOfferCardComponent.name, () => {
     expect(component.tierRuleLabel(tier)).toBe('200 HTG + → 2 Maryaj gratis');
   });
 
+  // --- inlineWarningKey ---
+
+  it('shows no warning for a normal active campaign', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-15T12:00:00Z'));
+    setInput('campaign', campaign({ status: 'ACTIVE', startsAt: '2026-01-01T00:00:00Z', endsAt: '2036-01-01T00:00:00Z' }));
+    expect(component.inlineWarningKey()).toBeNull();
+  });
+
+  it('shows ended warning when cardStatus is ended', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-15T12:00:00Z'));
+    setInput('campaign', campaign({ status: 'ACTIVE', startsAt: '2026-01-01T00:00:00Z', endsAt: '2026-07-31T23:59:59Z' }));
+    expect(component.inlineWarningKey()).toBe('admin.maryajGratis.offer.warning.ended');
+  });
+
+  it('shows noTiers warning when mode is TIERED but tiers list is empty', () => {
+    setInput('campaign', campaign());
+    setEffect({ quantityMode: 'TIERED_PAID_AMOUNT', quantityTiers: [] });
+    expect(component.inlineWarningKey()).toBe('admin.maryajGratis.offer.warning.noTiers');
+  });
+
+  it('shows no warning when TIERED mode has tiers', () => {
+    setInput('campaign', campaign());
+    setEffect({ quantityMode: 'TIERED_PAID_AMOUNT', quantityTiers: [{ minPaidAmount: 100, maxPaidAmount: null, quantity: 1 }] });
+    expect(component.inlineWarningKey()).toBeNull();
+  });
+
+  it('renders inline warning block when warning key is set', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-15T12:00:00Z'));
+
+    const fixture = TestBed.createComponent(MaryajOfferCardComponent);
+    fixture.componentRef.setInput('campaign', campaign({ status: 'ACTIVE', startsAt: '2026-01-01T00:00:00Z', endsAt: '2026-07-31T23:59:59Z' }));
+    fixture.componentRef.setInput('effect', null);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="maryaj-offer-card-warning"]')).toBeTruthy();
+  });
+
+  it('renders actionError block when actionError input is set', () => {
+    const fixture = TestBed.createComponent(MaryajOfferCardComponent);
+    fixture.componentRef.setInput('campaign', campaign());
+    fixture.componentRef.setInput('effect', null);
+    fixture.componentRef.setInput('actionError', { title: 'Erè', message: 'Echèk koneksyon.' });
+    fixture.detectChanges();
+
+    const el: HTMLElement = fixture.nativeElement;
+    expect(el.querySelector('[data-testid="maryaj-offer-card-error"]')).toBeTruthy();
+    expect(el.querySelector('[data-testid="maryaj-offer-card-error"]')?.textContent).toContain('Erè');
+  });
+
   // --- DOM rendering ---
 
   it('renders empty state when no campaign', () => {
@@ -291,6 +343,10 @@ const translations = {
           rule: '{{quantity}} pou chak {{amount}} (maks {{max}})',
         },
         title: 'Òf gratis la',
+        warning: {
+          ended: 'Òf sa a fini.',
+          noTiers: 'Pa gen règ palye.',
+        },
       },
     },
   },
