@@ -138,20 +138,22 @@
   }
 
   &__actions {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
     gap: 0.5rem;
-    padding-inline-start: 3.5rem;
+    grid-template-columns: 1fr 1fr;
   }
 
   &__action--edit {
-    order: 1;
+    order: 2;
+
+    &:only-child {
+      grid-column: 1 / -1;
+    }
   }
 
   &__action--pause,
   &__action--activate {
-    order: 2;
+    order: 1;
   }
 }
 
@@ -174,6 +176,7 @@
     }
 
     &__actions {
+      display: flex;
       flex-direction: column;
       flex-wrap: nowrap;
       justify-content: center;
@@ -182,6 +185,15 @@
       button {
         width: 100%;
       }
+    }
+
+    &__action--edit {
+      order: 1;
+    }
+
+    &__action--pause,
+    &__action--activate {
+      order: 2;
     }
   }
 }
