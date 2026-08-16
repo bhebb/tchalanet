@@ -1,0 +1,78 @@
+<tch-admin-page-shell
+  [title]="'admin.games.settings.title' | translate: { name: pageTitle() }"
+  [description]="'admin.games.settings.description' | translate"
+>
+  <div actions class="game-settings-page__actions">
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="saveSettings.pending()"
+      (click)="requestCancel()"
+    >
+      <mat-icon>arrow_back</mat-icon>
+      {{ 'common.cancel' | translate }}
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      [disabled]="form().invalid() || !!stakeErrorKey() || saveSettings.pending()"
+      (click)="submit($event)"
+    >
+      @if (saveSettings.pending()) {
+      <span class="material-symbols-outlined tch-admin-dialog-spinner" aria-hidden="true">
+        progress_activity
+      </span>
+      } {{ 'common.save' | translate }}
+    </button>
+  </div>
+
+  <tch-async-view
+    [resource]="gamesAsync"
+    [error]="gamesError()"
+    [loadingLabel]="'admin.gamesPricing.loading' | translate"
+    [retryLabel]="'common.retry' | translate"
+    (retry)="reload()"
+  >
+    <ng-template tchAsyncReady>
+      @if (game(); as game) { @if (feedback()?.kind === 'error' && feedback()?.vm; as errorVm) {
+      <tch-section-error
+        [title]="errorVm.title"
+        [message]="errorVm.message"
+        [severity]="errorVm.severity"
+      />
+      }
+
+      <tch-game-settings-editor
+        [game]="game"
+        [form]="form"
+        [model]="model()"
+        [betOptionConfig]="betOptionConfig()"
+        [pricingGroups]="pricingGroups()"
+        [betOptionLoading]="betOptionLoading()"
+        [betOptionLoadFailed]="betOptionLoadFailed()"
+        [editingPricingVariantKey]="editingPricingVariantKey()"
+        [showSalesOptions]="showSalesOptions()"
+        [selectionPolicies]="selectionPolicies"
+        [stakeErrorKey]="stakeErrorKey()"
+        (submitted)="submit($event)"
+        (selectionPolicyChange)="updateSelectionPolicy($event)"
+        (defaultOptionChange)="updateDefaultOption($event)"
+        (optionEnabledChange)="toggleOptionEnabled($event)"
+        (optionVisibleInPosChange)="toggleOptionVisibleInPos($event)"
+        (pricingVariantEdit)="editPricingVariant($event)"
+        (pricingRuleTypeChange)="updatePricingRuleType($event)"
+        (pricingOddsChange)="updatePricingOdds($event)"
+        (pricingFixedAmountChange)="updatePricingFixedAmount($event)"
+        (clearPricingRequested)="requestClearPricingOdds($event)"
+      />
+      } @else {
+      <tch-section-error
+        [title]="'admin.games.settings.empty.title' | translate"
+        [message]="'admin.games.settings.empty.message' | translate"
+        severity="warn"
+      />
+      }
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>

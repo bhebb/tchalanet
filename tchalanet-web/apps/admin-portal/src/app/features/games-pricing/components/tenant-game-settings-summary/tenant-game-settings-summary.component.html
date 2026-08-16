@@ -1,0 +1,96 @@
+@let g = game();
+
+@if (presentation() === 'summary') {
+  <dl class="tg-game-settings tg-game-settings--summary">
+    <div class="tg-game-settings__item">
+      <dt>{{ 'admin.maryajGratis.game.stake' | translate }}</dt>
+      <dd>
+        {{ formatAmount(g.limits.minStake, g.limits.currency) }}
+        –
+        {{ formatAmount(g.limits.maxStake, g.limits.currency) }}
+      </dd>
+    </div>
+    <div class="tg-game-settings__item">
+      <dt>{{ 'admin.maryajGratis.game.pricingOptions' | translate }}</dt>
+      <dd>{{ maryajOddsSummary(g) }}</dd>
+      <p>{{ pricingProfileSummary(g) }}</p>
+    </div>
+    <div class="tg-game-settings__item">
+      <dt>{{ 'admin.maryajGratis.game.availability' | translate }}</dt>
+      <dd>{{ 'admin.maryajGratis.game.availabilitySummary' | translate }}</dd>
+      @if (availabilityRoute(); as route) {
+        <a class="tg-game-settings__link" [routerLink]="route">
+          {{ 'admin.maryajGratis.game.availabilityAction' | translate }}
+        </a>
+      }
+    </div>
+  </dl>
+
+  <div class="tg-game-settings__actions tg-game-settings__actions--summary">
+    <button
+      mat-stroked-button
+      type="button"
+      class="tg-game-settings__primary-action"
+      [attr.data-testid]="actionTestId()"
+      [disabled]="!canManage() || g.tenantStatus === 'UNAVAILABLE' || saving()"
+      (click)="onConfigure()"
+    >
+      <mat-icon>tune</mat-icon>
+      {{ actionLabelKey() | translate }}
+    </button>
+  </div>
+} @else {
+  <ul class="tg-game-settings tg-game-settings--row">
+    <li class="tg-game-settings__fact">
+      <span class="material-symbols-outlined" aria-hidden="true">payments</span>
+      <span>
+        <span class="tg-game-settings__fact-label">
+          {{ 'admin.gamesPricing.card.fact.stakes' | translate }}:
+        </span>
+        {{ stakeLabel(g) }}
+      </span>
+    </li>
+    <li class="tg-game-settings__fact">
+      <span class="material-symbols-outlined" aria-hidden="true">price_check</span>
+      <span>
+        <span class="tg-game-settings__fact-label">
+          {{ 'admin.gamesPricing.card.fact.payouts' | translate }}:
+        </span>
+        {{ pricingLabel(g) }}
+      </span>
+    </li>
+  </ul>
+
+  <p class="tg-game-settings__availability tg-game-settings__availability--{{ availabilityState(g) }}">
+    <span class="material-symbols-outlined" aria-hidden="true">{{ availabilityIcon(g) }}</span>
+    <span>{{ availabilityLabelKey(g) | translate }}</span>
+  </p>
+
+  <div class="tg-game-settings__actions">
+    @if (actionVariant() === 'stroked') {
+      <button
+        mat-stroked-button
+        type="button"
+        class="tg-game-settings__primary-action"
+        [attr.data-testid]="actionTestId()"
+        [disabled]="!canManage() || g.tenantStatus === 'UNAVAILABLE' || saving()"
+        (click)="onConfigure()"
+      >
+        <mat-icon>tune</mat-icon>
+        {{ actionLabelKey() | translate }}
+      </button>
+    } @else {
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        class="tg-game-settings__primary-action"
+        [attr.data-testid]="actionTestId()"
+        [disabled]="!canManage() || g.tenantStatus === 'UNAVAILABLE' || saving()"
+        (click)="onConfigure()"
+      >
+        {{ actionLabelKey() | translate }}
+      </button>
+    }
+  </div>
+}

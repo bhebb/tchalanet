@@ -1,0 +1,78 @@
+<tch-admin-section-card
+  id="generation"
+  class="maryaj-generation"
+  data-testid="maryaj-gratis-generation-panel"
+  icon="auto_awesome"
+  [title]="'admin.maryajGratis.generation.title' | translate"
+  [description]="'admin.maryajGratis.generation.description' | translate"
+>
+  @if (editing()) {
+    <form class="maryaj-generation__form" [formGroup]="form()">
+      <section class="maryaj-generation__selection">
+        <div>
+          <span>{{ 'admin.maryajGratis.offer.selection.title' | translate }}</span>
+          <strong>{{ selectionLabel() }}</strong>
+          <p>{{ 'admin.maryajGratis.offer.selection.description' | translate }}</p>
+        </div>
+        <mat-checkbox
+          data-testid="maryaj-gratis-seller-selects-toggle"
+          [checked]="manualSelectionEnabled()"
+          (change)="manualSelectionChange.emit($event.checked)"
+        >
+          {{ 'admin.maryajGratis.offer.selection.enableManual' | translate }}
+        </mat-checkbox>
+      </section>
+
+      @if (autoGenerationEnabled()) {
+        <div class="maryaj-generation__retry">
+          <mat-checkbox formControlName="regenerableBeforeConfirm">
+            {{ 'admin.maryajGratis.offer.regeneration.enable' | translate }}
+          </mat-checkbox>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'admin.maryajGratis.offer.regeneration.allowed' | translate }}</mat-label>
+            <input
+              matInput
+              type="number"
+              min="0"
+              max="20"
+              step="1"
+              formControlName="maxRegenerationsBeforeConfirm"
+            />
+            <mat-hint>{{ 'admin.maryajGratis.offer.regeneration.hint' | translate }}</mat-hint>
+          </mat-form-field>
+        </div>
+      } @else {
+        <div class="maryaj-generation__manual-note">
+          <mat-icon>person_edit</mat-icon>
+          <span>{{ 'admin.maryajGratis.offer.selection.manualNote' | translate }}</span>
+        </div>
+      }
+    </form>
+  } @else {
+    @if (configured()) {
+      <dl class="maryaj-generation__facts">
+        <div>
+          <dt>{{ 'admin.maryajGratis.generation.selection' | translate }}</dt>
+          <dd>{{ selectionLabel() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.maryajGratis.generation.retry' | translate }}</dt>
+          <dd>{{ regenerationLabel() }}</dd>
+        </div>
+      </dl>
+    } @else {
+      <div class="maryaj-generation__empty" data-testid="maryaj-gratis-generation-empty">
+        <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+        <div>
+          <p class="maryaj-generation__empty-title">
+            {{ 'admin.maryajGratis.generation.empty.title' | translate }}
+          </p>
+          <p class="maryaj-generation__empty-copy">
+            {{ 'admin.maryajGratis.generation.empty.copy' | translate }}
+          </p>
+        </div>
+      </div>
+    }
+  }
+</tch-admin-section-card>

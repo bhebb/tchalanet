@@ -31,7 +31,6 @@ import {
 } from '../../components/games-setup-summary/games-setup-summary.component';
 import { TenantGameCardError } from '../../components/tenant-game-card/tenant-game-card.component';
 import { TenantGamesGridComponent } from '../../components/tenant-games-grid/tenant-games-grid.component';
-import { GameSettingsDialog } from '../../components/dialogs/game-settings.dialog';
 
 interface GamesOverviewSummary {
   readonly catalogGameCount: number;
@@ -175,37 +174,8 @@ export class AdminGamesPricingPage {
       return;
     }
 
-    const game = this.games().find(g => g.gameCode === gameCode);
-    if (!game) return;
-
-    // Reconstruct a minimal TenantGameView for the dialog
-    const dialogGame = {
-      gameCode: game.gameCode,
-      catalogName: game.gameName,
-      displayName: game.gameName,
-      category: null,
-      enabled: game.tenantStatus === 'ACTIVE' || game.tenantStatus === 'NEEDS_CONFIG',
-      visibleInPos: game.visibleInPos,
-      displayOrder: 0,
-      minStake: game.limits.minStake,
-      maxStake: game.limits.maxStake,
-      availabilityEnabled: false,
-      availabilityDays: null,
-      startLocalTime: null,
-      endLocalTime: null,
-      readyForSale: game.readiness.status === 'READY',
-      betOptions: game.odds,
-      betOptionGroups: game.oddsGroups,
-    };
-
-    const ref = this.dialog.open(GameSettingsDialog, {
-      data: { game: dialogGame },
-      width: 'min(44rem, calc(100vw - 1rem))',
-      maxWidth: 'calc(100vw - 1rem)',
-      maxHeight: 'calc(100dvh - 1rem)',
-    });
-    ref.afterClosed().subscribe(ok => {
-      if (ok) this.load();
+    void this.router.navigate(['/app/admin/games', gameCode, 'settings'], {
+      queryParams: this.setupFlowQueryParams(),
     });
   }
 

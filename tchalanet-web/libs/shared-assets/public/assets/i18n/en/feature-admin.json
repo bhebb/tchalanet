@@ -801,19 +801,19 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Configure the Maryaj game and its automatic free-line offer.",
+      "description": "Configure the game, free offer, and number generation.",
       "action": {
         "refresh": "Refresh"
       },
       "loading": "Loading promotions...",
       "game": {
         "eyebrow": "Game settings",
-        "title": "Free Maryaj",
+        "title": "The game",
         "subtitle": "The same Maryaj logic applies; only the free pricing and generation change.",
         "configure": "Edit game",
         "pricingOptions": "Payout options",
         "pricingHint": "Exact and Reverse are supported by default.",
-        "standard": "Standard",
+        "standard": "Standard pricing",
         "minimumStake": "Minimum stake",
         "maximumStake": "Maximum stake",
         "maxPerDraw": "Payout cap per draw",
@@ -827,6 +827,20 @@
           "READY": "Ready",
           "TODO": "Needs setup",
           "BLOCKED": "Unavailable"
+        },
+        "stake": "Stake",
+        "availability": "Availability",
+        "availabilitySummary": "Managed on each draw",
+        "availabilityAction": "Availability by draw →",
+        "empty": {
+          "title": "The game is not set up yet.",
+          "copy": "Add Free Maryaj to the operator game configuration so the offer can run."
+        },
+        "missingReason": {
+          "absent": "Free Maryaj is missing from the operator game configuration.",
+          "inactive": "Free Maryaj is disabled for this operator.",
+          "needsConfig": "Free Maryaj needs stake and payout setup before it can be sold.",
+          "unavailable": "Free Maryaj is not available for this operator."
         }
       },
       "summary": {
@@ -862,10 +876,17 @@
         }
       },
       "offer": {
+        "title": "The free offer",
+        "description": "Dates, tiers, and the number of free Maryaj awarded to customers.",
         "activeEyebrow": "Active offer",
         "campaignCode": "Operator campaign · {{count}} rule(s)",
         "pause": "Pause",
-        "permanent": "No planned end",
+        "confirmPause": {
+          "title": "Pause the Free Maryaj offer?",
+          "message": "Customers will stop receiving new Free Maryaj while the offer is paused. You can resume it later.",
+          "action": "Pause offer"
+        },
+        "permanent": "No end date",
         "technicalDate": "Technical date:",
         "attributionMode": "Allocation mode",
         "mode": {
@@ -881,7 +902,10 @@
           "paused": "Paused",
           "draft": "Draft",
           "inactive": "Inactive",
-          "archived": "Archived"
+          "archived": "Archived",
+          "scheduled": "Scheduled",
+          "ended": "Ended",
+          "needsSetup": "Needs setup"
         },
         "selection": {
           "title": "Free Maryaj numbers",
@@ -910,6 +934,11 @@
           "activate": "Free Maryaj offer to activate",
           "copy": "Tiers, free quantity, and number generation."
         },
+        "empty": {
+          "title": "The free offer is not set up yet.",
+          "copy": "Set dates, tiers, and how many free Maryaj customers receive.",
+          "action": "Set up offer"
+        },
         "preview": {
           "perAmount": {
             "prefix": "The ticket receives",
@@ -924,8 +953,8 @@
           }
         },
         "schedule": {
-          "endHint": "Required date. Use a distant date for a permanent offer.",
-          "priorityHint": "Higher values take priority when multiple promotions apply."
+          "priorityHint": "Higher values take priority when multiple promotions apply.",
+          "noEndDate": "No end date"
         },
         "tiers": {
           "title": "Sales tiers",
@@ -934,26 +963,83 @@
           "tier": "Tier {{index}}",
           "from": "From",
           "to": "To",
-          "openEnded": "Empty = and above",
+          "openEnded": "No upper limit",
+          "noUpperLimit": "No upper limit",
+          "noUpperLimitCopy": "This tier applies to every amount above the starting amount.",
           "quantity": "Free Maryaj",
-          "delete": "Delete tier"
+          "delete": "Delete tier",
+          "readDescription": "Rules that decide how many Free Maryaj a ticket receives.",
+          "empty": "No tiers configured.",
+          "range": "{{min}} – {{max}}",
+          "openRange": "{{min}} +",
+          "rule": "{{range}} → {{quantity}} Free Maryaj"
         },
         "perAmount": {
           "step": "Sales tranche",
           "stepHint": "Paid amount that triggers a tranche.",
           "quantity": "Free Maryaj per tranche",
           "max": "Free-line cap",
-          "maxHint": "Maximum generated for one ticket."
+          "maxHint": "Maximum generated for one ticket.",
+          "rule": "{{quantity}} Free Maryaj per {{amount}}, up to {{max}}"
         },
         "fixed": {
-          "quantity": "Free Maryaj per ticket"
+          "quantity": "Free Maryaj per ticket",
+          "rule": "{{quantity}} Free Maryaj per ticket"
         },
         "regeneration": {
           "enable": "The seller can regenerate numbers before confirmation",
           "allowed": "Allowed regenerations",
           "hint": "Number of times numbers can be recreated before ticket confirmation."
         },
-        "activate": "Activate Free Maryaj"
+        "activate": "Activate Free Maryaj",
+        "lifecycle": {
+          "title": "Offer duration",
+          "description": "Choose when the offer starts and whether it has an end date."
+        },
+        "attribution": {
+          "title": "Allocation",
+          "description": "Define how many Free Maryaj a ticket receives."
+        },
+        "advanced": {
+          "title": "Advanced options",
+          "copy": "Use only when several offers can be active at the same time."
+        }
+      },
+      "amount": {
+        "htg": "{{amount}} HTG"
+      },
+      "feedback": {
+        "activated": "Free Maryaj activated.",
+        "saved": "Free Maryaj configuration saved.",
+        "ruleMissing": "Could not find the Free Maryaj rule to edit.",
+        "campaignMissing": "Could not find the Free Maryaj offer."
+      },
+      "validation": {
+        "tiersRequired": "Add at least one Free Maryaj tier.",
+        "tierMinInvalid": "The starting amount for tier {{position}} is invalid.",
+        "tierQuantityInvalid": "The quantity for tier {{position}} is invalid.",
+        "tierMaxInvalid": "The ending amount for tier {{position}} is invalid.",
+        "tierMaxBeforeMin": "The ending amount for tier {{position}} must be greater than the starting amount.",
+        "openEndedLast": "The tier without an ending amount must be last.",
+        "tierOverlap": "Tier {{position}} overlaps the previous tier.",
+        "dateRequired": "Enter valid start and end dates.",
+        "endAfterStart": "The end date must be after the start date."
+      },
+      "generation": {
+        "eyebrow": "Generation",
+        "title": "Generation",
+        "description": "Control how Free Maryaj numbers are generated and regenerated.",
+        "selection": "Numbers",
+        "retry": "Regeneration",
+        "retryCount": "{{count}} attempt(s)",
+        "notConfigured": "Not configured",
+        "empty": {
+          "title": "Generation is not set up yet.",
+          "copy": "Set up the free offer to define how numbers are generated."
+        },
+        "notUsed": "Not used with manual selection",
+        "regenerable": "Yes",
+        "notRegenerable": "No"
       }
     },
     "limits": {
@@ -2064,27 +2150,36 @@
           "message": "These values control POS display and accepted stakes for this operator. Reference payouts and pricing remain managed by Tchalanet."
         },
         "sell": {
-          "title": "Sell this game",
-          "description": "Control whether sellers can use this game in POS.",
-          "visibleInPosHelp": "Show this game as a choice when a seller creates a ticket."
+          "title": "Sales",
+          "description": "Control how the game appears to sellers.",
+          "activationTitle": "Game enabled",
+          "activationHelp": "Game activation is managed from the Available games list.",
+          "activationEnabled": "Enabled",
+          "activationDisabled": "Inactive",
+          "visibleInPosHelp": "When off, the game stays configured but sellers will not see it in POS."
         },
         "stakes": {
           "title": "Stakes",
-          "description": "Set the minimum and maximum amount a seller can accept for this game."
+          "description": "Set the minimum and maximum limits per line.",
+          "error": {
+            "minPositive": "The minimum stake must be greater than 0.",
+            "maxPositive": "The maximum stake must be greater than 0.",
+            "maxAfterMin": "The maximum stake must be greater than or equal to the minimum."
+          }
         },
         "availability": {
           "title": "Availability",
-          "description": "Use draw availability to decide where this game can be sold.",
-          "enabledHelp": "Allow this game to participate in sales availability rules.",
-          "review": "Review draw availability"
+          "description": "Choose whether this game follows draw availability rules.",
+          "enabledHelp": "When enabled, times and draws can limit where this game is sold.",
+          "review": "Draw availability"
         },
         "field": {
           "displayName": "POS display name",
-          "minStake": "Minimum stake per line",
-          "maxStake": "Maximum stake per line",
+          "minStake": "Minimum",
+          "maxStake": "Maximum",
           "displayOrder": "Display order",
-          "visibleInPos": "Show this game in POS",
-          "availabilityEnabled": "Restrict sales hours",
+          "visibleInPos": "Visible in POS",
+          "availabilityEnabled": "Follow availability rules",
           "startLocalTime": "Start time (HH:mm)",
           "endLocalTime": "End time (HH:mm)"
         },
@@ -2093,22 +2188,51 @@
           "description": "Summary of the operator pricing applied at sale time.",
           "clearPricing": "Clear pricing rule"
         },
+        "confirmDiscard": {
+          "title": "Leave without saving?",
+          "message": "Your changes will not be saved.",
+          "action": "Leave without saving"
+        },
+        "empty": {
+          "title": "Game not found.",
+          "message": "Go back to the games list and choose the game you want to edit."
+        },
         "payouts": {
           "title": "Payouts",
-          "description": "Configure how much the customer can win for each supported option."
+          "description": "Configure how much the customer can win for each supported option.",
+          "editPricing": "Edit",
+          "notConfigured": "Not configured",
+          "fixedAmountSummary": "Fixed amount: {{amount}}",
+          "multiplierSummary": "Multiplier: ×{{odds}}",
+          "confirmClearTitle": "Clear the {{label}} rule?",
+          "confirmClearMessage": "This payout rule will be unconfigured until you save a new value.",
+          "confirmClearAction": "Clear rule"
         },
         "advanced": {
-          "title": "Advanced options"
+          "title": "Advanced options",
+          "summary": "POS name and display order"
         },
         "salesOptions": {
-          "title": "Advanced sales modes",
-          "description": "Multiple commercial choices and the selection rule used during sale.",
+          "title": "Game options",
+          "description": "Choose the Maryaj Gratis options offered and how sellers select them.",
           "loadFailed": "Sales options could not be loaded. Other settings can still be saved.",
-          "selectionPolicy": "Selection mode",
+          "selectionPolicy": "Number choice",
+          "selectionPolicyHelp": "Controls whether the seller must choose the option or Tchalanet can select it automatically.",
+          "optionControlsHelp": "Offered enables the option. Visible in POS controls whether sellers can see it.",
           "defaultOption": "Default option",
           "noDefaultOption": "No default option",
           "enabled": "Offered",
           "visibleInPos": "Visible in POS",
+          "descriptionByOption": {
+            "MARRIAGE_2D2D": {
+              "1": "Both numbers must match in the same order.",
+              "2": "Both numbers may match in reverse order or form a double."
+            },
+            "PATTERN2X2": {
+              "1": "Both numbers must match in the same order.",
+              "2": "Both numbers may match in reverse order or form a double."
+            }
+          },
           "status": {
             "visible": "Visible",
             "hidden": "Hidden in POS",

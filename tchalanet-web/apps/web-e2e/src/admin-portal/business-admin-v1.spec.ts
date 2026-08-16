@@ -39,6 +39,7 @@ test.describe('Admin business V1 — setup, Maryaj gratis, limits, reports', () 
     await adminMaryajGratisPage.goto();
 
     await adminMaryajGratisPage.expectPanels();
+    await adminMaryajGratisPage.expectMainSummaryDisplay();
     expect(await adminMaryajGratisPage.saveSellerSelectionMode()).toBeTruthy();
   });
 

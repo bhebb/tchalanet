@@ -801,19 +801,19 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Konfigire jwèt Maryaj la ak òf liy gratis otomatik la.",
+      "description": "Konfigire jwèt la, òf gratis la ak jenerasyon nimewo yo.",
       "action": {
         "refresh": "Rafrechi"
       },
       "loading": "Y ap chaje pwomosyon yo...",
       "game": {
         "eyebrow": "Paramèt jwèt la",
-        "title": "Maryaj gratis",
+        "title": "Jwèt la",
         "subtitle": "Menm lojik ak Maryaj; se pri gratis ak jenerasyon an sèlman ki chanje.",
         "configure": "Modifye jwèt la",
         "pricingOptions": "Opsyon gany yo",
         "pricingHint": "Exact ak Reverse sipòte pa default.",
-        "standard": "Standard",
+        "standard": "Barèm estanda",
         "minimumStake": "Miz minimòm",
         "maximumStake": "Miz maksimòm",
         "maxPerDraw": "Limit peman pa tiraj",
@@ -827,6 +827,20 @@
           "READY": "Pare",
           "TODO": "Pou konfigire",
           "BLOCKED": "Pa disponib"
+        },
+        "stake": "Miz",
+        "availability": "Disponibilite",
+        "availabilitySummary": "Jere sou chak tiraj",
+        "availabilityAction": "Disponibilite pa tiraj →",
+        "empty": {
+          "title": "Jwèt la poko konfigire.",
+          "copy": "Ajoute Maryaj gratis nan konfigirasyon jwèt santral la pou òf la ka mache."
+        },
+        "missingReason": {
+          "absent": "Jwèt Maryaj gratis la pa nan konfigirasyon jwèt santral la.",
+          "inactive": "Jwèt Maryaj gratis la dezaktive pou santral sa a.",
+          "needsConfig": "Jwèt Maryaj gratis la bezwen miz ak barèm anvan li ka vann.",
+          "unavailable": "Jwèt Maryaj gratis la pa disponib pou santral sa a."
         }
       },
       "summary": {
@@ -862,10 +876,17 @@
         }
       },
       "offer": {
+        "title": "Òf gratis la",
+        "description": "Dat, palye ak kantite Maryaj gratis kliyan yo resevwa.",
         "activeEyebrow": "Òf aktif",
         "campaignCode": "Kanpay santral · {{count}} règ",
         "pause": "Mete an poz",
-        "permanent": "Pa gen fen ki prevwa",
+        "confirmPause": {
+          "title": "Mete òf Maryaj gratis la an poz?",
+          "message": "Kliyan yo p ap resevwa nouvo Maryaj gratis pandan òf la an poz. Ou ka relanse òf la pita.",
+          "action": "Mete an poz"
+        },
+        "permanent": "Pa gen fen",
         "technicalDate": "Dat teknik:",
         "attributionMode": "Mòd atribisyon",
         "mode": {
@@ -881,7 +902,10 @@
           "paused": "An poz",
           "draft": "Bouyon",
           "inactive": "Inaktif",
-          "archived": "Achive"
+          "archived": "Achive",
+          "scheduled": "Pwograme",
+          "ended": "Fini",
+          "needsSetup": "Pou konfigire"
         },
         "selection": {
           "title": "Nimewo Maryaj gratis",
@@ -910,6 +934,11 @@
           "activate": "Òf Maryaj gratis la pou aktive",
           "copy": "Palye, kantite gratis ak jenerasyon nimewo yo."
         },
+        "empty": {
+          "title": "Òf gratis la poko konfigire.",
+          "copy": "Konfigire dat, palye ak kantite Maryaj gratis kliyan yo ap resevwa.",
+          "action": "Konfigire òf la"
+        },
         "preview": {
           "perAmount": {
             "prefix": "Tikè a ap resevwa",
@@ -924,8 +953,8 @@
           }
         },
         "schedule": {
-          "endHint": "Dat obligatwa. Pou yon òf pèmanan, itilize yon dat ki lwen.",
-          "priorityHint": "Yon pi gwo valè bay priyorite si gen plizyè pwomosyon."
+          "priorityHint": "Yon pi gwo valè bay priyorite si gen plizyè pwomosyon.",
+          "noEndDate": "Pa gen dat fen"
         },
         "tiers": {
           "title": "Palye lavant",
@@ -934,26 +963,83 @@
           "tier": "Palye {{index}}",
           "from": "Soti",
           "to": "Jiska",
-          "openEnded": "Vid = ak plis",
+          "openEnded": "San limit siperyè",
+          "noUpperLimit": "San limit siperyè",
+          "noUpperLimitCopy": "Palye sa a aplike pou tout montan ki pi wo pase montan kòmansman an.",
           "quantity": "Maryaj gratis",
-          "delete": "Efase palye a"
+          "delete": "Efase palye a",
+          "readDescription": "Règ ki di konbyen Maryaj gratis yon tikè resevwa.",
+          "empty": "Pa gen palye konfigire.",
+          "range": "{{min}} – {{max}}",
+          "openRange": "{{min}} +",
+          "rule": "{{range}} → {{quantity}} Maryaj gratis"
         },
         "perAmount": {
           "step": "Tranch lavant",
           "stepHint": "Kantite peye ki deklanche yon tranch.",
           "quantity": "Maryaj gratis pou chak tranch",
           "max": "Limit liy gratis",
-          "maxHint": "Maksimòm ki jenere pou yon tikè."
+          "maxHint": "Maksimòm ki jenere pou yon tikè.",
+          "rule": "{{quantity}} Maryaj gratis pou chak {{amount}}, jiska {{max}}"
         },
         "fixed": {
-          "quantity": "Kantite Maryaj gratis pa tikè"
+          "quantity": "Kantite Maryaj gratis pa tikè",
+          "rule": "{{quantity}} Maryaj gratis pa tikè"
         },
         "regeneration": {
           "enable": "Vandè a ka rejenerasyon nimewo yo anvan konfimasyon",
           "allowed": "Rejenerasyon otorize",
           "hint": "Konbyen fwa nimewo yo ka kreye ankò anvan tikè a konfime."
         },
-        "activate": "Aktive Maryaj gratis"
+        "activate": "Aktive Maryaj gratis",
+        "lifecycle": {
+          "title": "Dire òf la",
+          "description": "Chwazi kilè òf la kòmanse epi si li gen dat fen."
+        },
+        "attribution": {
+          "title": "Atribisyon",
+          "description": "Defini konbyen Maryaj gratis yon tikè resevwa."
+        },
+        "advanced": {
+          "title": "Opsyon avanse",
+          "copy": "Pou itilize sèlman si plizyè òf ka aktif an menm tan."
+        }
+      },
+      "amount": {
+        "htg": "{{amount}} HTG"
+      },
+      "feedback": {
+        "activated": "Maryaj gratis aktive.",
+        "saved": "Konfigirasyon Maryaj gratis la anrejistre.",
+        "ruleMissing": "Nou pa ka jwenn règ Maryaj gratis la pou modifye.",
+        "campaignMissing": "Nou pa ka jwenn òf Maryaj gratis la."
+      },
+      "validation": {
+        "tiersRequired": "Ajoute omwen yon palye Maryaj gratis.",
+        "tierMinInvalid": "Montan kòmansman palye {{position}} lan pa valid.",
+        "tierQuantityInvalid": "Kantite palye {{position}} lan pa valid.",
+        "tierMaxInvalid": "Montan fen palye {{position}} lan pa valid.",
+        "tierMaxBeforeMin": "Montan fen palye {{position}} lan dwe pi gran pase montan kòmansman an.",
+        "openEndedLast": "Palye san montan fen an dwe dènye palye a.",
+        "tierOverlap": "Palye {{position}} lan kwaze ak palye anvan an.",
+        "dateRequired": "Antre yon dat kòmansman ak yon dat fen ki valid.",
+        "endAfterStart": "Dat fen an dwe vini apre dat kòmansman an."
+      },
+      "generation": {
+        "eyebrow": "Jenerasyon",
+        "title": "Jenerasyon",
+        "description": "Kontwole kijan nimewo Maryaj gratis yo jenere ak rejenerasyon yo fèt.",
+        "selection": "Nimewo",
+        "retry": "Rejenerasyon",
+        "retryCount": "{{count}} tantativ",
+        "notConfigured": "Pa konfigire",
+        "empty": {
+          "title": "Jenerasyon an poko konfigire.",
+          "copy": "Konfigire òf gratis la pou defini kijan nimewo yo ap jenere."
+        },
+        "notUsed": "Pa itilize ak seleksyon manyèl",
+        "regenerable": "Wi",
+        "notRegenerable": "Non"
       }
     },
     "limits": {
@@ -2064,27 +2150,36 @@
           "message": "Valè sa yo kontwole afichaj POS la ak miz santral la aksepte. Gany ak barèm global yo rete jere nan katalòg platfòm nan."
         },
         "sell": {
-          "title": "Vann jwèt sa a",
-          "description": "Kontwole si vandè yo ka itilize jwèt sa a nan POS la.",
-          "visibleInPosHelp": "Montre jwèt sa a kòm yon chwa lè vandè a ap kreye yon tikè."
+          "title": "Vant",
+          "description": "Kontwole kijan jwèt la parèt pou vandè yo.",
+          "activationTitle": "Jwèt aktive",
+          "activationHelp": "Aktivasyon jwèt la fèt nan lis Jwèt disponib la.",
+          "activationEnabled": "Aktive",
+          "activationDisabled": "Inaktif",
+          "visibleInPosHelp": "Si li etenn, jwèt la rete konfigire men vandè yo p ap wè li nan POS."
         },
         "stakes": {
           "title": "Miz",
-          "description": "Mete kantite minimòm ak maksimòm vandè a ka aksepte pou jwèt sa a."
+          "description": "Mete limit minimòm ak maksimòm pa liy.",
+          "error": {
+            "minPositive": "Miz minimòm nan dwe pi gran pase 0.",
+            "maxPositive": "Miz maksimòm nan dwe pi gran pase 0.",
+            "maxAfterMin": "Miz maksimòm nan dwe pi gran oswa egal ak minimòm nan."
+          }
         },
         "availability": {
           "title": "Disponibilite",
-          "description": "Sèvi ak disponiblite pa tiraj pou chwazi kote jwèt sa a ka vann.",
-          "enabledHelp": "Pèmèt jwèt sa a antre nan règ disponiblite pou vann.",
-          "review": "Verifye disponiblite pa tiraj"
+          "description": "Chwazi si jwèt sa a suiv règ disponiblite pa tiraj yo.",
+          "enabledHelp": "Lè sa aktive, lè ak tiraj yo ka limite kote jwèt sa a vann.",
+          "review": "Disponibilite pa tiraj"
         },
         "field": {
           "displayName": "Non ki parèt nan POS",
-          "minStake": "Miz minimòm pa liy",
-          "maxStake": "Miz maksimòm pa liy",
+          "minStake": "Minimòm",
+          "maxStake": "Maksimòm",
           "displayOrder": "Lòd afichaj",
-          "visibleInPos": "Montre jwèt sa a nan POS",
-          "availabilityEnabled": "Limite lè vant yo",
+          "visibleInPos": "Vizib sou POS",
+          "availabilityEnabled": "Swiv règ disponiblite",
           "startLocalTime": "Lè kòmansman (HH:mm)",
           "endLocalTime": "Lè fen (HH:mm)"
         },
@@ -2093,22 +2188,51 @@
           "description": "Rezime barèm santral la ki aplike nan vant lan.",
           "clearPricing": "Efase règ barèm nan"
         },
+        "confirmDiscard": {
+          "title": "Kite san anrejistre?",
+          "message": "Chanjman ou fè yo p ap anrejistre.",
+          "action": "Kite san anrejistre"
+        },
+        "empty": {
+          "title": "Jwèt la pa jwenn.",
+          "message": "Retounen nan lis jwèt yo epi chwazi jwèt ou vle modifye a."
+        },
         "payouts": {
           "title": "Barèm",
-          "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte."
+          "description": "Konfigire konbyen kliyan an ka genyen pou chak opsyon ki sipòte.",
+          "editPricing": "Modifye",
+          "notConfigured": "Pa konfigire",
+          "fixedAmountSummary": "Montan fiks: {{amount}}",
+          "multiplierSummary": "Miltiplikatè: ×{{odds}}",
+          "confirmClearTitle": "Efase règ {{label}} la?",
+          "confirmClearMessage": "Règ barèm sa a ap vin pa konfigire jiskaske ou anrejistre yon nouvo valè.",
+          "confirmClearAction": "Efase règ la"
         },
         "advanced": {
-          "title": "Opsyon avanse"
+          "title": "Opsyon avanse",
+          "summary": "Non POS ak lòd afichaj"
         },
         "salesOptions": {
-          "title": "Mòd vant avanse",
-          "description": "Plizyè chwa komèsyal ak règ seleksyon ki sèvi pandan vant lan.",
+          "title": "Opsyon jwèt",
+          "description": "Chwazi opsyon Maryaj gratis la ofri epi kijan vandè yo chwazi yo.",
           "loadFailed": "Opsyon vant yo pa ka chaje. Lòt reglaj yo ka toujou anrejistre.",
-          "selectionPolicy": "Mòd seleksyon",
+          "selectionPolicy": "Chwa nimewo",
+          "selectionPolicyHelp": "Kontwole si vandè a dwe chwazi opsyon an oswa si Tchalanet ka chwazi l otomatikman.",
+          "optionControlsHelp": "Ofri aktive opsyon an. Vizib POS kontwole si vandè yo wè li.",
           "defaultOption": "Opsyon pa defo",
           "noDefaultOption": "Pa gen opsyon pa defo",
           "enabled": "Ofri",
           "visibleInPos": "Vizib POS",
+          "descriptionByOption": {
+            "MARRIAGE_2D2D": {
+              "1": "De nimewo yo dwe soti nan menm lòd la.",
+              "2": "De nimewo yo ka soti nan lòd ranvèse a oswa fòme yon doub."
+            },
+            "PATTERN2X2": {
+              "1": "De nimewo yo dwe soti nan menm lòd la.",
+              "2": "De nimewo yo ka soti nan lòd ranvèse a oswa fòme yon doub."
+            }
+          },
           "status": {
             "visible": "Vizib",
             "hidden": "Kache nan POS",

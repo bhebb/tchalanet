@@ -1,9 +1,9 @@
 :host {
-  --tch-admin-aside-width: 360px;
-  --tch-admin-detail-max: 1380px;
+  display: block;
 }
 
 .maryaj-page__stack {
   display: grid;
   gap: 1.5rem;
+  max-width: 58rem;
 }

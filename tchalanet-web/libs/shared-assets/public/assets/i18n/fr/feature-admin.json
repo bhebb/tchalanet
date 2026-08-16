@@ -715,27 +715,36 @@
           "message": "Ces valeurs contrôlent l'affichage au POS et les mises acceptées pour ce santral. Les gains et barèmes de référence restent gérés par Tchalanet."
         },
         "sell": {
-          "title": "Vendre ce jeu",
-          "description": "Contrôlez si les vendeurs peuvent utiliser ce jeu dans le POS.",
-          "visibleInPosHelp": "Afficher ce jeu comme choix quand un vendeur crée un ticket."
+          "title": "Vente",
+          "description": "Contrôlez comment le jeu apparaît aux vendeurs.",
+          "activationTitle": "Jeu activé",
+          "activationHelp": "L’activation du jeu se gère depuis la liste des jeux disponibles.",
+          "activationEnabled": "Activé",
+          "activationDisabled": "Inactif",
+          "visibleInPosHelp": "Si désactivé, le jeu reste configuré mais les vendeurs ne le verront pas au POS."
         },
         "stakes": {
           "title": "Mises",
-          "description": "Définissez le montant minimum et maximum accepté pour ce jeu."
+          "description": "Définissez les limites minimum et maximum par ligne.",
+          "error": {
+            "minPositive": "La mise minimum doit être supérieure à 0.",
+            "maxPositive": "La mise maximum doit être supérieure à 0.",
+            "maxAfterMin": "La mise maximum doit être supérieure ou égale au minimum."
+          }
         },
         "availability": {
           "title": "Disponibilité",
-          "description": "Utilisez la disponibilité par tirage pour choisir où ce jeu peut être vendu.",
-          "enabledHelp": "Autoriser ce jeu à participer aux règles de disponibilité de vente.",
-          "review": "Vérifier la disponibilité par tirage"
+          "description": "Choisissez si ce jeu suit les règles de disponibilité par tirage.",
+          "enabledHelp": "Quand cette option est active, les heures et tirages peuvent limiter où ce jeu est vendu.",
+          "review": "Disponibilité par tirage"
         },
         "field": {
           "displayName": "Nom affiché au POS",
-          "minStake": "Mise minimum par ligne",
-          "maxStake": "Mise maximum par ligne",
+          "minStake": "Minimum",
+          "maxStake": "Maximum",
           "displayOrder": "Ordre d'affichage",
-          "visibleInPos": "Afficher ce jeu dans le POS",
-          "availabilityEnabled": "Restreindre les horaires de vente",
+          "visibleInPos": "Visible au POS",
+          "availabilityEnabled": "Suivre les règles de disponibilité",
           "startLocalTime": "Heure de début (HH:mm)",
           "endLocalTime": "Heure de fin (HH:mm)"
         },
@@ -744,22 +753,51 @@
           "description": "Résumé du barème du santral appliqué à la vente.",
           "clearPricing": "Supprimer le barème"
         },
+        "confirmDiscard": {
+          "title": "Quitter sans enregistrer ?",
+          "message": "Vos changements ne seront pas enregistrés.",
+          "action": "Quitter sans enregistrer"
+        },
+        "empty": {
+          "title": "Jeu introuvable.",
+          "message": "Retournez à la liste des jeux et choisissez le jeu à modifier."
+        },
         "payouts": {
           "title": "Barèmes",
-          "description": "Configurez le montant que le client peut gagner pour chaque option supportée."
+          "description": "Configurez le montant que le client peut gagner pour chaque option supportée.",
+          "editPricing": "Modifier",
+          "notConfigured": "Non configuré",
+          "fixedAmountSummary": "Montant fixe : {{amount}}",
+          "multiplierSummary": "Multiplicateur : ×{{odds}}",
+          "confirmClearTitle": "Effacer la règle {{label}} ?",
+          "confirmClearMessage": "Cette règle de barème ne sera plus configurée tant que vous n’enregistrez pas une nouvelle valeur.",
+          "confirmClearAction": "Effacer la règle"
         },
         "advanced": {
-          "title": "Options avancées"
+          "title": "Options avancées",
+          "summary": "Nom POS et ordre d'affichage"
         },
         "salesOptions": {
-          "title": "Modes de vente avancés",
-          "description": "Choix commerciaux multiples et règle de sélection utilisée pendant la vente.",
+          "title": "Options du jeu",
+          "description": "Choisissez les options Maryaj Gratis offertes et la façon dont les vendeurs les sélectionnent.",
           "loadFailed": "Impossible de charger les options de vente. Les autres réglages peuvent encore être enregistrés.",
-          "selectionPolicy": "Mode de sélection",
+          "selectionPolicy": "Choix des numéros",
+          "selectionPolicyHelp": "Contrôle si le vendeur doit choisir l’option ou si Tchalanet peut la sélectionner automatiquement.",
+          "optionControlsHelp": "Offerte active l’option. Visible POS contrôle si les vendeurs peuvent la voir.",
           "defaultOption": "Option par défaut",
           "noDefaultOption": "Aucune option par défaut",
           "enabled": "Offerte",
           "visibleInPos": "Visible POS",
+          "descriptionByOption": {
+            "MARRIAGE_2D2D": {
+              "1": "Les deux numéros doivent correspondre dans le même ordre.",
+              "2": "Les deux numéros peuvent correspondre dans l’ordre inverse ou former un double."
+            },
+            "PATTERN2X2": {
+              "1": "Les deux numéros doivent correspondre dans le même ordre.",
+              "2": "Les deux numéros peuvent correspondre dans l’ordre inverse ou former un double."
+            }
+          },
           "status": {
             "visible": "Visible",
             "hidden": "Masquée POS",
@@ -1495,19 +1533,19 @@
     },
     "maryajGratis": {
       "title": "Maryaj gratis",
-      "description": "Configurez le jeu Maryaj et son offre automatique de lignes gratuites.",
+      "description": "Configurez le jeu, l’offre gratuite et la génération des numéros.",
       "action": {
         "refresh": "Rafraîchir"
       },
       "loading": "Chargement des promotions...",
       "game": {
         "eyebrow": "Paramètres du jeu",
-        "title": "Maryaj gratuit",
+        "title": "Le jeu",
         "subtitle": "Même logique que Maryaj; seuls le barème gratuit et la génération changent.",
         "configure": "Modifier le jeu",
         "pricingOptions": "Options de gain",
         "pricingHint": "Exact et Reverse sont supportés par défaut.",
-        "standard": "Standard",
+        "standard": "Barème standard",
         "minimumStake": "Mise minimum",
         "maximumStake": "Mise maximum",
         "maxPerDraw": "Plafond de paiement par tirage",
@@ -1521,6 +1559,20 @@
           "READY": "Prêt",
           "TODO": "À configurer",
           "BLOCKED": "Non disponible"
+        },
+        "stake": "Mise",
+        "availability": "Disponibilité",
+        "availabilitySummary": "Gérée sur chaque tirage",
+        "availabilityAction": "Disponibilité par tirage →",
+        "empty": {
+          "title": "Le jeu n’est pas encore configuré.",
+          "copy": "Ajoutez Maryaj gratis à la configuration des jeux du santral pour que l’offre puisse fonctionner."
+        },
+        "missingReason": {
+          "absent": "Le jeu Maryaj gratis est absent de la configuration du santral.",
+          "inactive": "Le jeu Maryaj gratis est désactivé pour ce santral.",
+          "needsConfig": "Le jeu Maryaj gratis doit avoir ses mises et barèmes configurés avant la vente.",
+          "unavailable": "Le jeu Maryaj gratis n’est pas disponible pour ce santral."
         }
       },
       "summary": {
@@ -1556,10 +1608,17 @@
         }
       },
       "offer": {
+        "title": "L’offre gratuite",
+        "description": "Dates, paliers et quantité de Maryaj gratuits remis aux clients.",
         "activeEyebrow": "Offre active",
         "campaignCode": "Campagne du santral · {{count}} règle(s)",
         "pause": "Mettre en pause",
-        "permanent": "Sans fin prévue",
+        "confirmPause": {
+          "title": "Mettre l'offre Maryaj gratis en pause ?",
+          "message": "Les clients ne recevront plus de nouveaux Maryaj gratuits pendant que l'offre est en pause. Vous pourrez la relancer plus tard.",
+          "action": "Mettre en pause"
+        },
+        "permanent": "Pas de fin",
         "technicalDate": "Date technique :",
         "attributionMode": "Mode d’attribution",
         "mode": {
@@ -1575,7 +1634,10 @@
           "paused": "En pause",
           "draft": "Brouillon",
           "inactive": "Inactif",
-          "archived": "Archivé"
+          "archived": "Archivé",
+          "scheduled": "Planifiée",
+          "ended": "Terminée",
+          "needsSetup": "À configurer"
         },
         "selection": {
           "title": "Numéros Maryaj gratuits",
@@ -1604,6 +1666,11 @@
           "activate": "Offre Maryaj gratis à activer",
           "copy": "Paliers, quantité offerte et génération des numéros."
         },
+        "empty": {
+          "title": "L’offre gratuite n’est pas encore configurée.",
+          "copy": "Configurez les dates, les paliers et le nombre de Maryaj gratis remis aux clients.",
+          "action": "Configurer l’offre"
+        },
         "preview": {
           "perAmount": {
             "prefix": "Le ticket recevra",
@@ -1618,8 +1685,8 @@
           }
         },
         "schedule": {
-          "endHint": "Date obligatoire. Pour une offre permanente, utilisez une date lointaine.",
-          "priorityHint": "Plus haut = prioritaire si plusieurs promotions sont applicables."
+          "priorityHint": "Plus haut = prioritaire si plusieurs promotions sont applicables.",
+          "noEndDate": "Pas de date de fin"
         },
         "tiers": {
           "title": "Paliers de vente",
@@ -1628,26 +1695,83 @@
           "tier": "Palier {{index}}",
           "from": "De",
           "to": "À",
-          "openEnded": "Vide = et plus",
+          "openEnded": "Sans limite supérieure",
+          "noUpperLimit": "Sans limite supérieure",
+          "noUpperLimitCopy": "Ce palier s'applique à tous les montants au-dessus du montant de début.",
           "quantity": "Maryaj gratuits",
-          "delete": "Supprimer le palier"
+          "delete": "Supprimer le palier",
+          "readDescription": "Règles qui indiquent combien de Maryaj gratis un ticket reçoit.",
+          "empty": "Aucun palier configuré.",
+          "range": "{{min}} – {{max}}",
+          "openRange": "{{min}} +",
+          "rule": "{{range}} → {{quantity}} Maryaj gratis"
         },
         "perAmount": {
           "step": "Tranche de vente",
           "stepHint": "Montant payé qui déclenche une tranche.",
           "quantity": "Maryaj gratuits par tranche",
           "max": "Plafond de lignes gratuites",
-          "maxHint": "Maximum généré pour un ticket."
+          "maxHint": "Maximum généré pour un ticket.",
+          "rule": "{{quantity}} Maryaj gratis par {{amount}}, jusqu’à {{max}}"
         },
         "fixed": {
-          "quantity": "Nombre de Maryaj gratuits par ticket"
+          "quantity": "Nombre de Maryaj gratuits par ticket",
+          "rule": "{{quantity}} Maryaj gratis par ticket"
         },
         "regeneration": {
           "enable": "Le vendeur peut régénérer les numéros avant validation",
           "allowed": "Régénérations autorisées",
           "hint": "Nombre de fois où les numéros peuvent être recréés avant validation du ticket."
         },
-        "activate": "Activer Maryaj gratis"
+        "activate": "Activer Maryaj gratis",
+        "lifecycle": {
+          "title": "Durée de l’offre",
+          "description": "Choisissez quand l’offre commence et si elle a une date de fin."
+        },
+        "attribution": {
+          "title": "Attribution",
+          "description": "Définissez combien de Maryaj gratis un ticket reçoit."
+        },
+        "advanced": {
+          "title": "Options avancées",
+          "copy": "À utiliser seulement si plusieurs offres peuvent être actives en même temps."
+        }
+      },
+      "amount": {
+        "htg": "{{amount}} HTG"
+      },
+      "feedback": {
+        "activated": "Maryaj gratis activé.",
+        "saved": "Configuration Maryaj gratis enregistrée.",
+        "ruleMissing": "Impossible de retrouver la règle Maryaj gratis à modifier.",
+        "campaignMissing": "Impossible de retrouver l’offre Maryaj gratis."
+      },
+      "validation": {
+        "tiersRequired": "Ajoutez au moins un palier Maryaj gratis.",
+        "tierMinInvalid": "Le montant de départ du palier {{position}} est invalide.",
+        "tierQuantityInvalid": "La quantité du palier {{position}} est invalide.",
+        "tierMaxInvalid": "Le montant final du palier {{position}} est invalide.",
+        "tierMaxBeforeMin": "Le montant final du palier {{position}} doit être supérieur au montant de départ.",
+        "openEndedLast": "Le palier sans montant final doit être le dernier.",
+        "tierOverlap": "Le palier {{position}} chevauche le palier précédent.",
+        "dateRequired": "Renseignez une date de début et une date de fin valides.",
+        "endAfterStart": "La date de fin doit être après la date de début."
+      },
+      "generation": {
+        "eyebrow": "Génération",
+        "title": "Génération",
+        "description": "Contrôle comment les numéros Maryaj gratuits sont générés et régénérés.",
+        "selection": "Numéros",
+        "retry": "Régénération",
+        "retryCount": "{{count}} tentative(s)",
+        "notConfigured": "Non configuré",
+        "empty": {
+          "title": "La génération n’est pas encore configurée.",
+          "copy": "Configurez l’offre gratuite pour définir comment les numéros sont générés."
+        },
+        "notUsed": "Non utilisé avec la sélection manuelle",
+        "regenerable": "Oui",
+        "notRegenerable": "Non"
       }
     },
     "limits": {

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  input,
+  signal,
+} from '@angular/core';
 
 import { TchCard, TchSectionError, TchSectionErrorSeverity } from '@tch/ui/components';
 
@@ -27,9 +34,9 @@ export interface AdminSectionCardError {
             <p class="section-card__description">{{ description() }}</p>
           }
         </div>
-        <div class="section-card__actions">
-          <ng-content select="[actions]" />
-        </div>
+      </div>
+      <div class="section-card__status">
+        <ng-content select="[status]" />
       </div>
       @if (sectionError(); as error) {
         <div class="section-card__error">
@@ -43,10 +50,15 @@ export interface AdminSectionCardError {
       <div class="section-card__body">
         <ng-content />
       </div>
+      <div class="section-card__actions">
+        <ng-content select="[actions]" />
+      </div>
     </tch-card>
   `,
   styles: [
     `
+      @use 'breakpoints' as ui;
+
       :host {
         display: block;
       }
@@ -54,18 +66,21 @@ export interface AdminSectionCardError {
       tch-card {
         --tch-radius-lg: var(--tch-radius-2xl, 1.5rem);
         --comp-card-bg: var(--tch-color-surface);
+        display: grid;
         padding: 0;
         overflow: hidden;
-        box-shadow: 0 1px 4px color-mix(in oklab, var(--tch-color-on-surface) 8%, transparent),
-                    0 0 0 1px color-mix(in oklab, var(--tch-color-on-surface) 4%, transparent);
+        box-shadow:
+          0 1px 4px color-mix(in oklab, var(--tch-color-on-surface) 8%, transparent),
+          0 0 0 1px color-mix(in oklab, var(--tch-color-on-surface) 4%, transparent);
         border: none;
       }
 
       .section-card__header {
-        display: flex;
-        align-items: center;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
         gap: 0.625rem;
-        padding: 1rem 1.5rem;
+        padding: 1rem;
         border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
       }
 
@@ -98,10 +113,24 @@ export interface AdminSectionCardError {
         color: var(--tch-color-on-surface-variant, #46464f);
       }
 
+      .section-card__status,
       .section-card__actions {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
-        flex-shrink: 0;
+      }
+
+      .section-card__status {
+        padding: 1rem 1.5rem 0;
+      }
+
+      .section-card__actions {
+        padding: 0 1.5rem 1.5rem;
+      }
+
+      .section-card__status:empty,
+      .section-card__actions:empty {
+        display: none;
       }
 
       .section-card__error {
@@ -114,6 +143,53 @@ export interface AdminSectionCardError {
 
       .material-symbols-outlined {
         font-family: 'Material Symbols Outlined';
+      }
+
+      @include ui.up(expanded) {
+        tch-card {
+          grid-template-columns: minmax(0, 1fr) auto auto;
+          align-items: center;
+          position: relative;
+        }
+
+        tch-card::before {
+          content: '';
+          grid-column: 1 / -1;
+          grid-row: 1;
+          align-self: end;
+          width: 100%;
+          border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
+          pointer-events: none;
+        }
+
+        .section-card__header {
+          display: flex;
+          align-items: center;
+          grid-column: 1;
+          grid-row: 1;
+          padding: 1rem 1.5rem;
+          border-bottom: none;
+        }
+
+        .section-card__status,
+        .section-card__actions {
+          padding: 1rem 1.5rem 1rem 0;
+          flex-shrink: 0;
+          grid-row: 1;
+        }
+
+        .section-card__status {
+          grid-column: 2;
+        }
+
+        .section-card__actions {
+          grid-column: 3;
+        }
+
+        .section-card__error,
+        .section-card__body {
+          grid-column: 1 / -1;
+        }
       }
     `,
   ],

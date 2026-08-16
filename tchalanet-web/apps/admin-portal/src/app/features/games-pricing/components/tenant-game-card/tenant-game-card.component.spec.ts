@@ -1,7 +1,7 @@
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { TenantGamePricingView } from '../../data-access/admin-games-pricing.models';
 import { TenantGameCardComponent } from './tenant-game-card.component';
@@ -50,7 +50,9 @@ describe(TenantGameCardComponent.name, () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.gp-game-card__sale-toggle').disabled).toBe(true);
-    expect(fixture.nativeElement.querySelector('.gp-game-card__primary-action').disabled).toBe(true);
+    expect(fixture.nativeElement.querySelector('.tg-game-settings__primary-action').disabled).toBe(
+      true,
+    );
   });
 
   it('uses the pending sale state while the game mutation is saving', () => {
@@ -71,6 +73,36 @@ describe(TenantGameCardComponent.name, () => {
     const toggle = fixture.nativeElement.querySelector('.gp-game-card__sale-toggle');
     expect(toggle.classList.contains('gp-game-card__sale-toggle--on')).toBe(false);
     expect(toggle.getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('emits activation and disable actions from the game availability switch', () => {
+    TestBed.configureTestingModule({
+      imports: [TenantGameCardComponent],
+      providers: [provideNoopAnimations(), provideTranslateService()],
+    });
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('ht', translations);
+    translate.use('ht');
+    const fixture = TestBed.createComponent(TenantGameCardComponent);
+    const activate = vi.fn();
+    const disable = vi.fn();
+    fixture.componentInstance.activate.subscribe(activate);
+    fixture.componentInstance.disable.subscribe(disable);
+
+    fixture.componentRef.setInput('game', {
+      ...activeGame,
+      tenantStatus: 'INACTIVE',
+    });
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('.gp-game-card__sale-toggle').click();
+
+    expect(activate).toHaveBeenCalledWith('HT_BOLET');
+
+    fixture.componentRef.setInput('game', activeGame);
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('.gp-game-card__sale-toggle').click();
+
+    expect(disable).toHaveBeenCalledWith('HT_BOLET');
   });
 });
 
