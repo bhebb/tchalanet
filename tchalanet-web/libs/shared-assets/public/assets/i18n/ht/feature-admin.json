@@ -1003,6 +1003,10 @@
         "advanced": {
           "title": "Opsyon avanse",
           "copy": "Pou itilize sèlman si plizyè òf ka aktif an menm tan."
+        },
+        "warning": {
+          "ended": "Òf sa a fini. Kreye yon nouvo òf pou aktive avantaj la.",
+          "noTiers": "Pa gen règ palye konfigire. Ajoute omwen yon règ nan editè a."
         }
       },
       "amount": {

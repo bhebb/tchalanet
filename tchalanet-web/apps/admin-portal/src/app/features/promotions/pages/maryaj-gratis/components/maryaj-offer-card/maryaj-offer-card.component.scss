@@ -1,0 +1,199 @@
+@use 'breakpoints' as ui;
+@use '../../../../../shared/setup-row' as setup-row;
+
+:host {
+  display: block;
+}
+
+.mg-offer-card {
+  @include setup-row.card;
+
+  gap: 0.75rem;
+  padding: 0.75rem;
+
+  &--paused,
+  &--scheduled {
+    box-shadow: inset 0.25rem 0 0
+      color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 72%, transparent);
+  }
+
+  &--ended,
+  &--inactive {
+    opacity: 0.72;
+  }
+
+  &__header {
+    align-items: flex-start;
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
+  }
+
+  &__main {
+    align-items: flex-start;
+    display: flex;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  &__icon {
+    @include setup-row.logo;
+
+    color: var(--tch-color-primary, #1b185a);
+
+    .material-symbols-outlined {
+      font-size: 1.5rem;
+    }
+  }
+
+  &__identity {
+    min-width: 0;
+  }
+
+  &__name,
+  &__meta {
+    margin: 0;
+  }
+
+  &__name {
+    @include setup-row.identity-title;
+  }
+
+  &__meta {
+    @include setup-row.identity-meta;
+  }
+
+  &__body {
+    display: grid;
+    gap: 0.375rem;
+    padding-inline-start: 3.5rem;
+  }
+
+  &__mode {
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-label-sm, 0.6875rem);
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: var(--tch-weight-semibold, 600);
+    letter-spacing: 0.04em;
+  }
+
+  &__rules {
+    display: grid;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      color: var(--tch-color-on-surface, #1a1c1e);
+      font-size: var(--tch-font-size-body-sm, 0.8125rem);
+      line-height: 1.5;
+    }
+  }
+
+  &__rules-empty {
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-style: italic;
+  }
+
+  &__empty {
+    padding-inline-start: 3.5rem;
+  }
+
+  &__empty-copy {
+    color: var(--tch-color-on-surface-variant, #46464f);
+    font-size: var(--tch-font-size-body-sm, 0.8125rem);
+    margin: 0;
+  }
+
+  &__inline-warning {
+    align-items: center;
+    background: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 12%, transparent);
+    border: 1px solid color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 40%, transparent);
+    border-radius: var(--tch-radius-md, 0.5rem);
+    color: var(--tch-color-on-surface-variant, #46464f);
+    display: flex;
+    font-size: var(--tch-font-size-body-sm, 0.8125rem);
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+
+    .material-symbols-outlined {
+      color: color-mix(in oklab, var(--tch-color-status-warning, #f59e0b) 80%, var(--tch-color-on-surface, #1a1c1e));
+      flex: 0 0 auto;
+      font-size: 1.125rem;
+    }
+  }
+
+  &__action-error {
+    background: color-mix(in oklab, var(--tch-color-error, #ba1a1a) 9%, transparent);
+    border: 1px solid color-mix(in oklab, var(--tch-color-error, #ba1a1a) 34%, transparent);
+    border-radius: var(--tch-radius-md, 0.5rem);
+    color: var(--tch-color-error, #ba1a1a);
+    display: grid;
+    font-size: var(--tch-font-size-body-sm, 0.8125rem);
+    gap: 0.125rem;
+    padding: 0.625rem 0.75rem;
+  }
+
+  &__actions {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &__action--edit {
+    order: 2;
+
+    &:only-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__action--pause,
+  &__action--activate {
+    order: 1;
+  }
+}
+
+@include ui.up(expanded) {
+  .mg-offer-card {
+    align-items: center;
+    grid-template-columns: minmax(14rem, 1.2fr) minmax(16rem, 1.4fr) auto;
+    padding: 0.9rem 1rem;
+
+    &__header {
+      align-items: center;
+    }
+
+    &__body {
+      padding-inline-start: 0;
+    }
+
+    &__empty {
+      padding-inline-start: 0;
+    }
+
+    &__actions {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: center;
+      padding-inline-start: 0;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    &__action--edit {
+      order: 1;
+    }
+
+    &__action--pause,
+    &__action--activate {
+      order: 2;
+    }
+  }
+}

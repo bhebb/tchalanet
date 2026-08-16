@@ -1735,6 +1735,10 @@
         "advanced": {
           "title": "Options avancées",
           "copy": "À utiliser seulement si plusieurs offres peuvent être actives en même temps."
+        },
+        "warning": {
+          "ended": "Cette offre est terminée. Créez une nouvelle offre pour réactiver l'avantage.",
+          "noTiers": "Aucune règle de palier configurée. Ajoutez au moins une règle dans l'éditeur."
         }
       },
       "amount": {

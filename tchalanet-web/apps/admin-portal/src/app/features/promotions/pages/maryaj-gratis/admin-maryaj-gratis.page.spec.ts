@@ -7,6 +7,7 @@ import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TenantGamePricingView } from '../../../games-pricing/data-access/admin-games-pricing.models';
+import { PromotionCampaignView } from '../../data-access/admin-promotions-api.service';
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { AdminMaryajGratisPage } from './admin-maryaj-gratis.page';
 
@@ -17,6 +18,7 @@ describe(AdminMaryajGratisPage.name, () => {
     disableGame: ReturnType<typeof vi.fn>;
     load: ReturnType<typeof vi.fn>;
     maryajGame: ReturnType<typeof vi.fn>;
+    pause: ReturnType<typeof vi.fn>;
     state: ReturnType<typeof vi.fn>;
   };
   let page: AdminMaryajGratisPage;
@@ -34,6 +36,7 @@ describe(AdminMaryajGratisPage.name, () => {
       disableGame: vi.fn(),
       load: vi.fn(),
       maryajGame: vi.fn(() => maryajGame()),
+      pause: vi.fn(),
       state: vi.fn(() => 'ready'),
     };
   });
@@ -103,6 +106,40 @@ describe(AdminMaryajGratisPage.name, () => {
     );
     expect(store.disableGame).toHaveBeenCalledWith('HT_MARYAJ_GRATIS');
   });
+
+  it('confirms before pausing an offer campaign from the offer card', () => {
+    dialog.open.mockReturnValueOnce({
+      afterClosed: () => of({ confirmed: true }),
+    });
+    configurePage();
+
+    page.confirmPauseOffer(campaign());
+
+    expect(dialog.open).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({
+        data: expect.objectContaining({
+          title: 'admin.maryajGratis.offer.confirmPause.title',
+          destructive: true,
+        }),
+      }),
+    );
+    expect(store.pause).toHaveBeenCalledWith(campaign());
+  });
+
+  function campaign(overrides: Partial<PromotionCampaignView> = {}): PromotionCampaignView {
+    return {
+      id: { value: 'campaign-maryaj-gratis' },
+      code: 'DEFAULT_MARYAJ_GRATIS',
+      name: 'Maryaj gratis',
+      status: 'ACTIVE',
+      priority: 100,
+      startsAt: '2026-07-01T00:00:00Z',
+      endsAt: '2036-07-01T23:59:59Z',
+      rules: [],
+      ...overrides,
+    };
+  }
 
   function maryajGame(overrides: Partial<TenantGamePricingView> = {}): TenantGamePricingView {
     return {

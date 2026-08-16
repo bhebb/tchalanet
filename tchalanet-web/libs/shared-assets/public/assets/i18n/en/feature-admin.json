@@ -1003,6 +1003,10 @@
         "advanced": {
           "title": "Advanced options",
           "copy": "Use only when several offers can be active at the same time."
+        },
+        "warning": {
+          "ended": "This offer has ended. Create a new offer to reactivate the benefit.",
+          "noTiers": "No tier rules configured. Add at least one rule in the editor."
         }
       },
       "amount": {
