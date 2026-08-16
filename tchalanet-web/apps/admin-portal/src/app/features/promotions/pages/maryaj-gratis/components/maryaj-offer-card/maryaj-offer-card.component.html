@@ -1,0 +1,135 @@
+<article
+  id="offer"
+  class="mg-offer-card mg-offer-card--{{ cardStatus() }}"
+  data-testid="maryaj-gratis-offer-card"
+>
+  <header class="mg-offer-card__header">
+    <div class="mg-offer-card__main">
+      <span class="mg-offer-card__icon" aria-hidden="true">
+        <span class="material-symbols-outlined">redeem</span>
+      </span>
+
+      <div class="mg-offer-card__identity">
+        <p class="mg-offer-card__name">
+          {{ 'admin.maryajGratis.offer.title' | translate }}
+        </p>
+
+        @if (campaign(); as c) {
+          <p class="mg-offer-card__meta">
+            {{ c.startsAt | date: 'dd/MM/yyyy' }}
+            &rarr;
+            @if (isPermanent(c)) {
+              {{ 'admin.maryajGratis.offer.permanent' | translate }}
+            } @else {
+              {{ c.endsAt | date: 'dd/MM/yyyy' }}
+            }
+          </p>
+        } @else {
+          <p class="mg-offer-card__meta">
+            {{ 'admin.maryajGratis.offer.empty.title' | translate }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <tch-admin-status-pill
+      [label]="statusLabelKey() | translate"
+      [tone]="statusTone()"
+    />
+  </header>
+
+  @if (campaign(); as campaign) {
+    <div class="mg-offer-card__body">
+      <p class="mg-offer-card__mode">
+        @if (effectParam('quantityMode') === 'TIERED_PAID_AMOUNT') {
+          {{ 'admin.maryajGratis.offer.mode.tieredShort' | translate }}
+        } @else if (effectParam('quantityMode') === 'PER_PAID_AMOUNT') {
+          {{ 'admin.maryajGratis.offer.mode.perAmountShort' | translate }}
+        } @else {
+          {{ 'admin.maryajGratis.offer.mode.fixedShort' | translate }}
+        }
+      </p>
+
+      <ul class="mg-offer-card__rules" aria-label="{{ 'admin.maryajGratis.offer.tiers.title' | translate }}">
+        @if (effectParam('quantityMode') === 'TIERED_PAID_AMOUNT') {
+          @for (
+            tier of effectQuantityTiers();
+            track tier.minPaidAmount + ':' + (tier.maxPaidAmount ?? 'open')
+          ) {
+            <li>{{ tierRuleLabel(tier) }}</li>
+          } @empty {
+            <li class="mg-offer-card__rules-empty">
+              {{ 'admin.maryajGratis.offer.tiers.empty' | translate }}
+            </li>
+          }
+        } @else if (effectParam('quantityMode') === 'PER_PAID_AMOUNT') {
+          <li>{{ perAmountRule() }}</li>
+        } @else {
+          <li>{{ fixedQuantityRule() }}</li>
+        }
+      </ul>
+    </div>
+
+    <div class="mg-offer-card__actions">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        class="mg-offer-card__action--edit"
+        data-testid="maryaj-gratis-offer-card-edit"
+        [disabled]="saving()"
+        (click)="edit.emit()"
+      >
+        <mat-icon>edit</mat-icon>
+        {{ 'common.edit' | translate }}
+      </button>
+
+      @if (campaign.status === 'ACTIVE') {
+        <button
+          mat-stroked-button
+          type="button"
+          class="mg-offer-card__action--pause"
+          data-testid="maryaj-gratis-offer-card-pause"
+          [disabled]="saving()"
+          (click)="pauseCampaign.emit(campaign)"
+        >
+          <mat-icon>pause</mat-icon>
+          {{ 'admin.maryajGratis.offer.pause' | translate }}
+        </button>
+      } @else {
+        <button
+          mat-stroked-button
+          type="button"
+          class="mg-offer-card__action--activate"
+          data-testid="maryaj-gratis-offer-card-activate"
+          [disabled]="saving() || !gameReady()"
+          (click)="activateCampaign.emit(campaign)"
+        >
+          <mat-icon>play_arrow</mat-icon>
+          {{ 'common.activate' | translate }}
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="mg-offer-card__empty" data-testid="maryaj-gratis-offer-card-empty">
+      <p class="mg-offer-card__empty-copy">
+        {{ 'admin.maryajGratis.offer.empty.copy' | translate }}
+      </p>
+    </div>
+
+    <div class="mg-offer-card__actions">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        class="mg-offer-card__action--edit"
+        data-testid="maryaj-gratis-offer-card-create"
+        [disabled]="saving()"
+        (click)="createOffer.emit()"
+      >
+        <mat-icon>add_circle</mat-icon>
+        {{ 'admin.maryajGratis.offer.empty.action' | translate }}
+      </button>
+    </div>
+  }
+</article>

@@ -48,22 +48,35 @@
       (disable)="confirmDisableGame($event)"
       (configure)="openGameSettings($event)"
     />
-    <tch-maryaj-offer-panel
-      [campaign]="store.maryajCampaign() ?? null"
-      [effect]="store.maryajEffect()"
-      [form]="store.form"
-      [saving]="store.saving()"
-      [gameReady]="store.isMaryajGameReady()"
-      [editing]="store.editingOffer()"
-      (activateCampaign)="store.activate($event)"
-      (pauseCampaign)="confirmPauseOffer($event)"
-      (instantiateOffer)="store.instantiate()"
-      (editOffer)="store.startEditingOffer()"
-      (cancelEdit)="store.cancelEditingOffer()"
-      (saveOffer)="store.saveOffer()"
-      (addQuantityTier)="store.addQuantityTier()"
-      (removeQuantityTier)="store.removeQuantityTier($event)"
-    />
+    @if (store.editingOffer()) {
+      <tch-maryaj-offer-panel
+        [campaign]="store.maryajCampaign() ?? null"
+        [effect]="store.maryajEffect()"
+        [form]="store.form"
+        [saving]="store.saving()"
+        [gameReady]="store.isMaryajGameReady()"
+        [editing]="true"
+        (activateCampaign)="store.activate($event)"
+        (pauseCampaign)="confirmPauseOffer($event)"
+        (instantiateOffer)="store.instantiate()"
+        (editOffer)="store.startEditingOffer()"
+        (cancelEdit)="store.cancelEditingOffer()"
+        (saveOffer)="store.saveOffer()"
+        (addQuantityTier)="store.addQuantityTier()"
+        (removeQuantityTier)="store.removeQuantityTier($event)"
+      />
+    } @else {
+      <tch-maryaj-offer-card
+        [campaign]="store.maryajCampaign() ?? null"
+        [effect]="store.maryajEffect()"
+        [saving]="store.saving()"
+        [gameReady]="store.isMaryajGameReady()"
+        (edit)="store.startEditingOffer()"
+        (activateCampaign)="store.activate($event)"
+        (pauseCampaign)="confirmPauseOffer($event)"
+        (createOffer)="store.startEditingOffer()"
+      />
+    }
     <tch-maryaj-generation-panel
       [effect]="store.maryajEffect()"
       [form]="store.form"

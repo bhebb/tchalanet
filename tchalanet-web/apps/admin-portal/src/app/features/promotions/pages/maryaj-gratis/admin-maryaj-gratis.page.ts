@@ -26,6 +26,7 @@ import { PromotionCampaignView } from '../../data-access/admin-promotions-api.se
 import { AdminMaryajGratisStore } from './admin-maryaj-gratis.store';
 import { MaryajGenerationPanelComponent } from './components/maryaj-generation-panel.component';
 import { MaryajGameSettingsPanelComponent } from './components/maryaj-game-settings-panel.component';
+import { MaryajOfferCardComponent } from './components/maryaj-offer-card/maryaj-offer-card.component';
 import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.component';
 
 @Component({
@@ -37,6 +38,7 @@ import { MaryajOfferPanelComponent } from './components/maryaj-offer-panel.compo
     AdminRefreshButtonComponent,
     MaryajGenerationPanelComponent,
     MaryajGameSettingsPanelComponent,
+    MaryajOfferCardComponent,
     MaryajOfferPanelComponent,
     TchErrorPanel,
     TchLoading,
