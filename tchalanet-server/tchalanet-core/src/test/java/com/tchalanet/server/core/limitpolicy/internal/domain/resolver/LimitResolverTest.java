@@ -36,7 +36,7 @@ class LimitResolverTest {
     var ctx = ctx(true);
     var result = resolver.resolve(assignments, ctx);
 
-    var rule = result.rules().get(RuleKey.MAX_STAKE_PER_LINE);
+    var rule = result.rules().get(RuleKey.BLOCK_SELECTION_PER_DRAW);
     assertThat(rule).isNotNull();
     assertThat(rule.appliedScope()).isInstanceOf(LimitScopeRef.SellerTerminalScope.class);
   }
@@ -51,7 +51,7 @@ class LimitResolverTest {
     var ctx = ctx(true);
     var result = resolver.resolve(assignments, ctx);
 
-    var rule = result.rules().get(RuleKey.MAX_STAKE_PER_LINE);
+    var rule = result.rules().get(RuleKey.BLOCK_SELECTION_PER_DRAW);
     assertThat(rule).isNotNull();
     assertThat(rule.appliedScope()).isInstanceOf(LimitScopeRef.DrawChannelScope.class);
   }
@@ -63,7 +63,7 @@ class LimitResolverTest {
     var ctx = ctx(true);
     var result = resolver.resolve(assignments, ctx);
 
-    var rule = result.rules().get(RuleKey.MAX_STAKE_PER_LINE);
+    var rule = result.rules().get(RuleKey.BLOCK_SELECTION_PER_DRAW);
     assertThat(rule).isNotNull();
     assertThat(rule.appliedScope()).isInstanceOf(LimitScopeRef.TenantScope.class);
   }
@@ -74,7 +74,7 @@ class LimitResolverTest {
     var result = resolver.resolve(List.of(), ctx);
 
     assertThat(result.rules()).isEmpty();
-    assertThat(result.rules().get(RuleKey.MAX_STAKE_PER_LINE)).isNull();
+    assertThat(result.rules().get(RuleKey.BLOCK_SELECTION_PER_DRAW)).isNull();
   }
 
   @Test
@@ -89,7 +89,7 @@ class LimitResolverTest {
     var result = resolver.resolve(assignments, ctx);
 
     // SELLER_TERMINAL score is -1 (not applicable) — only TENANT wins
-    var rule = result.rules().get(RuleKey.MAX_STAKE_PER_LINE);
+    var rule = result.rules().get(RuleKey.BLOCK_SELECTION_PER_DRAW);
     assertThat(rule).isNotNull();
     assertThat(rule.appliedScope()).isInstanceOf(LimitScopeRef.TenantScope.class);
   }
@@ -102,7 +102,7 @@ class LimitResolverTest {
   private static LimitAssignment assignment(LimitScopeRef scope, int unused) {
     return LimitAssignment.createNew(
         LimitAssignmentId.of(UUID.randomUUID()),
-        RuleKey.MAX_STAKE_PER_LINE,
+        RuleKey.BLOCK_SELECTION_PER_DRAW,
         scope,
         true,
         BreachOutcome.BLOCK,

@@ -101,17 +101,23 @@ class TenantAdminPoliciesOverviewServiceTest {
 
     var ruleSpec =
         new LimitRuleSpec(
-            RuleKey.MAX_STAKE_PER_LINE,
-            "Mise max par ligne",
-            "Plafond de mise pour une ligne de ticket.",
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
+            "Bloke nimewo",
+            "Bloke yon nimewo sou yon tiraj.",
             BreachOutcome.BLOCK,
-            "global",
-            false,
+            "blocking",
+            true,
             null);
 
     var disabledAssignment =
         new ListLimitAssignmentsView.Item(
-            assignmentId, RuleKey.MAX_STAKE_PER_LINE, false, BreachOutcome.BLOCK, null, null, null);
+            assignmentId,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
+            false,
+            BreachOutcome.BLOCK,
+            null,
+            null,
+            null);
 
     var assignmentsView =
         new ListLimitAssignmentsView(
@@ -121,7 +127,7 @@ class TenantAdminPoliciesOverviewServiceTest {
             List.of(
                 new ListTenantLimitAssignmentsView.Item(
                     assignmentId,
-                    RuleKey.MAX_STAKE_PER_LINE,
+                    RuleKey.BLOCK_SELECTION_PER_DRAW,
                     LimitScopeQueryRef.tenant(tenantId),
                     false,
                     BreachOutcome.BLOCK,
@@ -153,11 +159,11 @@ class TenantAdminPoliciesOverviewServiceTest {
 
     var ruleSpec =
         new LimitRuleSpec(
-            RuleKey.MAX_STAKE_PER_TICKET,
-            "Mise max par ticket",
-            "Plafond de mise total pour tout le ticket.",
+            RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
+            "Plafon pa nimewo",
+            "Limite kantite total ki ka vann sou yon nimewo pou yon tiraj.",
             BreachOutcome.BLOCK,
-            "global",
+            "exposure",
             false,
             null);
 

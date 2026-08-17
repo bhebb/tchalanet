@@ -9,7 +9,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-export type LimitGroup = 'VENTE' | 'RESTRICTIONS' | 'EXPOSITION';
+export type LimitGroup = 'RESTRICTIONS' | 'EXPOSITION';
 
 export interface LimitBlockSpec {
   ruleKey: string;
@@ -56,15 +56,11 @@ interface GroupSection {
 }
 
 const GROUP_RULES: Record<LimitGroup, string[]> = {
-  VENTE: ['MAX_STAKE_PER_LINE', 'MAX_LINES_PER_TICKET', 'MAX_STAKE_PER_TICKET'],
-  RESTRICTIONS: ['BLOCK_BET_TYPE', 'BLOCK_SELECTION_PER_DRAW'],
-  EXPOSITION: [
-    'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
-    'MAX_SALES_COUNT_PER_SELECTION_PER_DRAW',
-  ],
+  RESTRICTIONS: ['BLOCK_SELECTION_PER_DRAW'],
+  EXPOSITION: ['MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW'],
 };
 
-const GROUPS: LimitGroup[] = ['VENTE', 'RESTRICTIONS', 'EXPOSITION'];
+const GROUPS: LimitGroup[] = ['RESTRICTIONS', 'EXPOSITION'];
 
 function formatAssignmentParams(
   assignment: LimitBlockAssignment,

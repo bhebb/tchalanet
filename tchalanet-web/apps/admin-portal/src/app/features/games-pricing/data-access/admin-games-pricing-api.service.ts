@@ -221,7 +221,7 @@ export class AdminGamesPricingApiService {
   private toLimits(row: BffGameRow): TenantGamePricingView['limits'] {
     return {
       minStake: row.minStake,
-      maxStake: row.maxStake ?? this.limitAmount(row.limits, 'MAX_STAKE_PER_LINE'),
+      maxStake: row.maxStake ?? null,
       maxPerDraw: this.limitAmount(row.limits, 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW'),
       currency: 'HTG',
     };

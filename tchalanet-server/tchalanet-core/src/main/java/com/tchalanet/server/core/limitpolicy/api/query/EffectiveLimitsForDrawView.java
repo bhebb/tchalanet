@@ -17,8 +17,7 @@ public record EffectiveLimitsForDrawView(List<ResolvedRule> rules) {
         .anyMatch(
             r ->
                 limitConfigured(r)
-                    && (r.ruleKey().equals("MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW")
-                        || r.ruleKey().equals("MAX_SALES_COUNT_PER_SELECTION_PER_DRAW")));
+                    && r.ruleKey().equals("MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW"));
   }
 
   private static boolean limitConfigured(ResolvedRule r) {

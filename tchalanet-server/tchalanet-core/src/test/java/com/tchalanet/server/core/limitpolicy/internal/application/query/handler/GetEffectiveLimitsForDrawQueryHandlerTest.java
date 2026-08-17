@@ -51,13 +51,13 @@ class GetEffectiveLimitsForDrawQueryHandlerTest {
   @Test
   void tenant_assignment_appears_with_TENANT_scope_name() {
     when(assignments.listActiveForTargets(any(), any()))
-        .thenReturn(List.of(maxStakeAssignment(LimitScopeRef.tenant(TENANT))));
+        .thenReturn(List.of(blockSelectionAssignment(LimitScopeRef.tenant(TENANT))));
 
     var result = handler.handle(new GetEffectiveLimitsForDrawQuery(TENANT, CHANNEL));
 
     assertThat(result.rules()).hasSize(1);
     var rule = result.rules().get(0);
-    assertThat(rule.ruleKey()).isEqualTo(RuleKey.MAX_STAKE_PER_LINE.name());
+    assertThat(rule.ruleKey()).isEqualTo(RuleKey.BLOCK_SELECTION_PER_DRAW.name());
     assertThat(rule.resolvedScope()).isEqualTo("TENANT");
     assertThat(rule.limitConfigured()).isTrue();
   }
@@ -65,7 +65,7 @@ class GetEffectiveLimitsForDrawQueryHandlerTest {
   @Test
   void draw_channel_assignment_appears_with_DRAW_CHANNEL_scope_name() {
     when(assignments.listActiveForTargets(any(), any()))
-        .thenReturn(List.of(maxStakeAssignment(LimitScopeRef.drawChannel(CHANNEL))));
+        .thenReturn(List.of(blockSelectionAssignment(LimitScopeRef.drawChannel(CHANNEL))));
 
     var result = handler.handle(new GetEffectiveLimitsForDrawQuery(TENANT, CHANNEL));
 
@@ -75,12 +75,12 @@ class GetEffectiveLimitsForDrawQueryHandlerTest {
 
   @Test
   void draw_channel_wins_over_tenant_for_same_rule() {
-    // Both TENANT and DRAW_CHANNEL configured for MAX_STAKE_PER_LINE → DRAW_CHANNEL wins
+    // Both TENANT and DRAW_CHANNEL configured for BLOCK_SELECTION_PER_DRAW → DRAW_CHANNEL wins
     when(assignments.listActiveForTargets(any(), any()))
         .thenReturn(
             List.of(
-                maxStakeAssignment(LimitScopeRef.tenant(TENANT)),
-                maxStakeAssignment(LimitScopeRef.drawChannel(CHANNEL))));
+                blockSelectionAssignment(LimitScopeRef.tenant(TENANT)),
+                blockSelectionAssignment(LimitScopeRef.drawChannel(CHANNEL))));
 
     var result = handler.handle(new GetEffectiveLimitsForDrawQuery(TENANT, CHANNEL));
 
@@ -109,14 +109,14 @@ class GetEffectiveLimitsForDrawQueryHandlerTest {
     assertThat(result.hasExposureLimit()).isTrue();
   }
 
-  private static LimitAssignment maxStakeAssignment(LimitScopeRef scope) {
+  private static LimitAssignment blockSelectionAssignment(LimitScopeRef scope) {
     return LimitAssignment.createNew(
         LimitAssignmentId.of(UUID.randomUUID()),
-        RuleKey.MAX_STAKE_PER_LINE,
+        RuleKey.BLOCK_SELECTION_PER_DRAW,
         scope,
         true,
         BreachOutcome.BLOCK,
-        MAPPER.createObjectNode().put("valueCents", 10000L),
+        MAPPER.createObjectNode().set("selections", MAPPER.createArrayNode().add("05")),
         null,
         null);
   }

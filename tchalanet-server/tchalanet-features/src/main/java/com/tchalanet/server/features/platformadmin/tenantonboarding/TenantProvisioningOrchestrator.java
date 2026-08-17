@@ -363,9 +363,6 @@ public class TenantProvisioningOrchestrator {
 
   private void ensureDefaultLimits(TenantId tenantId) {
     var scope = LimitScopeRef.tenant(tenantId);
-    upsertTenantLimit(tenantId, scope, RuleKey.MAX_LINES_PER_TICKET, "maxCount", 200);
-    upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_PER_LINE, "valueCents", 10_000_000L);
-    upsertTenantLimit(tenantId, scope, RuleKey.MAX_STAKE_PER_TICKET, "valueCents", 100_000_000L);
     upsertTenantLimit(
         tenantId,
         scope,

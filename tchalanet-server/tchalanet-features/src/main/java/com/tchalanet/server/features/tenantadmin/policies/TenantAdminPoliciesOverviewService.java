@@ -156,20 +156,7 @@ public class TenantAdminPoliciesOverviewService {
   private static String groupFor(RuleKey ruleKey) {
     return switch (ruleKey) {
       case BLOCK_SELECTION_PER_DRAW -> "NUMBER_BLOCK";
-      case MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, MAX_SALES_COUNT_PER_SELECTION_PER_DRAW ->
-          "NUMBER_CAP";
-      case MAX_LINES_PER_TICKET,
-          MAX_STAKE_PER_LINE,
-          MAX_STAKE_PER_TICKET,
-          MAX_STAKE_PER_SELECTION_PER_TICKET,
-          MAX_STAKE_PER_BET_TYPE_PER_TICKET,
-          MAX_SALES_COUNT_PER_TICKET ->
-          "TICKET_LIMIT";
-      case MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW,
-          MAX_STAKE_PER_AGENT_PER_DRAW,
-          MAX_STAKE_PER_OUTLET_PER_DRAW ->
-          "SELLER_LIMIT";
-      case BLOCK_BET_TYPE -> "ADVANCED";
+      case MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW -> "NUMBER_CAP";
     };
   }
 

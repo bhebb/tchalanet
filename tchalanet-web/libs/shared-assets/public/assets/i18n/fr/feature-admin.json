@@ -1982,19 +1982,8 @@
         }
       },
       "rule": {
-        "MAX_STAKE_PER_LINE": "Mise maximum par ligne",
-        "MAX_LINES_PER_TICKET": "Nombre de lignes par ticket",
-        "MAX_STAKE_PER_TICKET": "Mise maximum par ticket",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafond de mise par numéro",
-        "MAX_STAKE_PER_BET_TYPE_PER_TICKET": "Mise maximum par type de jeu",
-        "MAX_STAKE_PER_SELECTION_PER_TICKET": "Mise maximum par numéro dans le ticket",
-        "MAX_SALES_COUNT_PER_SELECTION_PER_DRAW": "Nombre de ventes par numéro",
-        "MAX_SALES_COUNT_PER_TICKET": "Nombre de ventes par ticket",
         "BLOCK_SELECTION_PER_DRAW": "Bloquer un numéro",
-        "BLOCK_BET_TYPE": "Bloquer un type de jeu",
-        "MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW": "Nombre de tickets par vendeur",
-        "MAX_STAKE_PER_AGENT_PER_DRAW": "Mise maximum par vendeur",
-        "MAX_STAKE_PER_OUTLET_PER_DRAW": "Mise maximum par point de vente"
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafond de mise par numéro"
       },
       "child": {
         "rulesLink": "Règles supportées",

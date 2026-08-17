@@ -48,7 +48,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var saved =
         LimitAssignment.createNew(
             savedId,
-            RuleKey.MAX_STAKE_PER_LINE,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
             SCOPE,
             true,
             BreachOutcome.BLOCK,
@@ -70,7 +70,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var existing =
         LimitAssignment.createNew(
             existingId,
-            RuleKey.MAX_STAKE_PER_LINE,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
             SCOPE,
             false,
             BreachOutcome.WARN,
@@ -95,7 +95,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var cmd =
         new UpsertLimitAssignmentCommand(
             null,
-            RuleKey.MAX_STAKE_PER_LINE,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
             SCOPE,
             true,
             BreachOutcome.BLOCK,
@@ -122,7 +122,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var cmd =
         new UpsertLimitAssignmentCommand(
             TENANT,
-            RuleKey.MAX_STAKE_PER_LINE,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
             null,
             true,
             BreachOutcome.BLOCK,
@@ -138,7 +138,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
   void throws_when_onBreach_is_null() {
     var cmd =
         new UpsertLimitAssignmentCommand(
-            TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, null, params(), null, null);
+            TENANT, RuleKey.BLOCK_SELECTION_PER_DRAW, SCOPE, true, null, params(), null, null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("onBreach");
@@ -148,7 +148,14 @@ class UpsertLimitAssignmentCommandHandlerTest {
   void throws_when_params_is_null() {
     var cmd =
         new UpsertLimitAssignmentCommand(
-            TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK, null, null, null);
+            TENANT,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
+            SCOPE,
+            true,
+            BreachOutcome.BLOCK,
+            null,
+            null,
+            null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("params");
@@ -160,7 +167,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var cmd =
         new UpsertLimitAssignmentCommand(
             TENANT,
-            RuleKey.MAX_STAKE_PER_LINE,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
             SCOPE,
             true,
             BreachOutcome.BLOCK,
@@ -179,7 +186,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var saved =
         LimitAssignment.createNew(
             LimitAssignmentId.of(NEW_ID),
-            RuleKey.MAX_STAKE_PER_LINE,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
             SCOPE,
             true,
             BreachOutcome.BLOCK,
@@ -191,7 +198,7 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var cmd =
         new UpsertLimitAssignmentCommand(
             TENANT,
-            RuleKey.MAX_STAKE_PER_LINE,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
             SCOPE,
             true,
             BreachOutcome.BLOCK,
@@ -206,7 +213,14 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var start = Instant.parse("2026-01-01T00:00:00Z");
     var end = Instant.parse("2026-12-31T23:59:59Z");
     return new UpsertLimitAssignmentCommand(
-        TENANT, RuleKey.MAX_STAKE_PER_LINE, SCOPE, true, BreachOutcome.BLOCK, params(), start, end);
+        TENANT,
+        RuleKey.BLOCK_SELECTION_PER_DRAW,
+        SCOPE,
+        true,
+        BreachOutcome.BLOCK,
+        params(),
+        start,
+        end);
   }
 
   private static tools.jackson.databind.JsonNode params() {

@@ -326,47 +326,29 @@ const maryajCampaignStub = {
 
 const limitRulesStub = [
   {
-    ruleKey: 'MAX_STAKE_PER_LINE',
-    label: 'Mise maximum par ligne',
-    description: 'Bloque une ligne au-dessus du montant configuré.',
-    defaultOutcome: 'BLOCK',
-    category: 'TICKET',
-    stateless: false,
-    paramsTemplate: { valueCents: 10000 },
-  },
-  {
-    ruleKey: 'MAX_LINES_PER_TICKET',
-    label: 'Nombre de lignes maximum par ticket',
-    description: 'Bloque un ticket avec trop de lignes.',
-    defaultOutcome: 'BLOCK',
-    category: 'TICKET',
-    stateless: false,
-    paramsTemplate: { lines: 10 },
-  },
-  {
-    ruleKey: 'MAX_STAKE_PER_TICKET',
-    label: 'Mise maximum par ticket',
-    description: 'Bloque un ticket au-dessus du montant configuré.',
-    defaultOutcome: 'BLOCK',
-    category: 'TICKET',
-    stateless: false,
-    paramsTemplate: { valueCents: 100000 },
-  },
-  {
     ruleKey: 'BLOCK_SELECTION_PER_DRAW',
-    label: 'Numéros bloqués par tirage',
-    description: 'Bloque une ou plusieurs sélections pour un tirage.',
+    label: 'Bloke nimewo',
+    description: 'Bloke yon nimewo sou yon tiraj.',
     defaultOutcome: 'BLOCK',
     category: 'BLOCKING',
-    stateless: false,
+    stateless: true,
     paramsTemplate: { selections: [] },
+  },
+  {
+    ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
+    label: 'Plafon pa nimewo',
+    description: 'Limite kantite total ki ka vann sou yon nimewo pou yon tiraj.',
+    defaultOutcome: 'BLOCK',
+    category: 'EXPOSURE',
+    stateless: false,
+    paramsTemplate: { valueCents: 500000 },
   },
 ];
 
 const limitAssignmentsStub = [
   {
     id: { value: 'limit-assignment-1' },
-    ruleKey: 'MAX_STAKE_PER_TICKET',
+    ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
     enabled: true,
     onBreach: 'BLOCK',
     params: { valueCents: 25000 },
