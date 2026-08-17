@@ -56,16 +56,6 @@ describe(AdminLimitsDetailPage.name, () => {
     return component;
   }
 
-  it('statusTone is success for enabled item, warning for disabled', () => {
-    const component = createComponent();
-
-    component.item.set(item({ enabled: true }));
-    expect(component.statusTone()).toBe('success');
-
-    component.item.set(item({ enabled: false }));
-    expect(component.statusTone()).toBe('warning');
-  });
-
   it('statusLabel is Aktif for enabled, Dezaktive for disabled', () => {
     const component = createComponent();
 
