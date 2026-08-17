@@ -39,8 +39,8 @@ export class AdminLimitItemCardComponent {
   readonly isActive = computed(() => this.item().enabled);
   readonly detailRoute = computed(() => ['/app/admin/limits', this.item().assignmentId]);
   readonly selections = computed(() => extractSelections(this.item()));
-  readonly visibleBalls = computed(() => this.selections().slice(0, 1));
-  readonly hiddenCount = computed(() => Math.max(0, this.selections().length - 1));
+  readonly visibleBalls = computed(() => this.selections().slice(0, 5));
+  readonly hiddenCount = computed(() => Math.max(0, this.selections().length - 5));
 
   readonly ruleLabel = computed(() =>
     this.translate.instant(`admin.limits.rule.${this.item().ruleKey}.label`),
