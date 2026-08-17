@@ -1418,7 +1418,7 @@
         },
         "section": {
           "rule": "Rule",
-          "scope": "Scope",
+          "scope": "Application",
           "allAssignments": "All active assignments"
         },
         "fact": {

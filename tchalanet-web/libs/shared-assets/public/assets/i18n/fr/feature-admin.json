@@ -2150,7 +2150,7 @@
         },
         "section": {
           "rule": "Règle",
-          "scope": "Niveau",
+          "scope": "Application",
           "allAssignments": "Toutes les applications actives"
         },
         "fact": {

@@ -16,20 +16,20 @@
         <span class="material-symbols-outlined">more_vert</span>
       </button>
     </div>
-    <mat-menu #pageMenu>
-      @if (item()?.enabled) {
-      <button mat-menu-item type="button" (click)="disableLimit()">
-        <span class="material-symbols-outlined">pause_circle</span>
-        {{ 'admin.limits.overview.actions.disable' | translate }}
-      </button>
-      }
-      <button mat-menu-item type="button" class="limits-detail__delete-action" (click)="deleteLimit()">
-        <span class="material-symbols-outlined">delete</span>
-        {{ 'admin.limits.overview.actions.delete' | translate }}
-      </button>
-    </mat-menu>
     }
   </div>
+  <mat-menu #pageMenu>
+    @if (item()?.enabled) {
+    <button mat-menu-item type="button" (click)="disableLimit()">
+      <span class="material-symbols-outlined">pause_circle</span>
+      {{ 'admin.limits.overview.actions.disable' | translate }}
+    </button>
+    }
+    <button mat-menu-item type="button" class="limits-detail__delete-action" (click)="deleteLimit()">
+      <span class="material-symbols-outlined">delete</span>
+      {{ 'admin.limits.overview.actions.delete' | translate }}
+    </button>
+  </mat-menu>
 
   @if (actionError(); as err) {
   <tch-section-error
