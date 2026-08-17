@@ -1825,7 +1825,12 @@
         "scopeTenant": "Tout le santral",
         "scopeTenantHint": "Bloque le numéro sur tous les canaux de tirage",
         "scopeChannel": "Canal spécifique",
-        "scopeChannelHint": "Bloque le numéro sur un seul canal de tirage"
+        "scopeChannelHint": "Bloque le numéro sur un seul canal de tirage",
+        "contextLabelSeller": "Vendeur",
+        "contextHintSeller": "Ce blocage s'applique uniquement à ce vendeur.",
+        "contextFallbackSeller": "Le vendeur",
+        "contextLabelTenant": "Plateforme",
+        "contextHintTenant": "Ce blocage s'applique à toute la plateforme."
       },
       "number": {
         "actionsAria": "Actions rapides par numéro",
@@ -2134,7 +2139,8 @@
         },
         "empty": "Aucune limite configurée à ce niveau.",
         "add": "Ajouter une limite",
-        "manage": "Gérer les limites"
+        "manage": "Gérer les limites",
+        "blockNumber": "Bloquer des numéros"
       },
       "detail": {
         "title": "Détail de la limite",

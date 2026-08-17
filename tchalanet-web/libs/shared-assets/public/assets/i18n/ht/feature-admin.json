@@ -1093,7 +1093,12 @@
         "scopeTenant": "Tout santral la",
         "scopeTenantHint": "Bloke nimewo a sou tout kanal tiraj yo",
         "scopeChannel": "Yon kanal espesifik",
-        "scopeChannelHint": "Bloke nimewo a sou yon sèl kanal tiraj"
+        "scopeChannelHint": "Bloke nimewo a sou yon sèl kanal tiraj",
+        "contextLabelSeller": "Vandè",
+        "contextHintSeller": "Blokaj sa a aplike sèlman pou vandè sa a.",
+        "contextFallbackSeller": "Vandè a",
+        "contextLabelTenant": "Platfòm",
+        "contextHintTenant": "Blokaj sa a pral aplike pou tout platfòm nan."
       },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",
@@ -1402,7 +1407,8 @@
         },
         "empty": "Pa gen limit konfigire sou nivo sa a.",
         "add": "Ajoute yon limit",
-        "manage": "Jere limit yo"
+        "manage": "Jere limit yo",
+        "blockNumber": "Bloke nimewo"
       },
       "detail": {
         "title": "Detay limit",

@@ -1093,7 +1093,12 @@
         "scopeTenant": "Entire operator",
         "scopeTenantHint": "Blocks the number across all draw channels",
         "scopeChannel": "Specific channel",
-        "scopeChannelHint": "Blocks the number for a single draw channel"
+        "scopeChannelHint": "Blocks the number for a single draw channel",
+        "contextLabelSeller": "Seller",
+        "contextHintSeller": "This block applies to this seller only.",
+        "contextFallbackSeller": "The seller",
+        "contextLabelTenant": "Platform",
+        "contextHintTenant": "This block applies to the entire platform."
       },
       "number": {
         "actionsAria": "Quick actions by number",
@@ -1402,7 +1407,8 @@
         },
         "empty": "No limits configured at this level.",
         "add": "Add a limit",
-        "manage": "Manage limits"
+        "manage": "Manage limits",
+        "blockNumber": "Block numbers"
       },
       "detail": {
         "title": "Limit detail",

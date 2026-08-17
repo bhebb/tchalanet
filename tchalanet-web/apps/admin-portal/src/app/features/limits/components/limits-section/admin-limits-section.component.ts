@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ResourceRef,
+  computed,
   inject,
   input,
   signal,
@@ -25,6 +26,10 @@ import type {
   TargetType,
 } from '../../data-access/admin-limits.models';
 import { formatActiveLimitParams } from '../../data-access/admin-limits.models';
+import {
+  BlockNumberQuickDialogComponent,
+  type BlockNumberQuickDialogData,
+} from '../block-number-quick-dialog/block-number-quick-dialog.component';
 import { UpsertLimitDialogComponent } from '../upsert-limit-dialog/upsert-limit-dialog.component';
 
 // LimitGroup kept as input type for backwards compat with callers that still pass it
@@ -42,6 +47,7 @@ type LimitGroup = string;
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
     AdminSectionCardComponent,
+    BlockNumberQuickDialogComponent,
   ],
   template: `
     <tch-admin-section-card [title]="sectionTitle()" icon="shield">
@@ -109,6 +115,12 @@ type LimitGroup = string;
             }
 
             <div class="ls__actions">
+              @if (canBlockNumbers()) {
+                <button mat-stroked-button type="button" (click)="openBlockNumber()">
+                  <span class="material-symbols-outlined">block</span>
+                  {{ 'admin.limits.section.blockNumber' | translate }}
+                </button>
+              }
               <button mat-stroked-button type="button" (click)="addLimit(data)">
                 <span class="material-symbols-outlined">add</span>
                 {{ 'admin.limits.section.add' | translate }}
@@ -238,6 +250,7 @@ export class AdminLimitsSectionComponent {
 
   readonly targetType = input.required<TargetType>();
   readonly targetId = input<string | null>(null);
+  readonly targetLabel = input<string | null>(null);
   readonly inheritedTargetType = input<TargetType | null>(null);
   readonly inheritedTargetId = input<string | null>(null);
   readonly inheritedScopeLabel = input<string | undefined>(undefined);
@@ -248,6 +261,12 @@ export class AdminLimitsSectionComponent {
   readonly sectionTitle = input.required<string>();
 
   readonly actionError = signal<string | null>(null);
+
+  readonly canBlockNumbers = computed(() => {
+    if (this.targetType() === 'AGENT') return false;
+    const allowed = this.allowedRuleKeys();
+    return !allowed || allowed.includes('BLOCK_SELECTION_PER_DRAW');
+  });
 
   readonly combinedResource: ResourceRef<CombinedLimitData | undefined> =
     this.api.combinedLimitsResource({
@@ -305,6 +324,29 @@ export class AdminLimitsSectionComponent {
     });
     if (value !== '—') return value;
     return this.translate.instant('admin.limits.section.noParams');
+  }
+
+  openBlockNumber(): void {
+    const tt = this.targetType() as 'TENANT' | 'DRAW_CHANNEL' | 'SELLER_TERMINAL';
+    const dialogData: BlockNumberQuickDialogData =
+      tt === 'TENANT'
+        ? { lockedTargetType: 'TENANT' }
+        : {
+            lockedTargetType: tt,
+            lockedTargetId: this.targetId() ?? undefined,
+            lockedTargetLabel: this.targetLabel() ?? undefined,
+          };
+
+    const ref = this.dialog.open(BlockNumberQuickDialogComponent, {
+      width: '560px',
+      maxWidth: '100vw',
+      data: dialogData,
+    });
+    ref.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) this.combinedResource.reload();
+      });
   }
 
   addLimit(data: CombinedLimitData): void {
