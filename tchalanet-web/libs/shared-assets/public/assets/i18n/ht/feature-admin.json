@@ -1265,7 +1265,7 @@
           "rule": "Règ",
           "appliedOn": "Aplike sou",
           "value": "Valè",
-          "scope": "Portée",
+          "scope": "Nivo",
           "status": "Eta",
           "actions": "Aksyon"
         }
@@ -1399,7 +1399,7 @@
         },
         "section": {
           "rule": "Règ",
-          "scope": "Portée"
+          "scope": "Nivo"
         },
         "fact": {
           "rule": "Règ",

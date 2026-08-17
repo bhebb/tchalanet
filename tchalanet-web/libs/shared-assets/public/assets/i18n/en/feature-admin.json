@@ -1218,7 +1218,8 @@
         },
         "actions": {
           "disable": "Disable",
-          "delete": "Delete"
+          "delete": "Delete",
+          "edit": "Edit"
         },
         "status": {
           "configured": "Configured",
@@ -1247,11 +1248,37 @@
             "description": "Special rules for a seller or POS terminal.",
             "metric": "By seller"
           }
+        },
+        "filter": {
+          "all": "All",
+          "tenant": "Platform",
+          "drawChannel": "Draw channel",
+          "sellerTerminal": "Seller"
+        },
+        "scopeType": {
+          "TENANT": "Platform",
+          "DRAW_CHANNEL": "Draw channel",
+          "SELLER_TERMINAL": "Seller",
+          "AGENT": "Agent"
+        },
+        "columns": {
+          "rule": "Rule",
+          "appliedOn": "Applied on",
+          "value": "Value",
+          "scope": "Scope",
+          "status": "Status",
+          "actions": "Actions"
         }
       },
       "rule": {
-        "BLOCK_SELECTION_PER_DRAW": "Block a number",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Stake cap per number"
+        "BLOCK_SELECTION_PER_DRAW": {
+          "label": "Block a number",
+          "description": "Blocks a number from being sold on a draw."
+        },
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+          "label": "Number stake cap",
+          "description": "Limits the total stake that can be sold on a number for a draw."
+        }
       },
       "child": {
         "rulesLink": "Supported rules",
@@ -1353,6 +1380,38 @@
         "blockedNumbers": "Blocked number: {{numbers}}",
         "scope": {
           "tenant": "operator"
+        },
+        "local": {
+          "title": "Limits at this level"
+        },
+        "inherited": {
+          "title": "Inherited limits"
+        },
+        "empty": "No limits configured at this level.",
+        "add": "Add a limit",
+        "manage": "Manage limits"
+      },
+      "detail": {
+        "title": "Limit detail",
+        "notFound": "This limit was not found. It may have already been deleted.",
+        "aside": {
+          "eyebrow": "Limit"
+        },
+        "section": {
+          "rule": "Rule",
+          "scope": "Scope"
+        },
+        "fact": {
+          "rule": "Rule",
+          "description": "Description",
+          "outcome": "Action on breach",
+          "validity": "Duration"
+        },
+        "debug": {
+          "title": "Technical details",
+          "ruleKey": "RuleKey",
+          "assignmentId": "Assignment ID",
+          "targetType": "Target type"
         }
       }
     },

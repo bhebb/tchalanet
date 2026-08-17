@@ -1950,7 +1950,8 @@
         },
         "actions": {
           "disable": "Désactiver",
-          "delete": "Supprimer"
+          "delete": "Supprimer",
+          "edit": "Modifier"
         },
         "status": {
           "configured": "Configuré",
@@ -1979,11 +1980,37 @@
             "description": "Règles spéciales pour un vendeur ou un terminal POS.",
             "metric": "Par vendeur"
           }
+        },
+        "filter": {
+          "all": "Tout",
+          "tenant": "Santral",
+          "drawChannel": "Canal tiraj",
+          "sellerTerminal": "Vendeur"
+        },
+        "scopeType": {
+          "TENANT": "Santral",
+          "DRAW_CHANNEL": "Canal tiraj",
+          "SELLER_TERMINAL": "Vendeur",
+          "AGENT": "Agent"
+        },
+        "columns": {
+          "rule": "Règle",
+          "appliedOn": "Appliqué sur",
+          "value": "Valeur",
+          "scope": "Niveau",
+          "status": "État",
+          "actions": "Actions"
         }
       },
       "rule": {
-        "BLOCK_SELECTION_PER_DRAW": "Bloquer un numéro",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafond de mise par numéro"
+        "BLOCK_SELECTION_PER_DRAW": {
+          "label": "Bloquer un numéro",
+          "description": "Bloque un numéro sur un tirage."
+        },
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+          "label": "Plafond par numéro",
+          "description": "Limite le total des mises pouvant être vendues sur un numéro pour un tirage."
+        }
       },
       "child": {
         "rulesLink": "Règles supportées",
@@ -2085,6 +2112,38 @@
         "blockedNumbers": "Numéro bloqué : {{numbers}}",
         "scope": {
           "tenant": "santral"
+        },
+        "local": {
+          "title": "Limites à ce niveau"
+        },
+        "inherited": {
+          "title": "Limites héritées"
+        },
+        "empty": "Aucune limite configurée à ce niveau.",
+        "add": "Ajouter une limite",
+        "manage": "Gérer les limites"
+      },
+      "detail": {
+        "title": "Détail de la limite",
+        "notFound": "Cette limite est introuvable. Elle a peut-être déjà été supprimée.",
+        "aside": {
+          "eyebrow": "Limite"
+        },
+        "section": {
+          "rule": "Règle",
+          "scope": "Niveau"
+        },
+        "fact": {
+          "rule": "Règle",
+          "description": "Description",
+          "outcome": "Action si dépassé",
+          "validity": "Durée"
+        },
+        "debug": {
+          "title": "Détails techniques",
+          "ruleKey": "RuleKey",
+          "assignmentId": "Assignment ID",
+          "targetType": "Target type"
         }
       }
     },
