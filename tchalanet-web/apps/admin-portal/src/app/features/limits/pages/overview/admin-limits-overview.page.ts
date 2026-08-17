@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, of, tap } from 'rxjs';
@@ -33,6 +32,7 @@ import {
 } from '../../data-access/admin-limits.models';
 import { BlockNumberQuickDialogComponent } from '../../components/block-number-quick-dialog/block-number-quick-dialog.component';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
+import { AdminLimitItemCardComponent } from '../../components/limit-item-card/admin-limit-item-card.component';
 import { MatDialog } from '@angular/material/dialog';
 
 type ScopeFilter = 'ALL' | TargetType;
@@ -45,11 +45,11 @@ type ScopeFilter = 'ALL' | TargetType;
     TranslatePipe,
     MatButtonModule,
     MatButtonToggleModule,
-    MatMenuModule,
     RouterLink,
     TchErrorPanel,
     TchLoading,
     TchSectionError,
+    AdminLimitItemCardComponent,
   ],
   templateUrl: './admin-limits-overview.page.html',
   styleUrl: './admin-limits-overview.page.scss',
@@ -60,6 +60,7 @@ export class AdminLimitsOverviewPage implements OnInit {
   private readonly translate = inject(TranslateService);
 
   readonly loading = signal(false);
+  readonly saving = signal(false);
   readonly pageError = signal<ErrorViewModel | null>(null);
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
@@ -244,31 +245,6 @@ export class AdminLimitsOverviewPage implements OnInit {
       });
   }
 
-  ruleLabelKey(item: ActiveLimitItem): string {
-    return `admin.limits.rule.${item.ruleKey}.label`;
-  }
-
-  statusKey(item: ActiveLimitItem): string {
-    return item.enabled
-      ? 'admin.limits.overview.limitStatus.active'
-      : 'admin.limits.overview.limitStatus.disabled';
-  }
-
-  scopeTypeKey(item: ActiveLimitItem): string {
-    return `admin.limits.overview.scopeType.${item.targetType}`;
-  }
-
-  targetLabel(item: ActiveLimitItem): string {
-    if (item.targetType === 'TENANT') {
-      return this.translate.instant('admin.limits.overview.target.tenant');
-    }
-    return item.targetLabel || item.targetCode || item.targetId;
-  }
-
-  paramsLabel(item: ActiveLimitItem): string {
-    return formatActiveLimitParams(item);
-  }
-
   private withSpec(ruleKey: string, fn: (spec: LimitRuleSpec) => void): void {
     this.loadRules().subscribe(specs => {
       const spec = specs.find(s => s.ruleKey === ruleKey);
@@ -285,13 +261,12 @@ export class AdminLimitsOverviewPage implements OnInit {
   }
 
   private confirmMessage(item: ActiveLimitItem): string {
-    return [
-      this.translate.instant(this.ruleLabelKey(item)),
-      this.targetLabel(item),
-      this.paramsLabel(item),
-    ]
-      .filter(Boolean)
-      .join(' · ');
+    const ruleLabel = this.translate.instant(`admin.limits.rule.${item.ruleKey}.label`);
+    const targetLabel =
+      item.targetType === 'TENANT'
+        ? this.translate.instant('admin.limits.overview.target.tenant')
+        : (item.targetLabel ?? item.targetCode ?? item.targetId);
+    return [ruleLabel, targetLabel, formatActiveLimitParams(item)].filter(Boolean).join(' · ');
   }
 
   private clearFeedback(): void {

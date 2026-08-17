@@ -1,0 +1,73 @@
+<article
+  class="limit-item-card"
+  [class.limit-item-card--disabled]="!isActive()"
+>
+  <div class="limit-item-card__identity">
+    <a class="limit-item-card__rule-link" [routerLink]="detailRoute()">
+      <strong>{{ ruleLabel() }}</strong>
+    </a>
+    <span
+      class="limit-item-card__badge"
+      [class.limit-item-card__badge--active]="isActive()"
+    >{{ statusLabel() }}</span>
+  </div>
+
+  <button
+    class="limit-item-card__menu-trigger"
+    mat-icon-button
+    type="button"
+    [matMenuTriggerFor]="moreMenu"
+    [attr.aria-label]="'common.moreActions' | translate"
+  >
+    <span class="material-symbols-outlined">more_vert</span>
+  </button>
+
+  <p class="limit-item-card__target">{{ targetLabel() }}</p>
+  <p class="limit-item-card__value">{{ paramsLabel() }}</p>
+  <p class="limit-item-card__scope">{{ scopeTypeLabel() }}</p>
+
+  <div class="limit-item-card__actions">
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      [disabled]="saving()"
+      (click)="edit.emit()"
+    >
+      {{ 'admin.limits.overview.actions.edit' | translate }}
+    </button>
+    @if (isActive()) {
+      <button
+        class="limit-item-card__disable-inline"
+        mat-stroked-button
+        type="button"
+        [disabled]="saving()"
+        (click)="disable.emit()"
+      >
+        {{ 'admin.limits.overview.actions.disable' | translate }}
+      </button>
+    }
+  </div>
+
+  <mat-menu #moreMenu>
+    @if (isActive()) {
+      <button mat-menu-item type="button" (click)="disable.emit()">
+        <span class="material-symbols-outlined" aria-hidden="true">pause_circle</span>
+        {{ 'admin.limits.overview.actions.disable' | translate }}
+      </button>
+    }
+    <a mat-menu-item [routerLink]="detailRoute()">
+      <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
+      {{ 'admin.limits.overview.actions.viewDetail' | translate }}
+    </a>
+    <button
+      mat-menu-item
+      type="button"
+      class="limit-item-card__delete-action"
+      (click)="delete.emit()"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+      {{ 'admin.limits.overview.actions.delete' | translate }}
+    </button>
+  </mat-menu>
+</article>
