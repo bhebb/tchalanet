@@ -2142,9 +2142,9 @@
         "manage": "Gérer toutes les limites",
         "blockNumber": "Bloquer des numéros",
         "localTitle": {
-          "TENANT": "LIMITES CENTRALES",
-          "DRAW_CHANNEL": "LIMITES DE CE CANAL",
-          "SELLER_TERMINAL": "LIMITES DE CE TERMINAL"
+          "TENANT": "Limites centrales",
+          "DRAW_CHANNEL": "Limites de ce tirage",
+          "SELLER_TERMINAL": "Limites de ce vendeur"
         }
       },
       "detail": {

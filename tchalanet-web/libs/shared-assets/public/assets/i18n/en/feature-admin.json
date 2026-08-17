@@ -1410,9 +1410,9 @@
         "manage": "Manage all limits",
         "blockNumber": "Block numbers",
         "localTitle": {
-          "TENANT": "CENTRAL LIMITS",
-          "DRAW_CHANNEL": "LIMITS FOR THIS CHANNEL",
-          "SELLER_TERMINAL": "LIMITS FOR THIS TERMINAL"
+          "TENANT": "Central limits",
+          "DRAW_CHANNEL": "Limits for this draw",
+          "SELLER_TERMINAL": "Limits for this seller"
         }
       },
       "detail": {

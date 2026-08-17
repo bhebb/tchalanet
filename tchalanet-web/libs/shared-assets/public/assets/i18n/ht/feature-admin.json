@@ -1410,9 +1410,9 @@
         "manage": "Jere tout limit yo",
         "blockNumber": "Bloke nimewo",
         "localTitle": {
-          "TENANT": "LIMIT SANTRAL",
-          "DRAW_CHANNEL": "LIMIT KANAL SA A",
-          "SELLER_TERMINAL": "LIMIT MACHIN SA A"
+          "TENANT": "Limit santral la",
+          "DRAW_CHANNEL": "Limit tiraj sa",
+          "SELLER_TERMINAL": "Limit machann sa"
         }
       },
       "detail": {
