@@ -1804,8 +1804,8 @@
         "loadingDraws": "Chargement des tirages…",
         "noOpenDraws": "Aucun tirage ouvert pour le moment.",
         "drawLabel": "Tirage (canal)",
-        "numbersLabel": "Numéros à bloquer",
-        "numberPlaceholder": "Entrez un numéro et appuyez sur Entrée",
+        "numbersLabel": "Numéros bloqués",
+        "numberPlaceholder": "Ajouter un numéro...",
         "numberHint": "Entrez les numéros séparés par Entrée ou virgule.",
         "numberRequired": "Entrez au moins un numéro.",
         "removeNumber": "Retirer le numéro {{number}}",
@@ -1950,7 +1950,9 @@
         },
         "actions": {
           "disable": "Désactiver",
-          "delete": "Supprimer"
+          "delete": "Supprimer",
+          "edit": "Modifier",
+          "viewDetail": "Voir le détail"
         },
         "status": {
           "configured": "Configuré",
@@ -1979,11 +1981,37 @@
             "description": "Règles spéciales pour un vendeur ou un terminal POS.",
             "metric": "Par vendeur"
           }
+        },
+        "filter": {
+          "all": "Tout",
+          "tenant": "Santral",
+          "drawChannel": "Canal tiraj",
+          "sellerTerminal": "Vendeur"
+        },
+        "scopeType": {
+          "TENANT": "Santral",
+          "DRAW_CHANNEL": "Canal tiraj",
+          "SELLER_TERMINAL": "Vendeur",
+          "AGENT": "Agent"
+        },
+        "columns": {
+          "rule": "Règle",
+          "appliedOn": "Appliqué sur",
+          "value": "Valeur",
+          "scope": "Niveau d'application",
+          "status": "État",
+          "actions": "Actions"
         }
       },
       "rule": {
-        "BLOCK_SELECTION_PER_DRAW": "Bloquer un numéro",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafond de mise par numéro"
+        "BLOCK_SELECTION_PER_DRAW": {
+          "label": "Bloquer un numéro",
+          "description": "Bloque un numéro sur un tirage."
+        },
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+          "label": "Plafond par numéro",
+          "description": "Limite le total des mises pouvant être vendues sur un numéro pour un tirage."
+        }
       },
       "child": {
         "rulesLink": "Règles supportées",
@@ -2031,7 +2059,7 @@
         "required": "Champ obligatoire.",
         "blockedNumbers": "Numéros bloqués",
         "removeNumber": "Retirer {{number}}",
-        "numberPlaceholder": "Ex : 13, appuyez Entrée",
+        "numberPlaceholder": "Ajouter un numéro...",
         "numberHint": "Entrez un numéro puis appuyez sur Entrée ou virgule.",
         "numberRequired": "Ajoutez au moins un numéro.",
         "enabled": "Règle active",
@@ -2044,7 +2072,19 @@
         "preview": "Ce qui sera appliqué",
         "cancel": "Annuler",
         "save": "Enregistrer",
-        "saving": "Enregistrement…"
+        "saving": "Enregistrement…",
+        "hint": {
+          "BLOCK_SELECTION_PER_DRAW": {
+            "TENANT": "Ces numéros ne pourront pas être vendus sur tous les tirages.",
+            "DRAW_CHANNEL": "Ces numéros ne pourront pas être vendus sur ce canal de tirage.",
+            "SELLER_TERMINAL": "Ces numéros ne pourront pas être vendus sur ce terminal vendeur."
+          },
+          "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+            "TENANT": "Lorsque le total des mises sur un numéro atteint le plafond, la vente s'arrête sur tous les tirages.",
+            "DRAW_CHANNEL": "Lorsque le total des mises sur un numéro atteint le plafond, la vente s'arrête sur ce canal.",
+            "SELLER_TERMINAL": "Lorsque le total des mises sur un numéro atteint le plafond, la vente s'arrête sur ce terminal."
+          }
+        }
       },
       "table": {
         "rules": "règle(s)",
@@ -2085,6 +2125,39 @@
         "blockedNumbers": "Numéro bloqué : {{numbers}}",
         "scope": {
           "tenant": "santral"
+        },
+        "local": {
+          "title": "Limites à ce niveau"
+        },
+        "inherited": {
+          "title": "Limites héritées"
+        },
+        "empty": "Aucune limite configurée à ce niveau.",
+        "add": "Ajouter une limite",
+        "manage": "Gérer les limites"
+      },
+      "detail": {
+        "title": "Détail de la limite",
+        "notFound": "Cette limite est introuvable. Elle a peut-être déjà été supprimée.",
+        "aside": {
+          "eyebrow": "Limite"
+        },
+        "section": {
+          "rule": "Règle",
+          "scope": "Niveau",
+          "allAssignments": "Toutes les applications actives"
+        },
+        "fact": {
+          "rule": "Règle",
+          "description": "Description",
+          "outcome": "Action si dépassé",
+          "validity": "Durée"
+        },
+        "debug": {
+          "title": "Détails techniques",
+          "ruleKey": "RuleKey",
+          "assignmentId": "Assignment ID",
+          "targetType": "Target type"
         }
       }
     },

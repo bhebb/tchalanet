@@ -1072,8 +1072,8 @@
         "loadingDraws": "Loading draws…",
         "noOpenDraws": "No open draws at this time.",
         "drawLabel": "Draw (channel)",
-        "numbersLabel": "Numbers to block",
-        "numberPlaceholder": "Enter a number and press Enter",
+        "numbersLabel": "Blocked numbers",
+        "numberPlaceholder": "Add a number...",
         "numberHint": "Enter numbers separated by Enter or comma.",
         "numberRequired": "Enter at least one number.",
         "removeNumber": "Remove number {{number}}",
@@ -1218,7 +1218,9 @@
         },
         "actions": {
           "disable": "Disable",
-          "delete": "Delete"
+          "delete": "Delete",
+          "edit": "Edit",
+          "viewDetail": "View detail"
         },
         "status": {
           "configured": "Configured",
@@ -1247,11 +1249,37 @@
             "description": "Special rules for a seller or POS terminal.",
             "metric": "By seller"
           }
+        },
+        "filter": {
+          "all": "All",
+          "tenant": "Platform",
+          "drawChannel": "Draw channel",
+          "sellerTerminal": "Seller"
+        },
+        "scopeType": {
+          "TENANT": "Platform",
+          "DRAW_CHANNEL": "Draw channel",
+          "SELLER_TERMINAL": "Seller",
+          "AGENT": "Agent"
+        },
+        "columns": {
+          "rule": "Rule",
+          "appliedOn": "Applied on",
+          "value": "Value",
+          "scope": "Scope level",
+          "status": "Status",
+          "actions": "Actions"
         }
       },
       "rule": {
-        "BLOCK_SELECTION_PER_DRAW": "Block a number",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Stake cap per number"
+        "BLOCK_SELECTION_PER_DRAW": {
+          "label": "Block a number",
+          "description": "Blocks a number from being sold on a draw."
+        },
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+          "label": "Number stake cap",
+          "description": "Limits the total stake that can be sold on a number for a draw."
+        }
       },
       "child": {
         "rulesLink": "Supported rules",
@@ -1299,7 +1327,7 @@
         "required": "Required field.",
         "blockedNumbers": "Blocked numbers",
         "removeNumber": "Remove {{number}}",
-        "numberPlaceholder": "Example: 13, press Enter",
+        "numberPlaceholder": "Add a number...",
         "numberHint": "Enter a number, then press Enter or comma.",
         "numberRequired": "Add at least one number.",
         "enabled": "Rule active",
@@ -1312,7 +1340,19 @@
         "preview": "What will be applied",
         "cancel": "Cancel",
         "save": "Save",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "hint": {
+          "BLOCK_SELECTION_PER_DRAW": {
+            "TENANT": "These numbers cannot be sold across all draws.",
+            "DRAW_CHANNEL": "These numbers cannot be sold on this draw channel.",
+            "SELLER_TERMINAL": "These numbers cannot be sold by this seller."
+          },
+          "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+            "TENANT": "When the total stake on a number reaches the cap, sales stop across all draws.",
+            "DRAW_CHANNEL": "When the total stake on a number reaches the cap, sales stop on this channel.",
+            "SELLER_TERMINAL": "When the total stake on a number reaches the cap, sales stop on this terminal."
+          }
+        }
       },
       "table": {
         "rules": "rule(s)",
@@ -1353,6 +1393,39 @@
         "blockedNumbers": "Blocked number: {{numbers}}",
         "scope": {
           "tenant": "operator"
+        },
+        "local": {
+          "title": "Limits at this level"
+        },
+        "inherited": {
+          "title": "Inherited limits"
+        },
+        "empty": "No limits configured at this level.",
+        "add": "Add a limit",
+        "manage": "Manage limits"
+      },
+      "detail": {
+        "title": "Limit detail",
+        "notFound": "This limit was not found. It may have already been deleted.",
+        "aside": {
+          "eyebrow": "Limit"
+        },
+        "section": {
+          "rule": "Rule",
+          "scope": "Scope",
+          "allAssignments": "All active assignments"
+        },
+        "fact": {
+          "rule": "Rule",
+          "description": "Description",
+          "outcome": "Action on breach",
+          "validity": "Duration"
+        },
+        "debug": {
+          "title": "Technical details",
+          "ruleKey": "RuleKey",
+          "assignmentId": "Assignment ID",
+          "targetType": "Target type"
         }
       }
     },

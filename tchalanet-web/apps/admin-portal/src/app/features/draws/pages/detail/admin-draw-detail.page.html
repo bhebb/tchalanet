@@ -62,6 +62,13 @@
             <mat-icon aria-hidden="true">calendar_month</mat-icon>
             Tous les tirages
           </a>
+          <a
+            mat-stroked-button
+            [routerLink]="['/app/admin/draw-channels', draw()!.drawChannelId]"
+          >
+            <mat-icon aria-hidden="true">settings</mat-icon>
+            Jere kanal tiraj la
+          </a>
         </div>
       </tch-admin-section-card>
     </ng-container>

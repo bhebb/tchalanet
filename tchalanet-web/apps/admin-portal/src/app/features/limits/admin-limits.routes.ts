@@ -36,6 +36,11 @@ export const adminLimitsRoutes: Route[] = [
         loadComponent: () =>
           import('./pages/number/admin-limits-number.page').then(m => m.AdminLimitsNumberPage),
       },
+      {
+        path: ':assignmentId',
+        loadComponent: () =>
+          import('./pages/detail/admin-limits-detail.page').then(m => m.AdminLimitsDetailPage),
+      },
       // Backwards compat: old /limits/rules redirects to global tab
       { path: 'rules', redirectTo: 'global', pathMatch: 'full' },
     ],

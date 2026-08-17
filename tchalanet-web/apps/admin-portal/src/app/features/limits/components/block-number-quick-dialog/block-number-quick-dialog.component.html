@@ -56,9 +56,7 @@
       />
     }
 
-    <p class="bnqd__help">{{ 'admin.limits.blockNumber.numberHint' | translate }}</p>
-
-    <mat-form-field appearance="outline" class="bnqd__field">
+    <mat-form-field appearance="outline" floatLabel="always" class="bnqd__field">
       <mat-label>{{ 'admin.limits.blockNumber.numbersLabel' | translate }}</mat-label>
       <mat-chip-grid #chipGrid [attr.aria-label]="'admin.limits.blockNumber.numbersLabel' | translate">
         @for (num of selections(); track num) {
@@ -72,13 +70,15 @@
             </button>
           </mat-chip-row>
         }
+        <input
+          inputmode="numeric"
+          [placeholder]="'admin.limits.blockNumber.numberPlaceholder' | translate"
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+          (matChipInputTokenEnd)="addNumber($event)"
+        />
       </mat-chip-grid>
-      <input
-        [placeholder]="'admin.limits.blockNumber.numberPlaceholder' | translate"
-        [matChipInputFor]="chipGrid"
-        [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
-        (matChipInputTokenEnd)="addNumber($event)"
-      />
+      <mat-hint>{{ 'admin.limits.blockNumber.numberHint' | translate }}</mat-hint>
     </mat-form-field>
   </div>
 

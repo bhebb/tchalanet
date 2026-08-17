@@ -1072,8 +1072,8 @@
         "loadingDraws": "Chajman tiraj yo…",
         "noOpenDraws": "Pa gen tiraj ki louvri kounye a.",
         "drawLabel": "Tiraj (kanal)",
-        "numbersLabel": "Nimewo pou bloke",
-        "numberPlaceholder": "Antre yon nimewo epi peze Antre",
+        "numbersLabel": "Nimewo bloke",
+        "numberPlaceholder": "Ajoute yon nimewo...",
         "numberHint": "Antre nimewo yo separe pa Antre oswa vigil.",
         "numberRequired": "Antre omwen yon nimewo.",
         "removeNumber": "Retire nimewo {{number}}",
@@ -1218,7 +1218,9 @@
         },
         "actions": {
           "disable": "Dezaktive",
-          "delete": "Efase"
+          "delete": "Efase",
+          "edit": "Modifye",
+          "viewDetail": "Gade detay"
         },
         "status": {
           "configured": "Konfigire",
@@ -1247,11 +1249,37 @@
             "description": "Règ espesyal pou yon machann oswa yon tèminal POS.",
             "metric": "Pa machann"
           }
+        },
+        "filter": {
+          "all": "Tout",
+          "tenant": "Santral",
+          "drawChannel": "Kanal tiraj",
+          "sellerTerminal": "Machann"
+        },
+        "scopeType": {
+          "TENANT": "Santral",
+          "DRAW_CHANNEL": "Kanal tiraj",
+          "SELLER_TERMINAL": "Machann",
+          "AGENT": "Ajan"
+        },
+        "columns": {
+          "rule": "Règ",
+          "appliedOn": "Aplike sou",
+          "value": "Valè",
+          "scope": "Nivo aplikasyon",
+          "status": "Eta",
+          "actions": "Aksyon"
         }
       },
       "rule": {
-        "BLOCK_SELECTION_PER_DRAW": "Bloke nimewo",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafon pa nimewo"
+        "BLOCK_SELECTION_PER_DRAW": {
+          "label": "Bloke nimewo",
+          "description": "Bloke yon nimewo sou yon tiraj."
+        },
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+          "label": "Plafon pa nimewo",
+          "description": "Limite kantite total ki ka vann sou yon nimewo pou yon tiraj."
+        }
       },
       "child": {
         "rulesLink": "Règ ki sipòte yo",
@@ -1299,7 +1327,7 @@
         "required": "Chan obligatwa.",
         "blockedNumbers": "Nimewo bloke",
         "removeNumber": "Retire {{number}}",
-        "numberPlaceholder": "Egzanp: 13, peze Antre",
+        "numberPlaceholder": "Ajoute yon nimewo...",
         "numberHint": "Antre yon nimewo epi peze Antre oswa vigil.",
         "numberRequired": "Ajoute omwen yon nimewo.",
         "enabled": "Règ aktif",
@@ -1312,7 +1340,19 @@
         "preview": "Sa k ap aplike",
         "cancel": "Anile",
         "save": "Anrejistre",
-        "saving": "Y ap anrejistre…"
+        "saving": "Y ap anrejistre…",
+        "hint": {
+          "BLOCK_SELECTION_PER_DRAW": {
+            "TENANT": "Nimewo sa yo pap ka vann sou tout tiraj yo.",
+            "DRAW_CHANNEL": "Nimewo sa yo pap ka vann sou kanal tiraj sa a.",
+            "SELLER_TERMINAL": "Nimewo sa yo pap ka vann nan tèminal machann sa a."
+          },
+          "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+            "TENANT": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou tout tiraj yo.",
+            "DRAW_CHANNEL": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou kanal sa a.",
+            "SELLER_TERMINAL": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou tèminal machann sa a."
+          }
+        }
       },
       "table": {
         "rules": "règ",
@@ -1353,6 +1393,39 @@
         "blockedNumbers": "Nimewo bloke : {{numbers}}",
         "scope": {
           "tenant": "santral"
+        },
+        "local": {
+          "title": "Limit sou nivo sa a"
+        },
+        "inherited": {
+          "title": "Limit eritye"
+        },
+        "empty": "Pa gen limit konfigire sou nivo sa a.",
+        "add": "Ajoute yon limit",
+        "manage": "Jere limit yo"
+      },
+      "detail": {
+        "title": "Detay limit",
+        "notFound": "Limit sa a pa jwenn. Li ka deja efase.",
+        "aside": {
+          "eyebrow": "Limit"
+        },
+        "section": {
+          "rule": "Règ",
+          "scope": "Nivo",
+          "allAssignments": "Tout aplikasyon aktif"
+        },
+        "fact": {
+          "rule": "Règ",
+          "description": "Deskripsyon",
+          "outcome": "Aksyon si depase",
+          "validity": "Dire"
+        },
+        "debug": {
+          "title": "Detay teknik",
+          "ruleKey": "RuleKey",
+          "assignmentId": "Assignment ID",
+          "targetType": "Target type"
         }
       }
     },

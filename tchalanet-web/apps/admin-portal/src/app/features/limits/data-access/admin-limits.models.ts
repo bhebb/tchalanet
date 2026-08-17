@@ -286,6 +286,12 @@ export function formatLimitSentence(row: RuleRow): string {
   }
 }
 
+export function extractSelections(item: ActiveLimitItem): string[] {
+  const params = (item.params as Record<string, unknown>) ?? {};
+  const raw = params['selections'] ?? params['selectionIds'];
+  return Array.isArray(raw) ? raw.map(String) : [];
+}
+
 export function formatActiveLimitParams(item: ActiveLimitItem): string {
   const params = (item.params as Record<string, unknown>) ?? {};
   const selections = params['selections'] ?? params['selectionIds'];

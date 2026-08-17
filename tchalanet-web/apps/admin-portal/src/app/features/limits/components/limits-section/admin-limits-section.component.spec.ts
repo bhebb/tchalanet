@@ -37,15 +37,12 @@ describe(AdminLimitsSectionComponent.name, () => {
         {
           provide: TranslateService,
           useValue: {
-            instant: (key: string, params?: Record<string, string>) => {
+            instant: (key: string) => {
               const translations: Record<string, string> = {
-                'admin.limits.section.blockedNumbers': `Nimewo bloke : ${params?.['numbers'] ?? ''}`,
-                'admin.limits.section.currentScope': 'Règ kote sa a',
-                'admin.limits.section.inheritedScope': `Soti nan ${params?.['scope'] ?? ''}`,
+                'admin.limits.section.noParams': 'San paramèt',
                 'admin.limits.section.scope.tenant': 'santral',
-                'admin.limits.dialog.block': 'Bloke',
-                'admin.limits.dialog.warn': 'Avèti',
-                'admin.limits.rule.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW': 'Plafon nimewo',
+                'admin.limits.rule.BLOCK_SELECTION_PER_DRAW.label': 'Blokaj nimewo',
+                'admin.limits.rule.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW.label': 'Plafon nimewo',
               };
               return translations[key] ?? key;
             },
@@ -64,64 +61,73 @@ describe(AdminLimitsSectionComponent.name, () => {
     return fixture.componentInstance;
   }
 
-  it('shows only enabled rules effective at the draw time and orders blocked numbers first', () => {
+  it('returns only enabled local assignments effective at the given time', () => {
     const component = createComponent();
     const data: CombinedLimitData = {
       specs: [],
       assignments: [
-        assignment('draw-cap', {
-          ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
-          params: { valueCents: 50000 },
-        }),
-        assignment('draw-block', {
-          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
-          params: { selections: ['12', '45'] },
-        }),
-        assignment('disabled-block', {
-          enabled: false,
-          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
-          params: { selections: ['99'] },
-        }),
+        assignment('draw-cap', { ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW', params: { valueCents: 50000 } }),
+        assignment('draw-block', { ruleKey: 'BLOCK_SELECTION_PER_DRAW', params: { selections: ['12', '45'] } }),
+        assignment('disabled-block', { enabled: false, ruleKey: 'BLOCK_SELECTION_PER_DRAW', params: { selections: ['99'] } }),
       ],
-      inheritedAssignments: [
-        assignment('future-tenant-block', {
-          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
-          params: { selections: ['77'] },
-          startsAt: '2026-08-13T00:00:00Z',
-        }),
-        assignment('expired-tenant-block', {
-          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
-          params: { selections: ['88'] },
-          endsAt: '2026-08-12T13:59:59Z',
-        }),
-      ],
+      inheritedAssignments: [],
     };
 
-    const rows = component.activeRows(data);
+    const rows = component.localRows(data);
 
-    expect(rows.map(row => row.item.id.value)).toEqual(['draw-block', 'draw-cap']);
-    expect(component.activeLabel(rows[0].item)).toBe('Nimewo bloke : 12, 45');
-    expect(component.activeSourceLabel(rows[0])).toBe('Règ kote sa a');
+    expect(rows.map(r => r.id.value)).toContain('draw-cap');
+    expect(rows.map(r => r.id.value)).toContain('draw-block');
+    expect(rows.map(r => r.id.value)).not.toContain('disabled-block');
   });
 
-  it('labels inherited effective rules with the inherited scope', () => {
+  it('excludes inherited assignments not effective at the draw time', () => {
     const component = createComponent();
     const data: CombinedLimitData = {
       specs: [],
       assignments: [],
       inheritedAssignments: [
-        assignment('tenant-block', {
+        assignment('future-block', {
+          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
+          params: { selections: ['77'] },
+          startsAt: '2026-08-13T00:00:00Z',
+        }),
+        assignment('expired-block', {
+          ruleKey: 'BLOCK_SELECTION_PER_DRAW',
+          params: { selections: ['88'] },
+          endsAt: '2026-08-12T13:59:59Z',
+        }),
+        assignment('active-tenant-block', {
           ruleKey: 'BLOCK_SELECTION_PER_DRAW',
           params: { selections: ['34'] },
         }),
       ],
     };
 
-    const rows = component.activeRows(data);
+    const rows = component.inheritedRows(data);
 
     expect(rows.length).toBe(1);
-    expect(component.activeLabel(rows[0].item)).toBe('Nimewo bloke : 34');
-    expect(component.activeSourceLabel(rows[0])).toBe('Soti nan santral');
+    expect(rows[0].id.value).toBe('active-tenant-block');
+  });
+
+  it('formats params for SELECTION type rules', () => {
+    const component = createComponent();
+    const item = assignment('block', { ruleKey: 'BLOCK_SELECTION_PER_DRAW', params: { selections: ['12', '45'] } });
+
+    const label = component.paramsLabel(item);
+
+    expect(label).toBe('12, 45');
+  });
+
+  it('formats params for CENTS type rules', () => {
+    const component = createComponent();
+    const item = assignment('cap', {
+      ruleKey: 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW',
+      params: { valueCents: 50000 },
+    });
+
+    const label = component.paramsLabel(item);
+
+    expect(label).toContain('HTG');
   });
 });
 
