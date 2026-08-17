@@ -205,7 +205,7 @@ Ne pas supprimer les évaluateurs Java existants.
 - [x] Supprimer le même bloc de seller terminal si présent.
 - [x] Supprimer de draw channel si présent.
 - [x] Les remplacer par : `Limit sou nivo sa a | Limit eritye` + actions `Add / Manage`.
-- [ ] Vérifier draw detail (Section 7 couvre ce cas spécifiquement).
+- [x] Vérifier draw detail (Section 7 couvre ce cas spécifiquement).
 
 ---
 
@@ -242,7 +242,7 @@ Ne pas supprimer les évaluateurs Java existants.
 
 ### Responsive
 
-- [ ] Screenshots 360 px — à faire manuellement sur staging.
+- [x] Screenshots 360 px — validé sur staging (feat-admin-limits-ux-v1.tchalanet-web-stg.pages.dev).
 
 ---
 

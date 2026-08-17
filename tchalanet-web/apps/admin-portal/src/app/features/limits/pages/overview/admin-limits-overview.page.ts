@@ -84,7 +84,7 @@ export class AdminLimitsOverviewPage implements OnInit {
     const caps = this.capCount();
     const parts: string[] = [`${total} limit aktif`];
     if (blocks > 0) parts.push(`${blocks} blokaj nimewo`);
-    if (caps > 0) parts.push(`${caps} plafon`);
+    if (caps > 0) parts.push(`${caps} limit miz`);
     return parts.join(' · ');
   });
 
