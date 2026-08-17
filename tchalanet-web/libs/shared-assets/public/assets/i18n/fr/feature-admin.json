@@ -393,6 +393,34 @@
           "notice": "La langue de repli doit faire partie des langues supportées.",
           "saved": "Paramètres de langue enregistrés."
         }
+      },
+      "overview": {
+        "title": "Paramètres entreprise",
+        "description": "Configuration opérationnelle de l'entreprise",
+        "edit": "Modifier",
+        "receipt": {
+          "title": "Reçus et impression",
+          "enabled": "Impression",
+          "paperSize": "Format papier",
+          "qrCode": "QR code",
+          "noConfig": "Non configuré"
+        },
+        "delivery": {
+          "title": "Livraison des tickets",
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "email": "E-mail",
+          "active": "Actif",
+          "inactive": "Inactif",
+          "noConfig": "Non configuré"
+        },
+        "calendar": {
+          "title": "Calendrier de vente",
+          "defaultOpen": "Ouvert par défaut",
+          "closedDays": "{{ count }} jour(s) fermé(s)",
+          "holidays": "{{ count }} jour(s) férié(s)",
+          "noConfig": "Non configuré"
+        }
       }
     },
     "drawChannels": {

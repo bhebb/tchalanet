@@ -1,0 +1,144 @@
+<tch-admin-page-shell
+  [title]="'admin.settings.overview.title' | translate"
+  [description]="'admin.settings.overview.description' | translate"
+>
+  <div actions>
+    <a mat-stroked-button [routerLink]="backRoute">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ backLabel | translate }}
+    </a>
+    <button mat-stroked-button [disabled]="config.isLoading()" (click)="config.reload()">
+      <span class="material-symbols-outlined">refresh</span>
+      {{ 'common.refresh' | translate }}
+    </button>
+  </div>
+
+  <tch-async-view
+    [resource]="config"
+    [error]="configError()"
+    [isEmpty]="configIsEmpty"
+    [loadingLabel]="'common.loading' | translate"
+    (retry)="config.reload()"
+  >
+    <ng-template tchAsyncReady>
+      <div class="params-overview">
+
+        <!-- Resi ak enpresyon -->
+        <tch-admin-section-card
+          [title]="'admin.settings.overview.receipt.title' | translate"
+          icon="receipt_long"
+        >
+          @if (receiptSummary(); as r) {
+            <dl class="params-card__summary">
+              <div class="params-card__row">
+                <dt>{{ 'admin.settings.overview.receipt.enabled' | translate }}</dt>
+                <dd [class.params-card__value--active]="r.enabled">{{ (r.enabled ? 'common.yes' : 'common.no') | translate }}</dd>
+              </div>
+              <div class="params-card__row">
+                <dt>{{ 'admin.settings.overview.receipt.paperSize' | translate }}</dt>
+                <dd>{{ r.paperSize }}</dd>
+              </div>
+              <div class="params-card__row">
+                <dt>{{ 'admin.settings.overview.receipt.qrCode' | translate }}</dt>
+                <dd>{{ (r.qrCode ? 'common.yes' : 'common.no') | translate }}</dd>
+              </div>
+            </dl>
+          } @else {
+            <p class="params-card__empty">{{ 'admin.settings.overview.receipt.noConfig' | translate }}</p>
+          }
+          <div class="params-card__actions">
+            <a
+              mat-stroked-button
+              routerLink="/app/admin/company/settings/receipt"
+              [queryParams]="linkQueryParams"
+            >
+              <span class="material-symbols-outlined">edit</span>
+              {{ 'admin.settings.overview.edit' | translate }}
+            </a>
+          </div>
+        </tch-admin-section-card>
+
+        <!-- Livrezon tikè -->
+        <tch-admin-section-card
+          [title]="'admin.settings.overview.delivery.title' | translate"
+          icon="send"
+        >
+          @if (deliverySummary(); as d) {
+            <dl class="params-card__summary">
+              <div class="params-card__row">
+                <dt>{{ 'admin.settings.overview.delivery.sms' | translate }}</dt>
+                <dd [class.params-card__value--active]="d.sms">
+                  {{ (d.sms ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
+                </dd>
+              </div>
+              <div class="params-card__row">
+                <dt>{{ 'admin.settings.overview.delivery.whatsapp' | translate }}</dt>
+                <dd [class.params-card__value--active]="d.whatsapp">
+                  {{ (d.whatsapp ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
+                </dd>
+              </div>
+              <div class="params-card__row">
+                <dt>{{ 'admin.settings.overview.delivery.email' | translate }}</dt>
+                <dd [class.params-card__value--active]="d.email">
+                  {{ (d.email ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
+                </dd>
+              </div>
+            </dl>
+          } @else {
+            <p class="params-card__empty">{{ 'admin.settings.overview.delivery.noConfig' | translate }}</p>
+          }
+          <div class="params-card__actions">
+            <a
+              mat-stroked-button
+              routerLink="/app/admin/company/settings/delivery"
+              [queryParams]="linkQueryParams"
+            >
+              <span class="material-symbols-outlined">edit</span>
+              {{ 'admin.settings.overview.edit' | translate }}
+            </a>
+          </div>
+        </tch-admin-section-card>
+
+        <!-- Kalandriye vant -->
+        <tch-admin-section-card
+          [title]="'admin.settings.overview.calendar.title' | translate"
+          icon="event"
+        >
+          @if (calendarSummary(); as c) {
+            <dl class="params-card__summary">
+              <div class="params-card__row">
+                <dt>{{ 'admin.settings.overview.calendar.defaultOpen' | translate }}</dt>
+                <dd [class.params-card__value--active]="c.defaultOpen">{{ (c.defaultOpen ? 'common.yes' : 'common.no') | translate }}</dd>
+              </div>
+              @if (c.closedWeekdayCount > 0) {
+                <div class="params-card__row">
+                  <dt></dt>
+                  <dd>{{ 'admin.settings.overview.calendar.closedDays' | translate: { count: c.closedWeekdayCount } }}</dd>
+                </div>
+              }
+              @if (c.holidayCount > 0) {
+                <div class="params-card__row">
+                  <dt></dt>
+                  <dd>{{ 'admin.settings.overview.calendar.holidays' | translate: { count: c.holidayCount } }}</dd>
+                </div>
+              }
+            </dl>
+          } @else {
+            <p class="params-card__empty">{{ 'admin.settings.overview.calendar.noConfig' | translate }}</p>
+          }
+          <div class="params-card__actions">
+            <a
+              mat-stroked-button
+              routerLink="/app/admin/company/settings/calendar"
+              [queryParams]="linkQueryParams"
+            >
+              <span class="material-symbols-outlined">edit</span>
+              {{ 'admin.settings.overview.edit' | translate }}
+            </a>
+          </div>
+        </tch-admin-section-card>
+
+      </div>
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>

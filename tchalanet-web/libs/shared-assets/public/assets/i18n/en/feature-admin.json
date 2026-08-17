@@ -393,6 +393,34 @@
           "notice": "The fallback language must be one of the supported languages.",
           "saved": "Language settings saved."
         }
+      },
+      "overview": {
+        "title": "Business settings",
+        "description": "Business operational configuration",
+        "edit": "Edit",
+        "receipt": {
+          "title": "Receipts & printing",
+          "enabled": "Printing",
+          "paperSize": "Paper size",
+          "qrCode": "QR code",
+          "noConfig": "Not configured"
+        },
+        "delivery": {
+          "title": "Ticket delivery",
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "email": "Email",
+          "active": "Active",
+          "inactive": "Inactive",
+          "noConfig": "Not configured"
+        },
+        "calendar": {
+          "title": "Sales calendar",
+          "defaultOpen": "Open by default",
+          "closedDays": "{{ count }} closed day(s)",
+          "holidays": "{{ count }} holiday(s)",
+          "noConfig": "Not configured"
+        }
       }
     },
     "onboarding": {

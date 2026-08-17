@@ -401,6 +401,34 @@
           "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
           "saved": "Paramèt lang yo anrejistre."
         }
+      },
+      "overview": {
+        "title": "Paramèt antrepriz",
+        "description": "Konfigirasyon operasyon antrepriz la",
+        "edit": "Modifye",
+        "receipt": {
+          "title": "Resi ak enpresyon",
+          "enabled": "Enpresyon",
+          "paperSize": "Papye",
+          "qrCode": "QR kod",
+          "noConfig": "Pa konfigire"
+        },
+        "delivery": {
+          "title": "Livrezon tikè",
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "email": "Imèl",
+          "active": "Aktif",
+          "inactive": "Inaktif",
+          "noConfig": "Pa konfigire"
+        },
+        "calendar": {
+          "title": "Kalandriye vant",
+          "defaultOpen": "Ouvert pa defo",
+          "closedDays": "{{ count }} jou fèmen",
+          "holidays": "{{ count }} jou ferye",
+          "noConfig": "Pa konfigire"
+        }
       }
     },
     "kpi": {

@@ -1,0 +1,110 @@
+@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+
+.config-page {
+  &__readiness {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0 0 0.75rem;
+    color: var(--tch-color-error);
+    font-size: 0.875rem;
+
+    .material-symbols-outlined { font-size: 1.125rem; }
+
+    &--ready { color: var(--tch-color-success); }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    mat-form-field {
+      width: 100%;
+      max-width: 480px;
+    }
+  }
+
+  &__checkbox-row {
+    margin-bottom: 0.5rem;
+  }
+
+  &__holiday-custom {
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    padding: 0.875rem;
+    max-width: 720px;
+
+    h3 {
+      margin: 0 0 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  }
+
+  &__holiday-fields {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+
+    mat-form-field { max-width: none; }
+  }
+
+  &__holiday-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  &__holiday-row {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: 1fr;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--tch-color-outline-variant);
+    border-radius: var(--tch-radius-sm);
+    font-size: 0.875rem;
+
+    span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 0.75rem;
+
+    &--split { justify-content: flex-start; }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  &__spin { animation: spin 1s linear infinite; }
+
+  @include ui.up(medium) {
+    &__holiday-fields {
+      grid-template-columns: minmax(7.5rem, 0.8fr) minmax(11.25rem, 1.4fr);
+    }
+
+    &__holiday-row {
+      grid-template-columns: minmax(0, 1.6fr) 5rem 5rem 2.5rem;
+    }
+  }
+
+  @include ui.up(expanded) {
+    &__holiday-fields {
+      grid-template-columns: minmax(7.5rem, 0.8fr) minmax(11.25rem, 1.4fr) auto auto;
+    }
+  }
+}

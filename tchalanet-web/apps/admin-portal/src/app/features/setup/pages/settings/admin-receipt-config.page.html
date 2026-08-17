@@ -1,0 +1,130 @@
+<tch-admin-page-shell
+  [title]="'admin.settings.config.tabs.receipt' | translate"
+  [description]="'admin.settings.config.receipt.description' | translate"
+>
+  <div actions>
+    <a mat-stroked-button [routerLink]="backRoute">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ backLabel | translate }}
+    </a>
+    <button mat-stroked-button [disabled]="config.isLoading()" (click)="config.reload()">
+      <span class="material-symbols-outlined">refresh</span>
+      {{ 'common.refresh' | translate }}
+    </button>
+  </div>
+
+  <tch-async-view
+    [resource]="config"
+    [error]="configError()"
+    [isEmpty]="configIsEmpty"
+    [loadingLabel]="'common.loading' | translate"
+    (retry)="config.reload()"
+  >
+    <ng-template tchAsyncReady>
+      <div class="config-page">
+        @if (sectionReadiness('print'); as status) {
+          <div class="config-page__readiness" [class.config-page__readiness--ready]="status.status === 'READY'">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ status.status === 'READY' ? 'check_circle' : 'warning' }}</span>
+            <span>{{ status.status === 'READY' ? ('admin.settings.config.readiness.ready' | translate) : ('admin.settings.config.readiness.actionRequired' | translate) }}</span>
+            @if (status.blockingReasons.length) {
+              <span>· {{ 'admin.settings.config.readiness.issues' | translate:{ count: status.blockingReasons.length } }}</span>
+            }
+          </div>
+        }
+
+        <tch-admin-section-card
+          [title]="'admin.settings.config.receipt.title' | translate"
+          [description]="'admin.settings.config.receipt.description' | translate"
+        >
+          <form [formGroup]="receiptForm" class="config-page__form">
+            <div class="config-page__checkbox-row">
+              <mat-checkbox formControlName="enabled">
+                {{ 'admin.settings.config.receipt.enabled' | translate }}
+              </mat-checkbox>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.settings.config.receipt.header' | translate }}</mat-label>
+              <textarea
+                matInput
+                formControlName="headerMessage"
+                rows="2"
+                [placeholder]="'admin.settings.config.receipt.headerPlaceholder' | translate"
+              ></textarea>
+              <mat-hint>{{ 'admin.settings.config.receipt.headerHint' | translate }}</mat-hint>
+            </mat-form-field>
+            <tch-field-error [control]="receiptForm.controls.headerMessage" />
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.settings.config.receipt.footer' | translate }}</mat-label>
+              <textarea
+                matInput
+                formControlName="footerMessage"
+                rows="2"
+                [placeholder]="'admin.settings.config.receipt.footerPlaceholder' | translate"
+              ></textarea>
+              <mat-hint>{{ 'admin.settings.config.receipt.footerHint' | translate }}</mat-hint>
+            </mat-form-field>
+            <tch-field-error [control]="receiptForm.controls.footerMessage" />
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.settings.config.receipt.paperSize' | translate }}</mat-label>
+              <mat-select formControlName="defaultPaperSize">
+                @for (size of paperSizes; track size) {
+                  <mat-option [value]="size">{{ size }}</mat-option>
+                }
+              </mat-select>
+              <mat-hint>{{ 'admin.settings.config.receipt.paperSizeHint' | translate }}</mat-hint>
+            </mat-form-field>
+            <tch-field-error [control]="receiptForm.controls.defaultPaperSize" />
+
+            <div class="config-page__checkboxes">
+              <mat-checkbox formControlName="showQrCode">
+                {{ 'admin.settings.config.receipt.qrCode' | translate }}
+              </mat-checkbox>
+            </div>
+
+            <div class="config-page__effective-value">
+              <span class="material-symbols-outlined" aria-hidden="true">description</span>
+              <span>
+                <strong>{{ 'admin.settings.config.receipt.template' | translate }}</strong>
+                @if (receiptTemplateLabelKey(); as templateLabelKey) {
+                  {{ templateLabelKey | translate }}
+                } @else {
+                  {{ 'admin.settings.config.receipt.templateDefault' | translate }}
+                }
+              </span>
+            </div>
+
+            @if (saveReceipt.feedback(); as feedback) {
+              @if (feedback.kind === 'error') {
+                <tch-notice type="error" [focusOnRender]="true">{{ feedback.vm?.message }}</tch-notice>
+              } @else {
+                <tch-notice type="success" [focusOnRender]="true">
+                  {{ 'admin.settings.config.receipt.saved' | translate }}
+                </tch-notice>
+              }
+            }
+
+            <div class="config-page__form-actions">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                [disabled]="saveReceipt.pending()"
+                (click)="submitReceipt()"
+              >
+                @if (saveReceipt.pending()) {
+                  <span class="material-symbols-outlined config-page__spin">progress_activity</span>
+                } @else {
+                  <span class="material-symbols-outlined">save</span>
+                }
+                {{ 'common.save' | translate }}
+              </button>
+            </div>
+          </form>
+        </tch-admin-section-card>
+      </div>
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>
