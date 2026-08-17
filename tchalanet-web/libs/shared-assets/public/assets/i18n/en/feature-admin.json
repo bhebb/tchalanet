@@ -1219,7 +1219,8 @@
         "actions": {
           "disable": "Disable",
           "delete": "Delete",
-          "edit": "Edit"
+          "edit": "Edit",
+          "viewDetail": "View detail"
         },
         "status": {
           "configured": "Configured",
@@ -1265,7 +1266,7 @@
           "rule": "Rule",
           "appliedOn": "Applied on",
           "value": "Value",
-          "scope": "Scope",
+          "scope": "Scope level",
           "status": "Status",
           "actions": "Actions"
         }

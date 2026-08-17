@@ -1951,7 +1951,8 @@
         "actions": {
           "disable": "Désactiver",
           "delete": "Supprimer",
-          "edit": "Modifier"
+          "edit": "Modifier",
+          "viewDetail": "Voir le détail"
         },
         "status": {
           "configured": "Configuré",
@@ -1997,7 +1998,7 @@
           "rule": "Règle",
           "appliedOn": "Appliqué sur",
           "value": "Valeur",
-          "scope": "Niveau",
+          "scope": "Niveau d'application",
           "status": "État",
           "actions": "Actions"
         }

@@ -59,20 +59,20 @@ type Scope = 'TENANT' | 'DRAW_CHANNEL';
 export class BlockNumberQuickDialogComponent {
   private readonly api = inject(AdminLimitsApi);
   private readonly dialogRef = inject(MatDialogRef<BlockNumberQuickDialogComponent>);
-  private readonly data = inject<BlockNumberQuickDialogData>(MAT_DIALOG_DATA);
+  private readonly data = inject<BlockNumberQuickDialogData | null>(MAT_DIALOG_DATA);
 
   readonly separatorKeyCodes = [ENTER, COMMA];
   readonly selections = signal<string[]>([]);
 
-  readonly lockedChannelId = signal<string | null>(this.data.channelId ?? null);
-  readonly lockedChannelLabel = signal<string | null>(this.data.channelLabel ?? null);
+  readonly lockedChannelId = signal<string | null>(this.data?.channelId ?? null);
+  readonly lockedChannelLabel = signal<string | null>(this.data?.channelLabel ?? null);
   readonly hasLockedChannel = computed(() => this.lockedChannelId() !== null);
 
   // Always default to DRAW_CHANNEL. The user can switch to TENANT if needed.
   readonly scope = signal<Scope>('DRAW_CHANNEL');
 
   // Channel pre-selected from the dialog's context (e.g., draw detail page).
-  readonly preselectedChannelId = signal<string | null>(this.data.channelId ?? null);
+  readonly preselectedChannelId = signal<string | null>(this.data?.channelId ?? null);
 
   // Channel chosen by the user in the picker (may be different from pre-selection).
   readonly selectedChannel = signal<DrawChannelSummary | null>(null);

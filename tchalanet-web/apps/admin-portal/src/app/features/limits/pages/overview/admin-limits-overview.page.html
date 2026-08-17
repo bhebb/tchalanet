@@ -96,7 +96,12 @@
           {{ 'admin.limits.overview.actions.edit' | translate }}
         </button>
         @if (item.enabled) {
-        <button mat-stroked-button type="button" (click)="disableLimit(item)">
+        <button
+          class="admin-limits-overview__disable-inline"
+          mat-stroked-button
+          type="button"
+          (click)="disableLimit(item)"
+        >
           {{ 'admin.limits.overview.actions.disable' | translate }}
         </button>
         }
@@ -109,6 +114,21 @@
           <span class="material-symbols-outlined">more_vert</span>
         </button>
         <mat-menu #itemMenu>
+          @if (item.enabled) {
+          <button
+            class="admin-limits-overview__disable-menu"
+            mat-menu-item
+            type="button"
+            (click)="disableLimit(item)"
+          >
+            <span class="material-symbols-outlined">pause_circle</span>
+            {{ 'admin.limits.overview.actions.disable' | translate }}
+          </button>
+          }
+          <a mat-menu-item [routerLink]="['/app/admin/limits', item.assignmentId]">
+            <span class="material-symbols-outlined">open_in_new</span>
+            {{ 'admin.limits.overview.actions.viewDetail' | translate }}
+          </a>
           <button
             mat-menu-item
             type="button"

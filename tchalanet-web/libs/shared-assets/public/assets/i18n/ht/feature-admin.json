@@ -1219,7 +1219,8 @@
         "actions": {
           "disable": "Dezaktive",
           "delete": "Efase",
-          "edit": "Modifye"
+          "edit": "Modifye",
+          "viewDetail": "Gade detay"
         },
         "status": {
           "configured": "Konfigire",
@@ -1265,7 +1266,7 @@
           "rule": "Règ",
           "appliedOn": "Aplike sou",
           "value": "Valè",
-          "scope": "Nivo",
+          "scope": "Nivo aplikasyon",
           "status": "Eta",
           "actions": "Aksyon"
         }
