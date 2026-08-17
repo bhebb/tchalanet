@@ -31,7 +31,6 @@ import { BlockSellerTerminalDialog } from './dialogs/block-seller-terminal.dialo
 import { ResetPinDialog } from './dialogs/reset-pin.dialog';
 import { ConfirmDisableDialog } from './dialogs/confirm-disable.dialog';
 import { ConfirmUnblockDialog } from './dialogs/confirm-unblock.dialog';
-import { SellerTerminalLimitsDialog } from './dialogs/seller-terminal-limits.dialog';
 import { SellerTerminalDialogResult } from './dialogs/seller-terminal-dialog-result';
 
 @Component({
@@ -160,7 +159,7 @@ export class AdminSellerTerminalsPage {
   }
 
   openLimits(row: SellerTerminalSummaryRow): void {
-    this.dialog.open(SellerTerminalLimitsDialog, { data: row, width: '780px' });
+    void this.router.navigate(['/app/admin/seller-terminals', row.id.value]);
   }
 
   openDisable(row: SellerTerminalSummaryRow): void {
