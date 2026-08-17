@@ -6,10 +6,16 @@
     <a class="limit-item-card__rule-link" [routerLink]="detailRoute()">
       <strong>{{ ruleLabel() }}</strong>
     </a>
-    <span
-      class="limit-item-card__badge"
-      [class.limit-item-card__badge--active]="isActive()"
-    >{{ statusLabel() }}</span>
+  </div>
+
+  <div class="limit-item-card__toggle">
+    <mat-slide-toggle
+      [checked]="isActive()"
+      [disabled]="saving()"
+      [attr.aria-label]="statusLabel()"
+      (change)="toggleEnabled.emit()"
+    ></mat-slide-toggle>
+    <span class="limit-item-card__toggle-label">{{ statusLabel() }}</span>
   </div>
 
   <button
@@ -23,7 +29,20 @@
   </button>
 
   <p class="limit-item-card__target">{{ targetLabel() }}</p>
-  <p class="limit-item-card__value">{{ paramsLabel() }}</p>
+
+  @if (selections().length) {
+    <div class="limit-item-card__balls">
+      @for (num of visibleBalls(); track num) {
+        <span class="limit-item-card__ball">{{ num }}</span>
+      }
+      @if (hiddenCount() > 0) {
+        <span class="limit-item-card__ball limit-item-card__ball--more">+{{ hiddenCount() }}</span>
+      }
+    </div>
+  } @else {
+    <p class="limit-item-card__value">{{ paramsLabel() }}</p>
+  }
+
   <p class="limit-item-card__scope">{{ scopeTypeLabel() }}</p>
 
   <div class="limit-item-card__actions">
@@ -36,26 +55,9 @@
     >
       {{ 'admin.limits.overview.actions.edit' | translate }}
     </button>
-    @if (isActive()) {
-      <button
-        class="limit-item-card__disable-inline"
-        mat-stroked-button
-        type="button"
-        [disabled]="saving()"
-        (click)="disable.emit()"
-      >
-        {{ 'admin.limits.overview.actions.disable' | translate }}
-      </button>
-    }
   </div>
 
   <mat-menu #moreMenu>
-    @if (isActive()) {
-      <button mat-menu-item type="button" (click)="disable.emit()">
-        <span class="material-symbols-outlined" aria-hidden="true">pause_circle</span>
-        {{ 'admin.limits.overview.actions.disable' | translate }}
-      </button>
-    }
     <a mat-menu-item [routerLink]="detailRoute()">
       <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
       {{ 'admin.limits.overview.actions.viewDetail' | translate }}

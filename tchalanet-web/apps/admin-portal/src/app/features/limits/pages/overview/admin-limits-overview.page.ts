@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, of, tap } from 'rxjs';
 
@@ -45,7 +44,6 @@ type ScopeFilter = 'ALL' | TargetType;
     TranslatePipe,
     MatButtonModule,
     MatButtonToggleModule,
-    RouterLink,
     TchErrorPanel,
     TchLoading,
     TchSectionError,
@@ -176,44 +174,33 @@ export class AdminLimitsOverviewPage implements OnInit {
     });
   }
 
-  disableLimit(item: ActiveLimitItem): void {
-    this.dialog
-      .open(TchConfirmDialog, {
-        data: {
-          title: this.translate.instant('admin.limits.overview.confirmDisable'),
-          message: this.confirmMessage(item),
-          confirmLabel: this.translate.instant('admin.limits.overview.actions.disable'),
-          cancelLabel: this.translate.instant('common.cancel'),
-          icon: 'pause_circle',
+  toggleLimit(item: ActiveLimitItem): void {
+    this.clearFeedback();
+    this.saving.set(true);
+    this.api
+      .upsertAssignment(
+        {
+          ruleKey: item.ruleKey,
+          targetType: item.targetType,
+          targetId: item.targetType === 'TENANT' ? null : item.targetId,
+          enabled: !item.enabled,
+          onBreach: item.onBreach,
+          params: item.params,
+          startsAt: item.startsAt,
+          endsAt: item.endsAt,
         },
-      })
-      .afterClosed()
-      .subscribe(result => {
-        if (result?.confirmed !== true) return;
-        this.clearFeedback();
-        this.api
-          .upsertAssignment(
-            {
-              ruleKey: item.ruleKey,
-              targetType: item.targetType,
-              targetId: item.targetType === 'TENANT' ? null : item.targetId,
-              enabled: false,
-              onBreach: item.onBreach,
-              params: item.params,
-              startsAt: item.startsAt,
-              endsAt: item.endsAt,
-            },
-            { suppressShellFeedback: true },
-          )
-          .subscribe({
-            next: () => {
-              this.actionNotice.set('admin.limits.common.notice.saved');
-              this.reloadOverview();
-            },
-            error: (err: unknown) => {
-              this.actionError.set(this.resolveError(err, 'section'));
-            },
-          });
+        { suppressShellFeedback: true },
+      )
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.actionNotice.set('admin.limits.common.notice.saved');
+          this.reloadOverview();
+        },
+        error: (err: unknown) => {
+          this.saving.set(false);
+          this.actionError.set(this.resolveError(err, 'section'));
+        },
       });
   }
 

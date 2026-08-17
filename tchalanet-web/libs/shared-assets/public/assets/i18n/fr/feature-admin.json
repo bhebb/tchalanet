@@ -2072,7 +2072,19 @@
         "preview": "Ce qui sera appliqué",
         "cancel": "Annuler",
         "save": "Enregistrer",
-        "saving": "Enregistrement…"
+        "saving": "Enregistrement…",
+        "hint": {
+          "BLOCK_SELECTION_PER_DRAW": {
+            "TENANT": "Ces numéros ne pourront pas être vendus sur tous les tirages.",
+            "DRAW_CHANNEL": "Ces numéros ne pourront pas être vendus sur ce canal de tirage.",
+            "SELLER_TERMINAL": "Ces numéros ne pourront pas être vendus sur ce terminal vendeur."
+          },
+          "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+            "TENANT": "Lorsque le total des mises sur un numéro atteint le plafond, la vente s'arrête sur tous les tirages.",
+            "DRAW_CHANNEL": "Lorsque le total des mises sur un numéro atteint le plafond, la vente s'arrête sur ce canal.",
+            "SELLER_TERMINAL": "Lorsque le total des mises sur un numéro atteint le plafond, la vente s'arrête sur ce terminal."
+          }
+        }
       },
       "table": {
         "rules": "règle(s)",

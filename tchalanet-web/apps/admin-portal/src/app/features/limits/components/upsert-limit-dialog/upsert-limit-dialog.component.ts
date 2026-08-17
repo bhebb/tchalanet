@@ -1,16 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -39,10 +36,7 @@ import {
   buildParams,
   detectParamSchema,
   extractParamValues,
-  formatLimitSentence,
 } from '../../data-access/admin-limits.models';
-
-const V0_BREACH_OUTCOMES: BreachOutcome[] = ['BLOCK', 'WARN'];
 
 @Component({
   selector: 'tch-upsert-limit-dialog',
@@ -53,7 +47,6 @@ const V0_BREACH_OUTCOMES: BreachOutcome[] = ['BLOCK', 'WARN'];
     ReactiveFormsModule,
     MatButtonModule,
     MatButtonToggleModule,
-    MatCheckboxModule,
     MatChipsModule,
     MatDialogModule,
     MatFormFieldModule,
@@ -70,9 +63,7 @@ export class UpsertLimitDialogComponent {
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
-  private readonly destroyRef = inject(DestroyRef);
 
-  readonly breachOutcomes = V0_BREACH_OUTCOMES;
   readonly separatorKeyCodes: number[] = [ENTER, COMMA];
 
   // 'add' = user picks rule first; 'edit' = rule is fixed
@@ -89,8 +80,6 @@ export class UpsertLimitDialogComponent {
   readonly selections = signal<string[]>([]);
   readonly durationMode = signal<'permanent' | 'today' | 'custom'>('permanent');
   readonly customEndsAt = signal<string>('');
-  readonly formRevision = signal(0);
-
   readonly showParamForm = computed(() => this.spec() !== null);
   readonly showValueCents = computed(
     () => this.paramSchema() === 'CENTS' || this.paramSchema() === 'CENTS_BET_TYPE',
@@ -104,6 +93,14 @@ export class UpsertLimitDialogComponent {
   );
   readonly showSelectionChips = computed(() => this.paramSchema() === 'SELECTION');
   readonly showCustomEndDate = computed(() => this.durationMode() === 'custom');
+  readonly contextHint = computed(() => {
+    const spec = this.spec();
+    const targetType = this.targetType();
+    if (!spec) return '';
+    const key = `admin.limits.dialog.hint.${spec.ruleKey}.${targetType}`;
+    const translated = this.translate.instant(key);
+    return translated !== key ? translated : '';
+  });
   readonly amountFieldLabel = computed(() => {
     const ruleKey = this.spec()?.ruleKey ?? '';
     if (ruleKey.includes('EXPOSURE'))
@@ -118,31 +115,6 @@ export class UpsertLimitDialogComponent {
     if (ruleKey.includes('SALES_COUNT'))
       return this.translate.instant('admin.limits.dialog.maxSales');
     return this.translate.instant('admin.limits.dialog.maxCount');
-  });
-  readonly previewSentence = computed(() => {
-    const spec = this.spec();
-    if (!spec) return '';
-    this.formRevision();
-    const v = this.form.getRawValue();
-    const params = buildParams(this.paramSchema(), spec.paramsTemplate, {
-      valueCentsHtg: v.valueCentsHtg,
-      maxCount: v.maxCount,
-      windowMinutes: v.windowMinutes,
-      betTypeCode: v.betTypeCode,
-      selectionIds: this.selections(),
-    });
-    return formatLimitSentence({
-      spec,
-      assignment: {
-        id: { value: 'preview' },
-        ruleKey: spec.ruleKey,
-        enabled: v.enabled,
-        onBreach: v.onBreach,
-        params,
-        startsAt: null,
-        endsAt: this.buildEndsAt(),
-      },
-    });
   });
   readonly timezone = computed(() => {
     const value = this.runtimeSettings.settings().values['app.timezone'];
@@ -166,11 +138,6 @@ export class UpsertLimitDialogComponent {
     betTypeCode: [''],
   });
 
-  constructor() {
-    this.form.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.formRevision.update(value => value + 1));
-  }
 
   /** Edit existing assignment. */
   init(
@@ -214,7 +181,7 @@ export class UpsertLimitDialogComponent {
 
   addSelection(event: MatChipInputEvent): void {
     const val = (event.value ?? '').trim();
-    if (val && !this.selections().includes(val)) {
+    if (/^\d+$/.test(val) && !this.selections().includes(val)) {
       this.selections.update(s => [...s, val]);
     }
     event.chipInput?.clear();

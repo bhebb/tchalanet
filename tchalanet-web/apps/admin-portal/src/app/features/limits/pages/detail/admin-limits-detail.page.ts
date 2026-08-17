@@ -15,10 +15,8 @@ import { forkJoin } from 'rxjs';
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchConfirmDialog, TchErrorPanel, TchLoading, TchSectionError } from '@tch/ui/components';
 import {
-  AdminDetailLayoutComponent,
   AdminPageShellComponent,
   AdminSectionCardComponent,
-  TchIdentityCardComponent,
 } from '@tch/ui/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
@@ -28,7 +26,7 @@ import type {
   LimitAssignmentItem,
   LimitRuleSpec,
 } from '../../data-access/admin-limits.models';
-import { formatActiveLimitParams } from '../../data-access/admin-limits.models';
+import { extractSelections, formatActiveLimitParams } from '../../data-access/admin-limits.models';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -41,10 +39,8 @@ import { MatDialog } from '@angular/material/dialog';
     RouterLink,
     MatButtonModule,
     MatMenuModule,
-    AdminDetailLayoutComponent,
     AdminPageShellComponent,
     AdminSectionCardComponent,
-    TchIdentityCardComponent,
     TchErrorPanel,
     TchLoading,
     TchSectionError,
@@ -83,10 +79,6 @@ export class AdminLimitsDetailPage implements OnInit {
     return translated !== key ? translated : (s.description ?? '');
   });
 
-  readonly statusTone = computed(() =>
-    this.item()?.enabled ? ('success' as const) : ('warning' as const),
-  );
-
   readonly statusLabel = computed(() =>
     this.item()?.enabled
       ? this.translate.instant('admin.limits.overview.limitStatus.active')
@@ -111,6 +103,11 @@ export class AdminLimitsDetailPage implements OnInit {
   readonly paramsLabel = computed(() => {
     const i = this.item();
     return i ? formatActiveLimitParams(i) : '—';
+  });
+
+  readonly selections = computed(() => {
+    const i = this.item();
+    return i ? extractSelections(i) : [];
   });
 
   readonly outcomeLabel = computed(() => {

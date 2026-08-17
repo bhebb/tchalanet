@@ -20,10 +20,11 @@
     </mat-form-field>
   }
 
-  @if (spec(); as s) {
-    <div class="upsert-limit-dialog__rule-info">
-      <div class="upsert-limit-dialog__rule-label">{{ s.label || s.ruleKey }}</div>
-    </div>
+  @if (contextHint()) {
+    <p class="upsert-limit-dialog__hint">
+      <span class="material-symbols-outlined" aria-hidden="true">info</span>
+      {{ contextHint() }}
+    </p>
   }
 
   @if (error(); as err) {
@@ -37,20 +38,7 @@
 
   @if (showParamForm()) {
     <form [formGroup]="form" class="upsert-limit-dialog__form">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'admin.limits.dialog.action' | translate }}</mat-label>
-        <mat-select formControlName="onBreach">
-          @for (o of breachOutcomes; track o) {
-            <mat-option [value]="o">{{
-              o === 'BLOCK'
-                ? ('admin.limits.dialog.block' | translate)
-                : ('admin.limits.dialog.warn' | translate)
-            }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      @if (showValueCents()) {
+@if (showValueCents()) {
         <mat-form-field appearance="outline">
           <mat-label>{{ amountFieldLabel() }}</mat-label>
           <input matInput type="number" formControlName="valueCentsHtg" min="0.01" step="0.01" />
@@ -116,6 +104,7 @@
             }
             <input
               data-testid="limit-selection-input"
+              inputmode="numeric"
               [placeholder]="'admin.limits.dialog.numberPlaceholder' | translate"
               [matChipInputFor]="chipGrid"
               [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
@@ -130,10 +119,6 @@
           </p>
         }
       }
-
-      <mat-checkbox formControlName="enabled">{{
-        'admin.limits.dialog.enabled' | translate
-      }}</mat-checkbox>
 
       <div class="upsert-limit-dialog__duration">
         <p class="upsert-limit-dialog__duration-label">
@@ -170,13 +155,6 @@
         }
       </div>
 
-      <div class="upsert-limit-dialog__preview" aria-live="polite">
-        <span class="material-symbols-outlined">rule</span>
-        <span>
-          <strong>{{ 'admin.limits.dialog.preview' | translate }}</strong>
-          <small>{{ previewSentence() }}</small>
-        </span>
-      </div>
     </form>
   }
 </mat-dialog-content>

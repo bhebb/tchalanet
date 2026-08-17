@@ -1340,7 +1340,19 @@
         "preview": "Sa k ap aplike",
         "cancel": "Anile",
         "save": "Anrejistre",
-        "saving": "Y ap anrejistre…"
+        "saving": "Y ap anrejistre…",
+        "hint": {
+          "BLOCK_SELECTION_PER_DRAW": {
+            "TENANT": "Nimewo sa yo pap ka vann sou tout tiraj yo.",
+            "DRAW_CHANNEL": "Nimewo sa yo pap ka vann sou kanal tiraj sa a.",
+            "SELLER_TERMINAL": "Nimewo sa yo pap ka vann nan tèminal machann sa a."
+          },
+          "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+            "TENANT": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou tout tiraj yo.",
+            "DRAW_CHANNEL": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou kanal sa a.",
+            "SELLER_TERMINAL": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou tèminal machann sa a."
+          }
+        }
       },
       "table": {
         "rules": "règ",

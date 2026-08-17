@@ -128,7 +128,7 @@ export class BlockNumberQuickDialogComponent {
 
   addNumber(event: MatChipInputEvent): void {
     const val = (event.value ?? '').trim();
-    if (val && !this.selections().includes(val)) {
+    if (/^\d+$/.test(val) && !this.selections().includes(val)) {
       this.selections.update(s => [...s, val]);
     }
     event.chipInput?.clear();

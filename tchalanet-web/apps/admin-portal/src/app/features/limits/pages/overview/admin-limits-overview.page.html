@@ -71,6 +71,7 @@
       <span>{{ 'admin.limits.overview.columns.scope' | translate }}</span>
       <span></span>
       <span></span>
+      <span></span>
     </li>
     @for (item of filteredLimits(); track item.assignmentId) {
     <li>
@@ -78,7 +79,7 @@
         [item]="item"
         [saving]="saving()"
         (edit)="editLimit(item)"
-        (disable)="disableLimit(item)"
+        (toggleEnabled)="toggleLimit(item)"
         (delete)="deleteLimit(item)"
       />
     </li>

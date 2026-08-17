@@ -1340,7 +1340,19 @@
         "preview": "What will be applied",
         "cancel": "Cancel",
         "save": "Save",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "hint": {
+          "BLOCK_SELECTION_PER_DRAW": {
+            "TENANT": "These numbers cannot be sold across all draws.",
+            "DRAW_CHANNEL": "These numbers cannot be sold on this draw channel.",
+            "SELLER_TERMINAL": "These numbers cannot be sold on this seller terminal."
+          },
+          "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+            "TENANT": "When the total stake on a number reaches the cap, sales stop across all draws.",
+            "DRAW_CHANNEL": "When the total stake on a number reaches the cap, sales stop on this channel.",
+            "SELLER_TERMINAL": "When the total stake on a number reaches the cap, sales stop on this terminal."
+          }
+        }
       },
       "table": {
         "rules": "rule(s)",

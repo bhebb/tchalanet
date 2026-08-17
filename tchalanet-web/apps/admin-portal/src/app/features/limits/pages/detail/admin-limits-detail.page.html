@@ -8,20 +8,20 @@
       {{ 'common.back' | translate }}
     </a>
     @if (item()) {
-    <button mat-stroked-button type="button" (click)="editLimit()">
+    <button mat-flat-button color="primary" type="button" (click)="editLimit()">
       <span class="material-symbols-outlined">edit</span>
       {{ 'admin.limits.overview.actions.edit' | translate }}
     </button>
-    @if (item()?.enabled) {
-    <button mat-stroked-button type="button" (click)="disableLimit()">
-      <span class="material-symbols-outlined">pause_circle</span>
-      {{ 'admin.limits.overview.actions.disable' | translate }}
-    </button>
-    }
     <button mat-icon-button type="button" [matMenuTriggerFor]="pageMenu">
       <span class="material-symbols-outlined">more_vert</span>
     </button>
     <mat-menu #pageMenu>
+      @if (item()?.enabled) {
+      <button mat-menu-item type="button" (click)="disableLimit()">
+        <span class="material-symbols-outlined">pause_circle</span>
+        {{ 'admin.limits.overview.actions.disable' | translate }}
+      </button>
+      }
       <button mat-menu-item type="button" class="limits-detail__delete-action" (click)="deleteLimit()">
         <span class="material-symbols-outlined">delete</span>
         {{ 'admin.limits.overview.actions.delete' | translate }}
@@ -55,84 +55,70 @@
     (retry)="load()"
   />
   } @else if (item(); as i) {
-  <tch-admin-detail-layout>
-    <div main class="limits-detail__main">
-      <tch-admin-section-card
-        [title]="'admin.limits.detail.section.rule' | translate"
-        icon="shield"
-      >
-        <dl class="limits-detail__facts">
-          <div>
-            <dt>{{ 'admin.limits.detail.fact.rule' | translate }}</dt>
-            <dd>{{ ruleLabel() }}</dd>
-          </div>
-          @if (ruleDescription()) {
-          <div>
-            <dt>{{ 'admin.limits.detail.fact.description' | translate }}</dt>
-            <dd class="limits-detail__description">{{ ruleDescription() }}</dd>
-          </div>
-          }
-          <div>
-            <dt>{{ 'admin.limits.overview.columns.value' | translate }}</dt>
-            <dd>{{ paramsLabel() }}</dd>
-          </div>
-          <div>
-            <dt>{{ 'admin.limits.detail.fact.outcome' | translate }}</dt>
-            <dd>{{ outcomeLabel() }}</dd>
-          </div>
-        </dl>
-      </tch-admin-section-card>
+  <div class="limits-detail__main">
+    <tch-admin-section-card
+      [title]="'admin.limits.detail.section.rule' | translate"
+      icon="shield"
+    >
+      <dl class="limits-detail__facts">
+        <div>
+          <dt>{{ 'admin.limits.overview.columns.value' | translate }}</dt>
+          <dd>
+            @if (selections().length) {
+              <div class="limits-detail__balls">
+                @for (num of selections(); track num) {
+                  <span class="limits-detail__ball">{{ num }}</span>
+                }
+              </div>
+            } @else {
+              {{ paramsLabel() }}
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.limits.detail.fact.outcome' | translate }}</dt>
+          <dd>{{ outcomeLabel() }}</dd>
+        </div>
+      </dl>
+    </tch-admin-section-card>
 
-      <tch-admin-section-card
-        [title]="'admin.limits.detail.section.scope' | translate"
-        icon="location_on"
-      >
-        <dl class="limits-detail__facts">
-          <div>
-            <dt>{{ 'admin.limits.overview.columns.scope' | translate }}</dt>
-            <dd>{{ scopeLabel() }}</dd>
-          </div>
-          <div>
-            <dt>{{ 'admin.limits.overview.columns.appliedOn' | translate }}</dt>
-            <dd>{{ targetLabel() }}</dd>
-          </div>
-          <div>
-            <dt>{{ 'admin.limits.detail.fact.validity' | translate }}</dt>
-            <dd>{{ validityLabel() }}</dd>
-          </div>
-        </dl>
-      </tch-admin-section-card>
+    <tch-admin-section-card
+      [title]="'admin.limits.detail.section.scope' | translate"
+      icon="location_on"
+    >
+      <dl class="limits-detail__facts">
+        <div>
+          <dt>{{ 'admin.limits.overview.columns.scope' | translate }}</dt>
+          <dd>{{ scopeLabel() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.limits.overview.columns.appliedOn' | translate }}</dt>
+          <dd>{{ targetLabel() }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.limits.detail.fact.validity' | translate }}</dt>
+          <dd>{{ validityLabel() }}</dd>
+        </div>
+      </dl>
+    </tch-admin-section-card>
 
-      <details class="limits-detail__debug">
-        <summary>{{ 'admin.limits.detail.debug.title' | translate }}</summary>
-        <dl class="limits-detail__facts limits-detail__facts--debug">
-          <div>
-            <dt>{{ 'admin.limits.detail.debug.ruleKey' | translate }}</dt>
-            <dd><code>{{ ruleKeyCode() }}</code></dd>
-          </div>
-          <div>
-            <dt>{{ 'admin.limits.detail.debug.assignmentId' | translate }}</dt>
-            <dd><code>{{ i.assignmentId }}</code></dd>
-          </div>
-          <div>
-            <dt>{{ 'admin.limits.detail.debug.targetType' | translate }}</dt>
-            <dd><code>{{ i.targetType }}</code></dd>
-          </div>
-        </dl>
-      </details>
-    </div>
-
-    <div aside>
-      <tch-identity-card
-        [eyebrow]="'admin.limits.detail.aside.eyebrow' | translate"
-        [title]="ruleLabel()"
-        [code]="ruleKeyCode()"
-        [status]="statusLabel()"
-        [statusTone]="statusTone()"
-        icon="shield"
-        variant="compact"
-      />
-    </div>
-  </tch-admin-detail-layout>
+    <details class="limits-detail__debug">
+      <summary>{{ 'admin.limits.detail.debug.title' | translate }}</summary>
+      <dl class="limits-detail__facts limits-detail__facts--debug">
+        <div>
+          <dt>{{ 'admin.limits.detail.debug.ruleKey' | translate }}</dt>
+          <dd><code>{{ ruleKeyCode() }}</code></dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.limits.detail.debug.assignmentId' | translate }}</dt>
+          <dd><code>{{ i.assignmentId }}</code></dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.limits.detail.debug.targetType' | translate }}</dt>
+          <dd><code>{{ i.targetType }}</code></dd>
+        </div>
+      </dl>
+    </details>
+  </div>
   }
 </tch-admin-page-shell>
