@@ -1,186 +1,123 @@
 @use 'breakpoints' as ui;
 
 .admin-limits-overview {
-  display: block;
-}
-
-.admin-limits-overview__main {
   display: grid;
   gap: 1.25rem;
 }
 
+// ── Inline stats ──────────────────────────────────────────────────────────────
+
+.admin-limits-overview__stats {
+  margin: 0;
+  color: var(--tch-color-on-surface-variant);
+  font-size: var(--tch-font-size-body-sm);
+}
+
+// ── Quick actions ─────────────────────────────────────────────────────────────
+
 .admin-limits-overview__quick-actions {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.admin-limits-overview__groups {
-  display: grid;
-  gap: 1rem;
-}
-
-.admin-limits-overview__group {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.admin-limits-overview__group-header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-
-  h3,
-  p {
-    margin: 0;
-  }
-
-  h3 {
-    font-size: var(--tch-font-size-title-sm, 1rem);
-  }
-
-  p {
-    margin-top: 0.125rem;
-    color: var(--tch-color-on-surface-variant);
-    font-size: var(--tch-font-size-body-sm);
-    line-height: 1.4;
-  }
-
-  > span {
-    display: grid;
-    min-width: 2rem;
-    height: 2rem;
-    place-items: center;
-    border-radius: var(--tch-radius-pill);
-    background: var(--tch-color-surface-container);
-    color: var(--tch-color-on-surface-variant);
-    font-weight: var(--tch-weight-semibold, 600);
-  }
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
-.admin-limits-overview__rule-list {
+// ── Feedback ──────────────────────────────────────────────────────────────────
+
+.admin-limits-overview__feedback {
+  display: block;
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+
+.admin-limits-overview__filters {
+  overflow-x: auto;
+}
+
+// ── Flat list ─────────────────────────────────────────────────────────────────
+
+.admin-limits-overview__list {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.625rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.admin-limits-overview__rule-item {
+// Column header — hidden on mobile, visible on desktop
+.admin-limits-overview__list-header {
+  display: none;
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-semibold, 600);
+  color: var(--tch-color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 1rem;
+}
+
+// Individual item — card on mobile, table row on desktop
+.admin-limits-overview__item {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.625rem;
   padding: 1rem;
   border: 1px solid var(--tch-color-outline-variant);
   border-radius: var(--tch-radius-md);
   background: var(--tch-color-surface-container-lowest);
-  box-shadow: var(--tch-shadow-sm, 0 1px 2px rgb(0 0 0 / 8%));
+
+  &.is-disabled {
+    opacity: 0.65;
+  }
 }
 
-.admin-limits-overview__rule-main {
-  display: grid;
-  gap: 0.25rem;
+.admin-limits-overview__item-rule {
+  color: inherit;
+  text-decoration: none;
 
   strong {
     color: var(--tch-color-on-surface);
-    font-size: var(--tch-font-size-body-lg);
-  }
-
-  span {
-    color: var(--tch-color-on-surface-variant);
     font-size: var(--tch-font-size-body-md);
   }
-}
 
-.admin-limits-overview__rule-facts {
-  display: grid;
-  gap: 0.625rem;
-  margin: 0;
-
-  div {
-    display: grid;
-    gap: 0.125rem;
-  }
-
-  dt {
-    color: var(--tch-color-on-surface-variant);
-    font-size: var(--tch-font-size-label-sm);
-    font-weight: var(--tch-weight-semibold, 600);
-    text-transform: uppercase;
-  }
-
-  dd {
-    margin: 0;
-    color: var(--tch-color-on-surface);
-    font-weight: var(--tch-weight-semibold, 600);
+  &:hover strong {
+    color: var(--tch-color-primary);
+    text-decoration: underline;
   }
 }
 
-.admin-limits-overview__rule-actions {
+.admin-limits-overview__item-target,
+.admin-limits-overview__item-value,
+.admin-limits-overview__item-scope {
+  color: var(--tch-color-on-surface-variant);
+  font-size: var(--tch-font-size-body-sm);
+}
+
+.admin-limits-overview__item-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  justify-content: flex-start;
-}
-
-.admin-limits-overview__action-feedback {
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.admin-limits-overview__quick-links {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.admin-limits-overview__quick-link {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.75rem;
-  min-height: 4.5rem;
-  padding: 0.875rem;
-  border: 1px solid var(--tch-color-outline-variant);
-  border-radius: var(--tch-radius-md);
-  color: inherit;
-  text-decoration: none;
-  background: var(--tch-color-surface-container-lowest);
-
-  &:hover {
-    border-color: var(--tch-color-primary);
-    background: var(--tch-color-surface-container-low);
-  }
-
-  strong,
-  small {
-    display: block;
-  }
-
-  strong {
-    color: var(--tch-color-on-surface);
-    font-size: var(--tch-font-size-body-md);
-  }
-
-  small {
-    margin-top: 0.125rem;
-    color: var(--tch-color-on-surface-variant);
-    font-size: var(--tch-font-size-body-sm);
-    line-height: 1.35;
-  }
 }
 
-.admin-limits-overview__quick-icon {
-  display: grid;
-  width: 2.25rem;
-  height: 2.25rem;
-  place-items: center;
+.admin-limits-overview__status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
   border-radius: var(--tch-radius-pill);
-  background: var(--tch-color-primary-container);
-  color: var(--tch-color-on-primary-container);
+  font-size: var(--tch-font-size-label-sm);
+  font-weight: var(--tch-weight-semibold, 600);
+  background: var(--tch-color-surface-container);
+  color: var(--tch-color-on-surface-variant);
+
+  &.is-active {
+    background: var(--tch-color-primary-container);
+    color: var(--tch-color-on-primary-container);
+  }
 }
 
-.admin-limits-overview__quick-arrow {
-  color: var(--tch-color-on-surface-variant);
+.admin-limits-overview__delete-action {
+  color: var(--tch-color-error) !important;
 }
+
+// ── Empty state ───────────────────────────────────────────────────────────────
 
 .admin-limits-overview__empty-state {
   display: grid;
@@ -191,7 +128,6 @@
   border-radius: var(--tch-radius-md);
   background: var(--tch-color-surface-container-lowest);
   color: var(--tch-color-on-surface-variant);
-  line-height: 1.45;
 
   > span {
     color: var(--tch-color-primary);
@@ -208,84 +144,33 @@
   }
 }
 
-.admin-limits-overview__section-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.admin-limits-overview__summary {
-  --comp-card-bg: var(--tch-color-primary);
-  --comp-card-border: transparent;
-  display: grid;
-  gap: 1rem;
-  color: var(--tch-color-on-primary);
-  padding: 1.25rem;
-
-  h2,
-  p,
-  dl {
-    margin: 0;
-  }
-
-  h2 {
-    font-size: var(--tch-font-size-title-lg);
-  }
-
-  p {
-    color: color-mix(in oklab, var(--tch-color-on-primary) 82%, transparent);
-    line-height: 1.45;
-  }
-
-  dl {
-    display: grid;
-    gap: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid color-mix(in oklab, var(--tch-color-on-primary) 18%, transparent);
-  }
-
-  dl div {
-    display: grid;
-    gap: 0.125rem;
-  }
-
-  dt {
-    color: color-mix(in oklab, var(--tch-color-on-primary) 70%, transparent);
-    font-size: var(--tch-font-size-label-sm);
-    font-weight: var(--tch-weight-semibold, 600);
-    text-transform: uppercase;
-  }
-
-  dd {
-    margin: 0;
-    font-size: var(--tch-font-size-title-md);
-    font-weight: var(--tch-weight-semibold, 600);
-  }
-}
-
-.admin-limits-overview__summary-eyebrow {
-  color: var(--tch-color-accent);
-  font-size: var(--tch-font-size-label-sm);
-  font-weight: var(--tch-weight-semibold, 600);
-  text-transform: uppercase;
-}
+// ── Desktop layout ────────────────────────────────────────────────────────────
 
 @include ui.up(expanded) {
-  .admin-limits-overview__quick-actions {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+  // 6-column table grid: rule | target | value | scope | status | actions
+  $cols: minmax(11rem, 1.5fr) minmax(8rem, 1fr) minmax(7rem, 1fr) minmax(7rem, 1fr) 6rem auto;
 
-  .admin-limits-overview__rule-item {
-    grid-template-columns: minmax(13rem, 1.2fr) minmax(0, 2fr) auto;
+  .admin-limits-overview__list-header {
+    display: grid;
+    grid-template-columns: $cols;
     align-items: center;
+    gap: 1rem;
   }
 
-  .admin-limits-overview__rule-facts {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .admin-limits-overview__item {
+    grid-template-columns: $cols;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .admin-limits-overview__rule-actions {
+  .admin-limits-overview__item-target,
+  .admin-limits-overview__item-value,
+  .admin-limits-overview__item-scope {
+    font-size: var(--tch-font-size-body-md);
+  }
+
+  .admin-limits-overview__item-actions {
+    flex-wrap: nowrap;
     justify-content: flex-end;
   }
 }

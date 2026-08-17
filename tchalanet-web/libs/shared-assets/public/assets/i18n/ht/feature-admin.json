@@ -1218,7 +1218,8 @@
         },
         "actions": {
           "disable": "Dezaktive",
-          "delete": "Efase"
+          "delete": "Efase",
+          "edit": "Modifye"
         },
         "status": {
           "configured": "Konfigire",
@@ -1247,6 +1248,26 @@
             "description": "Règ espesyal pou yon machann oswa yon tèminal POS.",
             "metric": "Pa machann"
           }
+        },
+        "filter": {
+          "all": "Tout",
+          "tenant": "Santral",
+          "drawChannel": "Kanal tiraj",
+          "sellerTerminal": "Machann"
+        },
+        "scopeType": {
+          "TENANT": "Santral",
+          "DRAW_CHANNEL": "Kanal tiraj",
+          "SELLER_TERMINAL": "Machann",
+          "AGENT": "Ajan"
+        },
+        "columns": {
+          "rule": "Règ",
+          "appliedOn": "Aplike sou",
+          "value": "Valè",
+          "scope": "Portée",
+          "status": "Eta",
+          "actions": "Aksyon"
         }
       },
       "rule": {
@@ -1353,6 +1374,38 @@
         "blockedNumbers": "Nimewo bloke : {{numbers}}",
         "scope": {
           "tenant": "santral"
+        },
+        "local": {
+          "title": "Limit sou nivo sa a"
+        },
+        "inherited": {
+          "title": "Limit eritye"
+        },
+        "empty": "Pa gen limit konfigire sou nivo sa a.",
+        "add": "Ajoute yon limit",
+        "manage": "Jere limit yo"
+      },
+      "detail": {
+        "title": "Detay limit",
+        "notFound": "Limit sa a pa jwenn. Li ka deja efase.",
+        "aside": {
+          "eyebrow": "Limit"
+        },
+        "section": {
+          "rule": "Règ",
+          "scope": "Portée"
+        },
+        "fact": {
+          "rule": "Règ",
+          "description": "Deskripsyon",
+          "outcome": "Aksyon si depase",
+          "validity": "Dire"
+        },
+        "debug": {
+          "title": "Detay teknik",
+          "ruleKey": "RuleKey",
+          "assignmentId": "Assignment ID",
+          "targetType": "Target type"
         }
       }
     },

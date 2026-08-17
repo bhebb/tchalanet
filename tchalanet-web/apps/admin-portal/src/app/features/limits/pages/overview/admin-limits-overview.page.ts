@@ -7,42 +7,35 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Observable, of, tap } from 'rxjs';
 
 import { mapHttpErrorToProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import {
-  TchCard,
   TchConfirmDialog,
   TchErrorPanel,
   TchLoading,
   TchSectionError,
 } from '@tch/ui/components';
-import { AdminDetailLayoutComponent, AdminSectionCardComponent } from '@tch/ui/console';
 import { ErrorViewModel, resolveErrorFeedbackCopy, toErrorViewModel } from '@tch/web/errors';
 
 import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
 import {
-  ActiveLimitGroup,
   ActiveLimitItem,
+  LimitAssignmentItem,
+  LimitRuleSpec,
   TenantAdminPoliciesOverviewView,
+  TargetType,
   formatActiveLimitParams,
 } from '../../data-access/admin-limits.models';
 import { BlockNumberQuickDialogComponent } from '../../components/block-number-quick-dialog/block-number-quick-dialog.component';
+import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
-interface ActiveLimitGroupVm {
-  readonly id: ActiveLimitGroup;
-  readonly items: ActiveLimitItem[];
-}
-
-const GROUP_ORDER: ActiveLimitGroup[] = [
-  'NUMBER_BLOCK',
-  'NUMBER_CAP',
-  'TICKET_LIMIT',
-  'SELLER_LIMIT',
-  'ADVANCED',
-];
+type ScopeFilter = 'ALL' | TargetType;
 
 @Component({
   selector: 'tch-admin-limits-overview-page',
@@ -51,10 +44,9 @@ const GROUP_ORDER: ActiveLimitGroup[] = [
   imports: [
     TranslatePipe,
     MatButtonModule,
+    MatButtonToggleModule,
+    MatMenuModule,
     RouterLink,
-    AdminDetailLayoutComponent,
-    AdminSectionCardComponent,
-    TchCard,
     TchErrorPanel,
     TchLoading,
     TchSectionError,
@@ -72,15 +64,36 @@ export class AdminLimitsOverviewPage implements OnInit {
   readonly actionError = signal<ErrorViewModel | null>(null);
   readonly actionNotice = signal<string | null>(null);
   readonly overview = signal<TenantAdminPoliciesOverviewView | null>(null);
+  readonly scopeFilter = signal<ScopeFilter>('ALL');
 
-  readonly warningCount = computed(() => this.overview()?.summary.warnings ?? 0);
+  private readonly rulesCache = signal<LimitRuleSpec[]>([]);
+
   readonly activeLimits = computed(() => this.overview()?.activeLimits ?? []);
-  readonly activeLimitGroups = computed<ActiveLimitGroupVm[]>(() =>
-    GROUP_ORDER.map(id => ({
-      id,
-      items: this.activeLimits().filter(item => item.group === id),
-    })).filter(group => group.items.length > 0),
+
+  readonly activeCount = computed(() => this.activeLimits().filter(l => l.enabled).length);
+  readonly blockCount = computed(
+    () => this.activeLimits().filter(l => l.enabled && l.group === 'NUMBER_BLOCK').length,
   );
+  readonly capCount = computed(
+    () => this.activeLimits().filter(l => l.enabled && l.group === 'NUMBER_CAP').length,
+  );
+
+  readonly inlineStats = computed(() => {
+    const total = this.activeCount();
+    if (total === 0) return null;
+    const blocks = this.blockCount();
+    const caps = this.capCount();
+    const parts: string[] = [`${total} limit aktif`];
+    if (blocks > 0) parts.push(`${blocks} blokaj nimewo`);
+    if (caps > 0) parts.push(`${caps} plafon`);
+    return parts.join(' · ');
+  });
+
+  readonly filteredLimits = computed(() => {
+    const filter = this.scopeFilter();
+    if (filter === 'ALL') return this.activeLimits();
+    return this.activeLimits().filter(l => l.targetType === filter);
+  });
 
   ngOnInit(): void {
     this.load();
@@ -116,6 +129,52 @@ export class AdminLimitsOverviewPage implements OnInit {
     });
   }
 
+  openPlafon(): void {
+    this.withSpec('MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW', spec => {
+      const ref = this.dialog.open(UpsertLimitDialogComponent, {
+        width: '560px',
+        maxWidth: '100vw',
+      });
+      ref.componentInstance.init(spec, 'TENANT', null, null);
+      ref.afterClosed().subscribe((result: unknown) => {
+        if (result) {
+          this.actionNotice.set('admin.limits.common.notice.saved');
+          this.reloadOverview();
+        }
+      });
+    });
+  }
+
+  editLimit(item: ActiveLimitItem): void {
+    this.withSpec(item.ruleKey, spec => {
+      const assignment: LimitAssignmentItem = {
+        id: { value: item.assignmentId },
+        ruleKey: item.ruleKey,
+        enabled: item.enabled,
+        onBreach: item.onBreach,
+        params: item.params,
+        startsAt: item.startsAt,
+        endsAt: item.endsAt,
+      };
+      const ref = this.dialog.open(UpsertLimitDialogComponent, {
+        width: '560px',
+        maxWidth: '100vw',
+      });
+      ref.componentInstance.init(
+        spec,
+        item.targetType,
+        item.targetType === 'TENANT' ? null : item.targetId,
+        assignment,
+      );
+      ref.afterClosed().subscribe((result: unknown) => {
+        if (result) {
+          this.actionNotice.set('admin.limits.common.notice.saved');
+          this.reloadOverview();
+        }
+      });
+    });
+  }
+
   disableLimit(item: ActiveLimitItem): void {
     this.dialog
       .open(TchConfirmDialog, {
@@ -130,8 +189,7 @@ export class AdminLimitsOverviewPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (result?.confirmed !== true) return;
-        this.actionError.set(null);
-        this.actionNotice.set(null);
+        this.clearFeedback();
         this.api
           .upsertAssignment(
             {
@@ -173,8 +231,7 @@ export class AdminLimitsOverviewPage implements OnInit {
       .afterClosed()
       .subscribe(result => {
         if (result?.confirmed !== true) return;
-        this.actionError.set(null);
-        this.actionNotice.set(null);
+        this.clearFeedback();
         this.api.deleteAssignment(item.assignmentId, { suppressShellFeedback: true }).subscribe({
           next: () => {
             this.actionNotice.set('admin.limits.common.notice.deleted');
@@ -187,18 +244,6 @@ export class AdminLimitsOverviewPage implements OnInit {
       });
   }
 
-  numberRuleCount(): number {
-    return this.overview()?.summary.numberRules ?? 0;
-  }
-
-  groupTitleKey(group: ActiveLimitGroup): string {
-    return `admin.limits.overview.groups.${group}.title`;
-  }
-
-  groupDescriptionKey(group: ActiveLimitGroup): string {
-    return `admin.limits.overview.groups.${group}.description`;
-  }
-
   ruleLabelKey(item: ActiveLimitItem): string {
     return `admin.limits.rule.${item.ruleKey}`;
   }
@@ -209,6 +254,10 @@ export class AdminLimitsOverviewPage implements OnInit {
       : 'admin.limits.overview.limitStatus.disabled';
   }
 
+  scopeTypeKey(item: ActiveLimitItem): string {
+    return `admin.limits.overview.scopeType.${item.targetType}`;
+  }
+
   targetLabel(item: ActiveLimitItem): string {
     if (item.targetType === 'TENANT') {
       return this.translate.instant('admin.limits.overview.target.tenant');
@@ -216,20 +265,23 @@ export class AdminLimitsOverviewPage implements OnInit {
     return item.targetLabel || item.targetCode || item.targetId;
   }
 
-  durationLabel(item: ActiveLimitItem): string {
-    if (!item.startsAt && !item.endsAt) {
-      return this.translate.instant('admin.limits.overview.duration.permanent');
-    }
-    if (item.endsAt) {
-      return this.translate.instant('admin.limits.overview.duration.until', {
-        date: new Date(item.endsAt).toLocaleDateString(),
-      });
-    }
-    return this.translate.instant('admin.limits.overview.duration.custom');
-  }
-
   paramsLabel(item: ActiveLimitItem): string {
     return formatActiveLimitParams(item);
+  }
+
+  private withSpec(ruleKey: string, fn: (spec: LimitRuleSpec) => void): void {
+    this.loadRules().subscribe(specs => {
+      const spec = specs.find(s => s.ruleKey === ruleKey);
+      if (spec) fn(spec);
+    });
+  }
+
+  private loadRules(): Observable<LimitRuleSpec[]> {
+    const cached = this.rulesCache();
+    if (cached.length) return of(cached);
+    return this.api.listRules({ suppressShellFeedback: true }).pipe(
+      tap(specs => this.rulesCache.set(specs)),
+    );
   }
 
   private confirmMessage(item: ActiveLimitItem): string {
@@ -237,7 +289,14 @@ export class AdminLimitsOverviewPage implements OnInit {
       this.translate.instant(this.ruleLabelKey(item)),
       this.targetLabel(item),
       this.paramsLabel(item),
-    ].filter(Boolean).join(' · ');
+    ]
+      .filter(Boolean)
+      .join(' · ');
+  }
+
+  private clearFeedback(): void {
+    this.actionError.set(null);
+    this.actionNotice.set(null);
   }
 
   private reloadOverview(): void {

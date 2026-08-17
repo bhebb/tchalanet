@@ -3,25 +3,18 @@ import {
   Component,
   DestroyRef,
   ResourceRef,
-  computed,
   inject,
   input,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { TchSectionError } from '@tch/ui/components';
 import { AdminSectionCardComponent } from '@tch/ui/console';
-import {
-  LimitBlockAssignment,
-  LimitBlockSpec,
-  LimitGroup,
-  LimitPolicyBlockComponent,
-  LimitPolicyEditRequest,
-  LpbLabels,
-} from '@tch/ui/console';
 import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '@tch/web/async';
 
 import { AdminLimitsApi, CombinedLimitData } from '../../data-access/admin-limits-api.service';
@@ -34,10 +27,8 @@ import type {
 import { formatActiveLimitParams } from '../../data-access/admin-limits.models';
 import { UpsertLimitDialogComponent } from '../upsert-limit-dialog/upsert-limit-dialog.component';
 
-interface ActiveLimitRow {
-  readonly item: LimitAssignmentItem;
-  readonly inherited: boolean;
-}
+// LimitGroup kept as input type for backwards compat with callers that still pass it
+type LimitGroup = string;
 
 @Component({
   selector: 'tch-admin-limits-section',
@@ -45,11 +36,12 @@ interface ActiveLimitRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     TranslatePipe,
+    RouterLink,
+    MatButtonModule,
     TchSectionError,
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
     AdminSectionCardComponent,
-    LimitPolicyBlockComponent,
   ],
   template: `
     <tch-admin-section-card [title]="sectionTitle()" icon="shield">
@@ -62,53 +54,74 @@ interface ActiveLimitRow {
       >
         <ng-template tchAsyncReady>
           @if (combinedResource.value(); as data) {
-            @let rows = activeRows(data);
-            @if (rows.length) {
-              <section
-                class="limits-section__active"
-                [attr.aria-label]="'admin.limits.section.activeAria' | translate"
-              >
-                <header class="limits-section__active-head">
-                  <div>
-                    <h3>{{ 'admin.limits.section.activeTitle' | translate }}</h3>
-                    <p>{{ 'admin.limits.section.activeDescription' | translate }}</p>
-                  </div>
-                  <span>{{ rows.length }}</span>
-                </header>
+            @let local = localRows(data);
+            @let inherited = inheritedRows(data);
 
-                <div class="limits-section__active-list">
-                  @for (row of rows; track activeRowTrack(row)) {
-                    <article
-                      class="limits-section__active-row"
-                      [class.limits-section__active-row--inherited]="row.inherited"
-                    >
-                      <span class="material-symbols-outlined" aria-hidden="true">
-                        {{ activeIcon(row.item.ruleKey) }}
+            @if (local.length) {
+              <section class="ls__group">
+                <h4 class="ls__group-title">
+                  {{ 'admin.limits.section.local.title' | translate }}
+                </h4>
+                <ul class="ls__rows" role="list">
+                  @for (item of local; track item.id.value) {
+                    <li class="ls__row">
+                      <span class="material-symbols-outlined ls__icon" aria-hidden="true">
+                        {{ ruleIcon(item.ruleKey) }}
                       </span>
-                      <div class="limits-section__active-copy">
-                        <strong>{{ activeLabel(row.item) }}</strong>
+                      <div class="ls__row-copy">
+                        <strong>{{ ruleLabel(item.ruleKey) | translate }}</strong>
+                        <span>{{ paramsLabel(item) }}</span>
                       </div>
-                      <small>{{ breachLabel(row.item.onBreach) }} · {{ activeSourceLabel(row) }}</small>
-                    </article>
+                    </li>
                   }
-                </div>
+                </ul>
               </section>
             }
 
-            <tch-limit-policy-block
-              [specs]="filterSpecs(data.specs)"
-              [assignments]="asBlockAssignments(data.assignments)"
-              [inheritedAssignments]="data.inheritedAssignments ? asBlockAssignments(data.inheritedAssignments) : null"
-              [inheritedScopeLabel]="inheritedScopeLabel()"
-              [defaultExpandedGroups]="defaultExpandedGroups()"
-              [groupLabels]="lpbGroupLabels()"
-              [labels]="lpbLabels()"
-              (editRequested)="onEdit($event)"
-              (deleteRequested)="onDelete($event)"
-            />
+            @if (inherited.length) {
+              <section class="ls__group">
+                <h4 class="ls__group-title">
+                  {{ 'admin.limits.section.inherited.title' | translate }}
+                </h4>
+                <ul class="ls__rows" role="list">
+                  @for (item of inherited; track item.id.value) {
+                    <li class="ls__row ls__row--inherited">
+                      <span class="material-symbols-outlined ls__icon" aria-hidden="true">
+                        {{ ruleIcon(item.ruleKey) }}
+                      </span>
+                      <div class="ls__row-copy">
+                        <strong>{{ ruleLabel(item.ruleKey) | translate }}</strong>
+                        <span>{{ paramsLabel(item) }}</span>
+                      </div>
+                      <small class="ls__provenance">
+                        {{ 'admin.limits.section.inheritedScope' | translate : { scope: inheritedScopeLabel() ?? tenantLabel() } }}
+                      </small>
+                    </li>
+                  }
+                </ul>
+              </section>
+            }
+
+            @if (!local.length && !inherited.length) {
+              <p class="ls__empty">
+                {{ 'admin.limits.section.empty' | translate }}
+              </p>
+            }
+
+            <div class="ls__actions">
+              <button mat-stroked-button type="button" (click)="addLimit(data)">
+                <span class="material-symbols-outlined">add</span>
+                {{ 'admin.limits.section.add' | translate }}
+              </button>
+              <a mat-stroked-button routerLink="/app/admin/limits">
+                {{ 'admin.limits.section.manage' | translate }}
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
+            </div>
           }
         </ng-template>
       </tch-async-view>
+
       @if (actionError()) {
         <tch-section-error
           [title]="'admin.limits.section.actionError' | translate"
@@ -121,111 +134,98 @@ interface ActiveLimitRow {
   styles: [`
     @use 'breakpoints' as ui;
 
-    .limits-section__active {
-      display: grid;
-      gap: 0.75rem;
-      margin-block-end: 1rem;
-      padding: 0.875rem;
-      border: 1px solid var(--tch-color-outline-variant, rgba(23, 23, 31, 0.16));
-      border-radius: 0.75rem;
-      background: var(--tch-color-surface-container-lowest, #fff);
+    .ls__group {
+      margin-bottom: 1rem;
     }
 
-    .limits-section__active-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 1rem;
+    .ls__group-title {
+      margin: 0 0 0.5rem;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+      font-weight: var(--tch-weight-semibold, 600);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
-    .limits-section__active-head h3,
-    .limits-section__active-head p {
-      margin: 0;
-    }
-
-    .limits-section__active-head h3 {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--tch-color-on-surface, #1b1b1e);
-    }
-
-    .limits-section__active-head p {
-      margin-block-start: 0.125rem;
-      color: var(--tch-color-on-surface-variant, #55545f);
-      font-size: 0.85rem;
-      line-height: 1.35;
-    }
-
-    .limits-section__active-head > span {
-      display: inline-flex;
-      min-width: 2rem;
-      min-height: 2rem;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      background: var(--tch-color-primary-container, #d7e2ff);
-      color: var(--tch-color-on-primary-container, #001b3f);
-      font-weight: 800;
-    }
-
-    .limits-section__active-list {
+    .ls__rows {
       display: grid;
       gap: 0.5rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
     }
 
-    .limits-section__active-row {
+    .ls__row {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
-      gap: 0.625rem;
+      gap: 0.5rem 0.625rem;
       align-items: center;
       padding: 0.75rem;
-      border-radius: 0.625rem;
-      background: var(--tch-color-surface-container-low, #f5f3f7);
+      border-radius: var(--tch-radius-md);
+      background: var(--tch-color-surface-container-low);
     }
 
-    .limits-section__active-row > .material-symbols-outlined {
-      color: var(--tch-color-primary, #00458f);
-      font-size: 1.35rem;
-    }
-
-    .limits-section__active-copy {
-      display: grid;
-      min-width: 0;
-      gap: 0.125rem;
-    }
-
-    .limits-section__active-copy strong,
-    .limits-section__active-copy span {
-      overflow-wrap: anywhere;
-    }
-
-    .limits-section__active-copy strong {
-      font-weight: 800;
-      color: var(--tch-color-on-surface, #1b1b1e);
-    }
-
-    .limits-section__active-copy span,
-    .limits-section__active-row small {
-      color: var(--tch-color-on-surface-variant, #55545f);
-    }
-
-    .limits-section__active-row small {
-      grid-column: 2;
-      font-weight: 700;
-    }
-
-    .limits-section__active-row--inherited {
-      border: 1px dashed var(--tch-color-outline-variant, rgba(23, 23, 31, 0.16));
+    .ls__row--inherited {
       background: transparent;
+      border: 1px dashed var(--tch-color-outline-variant);
+    }
+
+    .ls__icon {
+      color: var(--tch-color-primary);
+      font-size: 1.25rem;
+    }
+
+    .ls__row--inherited .ls__icon {
+      color: var(--tch-color-on-surface-variant);
+    }
+
+    .ls__row-copy {
+      display: grid;
+      gap: 0.125rem;
+      min-width: 0;
+
+      strong {
+        color: var(--tch-color-on-surface);
+        font-size: var(--tch-font-size-body-md);
+        overflow-wrap: anywhere;
+      }
+
+      span {
+        color: var(--tch-color-on-surface-variant);
+        font-size: var(--tch-font-size-body-sm);
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .ls__provenance {
+      grid-column: 2;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-label-sm);
+      font-weight: var(--tch-weight-semibold, 600);
+    }
+
+    .ls__empty {
+      margin: 0 0 1rem;
+      color: var(--tch-color-on-surface-variant);
+      font-size: var(--tch-font-size-body-sm);
+    }
+
+    .ls__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.625rem;
+      margin-top: 0.25rem;
     }
 
     @include ui.up(medium) {
-      .limits-section__active-row {
+      .ls__row {
         grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
       }
 
-      .limits-section__active-row small {
+      .ls__provenance {
         grid-column: auto;
+        white-space: nowrap;
       }
     }
   `],
@@ -240,9 +240,10 @@ export class AdminLimitsSectionComponent {
   readonly targetId = input<string | null>(null);
   readonly inheritedTargetType = input<TargetType | null>(null);
   readonly inheritedTargetId = input<string | null>(null);
-  readonly inheritedScopeLabel = input<string>();
+  readonly inheritedScopeLabel = input<string | undefined>(undefined);
   readonly allowedRuleKeys = input<RuleKey[] | null>(null);
   readonly effectiveAt = input<string | null>(null);
+  // Kept for backwards compat with callers — no longer drives the template
   readonly defaultExpandedGroups = input<LimitGroup[]>([]);
   readonly sectionTitle = input.required<string>();
 
@@ -258,50 +259,35 @@ export class AdminLimitsSectionComponent {
 
   readonly loadError = resourceErrorVm(this.combinedResource, 'admin.limits.section');
 
-  readonly lpbGroupLabels = computed<Record<LimitGroup, string>>(() => ({
-    VENTE: this.translate.instant('admin.limits.blockComponent.group.vente'),
-    RESTRICTIONS: this.translate.instant('admin.limits.blockComponent.group.restrictions'),
-    EXPOSITION: this.translate.instant('admin.limits.blockComponent.group.exposition'),
-  }));
-
-  readonly lpbLabels = computed<LpbLabels>(() => ({
-    unconfigured: this.translate.instant('admin.limits.blockComponent.unconfigured'),
-    configured: this.translate.instant('admin.limits.blockComponent.configured'),
-    inheritedFrom: this.translate.instant('admin.limits.blockComponent.inheritedFrom'),
-    editAria: this.translate.instant('admin.limits.blockComponent.editAria'),
-    deleteAria: this.translate.instant('admin.limits.blockComponent.deleteAria'),
-  }));
-
-  asBlockAssignments(items: LimitAssignmentItem[]): LimitBlockAssignment[] {
-    return items as unknown as LimitBlockAssignment[];
+  tenantLabel(): string {
+    return this.translate.instant('admin.limits.section.scope.tenant');
   }
 
-  activeRows(data: CombinedLimitData): ActiveLimitRow[] {
-    const current = data.assignments
+  localRows(data: CombinedLimitData): LimitAssignmentItem[] {
+    const allowed = this.allowedRuleKeys();
+    return data.assignments
       .filter(item => item.enabled && this.isEffective(item))
-      .map(item => ({ item, inherited: false }));
-    const inherited = (data.inheritedAssignments ?? [])
+      .filter(item => !allowed || allowed.includes(item.ruleKey));
+  }
+
+  inheritedRows(data: CombinedLimitData): LimitAssignmentItem[] {
+    const allowed = this.allowedRuleKeys();
+    return (data.inheritedAssignments ?? [])
       .filter(item => item.enabled && this.isEffective(item))
-      .map(item => ({ item, inherited: true }));
-    return [...current, ...inherited].sort((a, b) => {
-      if (a.item.ruleKey === 'BLOCK_SELECTION_PER_DRAW') return -1;
-      if (b.item.ruleKey === 'BLOCK_SELECTION_PER_DRAW') return 1;
-      return a.item.ruleKey.localeCompare(b.item.ruleKey);
-    });
+      .filter(item => !allowed || allowed.includes(item.ruleKey));
   }
 
-  activeRowTrack(row: ActiveLimitRow): string {
-    return `${row.inherited ? 'inherited' : 'current'}-${row.item.id.value}`;
+  ruleLabel(ruleKey: RuleKey): string {
+    return `admin.limits.rule.${ruleKey}`;
   }
 
-  activeIcon(ruleKey: RuleKey): string {
+  ruleIcon(ruleKey: RuleKey): string {
     if (ruleKey === 'BLOCK_SELECTION_PER_DRAW') return 'block';
     if (ruleKey.includes('STAKE') || ruleKey.includes('EXPOSURE')) return 'payments';
-    if (ruleKey.includes('TICKET') || ruleKey.includes('LINES')) return 'confirmation_number';
     return 'shield';
   }
 
-  activeParamsLabel(item: LimitAssignmentItem): string {
+  paramsLabel(item: LimitAssignmentItem): string {
     const value = formatActiveLimitParams({
       assignmentId: item.id.value,
       ruleKey: item.ruleKey,
@@ -317,37 +303,26 @@ export class AdminLimitsSectionComponent {
       endsAt: item.endsAt,
       actions: [],
     });
-    return value === '—'
-      ? this.translate.instant('admin.limits.section.noParams')
-      : value;
+    if (value !== '—') return value;
+    return this.translate.instant('admin.limits.section.noParams');
   }
 
-  activeLabel(item: LimitAssignmentItem): string {
-    const params = this.activeParamsLabel(item);
-    if (item.ruleKey === 'BLOCK_SELECTION_PER_DRAW') {
-      return this.translate.instant('admin.limits.section.blockedNumbers', { numbers: params });
-    }
-    return `${this.translate.instant(this.ruleLabelKey(item.ruleKey))}: ${params}`;
-  }
+  addLimit(data: CombinedLimitData): void {
+    const allowed = this.allowedRuleKeys();
+    const specs: LimitRuleSpec[] = (allowed
+      ? data.specs.filter(s => allowed.includes(s.ruleKey))
+      : data.specs) as LimitRuleSpec[];
 
-  activeSourceLabel(row: ActiveLimitRow): string {
-    if (!row.inherited) return this.translate.instant('admin.limits.section.currentScope');
-    const scope = this.inheritedScopeLabel() ?? this.translate.instant('admin.limits.section.scope.tenant');
-    return this.translate.instant('admin.limits.section.inheritedScope', { scope });
-  }
-
-  breachLabel(outcome: LimitAssignmentItem['onBreach']): string {
-    if (outcome === 'BLOCK') return this.translate.instant('admin.limits.dialog.block');
-    if (outcome === 'WARN') return this.translate.instant('admin.limits.dialog.warn');
-    if (outcome === 'REQUIRE_APPROVAL') {
-      return this.translate.instant('admin.limits.table.approvalRequired');
-    }
-    if (outcome === 'ALLOW') return this.translate.instant('admin.limits.table.allow');
-    return this.translate.instant('admin.limits.table.undefined');
-  }
-
-  ruleLabelKey(ruleKey: RuleKey): string {
-    return `admin.limits.rule.${ruleKey}`;
+    const ref = this.dialog.open(UpsertLimitDialogComponent, {
+      width: '560px',
+      maxWidth: '100vw',
+    });
+    ref.componentInstance.initAdd(specs, this.targetType(), this.targetId());
+    ref.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) this.combinedResource.reload();
+      });
   }
 
   private isEffective(item: LimitAssignmentItem): boolean {
@@ -364,39 +339,5 @@ export class AdminLimitsSectionComponent {
       if (!Number.isNaN(end) && at > end) return false;
     }
     return true;
-  }
-
-  filterSpecs(specs: LimitRuleSpec[]): LimitBlockSpec[] {
-    const allowed = this.allowedRuleKeys();
-    return (allowed ? specs.filter(s => allowed.includes(s.ruleKey)) : specs) as LimitBlockSpec[];
-  }
-
-  onEdit(req: LimitPolicyEditRequest): void {
-    const dialogRef = this.dialog.open(UpsertLimitDialogComponent, {
-      width: '520px',
-      maxWidth: '95vw',
-    });
-    const instance = dialogRef.componentInstance;
-    instance.init(
-      req.spec as LimitRuleSpec,
-      this.targetType(),
-      this.targetId(),
-      req.assignment as LimitAssignmentItem | null,
-    );
-    dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-        if (result) this.combinedResource.reload();
-      });
-  }
-
-  onDelete(assignmentId: string): void {
-    this.actionError.set(null);
-    this.api.deleteAssignment(assignmentId, { suppressShellFeedback: true })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => this.combinedResource.reload(),
-        error: () => this.actionError.set(this.translate.instant('admin.limits.section.actionError')),
-      });
   }
 }
