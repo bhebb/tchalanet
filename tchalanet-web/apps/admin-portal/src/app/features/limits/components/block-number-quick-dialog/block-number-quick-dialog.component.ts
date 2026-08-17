@@ -26,15 +26,18 @@ import { AdminLimitsApi } from '../../data-access/admin-limits-api.service';
 
 export interface BlockNumberQuickDialogData {
   /**
-   * When provided (e.g., opened from a draw detail page), the dialog pre-selects
-   * this draw channel and defaults to DRAW_CHANNEL scope.
-   * When absent, the dialog lets the admin choose between tenant and channel scope.
+   * Generic locked target — when set, the scope radio is hidden and the dialog
+   * operates in context mode (no scope or channel picker shown).
    */
+  readonly lockedTargetType?: 'TENANT' | 'DRAW_CHANNEL' | 'SELLER_TERMINAL';
+  readonly lockedTargetId?: string;
+  readonly lockedTargetLabel?: string;
+  /** Legacy — kept for backwards compat; prefer lockedTargetType/Id/Label. */
   readonly channelId?: string;
   readonly channelLabel?: string;
 }
 
-type Scope = 'TENANT' | 'DRAW_CHANNEL';
+type Scope = 'TENANT' | 'DRAW_CHANNEL' | 'SELLER_TERMINAL';
 
 @Component({
   selector: 'tch-block-number-quick-dialog',
@@ -64,15 +67,34 @@ export class BlockNumberQuickDialogComponent {
   readonly separatorKeyCodes = [ENTER, COMMA];
   readonly selections = signal<string[]>([]);
 
-  readonly lockedChannelId = signal<string | null>(this.data?.channelId ?? null);
-  readonly lockedChannelLabel = signal<string | null>(this.data?.channelLabel ?? null);
-  readonly hasLockedChannel = computed(() => this.lockedChannelId() !== null);
+  // Resolve locked target — prefer new generic fields, fall back to legacy channelId/channelLabel
+  readonly lockedTargetType = signal<Scope | null>(
+    this.data?.lockedTargetType ?? (this.data?.channelId ? 'DRAW_CHANNEL' : null),
+  );
+  readonly lockedTargetId = signal<string | null>(
+    this.data?.lockedTargetId ?? this.data?.channelId ?? null,
+  );
+  readonly lockedTargetLabel = signal<string | null>(
+    this.data?.lockedTargetLabel ?? this.data?.channelLabel ?? null,
+  );
+  readonly hasLockedTarget = computed(() => this.lockedTargetType() !== null);
 
-  // Always default to DRAW_CHANNEL. The user can switch to TENANT if needed.
-  readonly scope = signal<Scope>('DRAW_CHANNEL');
+  // Legacy compat aliases used by template
+  readonly lockedChannelId = computed(() =>
+    this.lockedTargetType() === 'DRAW_CHANNEL' ? this.lockedTargetId() : null,
+  );
+  readonly hasLockedChannel = computed(() => this.lockedTargetType() === 'DRAW_CHANNEL');
+
+  readonly scope = signal<Scope>(
+    this.data?.lockedTargetType ?? (this.data?.channelId ? 'DRAW_CHANNEL' : 'DRAW_CHANNEL'),
+  );
 
   // Channel pre-selected from the dialog's context (e.g., draw detail page).
-  readonly preselectedChannelId = signal<string | null>(this.data?.channelId ?? null);
+  readonly preselectedChannelId = signal<string | null>(
+    this.data?.lockedTargetType === 'DRAW_CHANNEL'
+      ? (this.data.lockedTargetId ?? null)
+      : (this.data?.channelId ?? null),
+  );
 
   // Channel chosen by the user in the picker (may be different from pre-selection).
   readonly selectedChannel = signal<DrawChannelSummary | null>(null);
@@ -80,27 +102,65 @@ export class BlockNumberQuickDialogComponent {
   readonly canSave = computed(() => {
     if (this.selections().length === 0) return false;
     if (this.scope() === 'DRAW_CHANNEL') {
-      return this.hasLockedChannel() || this.selectedChannel() !== null;
+      return this.hasLockedTarget() || this.selectedChannel() !== null;
     }
-    return true;
+    return true; // TENANT and SELLER_TERMINAL (always locked) just need selections
   });
 
   readonly descriptionKey = computed(() =>
-    this.hasLockedChannel()
+    this.hasLockedTarget()
       ? 'admin.limits.blockNumber.contextDescription'
       : 'admin.limits.blockNumber.quickDescription',
   );
 
+  readonly contextIcon = computed<string>(() => {
+    switch (this.lockedTargetType()) {
+      case 'DRAW_CHANNEL': return 'event';
+      case 'SELLER_TERMINAL': return 'person';
+      case 'TENANT': return 'domain';
+      default: return 'shield';
+    }
+  });
+
+  readonly contextLabelKey = computed(() => {
+    if (this.lockedTargetType() === 'SELLER_TERMINAL') {
+      return 'admin.limits.blockNumber.contextLabelSeller';
+    }
+    if (this.lockedTargetType() === 'TENANT') {
+      return 'admin.limits.blockNumber.contextLabelTenant';
+    }
+    return 'admin.limits.blockNumber.contextLabel';
+  });
+
+  readonly contextHintKey = computed(() => {
+    if (this.lockedTargetType() === 'SELLER_TERMINAL') {
+      return 'admin.limits.blockNumber.contextHintSeller';
+    }
+    if (this.lockedTargetType() === 'TENANT') {
+      return 'admin.limits.blockNumber.contextHintTenant';
+    }
+    return 'admin.limits.blockNumber.contextHint';
+  });
+
+  readonly contextFallbackKey = computed(() => {
+    if (this.lockedTargetType() === 'SELLER_TERMINAL') {
+      return 'admin.limits.blockNumber.contextFallbackSeller';
+    }
+    return 'admin.limits.blockNumber.contextFallback';
+  });
+
   readonly saveMutation = tchMutation<void, { id: { value: string } }>({
     run: () => {
-      const isTenant = this.scope() === 'TENANT';
-      const targetId = isTenant
-        ? undefined
-        : (this.lockedChannelId() ?? this.selectedChannel()?.id ?? undefined);
+      const lockedType = this.lockedTargetType();
+      const targetType = lockedType ?? (this.scope() === 'TENANT' ? 'TENANT' : 'DRAW_CHANNEL');
+      const targetId =
+        targetType === 'TENANT'
+          ? undefined
+          : (this.lockedTargetId() ?? this.selectedChannel()?.id ?? undefined);
       return this.api.upsertAssignment(
         {
           ruleKey: 'BLOCK_SELECTION_PER_DRAW',
-          targetType: isTenant ? 'TENANT' : 'DRAW_CHANNEL',
+          targetType,
           ...(targetId ? { targetId } : {}),
           enabled: true,
           onBreach: 'BLOCK',
@@ -114,9 +174,8 @@ export class BlockNumberQuickDialogComponent {
   });
 
   setScope(scope: Scope): void {
-    if (this.hasLockedChannel() && scope !== 'DRAW_CHANNEL') return;
+    if (this.hasLockedTarget()) return;
     this.scope.set(scope);
-    // Clearing the selection when switching to TENANT avoids stale channel state.
     if (scope === 'TENANT') {
       this.selectedChannel.set(null);
     }

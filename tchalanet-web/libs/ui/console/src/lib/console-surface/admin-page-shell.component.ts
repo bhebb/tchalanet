@@ -34,7 +34,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
         display: block;
         min-height: 100%;
         background: var(--tch-color-surface-container-low, #f4f4f8);
-        padding: 1rem;
+        padding: 1.5rem;
         box-sizing: border-box;
       }
 

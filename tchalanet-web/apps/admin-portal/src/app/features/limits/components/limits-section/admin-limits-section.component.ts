@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ResourceRef,
+  computed,
   inject,
   input,
   signal,
@@ -25,6 +26,10 @@ import type {
   TargetType,
 } from '../../data-access/admin-limits.models';
 import { formatActiveLimitParams } from '../../data-access/admin-limits.models';
+import {
+  BlockNumberQuickDialogComponent,
+  type BlockNumberQuickDialogData,
+} from '../block-number-quick-dialog/block-number-quick-dialog.component';
 import { UpsertLimitDialogComponent } from '../upsert-limit-dialog/upsert-limit-dialog.component';
 
 // LimitGroup kept as input type for backwards compat with callers that still pass it
@@ -42,6 +47,7 @@ type LimitGroup = string;
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
     AdminSectionCardComponent,
+    BlockNumberQuickDialogComponent,
   ],
   template: `
     <tch-admin-section-card [title]="sectionTitle()" icon="shield">
@@ -60,11 +66,11 @@ type LimitGroup = string;
             @if (local.length) {
               <section class="ls__group">
                 <h4 class="ls__group-title">
-                  {{ 'admin.limits.section.local.title' | translate }}
+                  {{ localGroupTitleKey() | translate }}
                 </h4>
                 <ul class="ls__rows" role="list">
                   @for (item of local; track item.id.value) {
-                    <li class="ls__row">
+                    <li class="ls__row" [routerLink]="['/app/admin/limits', item.id.value]">
                       <span class="material-symbols-outlined ls__icon" aria-hidden="true">
                         {{ ruleIcon(item.ruleKey) }}
                       </span>
@@ -109,15 +115,21 @@ type LimitGroup = string;
             }
 
             <div class="ls__actions">
-              <button mat-stroked-button type="button" (click)="addLimit(data)">
+              @if (canBlockNumbers() && !hasBlockRule(local)) {
+                <button mat-stroked-button type="button" (click)="openBlockNumber()">
+                  <span class="material-symbols-outlined">block</span>
+                  {{ 'admin.limits.section.blockNumber' | translate }}
+                </button>
+              }
+              <button mat-flat-button color="primary" type="button" (click)="addLimit(data)">
                 <span class="material-symbols-outlined">add</span>
                 {{ 'admin.limits.section.add' | translate }}
               </button>
-              <a mat-stroked-button routerLink="/app/admin/limits">
-                {{ 'admin.limits.section.manage' | translate }}
-                <span class="material-symbols-outlined">arrow_forward</span>
-              </a>
             </div>
+            <a class="ls__manage-link" routerLink="/app/admin/limits">
+              {{ 'admin.limits.section.manage' | translate }}
+              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            </a>
           }
         </ng-template>
       </tch-async-view>
@@ -163,6 +175,14 @@ type LimitGroup = string;
       padding: 0.75rem;
       border-radius: var(--tch-radius-md);
       background: var(--tch-color-surface-container-low);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.12s;
+
+      &:hover {
+        background: var(--tch-color-surface-container);
+      }
     }
 
     .ls__row--inherited {
@@ -217,6 +237,24 @@ type LimitGroup = string;
       margin-top: 0.25rem;
     }
 
+    .ls__manage-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+      font-size: var(--tch-font-size-body-sm);
+      color: var(--tch-color-primary);
+      text-decoration: none;
+
+      .material-symbols-outlined {
+        font-size: 1rem;
+      }
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
     @include ui.up(medium) {
       .ls__row {
         grid-template-columns: auto minmax(0, 1fr) auto;
@@ -238,6 +276,7 @@ export class AdminLimitsSectionComponent {
 
   readonly targetType = input.required<TargetType>();
   readonly targetId = input<string | null>(null);
+  readonly targetLabel = input<string | null>(null);
   readonly inheritedTargetType = input<TargetType | null>(null);
   readonly inheritedTargetId = input<string | null>(null);
   readonly inheritedScopeLabel = input<string | undefined>(undefined);
@@ -248,6 +287,20 @@ export class AdminLimitsSectionComponent {
   readonly sectionTitle = input.required<string>();
 
   readonly actionError = signal<string | null>(null);
+
+  readonly canBlockNumbers = computed(() => {
+    if (this.targetType() === 'AGENT') return false;
+    const allowed = this.allowedRuleKeys();
+    return !allowed || allowed.includes('BLOCK_SELECTION_PER_DRAW');
+  });
+
+  readonly localGroupTitleKey = computed(() => {
+    const tt = this.targetType();
+    if (tt === 'TENANT') return 'admin.limits.section.localTitle.TENANT';
+    if (tt === 'DRAW_CHANNEL') return 'admin.limits.section.localTitle.DRAW_CHANNEL';
+    if (tt === 'SELLER_TERMINAL') return 'admin.limits.section.localTitle.SELLER_TERMINAL';
+    return 'admin.limits.section.local.title';
+  });
 
   readonly combinedResource: ResourceRef<CombinedLimitData | undefined> =
     this.api.combinedLimitsResource({
@@ -287,6 +340,10 @@ export class AdminLimitsSectionComponent {
     return 'shield';
   }
 
+  hasBlockRule(rows: LimitAssignmentItem[]): boolean {
+    return rows.some(r => r.ruleKey === 'BLOCK_SELECTION_PER_DRAW');
+  }
+
   paramsLabel(item: LimitAssignmentItem): string {
     const value = formatActiveLimitParams({
       assignmentId: item.id.value,
@@ -305,6 +362,29 @@ export class AdminLimitsSectionComponent {
     });
     if (value !== '—') return value;
     return this.translate.instant('admin.limits.section.noParams');
+  }
+
+  openBlockNumber(): void {
+    const tt = this.targetType() as 'TENANT' | 'DRAW_CHANNEL' | 'SELLER_TERMINAL';
+    const dialogData: BlockNumberQuickDialogData =
+      tt === 'TENANT'
+        ? { lockedTargetType: 'TENANT' }
+        : {
+            lockedTargetType: tt,
+            lockedTargetId: this.targetId() ?? undefined,
+            lockedTargetLabel: this.targetLabel() ?? undefined,
+          };
+
+    const ref = this.dialog.open(BlockNumberQuickDialogComponent, {
+      width: '560px',
+      maxWidth: '100vw',
+      data: dialogData,
+    });
+    ref.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) this.combinedResource.reload();
+      });
   }
 
   addLimit(data: CombinedLimitData): void {

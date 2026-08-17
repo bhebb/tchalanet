@@ -80,7 +80,7 @@ export interface AdminSectionCardError {
         grid-template-columns: auto minmax(0, 1fr);
         align-items: start;
         gap: 0.625rem;
-        padding: 1rem;
+        padding: 1rem 1.5rem;
         border-bottom: 1px solid var(--tch-color-outline-variant, #c8c5d0);
       }
 

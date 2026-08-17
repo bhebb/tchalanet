@@ -1049,7 +1049,7 @@
     "limits": {
       "shell": {
         "title": "Kontwòl lavant",
-        "description": "Bloke nimewo, mete plafon miz, epi limite lavant kote sa nesesè."
+        "description": "Bloke nimewo, mete limit sou miz, epi limite lavant kote sa nesesè."
       },
       "common": {
         "loading": "Y ap chaje limit yo…",
@@ -1093,7 +1093,12 @@
         "scopeTenant": "Tout santral la",
         "scopeTenantHint": "Bloke nimewo a sou tout kanal tiraj yo",
         "scopeChannel": "Yon kanal espesifik",
-        "scopeChannelHint": "Bloke nimewo a sou yon sèl kanal tiraj"
+        "scopeChannelHint": "Bloke nimewo a sou yon sèl kanal tiraj",
+        "contextLabelSeller": "Vandè",
+        "contextHintSeller": "Blokaj sa a aplike sèlman pou vandè sa a.",
+        "contextFallbackSeller": "Vandè a",
+        "contextLabelTenant": "Platfòm",
+        "contextHintTenant": "Blokaj sa a pral aplike pou tout platfòm nan."
       },
       "number": {
         "actionsAria": "Aksyon rapid pou nimewo yo",
@@ -1109,9 +1114,9 @@
             "cta": "Bloke nimewo"
           },
           "exposure": {
-            "title": "Plafon pa nimewo",
-            "description": "Sispann vann yon nimewo lè total miz li rive nan plafon ou mete.",
-            "cta": "Mete plafon"
+            "title": "Limite miz sou yon nimewo",
+            "description": "Limite kantite total miz ki ka vann sou yon nimewo pou yon tiraj.",
+            "cta": "Mete limit"
           }
         }
       },
@@ -1158,8 +1163,8 @@
         "description": "Chwazi kote règ la dwe aplike. Pou bezwen rapid yo, kòmanse ak nimewo yo.",
         "sectionsAria": "Seksyon limit yo",
         "activeTitle": "Pwoteksyon aktif",
-        "activeDescription": "Tout blokaj ak plafon ki ap pwoteje lavant yo kounye a.",
-        "noActive": "Pa gen limit espesyal ki aktif. Ou ka bloke yon nimewo oswa mete yon plafon lè sa nesesè.",
+        "activeDescription": "Tout blokaj ak limit ki ap pwoteje lavant yo kounye a.",
+        "noActive": "Pa gen limit espesyal ki aktif. Ou ka bloke yon nimewo oswa mete yon limit miz lè sa nesesè.",
         "addGlobal": "Ajoute règ jeneral",
         "quickTitle": "Aksyon rapid",
         "quickDescription": "Ale dirèkteman nan operasyon kontwòl lavant ki pi souvan yo.",
@@ -1174,8 +1179,8 @@
         "warningMessage": "Gen {{count}} règ jeneral ki dezaktive. Verifye si yo dwe pwoteje lavant yo.",
         "noWarning": "Pa gen alèt imedya sou règ jeneral yo.",
         "quick": {
-          "blockNumber": "Bloke nimewo",
-          "numberCap": "Plafon pa nimewo",
+          "blockNumber": "Bloke yon nimewo",
+          "numberCap": "Limite miz sou yon nimewo",
           "ticketLimit": "Limit tikè",
           "sellerLimit": "Limit machann"
         },
@@ -1185,7 +1190,7 @@
             "description": "Nimewo ki pa ka vann pou yon peryòd oswa yon tiraj."
           },
           "NUMBER_CAP": {
-            "title": "Plafon sou nimewo",
+            "title": "Limit miz sou nimewo",
             "description": "Montan oswa kantite maksimòm ki ka vann sou yon nimewo."
           },
           "TICKET_LIMIT": {
@@ -1231,7 +1236,7 @@
         "scope": {
           "numbers": {
             "title": "Nimewo",
-            "description": "Bloke nimewo oswa mete yon plafon sou total miz pou yon nimewo.",
+            "description": "Bloke nimewo oswa limite total miz pou yon nimewo.",
             "metric": "{{count}} règ"
           },
           "global": {
@@ -1277,7 +1282,7 @@
           "description": "Bloke yon nimewo sou yon tiraj."
         },
         "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
-          "label": "Plafon pa nimewo",
+          "label": "Limite miz sou yon nimewo",
           "description": "Limite kantite total ki ka vann sou yon nimewo pou yon tiraj."
         }
       },
@@ -1291,7 +1296,7 @@
         "noRulesMessage": "Katalòg règ la vid.",
         "noConfiguredTitle": "Pa gen limit ki konfigire",
         "noConfiguredGlobal": "Klike sou Ajoute pou konfigire premye limit global la.",
-        "noConfiguredNumber": "Chwazi Bloke nimewo oswa Plafon pa nimewo pou mete premye règ la.",
+        "noConfiguredNumber": "Chwazi Bloke nimewo oswa Limite miz sou yon nimewo pou mete premye règ la.",
         "noConfiguredDraw": "Klike sou Ajoute pou konfigire premye limit pou kanal sa a.",
         "noConfiguredSeller": "Klike sou Ajoute pou konfigire premye limit pou machann sa a.",
         "catalogEmptyTitle": "Pa gen règ pou nimewo yo",
@@ -1348,9 +1353,9 @@
             "SELLER_TERMINAL": "Nimewo sa yo pap ka vann nan tèminal machann sa a."
           },
           "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
-            "TENANT": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou tout tiraj yo.",
-            "DRAW_CHANNEL": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou kanal sa a.",
-            "SELLER_TERMINAL": "Lè total miz yon nimewo rive nan plafon an, li ap sispann vann sou tèminal machann sa a."
+            "TENANT": "Lè total miz yon nimewo rive nan limit la, li ap sispann vann sou tout tiraj yo.",
+            "DRAW_CHANNEL": "Lè total miz yon nimewo rive nan limit la, li ap sispann vann sou kanal sa a.",
+            "SELLER_TERMINAL": "Lè total miz yon nimewo rive nan limit la, li ap sispann vann sou tèminal machann sa a."
           }
         }
       },
@@ -1386,7 +1391,7 @@
         "actionError": "Aksyon an echwe.",
         "activeAria": "Limit efektif",
         "activeTitle": "Règ statik",
-        "activeDescription": "Blokaj ak plafon ki deja konfigire pou kote sa a.",
+        "activeDescription": "Blokaj ak limit ki deja konfigire pou kote sa a.",
         "currentScope": "Kote sa a",
         "inheritedScope": "Soti nan {{scope}}",
         "noParams": "San paramèt",
@@ -1402,7 +1407,13 @@
         },
         "empty": "Pa gen limit konfigire sou nivo sa a.",
         "add": "Ajoute yon limit",
-        "manage": "Jere limit yo"
+        "manage": "Jere tout limit yo",
+        "blockNumber": "Bloke nimewo",
+        "localTitle": {
+          "TENANT": "Limit santral la",
+          "DRAW_CHANNEL": "Limit tiraj sa",
+          "SELLER_TERMINAL": "Limit machann sa"
+        }
       },
       "detail": {
         "title": "Detay limit",
@@ -1412,7 +1423,7 @@
         },
         "section": {
           "rule": "Règ",
-          "scope": "Nivo",
+          "scope": "Aplikasyon",
           "allAssignments": "Tout aplikasyon aktif"
         },
         "fact": {
@@ -2129,7 +2140,7 @@
         "configure": "Konfigire",
         "configureChannel": "Konfigire kanal la",
         "configureGameOffer": "Konfigire jwèt kanal la",
-        "configureLimits": "Plafon ak blokaj",
+        "configureLimits": "Limit ak blokaj",
         "blockNumber": "Bloke nimewo",
         "viewGeneratedDraws": "Gade tiraj yo",
         "viewDetails": "Gade detay",
@@ -2763,28 +2774,28 @@
       "default_missing": "To komisyon santral la bezwen konfigire"
     },
     "limits": {
-      "empty": "Plafon ak blokaj vant yo bezwen konfigire",
+      "empty": "Limit ak blokaj vant yo bezwen konfigire",
       "limitsSection": {
-        "title": "Plafon ak blokaj",
+        "title": "Limit ak blokaj",
         "descriptionInherit": "Valè ki pa konfigire ap itilize valè santral la"
       }
     }
   },
   "tenantSetup": {
     "limitsSection": {
-      "title": "Plafon ak blokaj pa defo",
+      "title": "Limit ak blokaj pa defo",
       "descriptionInherit": "Règ sa yo aplike pou tout kanal ak machann si yo pa konfigire separe"
     }
   },
   "drawChannel": {
     "limitsSection": {
-      "title": "Plafon ak blokaj kanal sa a",
+      "title": "Limit ak blokaj kanal sa a",
       "descriptionInherit": "Valè ki pa konfigire ap soti nan santral la"
     }
   },
   "sellerTerminal": {
     "limitsSection": {
-      "title": "Plafon ak blokaj machann",
+      "title": "Limit ak blokaj machann",
       "descriptionInherit": "Valè ki pa konfigire ap soti nan santral la"
     }
   },

@@ -14,18 +14,20 @@
       }
     }
 
-    @if (hasLockedChannel()) {
+    @if (hasLockedTarget()) {
       <div class="bnqd__context">
-        <span class="material-symbols-outlined" aria-hidden="true">event</span>
+        <span class="material-symbols-outlined" aria-hidden="true">{{ contextIcon() }}</span>
         <div>
           <p class="bnqd__context-label">
-            {{ 'admin.limits.blockNumber.contextLabel' | translate }}
+            {{ contextLabelKey() | translate }}
           </p>
-          <p class="bnqd__context-title">
-            {{ lockedChannelLabel() || ('admin.limits.blockNumber.contextFallback' | translate) }}
-          </p>
+          @if (lockedTargetType() !== 'TENANT') {
+            <p class="bnqd__context-title">
+              {{ lockedTargetLabel() || (contextFallbackKey() | translate) }}
+            </p>
+          }
           <p class="bnqd__context-hint">
-            {{ 'admin.limits.blockNumber.contextHint' | translate }}
+            {{ contextHintKey() | translate }}
           </p>
         </div>
       </div>
@@ -49,7 +51,7 @@
     </div>
     }
 
-    @if (scope() === 'DRAW_CHANNEL' && !hasLockedChannel()) {
+    @if (scope() === 'DRAW_CHANNEL' && !hasLockedTarget()) {
       <tch-active-draw-channel-select
         [preselectedId]="preselectedChannelId()"
         (channelChange)="onChannelChange($event)"
@@ -75,6 +77,7 @@
           [placeholder]="'admin.limits.blockNumber.numberPlaceholder' | translate"
           [matChipInputFor]="chipGrid"
           [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+          [matChipInputAddOnBlur]="true"
           (matChipInputTokenEnd)="addNumber($event)"
         />
       </mat-chip-grid>
