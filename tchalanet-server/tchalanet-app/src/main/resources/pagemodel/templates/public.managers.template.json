@@ -7,7 +7,7 @@
   "label": "Pour gestionnaires",
   "schemaVersion": 2,
   "schema": {},
-  "isDefault": false,
+  "isDefault": true,
   "level": "GLOBAL",
   "description": "Page publique pour gestionnaires (banques borlette, points de vente, réseaux de vendeurs).",
   "model": {
