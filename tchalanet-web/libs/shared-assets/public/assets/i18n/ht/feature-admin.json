@@ -1072,8 +1072,8 @@
         "loadingDraws": "Chajman tiraj yo…",
         "noOpenDraws": "Pa gen tiraj ki louvri kounye a.",
         "drawLabel": "Tiraj (kanal)",
-        "numbersLabel": "Nimewo pou bloke",
-        "numberPlaceholder": "Antre yon nimewo epi peze Antre",
+        "numbersLabel": "Nimewo bloke",
+        "numberPlaceholder": "Ajoute yon nimewo...",
         "numberHint": "Antre nimewo yo separe pa Antre oswa vigil.",
         "numberRequired": "Antre omwen yon nimewo.",
         "removeNumber": "Retire nimewo {{number}}",
@@ -1327,7 +1327,7 @@
         "required": "Chan obligatwa.",
         "blockedNumbers": "Nimewo bloke",
         "removeNumber": "Retire {{number}}",
-        "numberPlaceholder": "Egzanp: 13, peze Antre",
+        "numberPlaceholder": "Ajoute yon nimewo...",
         "numberHint": "Antre yon nimewo epi peze Antre oswa vigil.",
         "numberRequired": "Ajoute omwen yon nimewo.",
         "enabled": "Règ aktif",
@@ -1412,7 +1412,8 @@
         },
         "section": {
           "rule": "Règ",
-          "scope": "Nivo"
+          "scope": "Nivo",
+          "allAssignments": "Tout aplikasyon aktif"
         },
         "fact": {
           "rule": "Règ",

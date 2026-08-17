@@ -1072,8 +1072,8 @@
         "loadingDraws": "Loading draws…",
         "noOpenDraws": "No open draws at this time.",
         "drawLabel": "Draw (channel)",
-        "numbersLabel": "Numbers to block",
-        "numberPlaceholder": "Enter a number and press Enter",
+        "numbersLabel": "Blocked numbers",
+        "numberPlaceholder": "Add a number...",
         "numberHint": "Enter numbers separated by Enter or comma.",
         "numberRequired": "Enter at least one number.",
         "removeNumber": "Remove number {{number}}",
@@ -1327,7 +1327,7 @@
         "required": "Required field.",
         "blockedNumbers": "Blocked numbers",
         "removeNumber": "Remove {{number}}",
-        "numberPlaceholder": "Example: 13, press Enter",
+        "numberPlaceholder": "Add a number...",
         "numberHint": "Enter a number, then press Enter or comma.",
         "numberRequired": "Add at least one number.",
         "enabled": "Rule active",
@@ -1412,7 +1412,8 @@
         },
         "section": {
           "rule": "Rule",
-          "scope": "Scope"
+          "scope": "Scope",
+          "allAssignments": "All active assignments"
         },
         "fact": {
           "rule": "Rule",

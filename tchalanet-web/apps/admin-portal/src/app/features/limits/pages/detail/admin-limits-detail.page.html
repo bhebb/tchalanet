@@ -3,18 +3,19 @@
   [description]="scopeLabel()"
 >
   <div actions class="limits-detail__actions">
-    <a mat-stroked-button routerLink="/app/admin/limits">
+    <a mat-button routerLink="/app/admin/limits" class="limits-detail__back-btn">
       <span class="material-symbols-outlined">arrow_back</span>
       {{ 'common.back' | translate }}
     </a>
     @if (item()) {
-    <button mat-flat-button color="primary" type="button" (click)="editLimit()">
-      <span class="material-symbols-outlined">edit</span>
-      {{ 'admin.limits.overview.actions.edit' | translate }}
-    </button>
-    <button mat-icon-button type="button" [matMenuTriggerFor]="pageMenu">
-      <span class="material-symbols-outlined">more_vert</span>
-    </button>
+    <div class="limits-detail__actions-right">
+      <button mat-flat-button color="primary" type="button" (click)="editLimit()">
+        {{ 'admin.limits.overview.actions.edit' | translate }}
+      </button>
+      <button mat-icon-button type="button" [matMenuTriggerFor]="pageMenu">
+        <span class="material-symbols-outlined">more_vert</span>
+      </button>
+    </div>
     <mat-menu #pageMenu>
       @if (item()?.enabled) {
       <button mat-menu-item type="button" (click)="disableLimit()">
@@ -101,6 +102,41 @@
         </div>
       </dl>
     </tch-admin-section-card>
+
+    @if (ruleAssignments().length > 1) {
+    <tch-admin-section-card
+      [title]="'admin.limits.detail.section.allAssignments' | translate"
+      icon="list"
+    >
+      <ul class="limits-detail__assignments">
+        @for (a of ruleAssignments(); track a.assignmentId) {
+          <li
+            class="limits-detail__assignment"
+            [class.limits-detail__assignment--current]="a.assignmentId === item()?.assignmentId"
+          >
+            <span class="limits-detail__assignment-scope">{{ assignmentScopeLabel(a) }}</span>
+            <span class="limits-detail__assignment-target">{{ assignmentTargetLabel(a) }}</span>
+            @if (assignmentSelections(a).length) {
+              <span class="limits-detail__assignment-balls">
+                @for (num of assignmentSelections(a); track num) {
+                  <span class="limits-detail__ball limits-detail__ball--sm">{{ num }}</span>
+                }
+              </span>
+            } @else {
+              <span class="limits-detail__assignment-value">{{ assignmentParamsLabel(a) }}</span>
+            }
+            <span
+              class="limits-detail__assignment-status"
+              [class.limits-detail__assignment-status--active]="a.enabled"
+            >{{ a.enabled
+              ? ('admin.limits.overview.limitStatus.active' | translate)
+              : ('admin.limits.overview.limitStatus.disabled' | translate)
+            }}</span>
+          </li>
+        }
+      </ul>
+    </tch-admin-section-card>
+    }
 
     <details class="limits-detail__debug">
       <summary>{{ 'admin.limits.detail.debug.title' | translate }}</summary>

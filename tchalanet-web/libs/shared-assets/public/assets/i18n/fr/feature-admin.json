@@ -1804,8 +1804,8 @@
         "loadingDraws": "Chargement des tirages…",
         "noOpenDraws": "Aucun tirage ouvert pour le moment.",
         "drawLabel": "Tirage (canal)",
-        "numbersLabel": "Numéros à bloquer",
-        "numberPlaceholder": "Entrez un numéro et appuyez sur Entrée",
+        "numbersLabel": "Numéros bloqués",
+        "numberPlaceholder": "Ajouter un numéro...",
         "numberHint": "Entrez les numéros séparés par Entrée ou virgule.",
         "numberRequired": "Entrez au moins un numéro.",
         "removeNumber": "Retirer le numéro {{number}}",
@@ -2059,7 +2059,7 @@
         "required": "Champ obligatoire.",
         "blockedNumbers": "Numéros bloqués",
         "removeNumber": "Retirer {{number}}",
-        "numberPlaceholder": "Ex : 13, appuyez Entrée",
+        "numberPlaceholder": "Ajouter un numéro...",
         "numberHint": "Entrez un numéro puis appuyez sur Entrée ou virgule.",
         "numberRequired": "Ajoutez au moins un numéro.",
         "enabled": "Règle active",
@@ -2144,7 +2144,8 @@
         },
         "section": {
           "rule": "Règle",
-          "scope": "Niveau"
+          "scope": "Niveau",
+          "allAssignments": "Toutes les applications actives"
         },
         "fact": {
           "rule": "Règle",

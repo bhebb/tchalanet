@@ -26,7 +26,10 @@ import type {
   LimitAssignmentItem,
   LimitRuleSpec,
 } from '../../data-access/admin-limits.models';
-import { extractSelections, formatActiveLimitParams } from '../../data-access/admin-limits.models';
+import {
+  extractSelections,
+  formatActiveLimitParams,
+} from '../../data-access/admin-limits.models';
 import { UpsertLimitDialogComponent } from '../../components/upsert-limit-dialog/upsert-limit-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -61,6 +64,13 @@ export class AdminLimitsDetailPage implements OnInit {
   readonly actionNotice = signal<string | null>(null);
   readonly item = signal<ActiveLimitItem | null>(null);
   readonly spec = signal<LimitRuleSpec | null>(null);
+  readonly allLimits = signal<ActiveLimitItem[]>([]);
+
+  readonly ruleAssignments = computed(() => {
+    const ruleKey = this.item()?.ruleKey;
+    if (!ruleKey) return [];
+    return this.allLimits().filter(l => l.ruleKey === ruleKey);
+  });
 
   private get assignmentId(): string {
     return this.route.snapshot.paramMap.get('assignmentId') ?? '';
@@ -131,6 +141,25 @@ export class AdminLimitsDetailPage implements OnInit {
 
   readonly ruleKeyCode = computed(() => this.spec()?.ruleKey ?? '');
 
+  assignmentScopeLabel(a: ActiveLimitItem): string {
+    return this.translate.instant(`admin.limits.overview.scopeType.${a.targetType}`);
+  }
+
+  assignmentTargetLabel(a: ActiveLimitItem): string {
+    if (a.targetType === 'TENANT') {
+      return this.translate.instant('admin.limits.overview.target.tenant');
+    }
+    return a.targetLabel ?? a.targetCode ?? a.targetId;
+  }
+
+  assignmentParamsLabel(a: ActiveLimitItem): string {
+    return formatActiveLimitParams(a);
+  }
+
+  assignmentSelections(a: ActiveLimitItem): string[] {
+    return extractSelections(a);
+  }
+
   ngOnInit(): void {
     this.load();
   }
@@ -157,6 +186,7 @@ export class AdminLimitsDetailPage implements OnInit {
         } else {
           this.item.set(found);
           this.spec.set(specs.find(s => s.ruleKey === found.ruleKey) ?? null);
+          this.allLimits.set(overview.activeLimits ?? []);
         }
         this.loading.set(false);
       },
