@@ -1246,19 +1246,8 @@
         }
       },
       "rule": {
-        "MAX_STAKE_PER_LINE": "Miz maksimòm pa liy",
-        "MAX_LINES_PER_TICKET": "Kantite liy pa tikè",
-        "MAX_STAKE_PER_TICKET": "Miz maksimòm pa tikè",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafon miz pa nimewo",
-        "MAX_STAKE_PER_BET_TYPE_PER_TICKET": "Miz maksimòm pa kalite jwèt",
-        "MAX_STAKE_PER_SELECTION_PER_TICKET": "Miz maksimòm pa nimewo nan tikè",
-        "MAX_SALES_COUNT_PER_SELECTION_PER_DRAW": "Kantite lavant pa nimewo",
-        "MAX_SALES_COUNT_PER_TICKET": "Kantite lavant pa tikè",
         "BLOCK_SELECTION_PER_DRAW": "Bloke nimewo",
-        "BLOCK_BET_TYPE": "Bloke kalite jwèt",
-        "MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW": "Kantite tikè pa machann",
-        "MAX_STAKE_PER_AGENT_PER_DRAW": "Miz maksimòm pa machann",
-        "MAX_STAKE_PER_OUTLET_PER_DRAW": "Miz maksimòm pa pwen vant"
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafon pa nimewo"
       },
       "child": {
         "rulesLink": "Règ ki sipòte yo",

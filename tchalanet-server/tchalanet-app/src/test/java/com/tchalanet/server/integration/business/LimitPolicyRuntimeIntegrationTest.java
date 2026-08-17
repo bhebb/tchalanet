@@ -102,7 +102,7 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
 
   @Test
   @DisplayName(
-      "Cas 2 — SELLER_TERMINAL overrides DRAW_CHANNEL overrides TENANT for MAX_STAKE_PER_LINE")
+      "Cas 2 — SELLER_TERMINAL overrides DRAW_CHANNEL overrides TENANT for MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW")
   void mostSpecificScopeWins() throws Exception {
     var draw = openedDrawContaining(GameCode.HT_BOLET);
     var sellerTerminalId = sellerContext.sellerTerminalIdRequired();
@@ -113,7 +113,7 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
             commandBus.execute(
                 new UpsertLimitAssignmentCommand(
                     tenantId,
-                    RuleKey.MAX_STAKE_PER_LINE,
+                    RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
                     LimitScopeRef.tenant(tenantId),
                     true,
                     BreachOutcome.BLOCK,
@@ -129,7 +129,7 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
             commandBus.execute(
                 new UpsertLimitAssignmentCommand(
                     tenantId,
-                    RuleKey.MAX_STAKE_PER_LINE,
+                    RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
                     LimitScopeRef.drawChannel(draw.drawChannelId()),
                     true,
                     BreachOutcome.BLOCK,
@@ -145,7 +145,7 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
             commandBus.execute(
                 new UpsertLimitAssignmentCommand(
                     tenantId,
-                    RuleKey.MAX_STAKE_PER_LINE,
+                    RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
                     LimitScopeRef.sellerTerminal(sellerTerminalId),
                     true,
                     BreachOutcome.BLOCK,
@@ -156,7 +156,7 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
                     FIXED_NOW.minusSeconds(86_400),
                     SALES_NOW.plusSeconds(86_400))));
 
-    // 150 HTG = 15000 cents > SELLER_TERMINAL limit 10000 cents → REJECTED
+    // 150 HTG = 15000 cents > SELLER_TERMINAL cumulative limit 10000 cents → REJECTED
     var rejected =
         withContext(
             sellerContext,
@@ -179,7 +179,7 @@ class LimitPolicyRuntimeIntegrationTest extends BusinessRuntimeIntegrationTestBa
 
     assertThat(rejected.outcome()).isEqualTo(SellTicketOutcome.REJECTED);
 
-    // 50 HTG = 5000 cents < SELLER_TERMINAL limit 10000 cents → ACCEPTED
+    // 50 HTG = 5000 cents ≤ SELLER_TERMINAL cumulative limit 10000 cents → ACCEPTED
     var accepted =
         withContext(
             sellerContext,

@@ -6,8 +6,8 @@ import { credsFor } from '../support/env';
  * Seller terminal detail — limit block regression guard.
  *
  * The seller terminal detail page embeds `tch-admin-limits-section` scoped to
- * SELLER_TERMINAL with only the ticket-level rules exposed:
- *   MAX_STAKE_PER_LINE, MAX_LINES_PER_TICKET, MAX_STAKE_PER_TICKET
+ * SELLER_TERMINAL with the supported rules exposed:
+ *   BLOCK_SELECTION_PER_DRAW, MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW
  *
  * Covers:
  * - Limit section renders below the detail layout without error
@@ -46,11 +46,11 @@ test.describe('Seller terminal detail — limit block', () => {
     await expect(section.locator('tch-section-error')).toHaveCount(0);
   });
 
-  test('section has a VENTE group header', async ({ page }) => {
+  test('section has a group header', async ({ page }) => {
     const section = page.locator('tch-admin-limits-section');
     await expect(section).toBeVisible({ timeout: 12_000 });
 
-    // The VENTE group header (label = "Vente" via i18n) must be visible in the section card
+    // The first group header (RESTRICTIONS or EXPOSITION) must be visible in the section card
     const groupHeader = section.locator('.lpb__group-header').first();
     await expect(groupHeader).toBeVisible({ timeout: 8_000 });
   });
@@ -63,7 +63,7 @@ test.describe('Seller terminal detail — limit block', () => {
     const groupHeader = section.locator('.lpb__group-header').first();
     await groupHeader.click();
 
-    // Under the stub, MAX_STAKE_PER_LINE and MAX_LINES_PER_TICKET have no assignment
+    // Under the stub, BLOCK_SELECTION_PER_DRAW has no assignment at SELLER_TERMINAL scope
     await expect(section.locator('.lpb__row-empty').first()).toBeVisible({ timeout: 8_000 });
   });
 

@@ -1246,19 +1246,8 @@
         }
       },
       "rule": {
-        "MAX_STAKE_PER_LINE": "Maximum stake per line",
-        "MAX_LINES_PER_TICKET": "Lines per ticket",
-        "MAX_STAKE_PER_TICKET": "Maximum stake per ticket",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Stake cap per number",
-        "MAX_STAKE_PER_BET_TYPE_PER_TICKET": "Maximum stake per game type",
-        "MAX_STAKE_PER_SELECTION_PER_TICKET": "Maximum stake per number in ticket",
-        "MAX_SALES_COUNT_PER_SELECTION_PER_DRAW": "Sales count per number",
-        "MAX_SALES_COUNT_PER_TICKET": "Sales count per ticket",
         "BLOCK_SELECTION_PER_DRAW": "Block a number",
-        "BLOCK_BET_TYPE": "Block a game type",
-        "MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW": "Ticket count per seller",
-        "MAX_STAKE_PER_AGENT_PER_DRAW": "Maximum stake per seller",
-        "MAX_STAKE_PER_OUTLET_PER_DRAW": "Maximum stake per seller"
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Stake cap per number"
       },
       "child": {
         "rulesLink": "Supported rules",

@@ -136,18 +136,8 @@ export type ParamSchema =
   | 'CENTS_BET_TYPE';
 
 const RULE_PARAM_SCHEMAS: Partial<Record<RuleKey, ParamSchema>> = {
-  MAX_STAKE_PER_LINE: 'CENTS',
-  MAX_LINES_PER_TICKET: 'COUNT',
-  MAX_STAKE_PER_TICKET: 'CENTS',
-  MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW: 'CENTS',
-  MAX_STAKE_PER_BET_TYPE_PER_TICKET: 'CENTS_BET_TYPE',
-  MAX_STAKE_PER_SELECTION_PER_TICKET: 'CENTS',
-  MAX_SALES_COUNT_PER_SELECTION_PER_DRAW: 'COUNT',
-  MAX_SALES_COUNT_PER_TICKET: 'COUNT',
   BLOCK_SELECTION_PER_DRAW: 'SELECTION',
-  BLOCK_BET_TYPE: 'BET_TYPE',
-  MAX_TICKET_COUNT_PER_AGENT_PER_WINDOW: 'WINDOW_COUNT',
-  MAX_STAKE_PER_AGENT_PER_DRAW: 'CENTS',
+  MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW: 'CENTS',
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -287,20 +277,10 @@ export function formatLimitSentence(row: RuleRow): string {
   const count = params ? formatInteger(params.maxCount) : null;
 
   switch (row.spec.ruleKey) {
-    case 'MAX_STAKE_PER_LINE':
-      return `${outcome} si une ligne dépasse ${amount ?? 'le montant défini'}.`;
-    case 'MAX_LINES_PER_TICKET':
-      return `${outcome} si un ticket dépasse ${count ?? 'le nombre défini'} ligne(s).`;
-    case 'MAX_STAKE_PER_TICKET':
-      return `${outcome} si le ticket dépasse ${amount ?? 'le montant défini'}.`;
-    case 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW':
-      return `${outcome} si la mise cumulée sur un numéro dépasse ${amount ?? 'le plafond défini'} pour un tirage.`;
-    case 'MAX_SALES_COUNT_PER_SELECTION_PER_DRAW':
-      return `${outcome} si un numéro dépasse ${count ?? 'le nombre défini'} vente(s) pour un tirage.`;
     case 'BLOCK_SELECTION_PER_DRAW':
-      return `${outcome} les numéros sélectionnés pour un tirage.`;
-    case 'BLOCK_BET_TYPE':
-      return `${outcome} le type de pari configuré.`;
+      return `${outcome} les numéros sélectionnés pour un tiraj.`;
+    case 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW':
+      return `${outcome} si la mise kimilatif sou yon nimewo depase ${amount ?? 'plafon defini'} pou yon tiraj.`;
     default:
       return `${outcome} selon la règle « ${row.spec.label || row.spec.ruleKey} ».`;
   }

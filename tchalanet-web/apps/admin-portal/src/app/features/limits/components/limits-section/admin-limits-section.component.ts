@@ -295,7 +295,7 @@ export class AdminLimitsSectionComponent {
   }
 
   activeIcon(ruleKey: RuleKey): string {
-    if (ruleKey === 'BLOCK_SELECTION_PER_DRAW' || ruleKey === 'BLOCK_BET_TYPE') return 'block';
+    if (ruleKey === 'BLOCK_SELECTION_PER_DRAW') return 'block';
     if (ruleKey.includes('STAKE') || ruleKey.includes('EXPOSURE')) return 'payments';
     if (ruleKey.includes('TICKET') || ruleKey.includes('LINES')) return 'confirmation_number';
     return 'shield';

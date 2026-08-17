@@ -50,8 +50,8 @@ class LimitEvaluationEngineTest {
 
   @Test
   void rejects_two_evaluators_for_the_same_rule_key() {
-    var a = new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, List.of());
-    var b = new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, List.of());
+    var a = new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, List.of());
+    var b = new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, List.of());
     assertThatThrownBy(() -> new LimitEvaluationEngine(List.of(a, b)))
         .isInstanceOf(IllegalStateException.class);
   }
@@ -60,7 +60,7 @@ class LimitEvaluationEngineTest {
 
   @Test
   void evaluate_requires_all_arguments() {
-    var engine = engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, List.of()));
+    var engine = engineWith(new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, List.of()));
     assertThatThrownBy(() -> engine.evaluate(null, facts(), context()))
         .isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> engine.evaluate(EffectiveLimits.empty(), null, context()))
@@ -74,7 +74,7 @@ class LimitEvaluationEngineTest {
   @Test
   void no_rules_configured_allows_the_sale() {
     var engine =
-        engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, breach(BreachOutcome.BLOCK)));
+        engineWith(new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK)));
 
     var result = engine.evaluate(EffectiveLimits.empty(), facts(), context());
 
@@ -85,9 +85,9 @@ class LimitEvaluationEngineTest {
 
   @Test
   void a_rule_without_a_registered_evaluator_fails_fast() {
-    // engine only knows MAX_LINES_PER_TICKET, but the limits carry MAX_STAKE_PER_LINE
-    var engine = engineWith(new FakeEvaluator(RuleKey.MAX_LINES_PER_TICKET, List.of()));
-    var limits = limitsWith(RuleKey.MAX_STAKE_PER_LINE, BreachOutcome.BLOCK);
+    // engine only knows MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, but the limits carry BLOCK_SELECTION_PER_DRAW
+    var engine = engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, List.of()));
+    var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK);
 
     assertThatThrownBy(() -> engine.evaluate(limits, facts(), context()))
         .isInstanceOf(IllegalStateException.class);
@@ -96,8 +96,8 @@ class LimitEvaluationEngineTest {
   @Test
   void a_single_blocking_breach_blocks_the_sale() {
     var engine =
-        engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, breach(BreachOutcome.BLOCK)));
-    var limits = limitsWith(RuleKey.MAX_STAKE_PER_LINE, BreachOutcome.BLOCK);
+        engineWith(new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK)));
+    var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK);
 
     var result = engine.evaluate(limits, facts(), context());
 
@@ -109,8 +109,8 @@ class LimitEvaluationEngineTest {
   @Test
   void a_warn_only_breach_still_allows_the_sale() {
     var engine =
-        engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, breach(BreachOutcome.WARN)));
-    var limits = limitsWith(RuleKey.MAX_STAKE_PER_LINE, BreachOutcome.WARN);
+        engineWith(new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.WARN)));
+    var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.WARN);
 
     var result = engine.evaluate(limits, facts(), context());
 
@@ -120,16 +120,17 @@ class LimitEvaluationEngineTest {
 
   @Test
   void the_most_severe_outcome_wins_across_rules() {
-    var warn = new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, breach(BreachOutcome.WARN));
-    var block = new FakeEvaluator(RuleKey.MAX_STAKE_PER_TICKET, breach(BreachOutcome.BLOCK));
+    var warn = new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.WARN));
+    var block = new FakeEvaluator(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK));
     var engine = engineWith(warn, block);
 
     var limits =
         new EffectiveLimits(
             Map.of(
-                RuleKey.MAX_STAKE_PER_LINE, rule(RuleKey.MAX_STAKE_PER_LINE, BreachOutcome.WARN),
-                RuleKey.MAX_STAKE_PER_TICKET,
-                    rule(RuleKey.MAX_STAKE_PER_TICKET, BreachOutcome.BLOCK)));
+                RuleKey.BLOCK_SELECTION_PER_DRAW,
+                    rule(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.WARN),
+                RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW,
+                    rule(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, BreachOutcome.BLOCK)));
 
     var result = engine.evaluate(limits, facts(), context());
 
@@ -141,8 +142,8 @@ class LimitEvaluationEngineTest {
   void require_approval_is_treated_as_blocked() {
     var engine =
         engineWith(
-            new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, breach(BreachOutcome.REQUIRE_APPROVAL)));
-    var limits = limitsWith(RuleKey.MAX_STAKE_PER_LINE, BreachOutcome.REQUIRE_APPROVAL);
+            new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.REQUIRE_APPROVAL)));
+    var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.REQUIRE_APPROVAL);
 
     var result = engine.evaluate(limits, facts(), context());
 
@@ -153,8 +154,8 @@ class LimitEvaluationEngineTest {
 
   @Test
   void an_evaluator_returning_null_is_treated_as_no_breach() {
-    var engine = engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_PER_LINE, null));
-    var limits = limitsWith(RuleKey.MAX_STAKE_PER_LINE, BreachOutcome.BLOCK);
+    var engine = engineWith(new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, null));
+    var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK);
 
     var result = engine.evaluate(limits, facts(), context());
 
@@ -179,7 +180,7 @@ class LimitEvaluationEngineTest {
   private static List<LimitBreach> breach(BreachOutcome outcome) {
     return List.of(
         new LimitBreach(
-            RuleKey.MAX_STAKE_PER_LINE, outcome, SCOPE, "code", "messageKey", 100L, null, 200L));
+            RuleKey.BLOCK_SELECTION_PER_DRAW, outcome, SCOPE, "code", "messageKey", 100L, null, 200L));
   }
 
   private static LimitFactsSnapshot facts() {
