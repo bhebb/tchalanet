@@ -20,8 +20,7 @@ public class LimitPolicyDomainConfig {
   @Bean
   public List<LimitRuleEvaluator> limitRuleEvaluators() {
     return List.of(
-        new BlockSelectionPerDrawEvaluator(),
-        new MaxStakeExposurePerSelectionPerDrawEvaluator());
+        new BlockSelectionPerDrawEvaluator(), new MaxStakeExposurePerSelectionPerDrawEvaluator());
   }
 
   @Bean

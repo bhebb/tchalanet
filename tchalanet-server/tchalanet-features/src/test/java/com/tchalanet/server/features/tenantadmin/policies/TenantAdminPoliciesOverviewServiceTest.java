@@ -111,7 +111,13 @@ class TenantAdminPoliciesOverviewServiceTest {
 
     var disabledAssignment =
         new ListLimitAssignmentsView.Item(
-            assignmentId, RuleKey.BLOCK_SELECTION_PER_DRAW, false, BreachOutcome.BLOCK, null, null, null);
+            assignmentId,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
+            false,
+            BreachOutcome.BLOCK,
+            null,
+            null,
+            null);
 
     var assignmentsView =
         new ListLimitAssignmentsView(

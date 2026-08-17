@@ -74,7 +74,8 @@ class LimitEvaluationEngineTest {
   @Test
   void no_rules_configured_allows_the_sale() {
     var engine =
-        engineWith(new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK)));
+        engineWith(
+            new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK)));
 
     var result = engine.evaluate(EffectiveLimits.empty(), facts(), context());
 
@@ -85,8 +86,10 @@ class LimitEvaluationEngineTest {
 
   @Test
   void a_rule_without_a_registered_evaluator_fails_fast() {
-    // engine only knows MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, but the limits carry BLOCK_SELECTION_PER_DRAW
-    var engine = engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, List.of()));
+    // engine only knows MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, but the limits carry
+    // BLOCK_SELECTION_PER_DRAW
+    var engine =
+        engineWith(new FakeEvaluator(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, List.of()));
     var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK);
 
     assertThatThrownBy(() -> engine.evaluate(limits, facts(), context()))
@@ -96,7 +99,8 @@ class LimitEvaluationEngineTest {
   @Test
   void a_single_blocking_breach_blocks_the_sale() {
     var engine =
-        engineWith(new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK)));
+        engineWith(
+            new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK)));
     var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.BLOCK);
 
     var result = engine.evaluate(limits, facts(), context());
@@ -121,7 +125,9 @@ class LimitEvaluationEngineTest {
   @Test
   void the_most_severe_outcome_wins_across_rules() {
     var warn = new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.WARN));
-    var block = new FakeEvaluator(RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK));
+    var block =
+        new FakeEvaluator(
+            RuleKey.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW, breach(BreachOutcome.BLOCK));
     var engine = engineWith(warn, block);
 
     var limits =
@@ -142,7 +148,8 @@ class LimitEvaluationEngineTest {
   void require_approval_is_treated_as_blocked() {
     var engine =
         engineWith(
-            new FakeEvaluator(RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.REQUIRE_APPROVAL)));
+            new FakeEvaluator(
+                RuleKey.BLOCK_SELECTION_PER_DRAW, breach(BreachOutcome.REQUIRE_APPROVAL)));
     var limits = limitsWith(RuleKey.BLOCK_SELECTION_PER_DRAW, BreachOutcome.REQUIRE_APPROVAL);
 
     var result = engine.evaluate(limits, facts(), context());
@@ -180,7 +187,14 @@ class LimitEvaluationEngineTest {
   private static List<LimitBreach> breach(BreachOutcome outcome) {
     return List.of(
         new LimitBreach(
-            RuleKey.BLOCK_SELECTION_PER_DRAW, outcome, SCOPE, "code", "messageKey", 100L, null, 200L));
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
+            outcome,
+            SCOPE,
+            "code",
+            "messageKey",
+            100L,
+            null,
+            200L));
   }
 
   private static LimitFactsSnapshot facts() {

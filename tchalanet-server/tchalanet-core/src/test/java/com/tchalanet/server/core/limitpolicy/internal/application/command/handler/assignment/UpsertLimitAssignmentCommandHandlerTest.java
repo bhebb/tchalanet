@@ -148,7 +148,14 @@ class UpsertLimitAssignmentCommandHandlerTest {
   void throws_when_params_is_null() {
     var cmd =
         new UpsertLimitAssignmentCommand(
-            TENANT, RuleKey.BLOCK_SELECTION_PER_DRAW, SCOPE, true, BreachOutcome.BLOCK, null, null, null);
+            TENANT,
+            RuleKey.BLOCK_SELECTION_PER_DRAW,
+            SCOPE,
+            true,
+            BreachOutcome.BLOCK,
+            null,
+            null,
+            null);
     assertThatThrownBy(() -> handler.handle(cmd))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("params");
@@ -206,7 +213,14 @@ class UpsertLimitAssignmentCommandHandlerTest {
     var start = Instant.parse("2026-01-01T00:00:00Z");
     var end = Instant.parse("2026-12-31T23:59:59Z");
     return new UpsertLimitAssignmentCommand(
-        TENANT, RuleKey.BLOCK_SELECTION_PER_DRAW, SCOPE, true, BreachOutcome.BLOCK, params(), start, end);
+        TENANT,
+        RuleKey.BLOCK_SELECTION_PER_DRAW,
+        SCOPE,
+        true,
+        BreachOutcome.BLOCK,
+        params(),
+        start,
+        end);
   }
 
   private static tools.jackson.databind.JsonNode params() {
