@@ -1345,7 +1345,7 @@
           "BLOCK_SELECTION_PER_DRAW": {
             "TENANT": "These numbers cannot be sold across all draws.",
             "DRAW_CHANNEL": "These numbers cannot be sold on this draw channel.",
-            "SELLER_TERMINAL": "These numbers cannot be sold on this seller terminal."
+            "SELLER_TERMINAL": "These numbers cannot be sold by this seller."
           },
           "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
             "TENANT": "When the total stake on a number reaches the cap, sales stop across all draws.",
