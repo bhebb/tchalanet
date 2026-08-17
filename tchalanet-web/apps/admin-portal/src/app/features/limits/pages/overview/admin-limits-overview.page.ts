@@ -245,7 +245,7 @@ export class AdminLimitsOverviewPage implements OnInit {
   }
 
   ruleLabelKey(item: ActiveLimitItem): string {
-    return `admin.limits.rule.${item.ruleKey}`;
+    return `admin.limits.rule.${item.ruleKey}.label`;
   }
 
   statusKey(item: ActiveLimitItem): string {

@@ -278,7 +278,7 @@ export class AdminLimitsSectionComponent {
   }
 
   ruleLabel(ruleKey: RuleKey): string {
-    return `admin.limits.rule.${ruleKey}`;
+    return `admin.limits.rule.${ruleKey}.label`;
   }
 
   ruleIcon(ruleKey: RuleKey): string {

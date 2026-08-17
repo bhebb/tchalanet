@@ -41,8 +41,8 @@ describe(AdminLimitsSectionComponent.name, () => {
               const translations: Record<string, string> = {
                 'admin.limits.section.noParams': 'San paramèt',
                 'admin.limits.section.scope.tenant': 'santral',
-                'admin.limits.rule.BLOCK_SELECTION_PER_DRAW': 'Blokaj nimewo',
-                'admin.limits.rule.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW': 'Plafon nimewo',
+                'admin.limits.rule.BLOCK_SELECTION_PER_DRAW.label': 'Blokaj nimewo',
+                'admin.limits.rule.MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW.label': 'Plafon nimewo',
               };
               return translations[key] ?? key;
             },

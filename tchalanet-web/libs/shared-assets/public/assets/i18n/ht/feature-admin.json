@@ -1271,8 +1271,14 @@
         }
       },
       "rule": {
-        "BLOCK_SELECTION_PER_DRAW": "Bloke nimewo",
-        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": "Plafon pa nimewo"
+        "BLOCK_SELECTION_PER_DRAW": {
+          "label": "Bloke nimewo",
+          "description": "Bloke yon nimewo sou yon tiraj."
+        },
+        "MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW": {
+          "label": "Plafon pa nimewo",
+          "description": "Limite kantite total ki ka vann sou yon nimewo pou yon tiraj."
+        }
       },
       "child": {
         "rulesLink": "Règ ki sipòte yo",

@@ -72,10 +72,16 @@ export class AdminLimitsDetailPage implements OnInit {
 
   readonly ruleLabel = computed(() => {
     const s = this.spec();
-    return s ? this.translate.instant(`admin.limits.rule.${s.ruleKey}`) : '';
+    return s ? this.translate.instant(`admin.limits.rule.${s.ruleKey}.label`) : '';
   });
 
-  readonly ruleDescription = computed(() => this.spec()?.description ?? '');
+  readonly ruleDescription = computed(() => {
+    const s = this.spec();
+    if (!s) return '';
+    const key = `admin.limits.rule.${s.ruleKey}.description`;
+    const translated = this.translate.instant(key);
+    return translated !== key ? translated : (s.description ?? '');
+  });
 
   readonly statusTone = computed(() =>
     this.item()?.enabled ? ('success' as const) : ('warning' as const),
