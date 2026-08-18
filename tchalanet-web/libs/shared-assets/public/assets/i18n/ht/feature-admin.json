@@ -337,7 +337,12 @@
           "templateNames": {
             "ticketReceiptV1": "Resi tikè"
           },
-          "saved": "Konfigirasyon resi a anrejistre."
+          "saved": "Konfigirasyon resi a anrejistre.",
+          "paperSizes": {
+            "RECEIPT_58MM": "58 mm (pòtab)",
+            "RECEIPT_80MM": "80 mm (estanda)",
+            "A4": "A4"
+          }
         },
         "communication": {
           "title": "Livrezon tikè",
@@ -346,7 +351,7 @@
           "amount": "Montan frè a",
           "currency": "Deviz",
           "paidBy": {
-            "label": "Moun ki peye",
+            "label": "Frè peye pa",
             "buyer": "Kliyan",
             "tenant": "Santral",
             "seller": "Machann"
@@ -365,7 +370,7 @@
         "calendar": {
           "title": "Kalandriye vant",
           "description": "Defini jou regilye kote santral sa a pa vann.",
-          "defaultOpen": "Louvri pa default",
+          "defaultOpen": "Louvri pa defo",
           "closedWeekdays": "Jou ki fèmen chak semèn",
           "recurringHolidays": "Jou ferye regilye",
           "days": {
@@ -400,8 +405,8 @@
         }
       },
       "overview": {
-        "title": "Paramèt antrepriz",
-        "description": "Konfigirasyon operasyon antrepriz la",
+        "title": "Paramèt operasyonèl",
+        "description": "Resi, livrezon tikè ak kalandriye vant santral la.",
         "edit": "Modifye",
         "receipt": {
           "title": "Resi ak enpresyon",
@@ -421,7 +426,7 @@
         },
         "calendar": {
           "title": "Kalandriye vant",
-          "defaultOpen": "Ouvert pa defo",
+          "defaultOpen": "Louvri pa defo",
           "closedDays": "{{ count }} jou fèmen",
           "holidays": "{{ count }} jou ferye",
           "noConfig": "Pa konfigire"

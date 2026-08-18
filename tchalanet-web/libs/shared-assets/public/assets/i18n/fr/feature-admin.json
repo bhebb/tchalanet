@@ -324,12 +324,17 @@
           "paperSize": "Format de papier",
           "paperSizeHint": "Format utilisé par défaut pour les reçus imprimés.",
           "qrCode": "Afficher le QR code",
-          "template": "Template effectif :",
-          "templateDefault": "Template plateforme par défaut",
+          "template": "Modèle actif :",
+          "templateDefault": "Modèle plateforme par défaut",
           "templateNames": {
             "ticketReceiptV1": "Reçu de ticket"
           },
-          "saved": "Configuration des reçus enregistrée."
+          "saved": "Configuration des reçus enregistrée.",
+          "paperSizes": {
+            "RECEIPT_58MM": "58 mm (portable)",
+            "RECEIPT_80MM": "80 mm (standard)",
+            "A4": "A4"
+          }
         },
         "communication": {
           "title": "Livraison des tickets",
@@ -392,8 +397,8 @@
         }
       },
       "overview": {
-        "title": "Paramètres entreprise",
-        "description": "Configuration opérationnelle de l'entreprise",
+        "title": "Paramètres opérationnels",
+        "description": "Reçus, livraison de tickets et calendrier de vente.",
         "edit": "Modifier",
         "receipt": {
           "title": "Reçus et impression",

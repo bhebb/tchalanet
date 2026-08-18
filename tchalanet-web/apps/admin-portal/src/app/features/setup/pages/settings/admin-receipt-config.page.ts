@@ -84,6 +84,10 @@ export class AdminReceiptConfigPage {
   readonly backLabel = this.fromSetup ? 'admin.setup.backToSetup' : 'admin.settings.title';
 
   readonly paperSizes = PAPER_SIZES;
+
+  paperSizeLabel(size: string): string {
+    return this.translate.instant(`admin.settings.config.receipt.paperSizes.${size}`, { defaultValue: size });
+  }
   readonly config = this.api.tenantConfigResource();
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;

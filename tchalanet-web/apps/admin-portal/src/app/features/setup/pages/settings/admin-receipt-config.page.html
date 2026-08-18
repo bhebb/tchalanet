@@ -71,7 +71,7 @@
               <mat-label>{{ 'admin.settings.config.receipt.paperSize' | translate }}</mat-label>
               <mat-select formControlName="defaultPaperSize">
                 @for (size of paperSizes; track size) {
-                  <mat-option [value]="size">{{ size }}</mat-option>
+                  <mat-option [value]="size">{{ paperSizeLabel(size) }}</mat-option>
                 }
               </mat-select>
               <mat-hint>{{ 'admin.settings.config.receipt.paperSizeHint' | translate }}</mat-hint>

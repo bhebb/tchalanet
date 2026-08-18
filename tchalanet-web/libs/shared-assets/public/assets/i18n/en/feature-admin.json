@@ -329,7 +329,12 @@
           "templateNames": {
             "ticketReceiptV1": "Ticket receipt"
           },
-          "saved": "Receipt configuration saved."
+          "saved": "Receipt configuration saved.",
+          "paperSizes": {
+            "RECEIPT_58MM": "58 mm (portable)",
+            "RECEIPT_80MM": "80 mm (standard)",
+            "A4": "A4"
+          }
         },
         "communication": {
           "title": "Ticket delivery",
@@ -392,8 +397,8 @@
         }
       },
       "overview": {
-        "title": "Business settings",
-        "description": "Business operational configuration",
+        "title": "Operational settings",
+        "description": "Receipts, ticket delivery, and sales calendar.",
         "edit": "Edit",
         "receipt": {
           "title": "Receipts & printing",
