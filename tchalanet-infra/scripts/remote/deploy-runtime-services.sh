@@ -182,8 +182,11 @@ require_file "compose/docker-compose-project.yml"
 require_file "compose/docker-compose-redis.yml"
 require_file "compose/docker-compose-api.yml"
 require_file "compose/docker-compose-edge-service.yml"
-if [ "$ENV" = "staging" ]; then
+if [ "$ENV" = "staging" ] || [ "$ENV" = "prod" ]; then
   require_file "compose/docker-compose-postgres.yml"
+fi
+if [ "$ENV" = "prod" ]; then
+  require_file "compose/docker-compose-prod-overrides.yml"
 fi
 require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
 require_file "scripts/remote/prepare-server-signing-keys.sh"
@@ -327,8 +330,11 @@ compose_cmd=(
   -f compose/docker-compose-api.yml
   -f compose/docker-compose-edge-service.yml
 )
-if [ "$ENV" = "staging" ]; then
+if [ "$ENV" = "staging" ] || [ "$ENV" = "prod" ]; then
   compose_cmd+=(-f compose/docker-compose-postgres.yml)
+fi
+if [ "$ENV" = "prod" ]; then
+  compose_cmd+=(-f compose/docker-compose-prod-overrides.yml)
 fi
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   compose_cmd+=(-f compose/docker-compose-firebase-emulator.yml)

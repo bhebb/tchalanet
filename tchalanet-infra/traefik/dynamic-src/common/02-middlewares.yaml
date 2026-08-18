@@ -13,3 +13,15 @@ http:
 
     gzip:
       compress: {}
+
+    rate-limit-api:
+      rateLimit:
+        average: 100
+        burst: 200
+        period: 1s
+
+    rate-limit-auth:
+      rateLimit:
+        average: 10
+        burst: 20
+        period: 1s
