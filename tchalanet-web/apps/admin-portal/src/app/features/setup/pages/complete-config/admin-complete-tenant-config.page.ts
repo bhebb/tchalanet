@@ -69,7 +69,11 @@ interface SetupSettingsTarget {
   readonly fragment?: string;
 }
 
-const TENANT_SETTINGS_CONFIG_ROUTE = '/app/admin/company/settings/config';
+const TENANT_SETTINGS_OVERVIEW_ROUTE = '/app/admin/company/settings';
+const TENANT_SETTINGS_RECEIPT_ROUTE = '/app/admin/company/settings/receipt';
+const TENANT_SETTINGS_DELIVERY_ROUTE = '/app/admin/company/settings/delivery';
+const TENANT_SETTINGS_CALENDAR_ROUTE = '/app/admin/company/settings/calendar';
+const TENANT_BUSINESS_PROFILE_ROUTE = '/app/admin/business-profile';
 
 @Component({
   selector: 'tch-admin-complete-tenant-config-page',
@@ -105,8 +109,12 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly setup = computed<TenantSetupView | null>(() => this.overview()?.setup ?? null);
   readonly header = computed(() => this.overview()?.header ?? null);
 
-  readonly requiredTotalCount = computed(() => this.setup()?.totalSteps ?? 0);
-  readonly requiredCompletedCount = computed(() => this.setup()?.completedSteps ?? 0);
+  // Derived from the cards we actually display — the backend's totalSteps/completedSteps
+  // may include sections (like settings) that are now optional on the frontend.
+  readonly requiredTotalCount = computed(() => this.requiredSetupCards().length);
+  readonly requiredCompletedCount = computed(
+    () => this.requiredSetupCards().filter(c => c.status === 'READY').length,
+  );
   readonly progressPct = computed(() =>
     this.requiredTotalCount() > 0
       ? Math.min(100, Math.round((this.requiredCompletedCount() / this.requiredTotalCount()) * 100))
@@ -157,9 +165,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     // Real check now (readiness section "generated_draws"): at least one Draw instance
     // actually exists, not just that channels/games are configured.
     const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
-    const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
-    const settingsTarget = this.settingsTarget();
-
     const cards: SetupChecklistCardViewModel[] = [
       {
         id: 'identity_address',
@@ -173,23 +178,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         route: '/app/admin/business-profile',
         emphasizeMissing: true,
         sectionErrorTargets: ['admin.setup.identity', 'admin.setup.address'],
-      },
-      {
-        id: 'settings',
-        icon: 'tune',
-        titleKey: 'admin.setup.section.settings',
-        // Real check now (readiness section "settings"): backend evaluates tenant settings
-        // structurally and returns stable missing-reason codes.
-        status: settingsStatus,
-        badgeKind: 'required',
-        body: this.translate.instant('admin.setup.section.settingsDesc'),
-        bodyVariant: 'default',
-        ctaKey: 'admin.setup.section.settingsCta',
-        route: settingsTarget.route,
-        queryParams: { from: 'setup' },
-        fragment: settingsTarget.fragment,
-        emphasizeMissing: true,
-        sectionErrorTargets: ['admin.setup.settings'],
       },
       {
         id: 'games_pricing',
@@ -246,20 +234,18 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     const subscription = this.subscription();
     const cards: SetupChecklistCardViewModel[] = [
       {
-        id: 'pos_printing',
-        icon: 'print',
-        titleKey: 'admin.setup.section.posPrinting',
-        status: this.posPrintingStatus(),
-        badgeKind: 'operational',
-        body: this.translate.instant('admin.setup.section.posPrintingDesc'),
+        id: 'pos_settings',
+        icon: 'tune',
+        titleKey: 'admin.setup.section.posSettings',
+        status: this.sectionStatus('settings'),
+        badgeKind: 'optional',
+        body: this.translate.instant('admin.setup.section.posSettingsDesc'),
         bodyVariant: 'default',
-        statusLabelKey: this.posPrintingStatusLabelKey(),
-        ctaKey: 'admin.setup.section.posPrintingCta',
-        route: '/app/admin/company/settings/config',
+        ctaKey: 'admin.setup.section.posSettingsCta',
+        route: TENANT_SETTINGS_OVERVIEW_ROUTE,
         queryParams: { from: 'setup' },
-        fragment: 'print',
         emphasizeMissing: false,
-        sectionErrorTargets: ['admin.setup.pos_printing'],
+        sectionErrorTargets: [],
       },
     ];
 
@@ -410,18 +396,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     );
   }
 
-  private settingsTarget(): SetupSettingsTarget {
-    return setupSettingsTarget(this.sectionMap().get('settings'));
-  }
-
-  private posPrintingStatus(): SetupChecklistStatus {
-    return setupPosPrintingStatus(this.sectionMap().get('settings'));
-  }
-
-  private posPrintingStatusLabelKey(): string {
-    return setupPosPrintingStatusLabelKey(this.posPrintingStatus());
-  }
-
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {
     return [
       [addr.line1, addr.line2].filter(Boolean).join(' · '),
@@ -503,31 +477,31 @@ export function isReadinessCardBlocking(kind: SetupChecklistBadgeKind): boolean 
 export function setupSettingsTarget(
   settings: { readonly issues?: readonly { readonly messageKey?: string | null }[] } | undefined,
 ): SetupSettingsTarget {
+  // Print issues are addressed by the dedicated POS Printing operational card —
+  // the main "Paramèt" required card should never land directly on receipt.
   const reason =
     settings?.issues?.find(
       item =>
         item.messageKey?.startsWith('settings.') &&
         !item.messageKey.startsWith('settings.print.'),
-    )?.messageKey ??
-    settings?.issues?.find(item => item.messageKey?.startsWith('settings.'))?.messageKey ??
-    '';
+    )?.messageKey ?? '';
   return setupSettingsTargetFromReason(reason);
 }
 
 export function setupSettingsTargetFromReason(reason: string): SetupSettingsTarget {
   if (reason.startsWith('settings.print.')) {
-    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'print' };
+    return { route: TENANT_SETTINGS_RECEIPT_ROUTE };
   }
   if (reason.startsWith('settings.send.')) {
-    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'send' };
+    return { route: TENANT_SETTINGS_DELIVERY_ROUTE };
   }
   if (reason.startsWith('settings.calendar.')) {
-    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'calendar' };
+    return { route: TENANT_SETTINGS_CALENDAR_ROUTE };
   }
   if (reason.startsWith('settings.locale.')) {
-    return { route: TENANT_SETTINGS_CONFIG_ROUTE, fragment: 'languages' };
+    return { route: TENANT_BUSINESS_PROFILE_ROUTE };
   }
-  return { route: TENANT_SETTINGS_CONFIG_ROUTE };
+  return { route: TENANT_SETTINGS_OVERVIEW_ROUTE };
 }
 
 export function setupPosPrintingStatus(

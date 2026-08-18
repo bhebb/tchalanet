@@ -405,82 +405,8 @@
           </div>
         </mat-tab>
 
-        <mat-tab [label]="'admin.settings.config.tabs.locale' | translate">
-          <div class="config-page__tab-content">
-            @if (sectionReadiness('locale'); as status) {
-            <div class="config-page__readiness" [class.config-page__readiness--ready]="status.status === 'READY'">
-              <span class="material-symbols-outlined" aria-hidden="true">{{ status.status === 'READY' ? 'check_circle' : 'warning' }}</span>
-              <span>{{ status.status === 'READY' ? ('admin.settings.config.readiness.ready' | translate) : ('admin.settings.config.readiness.actionRequired' | translate) }}</span>
-              @if (status.blockingReasons.length) { <span>· {{ 'admin.settings.config.readiness.issues' | translate:{ count: status.blockingReasons.length } }}</span> }
-            </div>
-            }
-            <tch-admin-section-card
-              [title]="'admin.settings.config.locale.title' | translate"
-              [description]="'admin.settings.config.locale.description' | translate"
-            >
-              <form [formGroup]="localeForm" class="config-page__form">
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'admin.settings.config.locale.supported' | translate }}</mat-label>
-                  <mat-select formControlName="supportedLanguages" multiple>
-                    @for (lang of languages(); track lang.code) {
-                    <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                <tch-field-error [control]="localeForm.controls.supportedLanguages" />
-
-                <mat-form-field appearance="outline">
-                  <mat-label>{{ 'admin.settings.config.locale.fallback' | translate }}</mat-label>
-                  <mat-select formControlName="fallbackLanguage">
-                    @for (lang of languages(); track lang.code) {
-                    @if (localeForm.controls.supportedLanguages.value.includes(lang.code)) {
-                    <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
-                    }
-                    }
-                  </mat-select>
-                </mat-form-field>
-                <tch-field-error [control]="localeForm.controls.fallbackLanguage" />
-
-                <tch-notice type="info">
-                  {{ 'admin.settings.config.locale.notice' | translate }}
-                </tch-notice>
-
-                @if (saveLocale.feedback(); as feedback) { @if (feedback.kind === 'error') {
-                <tch-notice type="error" [focusOnRender]="true">{{ feedback.vm?.message }}</tch-notice>
-                } @else {
-                <tch-notice type="success" [focusOnRender]="true">
-                  {{ 'admin.settings.config.locale.saved' | translate }}
-                </tch-notice>
-                } }
-
-                <div class="config-page__form-actions">
-                  <button
-                    mat-flat-button
-                    color="primary"
-                    type="button"
-                    [disabled]="saveLocale.pending()"
-                    (click)="submitLocale()"
-                  >
-                    @if (saveLocale.pending()) {
-                    <span class="material-symbols-outlined config-page__spin"
-                      >progress_activity</span
-                    >
-                    } @else {
-                    <span class="material-symbols-outlined">save</span>
-                    } {{ 'common.save' | translate }}
-                  </button>
-                </div>
-              </form>
-            </tch-admin-section-card>
-          </div>
-        </mat-tab>
       </mat-tab-group>
 
-      <tch-admin-limits-section
-        targetType="TENANT"
-        [sectionTitle]="'tenantSetup.limitsSection.title' | translate"
-        [defaultExpandedGroups]="['RESTRICTIONS']"
-      />
     </ng-template>
   </tch-async-view>
 </tch-admin-page-shell>

@@ -192,7 +192,7 @@
         "address": "Address",
         "addressHint": "Address required to open operations and create sellers.",
         "addressCta": "Configure address",
-        "identityAddress": "Identity & address",
+        "identityAddress": "Business profile",
         "identityAddressCta": "Manage profile",
         "games": "Games",
         "gamesDesc": "Available games.",
@@ -219,12 +219,6 @@
         "limits": "Sales limits",
         "limitsDesc": "Sales limits applied to your operator.",
         "limitsCta": "Configure limits",
-        "posPrinting": "POS & printing",
-        "posPrintingDesc": "Configure receipts, PDFs, and default printing settings.",
-        "posPrintingCta": "Configure printing",
-        "settings": "Operator settings",
-        "settingsDesc": "Customize the language and receipt (display name, messages) for your operator.",
-        "settingsCta": "Configure settings",
         "subscription": "Subscription",
         "subscriptionDesc": "Your subscription plan and status.",
         "subscriptionNoPlan": "No active plan — contact Tchalanet.",
@@ -232,9 +226,12 @@
         "sellerTerminal": "Sellers",
         "sellerTerminalDesc": "Available sellers.",
         "sellerTerminalLocked": "Seller creation is locked until the required setup steps are complete.",
-        "identityDesc": "Your business's main information.",
+        "identityDesc": "Identity, address, and language for your operator.",
         "sellerTerminalCta": "Configure sellers",
-        "sellerTerminalReady": "Sellers ready"
+        "sellerTerminalReady": "Sellers ready",
+        "posSettings": "POS & printing",
+        "posSettingsDesc": "Configure receipts, ticket delivery, and the sales calendar.",
+        "posSettingsCta": "Configure POS settings"
       },
       "description": "Follow the steps to configure your operator and make it operational.",
       "progress": {
@@ -332,7 +329,12 @@
           "templateNames": {
             "ticketReceiptV1": "Ticket receipt"
           },
-          "saved": "Receipt configuration saved."
+          "saved": "Receipt configuration saved.",
+          "paperSizes": {
+            "RECEIPT_58MM": "58 mm (portable)",
+            "RECEIPT_80MM": "80 mm (standard)",
+            "A4": "A4"
+          }
         },
         "communication": {
           "title": "Ticket delivery",
@@ -392,6 +394,34 @@
           "fallback": "Fallback language",
           "notice": "The fallback language must be one of the supported languages.",
           "saved": "Language settings saved."
+        }
+      },
+      "overview": {
+        "title": "Operational settings",
+        "description": "Receipts, ticket delivery, and sales calendar.",
+        "edit": "Edit",
+        "receipt": {
+          "title": "Receipts & printing",
+          "enabled": "Printing",
+          "paperSize": "Paper size",
+          "qrCode": "QR code",
+          "noConfig": "Not configured"
+        },
+        "delivery": {
+          "title": "Ticket delivery",
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "email": "Email",
+          "active": "Active",
+          "inactive": "Inactive",
+          "noConfig": "Not configured"
+        },
+        "calendar": {
+          "title": "Sales calendar",
+          "defaultOpen": "Open by default",
+          "closedDays": "{{ count }} closed day(s)",
+          "holidays": "{{ count }} holiday(s)",
+          "noConfig": "Not configured"
         }
       }
     },
@@ -1572,7 +1602,14 @@
         "identity": "Identity",
         "region": "Region",
         "commercial": "Business settings",
-        "address": "Address"
+        "address": "Address",
+        "locale": "Languages"
+      },
+      "locale": {
+        "fallback": "Default language",
+        "saved": "Language settings saved.",
+        "supported": "Available languages",
+        "notice": "The default language must be in the list of available languages."
       },
       "commercial": {
         "description": "Commercial settings used for sales and commissions.",

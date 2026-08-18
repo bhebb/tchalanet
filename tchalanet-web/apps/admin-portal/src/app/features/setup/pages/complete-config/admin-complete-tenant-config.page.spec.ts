@@ -100,26 +100,27 @@ describe('AdminCompleteTenantConfigPage setup classification', () => {
 
     expect(setupPosPrintingStatus(settings)).toBe('MISSING');
     expect(setupSettingsTarget(settings)).toEqual({
-      route: '/app/admin/company/settings/config',
+      route: '/app/admin/company/settings',
     });
+  });
+
+  it('routes print-only settings issues to the overview (POS Printing card handles them)', () => {
+    const settings = { issues: [{ messageKey: 'settings.print.paper_size_missing' }] };
+    expect(setupSettingsTarget(settings)).toEqual({ route: '/app/admin/company/settings' });
   });
 
   it('routes settings corrective actions to the matching settings section', () => {
     expect(setupSettingsTargetFromReason('settings.print.paper_size_missing')).toEqual({
-      route: '/app/admin/company/settings/config',
-      fragment: 'print',
+      route: '/app/admin/company/settings/receipt',
     });
     expect(setupSettingsTargetFromReason('settings.send.sms_missing')).toEqual({
-      route: '/app/admin/company/settings/config',
-      fragment: 'send',
+      route: '/app/admin/company/settings/delivery',
     });
     expect(setupSettingsTargetFromReason('settings.calendar.weekend_missing')).toEqual({
-      route: '/app/admin/company/settings/config',
-      fragment: 'calendar',
+      route: '/app/admin/company/settings/calendar',
     });
     expect(setupSettingsTargetFromReason('settings.locale.default_missing')).toEqual({
-      route: '/app/admin/company/settings/config',
-      fragment: 'languages',
+      route: '/app/admin/business-profile',
     });
   });
 });

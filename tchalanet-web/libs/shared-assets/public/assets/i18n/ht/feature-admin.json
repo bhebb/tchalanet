@@ -192,7 +192,7 @@
         "address": "Adrès",
         "addressHint": "Adrès obligatwa pou ouvri operasyon an epi kreye machin POS.",
         "addressCta": "Konfigire adrès la",
-        "identityAddress": "Idantite ak adrès",
+        "identityAddress": "Pwofil antrepriz",
         "identityAddressCta": "Jere pwofil la",
         "games": "Jwèt",
         "gamesDesc": "Jwèt ki disponib yo.",
@@ -219,12 +219,6 @@
         "limits": "Limit vant",
         "limitsDesc": "Limit vant ki aplike sou santral ou an.",
         "limitsCta": "Konfigire limit yo",
-        "posPrinting": "POS ak enpresyon",
-        "posPrintingDesc": "Konfigire resi, PDF ak paramèt enpresyon pa defo.",
-        "posPrintingCta": "Konfigire enpresyon",
-        "settings": "Paramèt santral la",
-        "settingsDesc": "Pèsonalize lang ak resi a (non afichaj, mesaj) pou santral ou.",
-        "settingsCta": "Konfigire paramèt yo",
         "subscription": "Abònman",
         "subscriptionDesc": "Plan ak estati abònman ou.",
         "subscriptionNoPlan": "Pa gen plan aktif — kontakte Tchalanet.",
@@ -232,9 +226,12 @@
         "sellerTerminal": "Machann",
         "sellerTerminalDesc": "Machann ki disponib yo.",
         "sellerTerminalLocked": "Kreyasyon machann yo bloke jiskaske etap obligatwa yo fini.",
-        "identityDesc": "Enfòmasyon prensipal antrepriz ou.",
+        "identityDesc": "Idantite, adrès ak lang santral ou a.",
         "sellerTerminalCta": "Konfigire machann yo",
-        "sellerTerminalReady": "Machann yo pare"
+        "sellerTerminalReady": "Machann yo pare",
+        "posSettings": "POS ak enpresyon",
+        "posSettingsDesc": "Resi, livrezon tikè ak kalandriye vant pou santral ou a.",
+        "posSettingsCta": "Konfigire paramèt POS yo"
       },
       "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
       "progress": {
@@ -340,7 +337,12 @@
           "templateNames": {
             "ticketReceiptV1": "Resi tikè"
           },
-          "saved": "Konfigirasyon resi a anrejistre."
+          "saved": "Konfigirasyon resi a anrejistre.",
+          "paperSizes": {
+            "RECEIPT_58MM": "58 mm (pòtab)",
+            "RECEIPT_80MM": "80 mm (estanda)",
+            "A4": "A4"
+          }
         },
         "communication": {
           "title": "Livrezon tikè",
@@ -349,7 +351,7 @@
           "amount": "Montan frè a",
           "currency": "Deviz",
           "paidBy": {
-            "label": "Moun ki peye",
+            "label": "Frè peye pa",
             "buyer": "Kliyan",
             "tenant": "Santral",
             "seller": "Machann"
@@ -368,7 +370,7 @@
         "calendar": {
           "title": "Kalandriye vant",
           "description": "Defini jou regilye kote santral sa a pa vann.",
-          "defaultOpen": "Louvri pa default",
+          "defaultOpen": "Louvri pa defo",
           "closedWeekdays": "Jou ki fèmen chak semèn",
           "recurringHolidays": "Jou ferye regilye",
           "days": {
@@ -397,9 +399,37 @@
           "title": "Lang santral la",
           "description": "Chwazi lang administratè santral yo ak machin POS yo kapab itilize.",
           "supported": "Lang ki disponib",
-          "fallback": "Lang dechanj",
-          "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
+          "fallback": "Lang pa defo",
+          "notice": "Lang pa defo a dwe nan lis lang ki disponib yo.",
           "saved": "Paramèt lang yo anrejistre."
+        }
+      },
+      "overview": {
+        "title": "Paramèt operasyonèl",
+        "description": "Resi, livrezon tikè ak kalandriye vant santral la.",
+        "edit": "Modifye",
+        "receipt": {
+          "title": "Resi ak enpresyon",
+          "enabled": "Enpresyon",
+          "paperSize": "Papye",
+          "qrCode": "Kòd QR",
+          "noConfig": "Pa konfigire"
+        },
+        "delivery": {
+          "title": "Livrezon tikè",
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "email": "Imèl",
+          "active": "Aktif",
+          "inactive": "Inaktif",
+          "noConfig": "Pa konfigire"
+        },
+        "calendar": {
+          "title": "Kalandriye vant",
+          "defaultOpen": "Louvri pa defo",
+          "closedDays": "{{ count }} jou fèmen",
+          "holidays": "{{ count }} jou ferye",
+          "noConfig": "Pa konfigire"
         }
       }
     },
@@ -1572,7 +1602,14 @@
         "identity": "Idantite",
         "region": "Rejyon",
         "commercial": "Paramèt komèsyal",
-        "address": "Adrès"
+        "address": "Adrès",
+        "locale": "Lang santral la"
+      },
+      "locale": {
+        "fallback": "Lang dechanj",
+        "saved": "Paramèt lang yo anrejistre.",
+        "supported": "Lang ki disponib",
+        "notice": "Lang dechanj la dwe nan lis lang ki disponib yo."
       },
       "commercial": {
         "description": "Itilize pou machann ki pa gen to espesifik.",

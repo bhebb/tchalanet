@@ -193,7 +193,7 @@
         "address": "Adresse",
         "addressHint": "Adresse requise pour ouvrir l'exploitation et créer des vendeurs.",
         "addressCta": "Configurer l'adresse",
-        "identityAddress": "Identité et adresse",
+        "identityAddress": "Profil entreprise",
         "identityAddressCta": "Gérer le profil",
         "games": "Jeux",
         "gamesDesc": "Jeux disponibles",
@@ -220,12 +220,6 @@
         "limits": "Limites de vente",
         "limitsDesc": "Limites de vente appliquées à votre santral.",
         "limitsCta": "Configurer les limites",
-        "posPrinting": "POS et impression",
-        "posPrintingDesc": "Configurez les reçus, PDF et paramètres d’impression par défaut.",
-        "posPrintingCta": "Configurer l’impression",
-        "settings": "Paramètres du santral",
-        "settingsDesc": "Personnalisez la langue et le reçu (nom affiché, messages) pour votre santral.",
-        "settingsCta": "Configurer les paramètres",
         "subscription": "Abonnement",
         "subscriptionDesc": "Plan et statut de votre abonnement.",
         "subscriptionNoPlan": "Aucun plan actif — contactez Tchalanet.",
@@ -233,9 +227,12 @@
         "sellerTerminal": "Vendeurs",
         "sellerTerminalDesc": "Vendeurs disponibles",
         "sellerTerminalLocked": "La création des vendeurs est bloquée tant que les étapes obligatoires ne sont pas terminées.",
-        "identityDesc": "Informations principales de votre entreprise.",
+        "identityDesc": "Identité, adresse et langue de votre santral.",
         "sellerTerminalCta": "Configurer les terminaux vendeurs",
-        "sellerTerminalReady": "Terminaux vendeurs prêts"
+        "sellerTerminalReady": "Terminaux vendeurs prêts",
+        "posSettings": "POS et impression",
+        "posSettingsDesc": "Configurez les reçus, la livraison des tickets et le calendrier de vente.",
+        "posSettingsCta": "Configurer les paramètres POS"
       },
       "description": "Suivez les étapes pour configurer votre santral et le rendre opérationnel.",
       "status": {
@@ -327,12 +324,17 @@
           "paperSize": "Format de papier",
           "paperSizeHint": "Format utilisé par défaut pour les reçus imprimés.",
           "qrCode": "Afficher le QR code",
-          "template": "Template effectif :",
-          "templateDefault": "Template plateforme par défaut",
+          "template": "Modèle actif :",
+          "templateDefault": "Modèle plateforme par défaut",
           "templateNames": {
             "ticketReceiptV1": "Reçu de ticket"
           },
-          "saved": "Configuration des reçus enregistrée."
+          "saved": "Configuration des reçus enregistrée.",
+          "paperSizes": {
+            "RECEIPT_58MM": "58 mm (portable)",
+            "RECEIPT_80MM": "80 mm (standard)",
+            "A4": "A4"
+          }
         },
         "communication": {
           "title": "Livraison des tickets",
@@ -392,6 +394,34 @@
           "fallback": "Langue de repli",
           "notice": "La langue de repli doit faire partie des langues supportées.",
           "saved": "Paramètres de langue enregistrés."
+        }
+      },
+      "overview": {
+        "title": "Paramètres opérationnels",
+        "description": "Reçus, livraison de tickets et calendrier de vente.",
+        "edit": "Modifier",
+        "receipt": {
+          "title": "Reçus et impression",
+          "enabled": "Impression",
+          "paperSize": "Format papier",
+          "qrCode": "QR code",
+          "noConfig": "Non configuré"
+        },
+        "delivery": {
+          "title": "Livraison des tickets",
+          "sms": "SMS",
+          "whatsapp": "WhatsApp",
+          "email": "E-mail",
+          "active": "Actif",
+          "inactive": "Inactif",
+          "noConfig": "Non configuré"
+        },
+        "calendar": {
+          "title": "Calendrier de vente",
+          "defaultOpen": "Ouvert par défaut",
+          "closedDays": "{{ count }} jour(s) fermé(s)",
+          "holidays": "{{ count }} jour(s) férié(s)",
+          "noConfig": "Non configuré"
         }
       }
     },
@@ -2328,7 +2358,14 @@
         "address": "Adresse",
         "commercial": "Commercial",
         "identity": "Identité",
+        "locale": "Langues de l'organisation",
         "region": "Région"
+      },
+      "locale": {
+        "fallback": "Langue par défaut",
+        "saved": "Paramètres de langue enregistrés.",
+        "supported": "Langues disponibles",
+        "notice": "La langue par défaut doit figurer dans la liste des langues disponibles."
       }
     },
     "support": {

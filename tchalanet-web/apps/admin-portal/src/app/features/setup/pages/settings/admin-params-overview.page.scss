@@ -1,0 +1,11 @@
+@use 'breakpoints' as ui;
+
+.params-overview {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+
+  @include ui.up(expanded) {
+    grid-template-columns: 1fr 1fr;
+  }
+}

@@ -34,7 +34,6 @@ import {
   tchMutation,
 } from '@tch/web/async';
 import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
-import { AdminLimitsSectionComponent } from '../../../limits/components/limits-section/admin-limits-section.component';
 import {
   TenantParametersApiService,
   TenantInternalConfig,
@@ -61,14 +60,6 @@ const PAID_BY = [
   { code: 'SELLER', labelKey: 'admin.settings.config.communication.paidBy.seller' },
 ] as const;
 
-const LOCALE_FIELD_TARGETS: Record<string, string> = {
-  'locale.supportedLanguages': 'supportedLanguages',
-  'admin.setup.locale.supportedLanguages': 'supportedLanguages',
-  'tenant.locale.supportedLanguages': 'supportedLanguages',
-  'locale.fallbackLanguage': 'fallbackLanguage',
-  'admin.setup.locale.fallbackLanguage': 'fallbackLanguage',
-  'tenant.locale.fallbackLanguage': 'fallbackLanguage',
-};
 
 const RECEIPT_FIELD_TARGETS: Record<string, string> = {
   'document.receipt.headerMessage': 'headerMessage',
@@ -130,7 +121,6 @@ const CALENDAR_FIELD_TARGETS: Record<string, string> = {
     MatInputModule,
     MatSelectModule,
     MatTabsModule,
-    AdminLimitsSectionComponent,
   ],
   templateUrl: './admin-config.page.html',
   styleUrls: ['./admin-config.page.scss'],
@@ -142,7 +132,6 @@ export class AdminConfigPage {
   private readonly runtimeSettings = inject(RuntimeSettingsStore);
   private readonly translate = inject(TranslateService);
 
-  readonly languages = this.runtimeSettings.tenantLanguageOptions;
   readonly currencies = this.runtimeSettings.tenantCurrencyOptions;
   readonly paperSizes = PAPER_SIZES;
   readonly weekdays = WEEKDAYS;
@@ -170,17 +159,6 @@ export class AdminConfigPage {
   readonly customHolidays = signal<TenantRecurringHoliday[]>([]);
   readonly selectedTabIndex = signal(0);
   private readonly requestedFragment = toSignal(this.route.fragment, { initialValue: null });
-
-  readonly localeForm = this.fb.group({
-    supportedLanguages: new FormControl<string[]>(
-      [...this.runtimeSettings.tenantSupportedLanguages()],
-      { nonNullable: true, validators: [Validators.required] },
-    ),
-    fallbackLanguage: new FormControl<string>(
-      this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht',
-      { nonNullable: true },
-    ),
-  });
 
   readonly receiptForm = this.fb.group({
     enabled: new FormControl<boolean>(true, { nonNullable: true }),
@@ -218,19 +196,6 @@ export class AdminConfigPage {
     }),
     customHolidayLabel: new FormControl<string>('', { nonNullable: true }),
     customHolidayOpen: new FormControl<boolean>(false, { nonNullable: true }),
-  });
-
-  readonly saveLocale = tchMutation<NonNullable<TenantInternalConfig['locale']>, void>({
-    run: locale =>
-      this.api.updateSettingsSection('locale', locale, { suppressShellFeedback: true }),
-    source: 'admin.setup.locale',
-    onSuccess: (_result, input) => {
-      this.rememberConfig({ ...this.lastConfig, locale: input });
-      this.localeForm.markAsPristine();
-      this.config.reload();
-    },
-    onError: err =>
-      this.applyFieldErrors(err, this.localeForm, 'admin.setup.locale', LOCALE_FIELD_TARGETS),
   });
 
   readonly saveReceipt = tchMutation<NonNullable<TenantInternalConfig['document']>, void>({
@@ -294,7 +259,6 @@ export class AdminConfigPage {
         : null;
       untracked(() => {
         this.rememberConfig(cfg);
-        if (!this.localeForm.dirty) this.patchLocale(cfg);
         if (!this.receiptForm.dirty) this.patchReceipt(cfg);
         if (!this.communicationForm.dirty) this.patchCommunication(cfg);
         if (!this.calendarForm.dirty && holidayTemplateSnapshot) {
@@ -313,27 +277,6 @@ export class AdminConfigPage {
 
   sectionReadiness(section: string): TenantSettingsReadinessSection | null {
     return this.readiness.value()?.sections.find(item => item.section === section) ?? null;
-  }
-
-  submitLocale(): void {
-    clearServerFieldErrors(this.localeForm);
-    this.saveLocale.clearFeedback();
-    if (this.localeForm.invalid) {
-      this.localeForm.markAllAsTouched();
-      return;
-    }
-    const v = this.localeForm.getRawValue();
-    const supportedLanguages = [...new Set(v.supportedLanguages)];
-    const fallbackLanguage = supportedLanguages.includes(v.fallbackLanguage)
-      ? v.fallbackLanguage
-      : supportedLanguages[0] ?? '';
-    this.localeForm.controls.supportedLanguages.setValue(supportedLanguages);
-    this.localeForm.controls.fallbackLanguage.setValue(fallbackLanguage);
-    this.saveLocale.execute({
-      ...this.lastConfig.locale,
-      supportedLanguages,
-      fallbackLanguage: fallbackLanguage || null,
-    });
   }
 
   submitReceipt(): void {
@@ -423,18 +366,6 @@ export class AdminConfigPage {
     if (!key) return;
     this.customHolidays.update(items => items.filter(item => item.key !== key));
     this.calendarForm.markAsDirty();
-  }
-
-  private patchLocale(cfg: TenantInternalConfig): void {
-    const loc = cfg.locale;
-    if (!loc) return;
-    this.localeForm.patchValue({
-      supportedLanguages: loc.supportedLanguages ?? [
-        ...this.runtimeSettings.tenantSupportedLanguages(),
-      ],
-      fallbackLanguage:
-        loc.fallbackLanguage ?? this.runtimeSettings.tenantSupportedLanguages()[0] ?? 'ht',
-    });
   }
 
   private patchReceipt(cfg: TenantInternalConfig): void {
@@ -531,7 +462,6 @@ export class AdminConfigPage {
   private applyFieldErrors(
     err: unknown,
     form:
-      | typeof this.localeForm
       | typeof this.receiptForm
       | typeof this.communicationForm
       | typeof this.calendarForm,

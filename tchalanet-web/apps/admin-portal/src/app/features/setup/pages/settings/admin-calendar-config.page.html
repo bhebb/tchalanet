@@ -1,0 +1,161 @@
+<tch-admin-page-shell
+  [title]="'admin.settings.config.tabs.calendar' | translate"
+  [description]="'admin.settings.config.calendar.description' | translate"
+>
+  <div actions>
+    <a mat-stroked-button [routerLink]="backRoute">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ backLabel | translate }}
+    </a>
+    <button mat-stroked-button [disabled]="config.isLoading()" (click)="config.reload()">
+      <span class="material-symbols-outlined">refresh</span>
+      {{ 'common.refresh' | translate }}
+    </button>
+  </div>
+
+  <tch-async-view
+    [resource]="config"
+    [error]="configError()"
+    [isEmpty]="configIsEmpty"
+    [loadingLabel]="'common.loading' | translate"
+    (retry)="config.reload()"
+  >
+    <ng-template tchAsyncReady>
+      <div class="config-page">
+        @if (sectionReadiness('calendar'); as status) {
+          <div class="config-page__readiness" [class.config-page__readiness--ready]="status.status === 'READY'">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ status.status === 'READY' ? 'check_circle' : 'warning' }}</span>
+            <span>{{ status.status === 'READY' ? ('admin.settings.config.readiness.ready' | translate) : ('admin.settings.config.readiness.actionRequired' | translate) }}</span>
+            @if (status.blockingReasons.length) {
+              <span>· {{ 'admin.settings.config.readiness.issues' | translate:{ count: status.blockingReasons.length } }}</span>
+            }
+          </div>
+        }
+
+        <tch-admin-section-card
+          [title]="'admin.settings.config.calendar.title' | translate"
+          [description]="'admin.settings.config.calendar.description' | translate"
+        >
+          <form [formGroup]="calendarForm" class="config-page__form">
+            <div class="config-page__checkbox-row">
+              <mat-checkbox formControlName="defaultOpen">
+                {{ 'admin.settings.config.calendar.defaultOpen' | translate }}
+              </mat-checkbox>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.settings.config.calendar.closedWeekdays' | translate }}</mat-label>
+              <mat-select formControlName="closedWeekdays" multiple>
+                @for (day of weekdays; track day.code) {
+                  <mat-option [value]="day.code">{{ day.labelKey | translate }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <tch-field-error [control]="calendarForm.controls.closedWeekdays" />
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'admin.settings.config.calendar.recurringHolidays' | translate }}</mat-label>
+              <mat-select formControlName="holidayTemplateKeys" multiple>
+                @for (holiday of holidayTemplates.value() ?? []; track holiday.key) {
+                  <mat-option [value]="holiday.key">{{ holiday.label }} · {{ holiday.monthDay }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <tch-field-error [control]="calendarForm.controls.holidayTemplateKeys" />
+
+            <section class="config-page__holiday-custom">
+              <h3>{{ 'admin.settings.config.calendar.customHoliday.title' | translate }}</h3>
+              <div class="config-page__holiday-fields">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.settings.config.calendar.customHoliday.date' | translate }}</mat-label>
+                  <input
+                    matInput
+                    formControlName="customHolidayMonthDay"
+                    [placeholder]="'admin.settings.config.calendar.customHoliday.datePlaceholder' | translate"
+                  />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'admin.settings.config.calendar.customHoliday.label' | translate }}</mat-label>
+                  <input
+                    matInput
+                    formControlName="customHolidayLabel"
+                    [placeholder]="'admin.settings.config.calendar.customHoliday.labelPlaceholder' | translate"
+                  />
+                </mat-form-field>
+                <mat-checkbox formControlName="customHolidayOpen">
+                  {{ 'admin.settings.config.calendar.customHoliday.open' | translate }}
+                </mat-checkbox>
+                <button mat-stroked-button type="button" (click)="addCustomHoliday()">
+                  <span class="material-symbols-outlined">add</span>
+                  {{ 'common.add' | translate }}
+                </button>
+              </div>
+              <tch-field-error [control]="calendarForm.controls.customHolidayMonthDay" />
+              <tch-field-error [control]="calendarForm.controls.customHolidayLabel" />
+
+              @if (customHolidays().length) {
+                <div class="config-page__holiday-list">
+                  @for (holiday of customHolidays(); track holiday.key) {
+                    <div class="config-page__holiday-row">
+                      <span>{{ holiday.label }}</span>
+                      <span>{{ holiday.monthDay }}</span>
+                      <span>
+                        {{ holiday.open
+                          ? ('admin.settings.config.calendar.customHoliday.open' | translate)
+                          : ('admin.settings.config.calendar.customHoliday.closed' | translate) }}
+                      </span>
+                      <button
+                        mat-icon-button
+                        type="button"
+                        [attr.aria-label]="'common.delete' | translate"
+                        (click)="removeCustomHoliday(holiday.key)"
+                      >
+                        <span class="material-symbols-outlined">delete</span>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </section>
+
+            <tch-notice type="info">
+              {{ 'admin.settings.config.calendar.scopeNotice' | translate }}
+            </tch-notice>
+
+            @if (saveCalendar.feedback(); as feedback) {
+              @if (feedback.kind === 'error') {
+                <tch-notice type="error" [focusOnRender]="true">{{ feedback.vm?.message }}</tch-notice>
+              } @else {
+                <tch-notice type="success" [focusOnRender]="true">
+                  {{ 'admin.settings.config.calendar.saved' | translate }}
+                </tch-notice>
+              }
+            }
+
+            <div class="config-page__form-actions config-page__form-actions--split">
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                [disabled]="saveCalendar.pending()"
+                (click)="submitCalendar()"
+              >
+                @if (saveCalendar.pending()) {
+                  <span class="material-symbols-outlined config-page__spin">progress_activity</span>
+                } @else {
+                  <span class="material-symbols-outlined">save</span>
+                }
+                {{ 'common.save' | translate }}
+              </button>
+
+              <a mat-stroked-button routerLink="/app/admin/business-days">
+                <span class="material-symbols-outlined">event_busy</span>
+                {{ 'admin.settings.config.calendar.exceptions' | translate }}
+              </a>
+            </div>
+          </form>
+        </tch-admin-section-card>
+      </div>
+    </ng-template>
+  </tch-async-view>
+</tch-admin-page-shell>

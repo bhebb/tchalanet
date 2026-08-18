@@ -11,7 +11,22 @@ export const adminSetupRoutes: Route[] = [
   {
     path: 'settings',
     loadComponent: () =>
-      import('./pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
+      import('./pages/settings/admin-params-overview.page').then(m => m.AdminParamsOverviewPage),
+  },
+  {
+    path: 'settings/receipt',
+    loadComponent: () =>
+      import('./pages/settings/admin-receipt-config.page').then(m => m.AdminReceiptConfigPage),
+  },
+  {
+    path: 'settings/delivery',
+    loadComponent: () =>
+      import('./pages/settings/admin-delivery-config.page').then(m => m.AdminDeliveryConfigPage),
+  },
+  {
+    path: 'settings/calendar',
+    loadComponent: () =>
+      import('./pages/settings/admin-calendar-config.page').then(m => m.AdminCalendarConfigPage),
   },
   {
     path: 'settings/config',

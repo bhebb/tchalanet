@@ -1,0 +1,28 @@
+<tch-admin-section-card [title]="section().title" [icon]="section().icon">
+  @if (section().facts; as facts) {
+    <dl class="settings-summary__facts">
+      @for (fact of facts; track fact.label) {
+        <div>
+          <dt>{{ fact.label }}</dt>
+          <dd>
+            @if (fact.badge) {
+              <span
+                class="settings-summary__badge"
+                [class.settings-summary__badge--active]="fact.active"
+              >{{ fact.value }}</span>
+            } @else {
+              {{ fact.value }}
+            }
+          </dd>
+        </div>
+      }
+    </dl>
+  } @else {
+    <p class="settings-summary__empty">{{ section().emptyMessage }}</p>
+  }
+  <div class="settings-summary__actions">
+    <a mat-stroked-button [routerLink]="section().route" [queryParams]="section().queryParams">
+      {{ 'common.edit' | translate }}
+    </a>
+  </div>
+</tch-admin-section-card>

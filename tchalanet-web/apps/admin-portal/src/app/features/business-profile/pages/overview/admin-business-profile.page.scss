@@ -1,13 +1,17 @@
-@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+@use 'breakpoints' as ui;
 
 :host {
   display: block;
 }
 
 .biz-profile__main {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+
+  @include ui.up(expanded) {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .biz-profile__notice {
@@ -16,7 +20,7 @@
 
 .biz-profile__facts {
   display: grid;
-  grid-template-columns: 10rem 1fr;
+  grid-template-columns: auto 1fr;
   gap: 0.5rem 1.25rem;
   margin: 0;
   align-items: baseline;
@@ -60,6 +64,13 @@
 .biz-profile__cta {
   margin-top: 1rem;
   align-self: flex-start;
+  --mdc-outlined-button-outline-color: var(--tch-color-primary);
+  --mdc-outlined-button-label-text-color: var(--tch-color-primary);
+  --mdc-outlined-button-outline-width: 1.5px;
+  --mat-outlined-button-state-layer-color: var(--tch-color-primary);
+  --mat-outlined-button-hover-state-layer-opacity: 0.06;
+  --mat-outlined-button-focus-state-layer-opacity: 0.1;
+  --mat-outlined-button-pressed-state-layer-opacity: 0.12;
 }
 
 .biz-profile__form {
