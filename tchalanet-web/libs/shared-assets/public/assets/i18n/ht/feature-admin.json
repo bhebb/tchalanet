@@ -399,8 +399,8 @@
           "title": "Lang santral la",
           "description": "Chwazi lang administratè santral yo ak machin POS yo kapab itilize.",
           "supported": "Lang ki disponib",
-          "fallback": "Lang dechanj",
-          "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
+          "fallback": "Lang pa defo",
+          "notice": "Lang pa defo a dwe nan lis lang ki disponib yo.",
           "saved": "Paramèt lang yo anrejistre."
         }
       },

@@ -14,12 +14,6 @@
   }
 }
 
-.biz-profile__card--full {
-  @include ui.up(expanded) {
-    grid-column: 1 / -1;
-  }
-}
-
 .biz-profile__notice {
   margin-bottom: 1.5rem;
 }

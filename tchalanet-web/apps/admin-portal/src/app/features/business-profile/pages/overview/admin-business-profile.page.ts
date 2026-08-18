@@ -36,8 +36,6 @@ import { AdminDetailLayoutComponent } from '@tch/ui/console';
 import { AdminPageShellComponent } from '@tch/ui/console';
 import { AdminSectionCardComponent } from '@tch/ui/console';
 import { AdminSectionErrorTargetDirective, AdminSectionTargetError } from '@tch/ui/console';
-import { AdminStatusTone } from '@tch/ui/console';
-import { TchIdentityCardComponent } from '@tch/ui/console';
 import {
   ConsoleAddressFormSectionComponent,
   ConsoleAddressSummaryComponent,
@@ -98,7 +96,6 @@ const ADDRESS_SECTION_TARGET = 'admin.businessProfile.address';
     AdminDetailLayoutComponent,
     AdminSectionCardComponent,
     AdminSectionErrorTargetDirective,
-    TchIdentityCardComponent,
     ConsoleAddressFormSectionComponent,
     ConsoleAddressSummaryComponent,
     MatSelectModule,
@@ -262,34 +259,6 @@ export class AdminBusinessProfilePage implements OnInit {
   });
   readonly loading = computed(() => this.pageState() === 'loading');
   readonly error = computed(() => (this.pageState() === 'error' ? this.pageError() : null));
-
-  readonly identityMeta = computed(() => {
-    const h = this.header();
-    if (!h) return [];
-    const na = this.translate.instant('common.not_available');
-    const meta = [
-      {
-        label: this.translate.instant('admin.businessProfile.field.type'),
-        value: this.typeLabel(h.tenantType),
-      },
-      {
-        label: this.translate.instant('admin.businessProfile.field.currency'),
-        value: h.currency ?? na,
-      },
-      {
-        label: this.translate.instant('admin.businessProfile.field.status'),
-        value: this.statusLabel(h.tenantStatus),
-      },
-    ];
-    const rate = this.commissionRate();
-    if (rate != null) {
-      meta.push({
-        label: this.translate.instant('admin.businessProfile.field.commission'),
-        value: `${rate} %`,
-      });
-    }
-    return meta;
-  });
 
   ngOnInit(): void {
     this.load();
@@ -614,17 +583,6 @@ export class AdminBusinessProfilePage implements OnInit {
       ARCHIVED: 'missing',
     };
     return (status ? map[status] : null) ?? 'missing';
-  }
-
-  statusTone(status: string | null | undefined): AdminStatusTone {
-    const map: Record<string, AdminStatusTone> = {
-      ACTIVE: 'success',
-      DRAFT: 'info',
-      SUSPENDED: 'warning',
-      REJECTED: 'danger',
-      ARCHIVED: 'danger',
-    };
-    return (status ? map[status] : null) ?? 'neutral';
   }
 
   statusLabel(status: string | null | undefined): string {

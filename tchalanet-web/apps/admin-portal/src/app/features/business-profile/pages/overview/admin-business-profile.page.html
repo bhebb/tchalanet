@@ -25,7 +25,7 @@
     />
   } @else if (header()) {
 
-    <tch-admin-detail-layout>
+    <tch-admin-detail-layout [singleColumn]="true">
       <div main class="biz-profile__main">
 
         <!-- Identité -->
@@ -261,7 +261,6 @@
 
         <!-- Paramètres commerciaux -->
         <tch-admin-section-card
-          class="biz-profile__card--full"
           [title]="'admin.businessProfile.section.commercial' | translate"
           icon="percent"
           tchSectionErrorTarget="admin.businessProfile.commercial"
@@ -311,19 +310,6 @@
           }
         </tch-admin-section-card>
 
-      </div>
-
-      <div aside>
-        <tch-identity-card
-          variant="compact"
-          [eyebrow]="'admin.businessProfile.identityCard.eyebrow' | translate"
-          [title]="header()!.tenantName ?? ('common.not_available' | translate)"
-          [code]="header()!.tenantCode"
-          [status]="statusLabel(header()!.tenantStatus)"
-          [statusTone]="statusTone(header()!.tenantStatus)"
-          icon="business"
-          [meta]="identityMeta()"
-        />
       </div>
     </tch-admin-detail-layout>
   }
