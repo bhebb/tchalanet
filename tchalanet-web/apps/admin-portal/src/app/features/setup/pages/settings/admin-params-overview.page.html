@@ -22,92 +22,9 @@
   >
     <ng-template tchAsyncReady>
       <div class="params-overview">
-
-        <!-- Resi ak enpresyon -->
-        <tch-admin-section-card
-          [title]="'admin.settings.overview.receipt.title' | translate"
-          icon="receipt_long"
-        >
-          @if (receiptSummary(); as r) {
-            <dl class="params-card__channels">
-              <div>
-                <dt>{{ 'admin.settings.overview.receipt.enabled' | translate }}</dt>
-                <dd>
-                  <span class="params-card__badge" [class.params-card__badge--active]="r.enabled">
-                    {{ (r.enabled ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
-                  </span>
-                </dd>
-              </div>
-              <div>
-                <dt>{{ 'admin.settings.overview.receipt.paperSize' | translate }}</dt>
-                <dd>{{ r.paperSize }}</dd>
-              </div>
-              <div>
-                <dt>{{ 'admin.settings.overview.receipt.qrCode' | translate }}</dt>
-                <dd>
-                  <span class="params-card__badge" [class.params-card__badge--active]="r.qrCode">
-                    {{ (r.qrCode ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
-                  </span>
-                </dd>
-              </div>
-            </dl>
-          } @else {
-            <p class="params-card__empty">{{ 'admin.settings.overview.receipt.noConfig' | translate }}</p>
-          }
-          <div class="params-card__actions">
-            <a mat-stroked-button routerLink="/app/admin/company/settings/receipt" [queryParams]="linkQueryParams">
-              {{ 'common.edit' | translate }}
-            </a>
-          </div>
-        </tch-admin-section-card>
-
-        <!-- Livrezon tikè -->
-        <tch-admin-section-card
-          [title]="'admin.settings.overview.delivery.title' | translate"
-          icon="send"
-        >
-          @if (deliveryChannels(); as d) {
-            <dl class="params-card__channels">
-              <div>
-                <dt>{{ 'admin.settings.overview.delivery.sms' | translate }}</dt>
-                <dd><span class="params-card__badge" [class.params-card__badge--active]="d.sms">{{ (d.sms ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}</span></dd>
-              </div>
-              <div>
-                <dt>{{ 'admin.settings.overview.delivery.whatsapp' | translate }}</dt>
-                <dd><span class="params-card__badge" [class.params-card__badge--active]="d.whatsapp">{{ (d.whatsapp ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}</span></dd>
-              </div>
-              <div>
-                <dt>{{ 'admin.settings.overview.delivery.email' | translate }}</dt>
-                <dd><span class="params-card__badge" [class.params-card__badge--active]="d.email">{{ (d.email ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}</span></dd>
-              </div>
-            </dl>
-          } @else {
-            <p class="params-card__empty">{{ 'admin.settings.overview.delivery.noConfig' | translate }}</p>
-          }
-          <div class="params-card__actions">
-            <a mat-stroked-button routerLink="/app/admin/company/settings/delivery" [queryParams]="linkQueryParams">
-              {{ 'common.edit' | translate }}
-            </a>
-          </div>
-        </tch-admin-section-card>
-
-        <!-- Kalandriye vant -->
-        <tch-admin-section-card
-          [title]="'admin.settings.overview.calendar.title' | translate"
-          icon="event"
-        >
-          @if (calendarFacts().length > 0) {
-            <tch-console-facts [facts]="calendarFacts()" [compact]="true" />
-          } @else {
-            <p class="params-card__empty">{{ 'admin.settings.overview.calendar.noConfig' | translate }}</p>
-          }
-          <div class="params-card__actions">
-            <a mat-stroked-button routerLink="/app/admin/company/settings/calendar" [queryParams]="linkQueryParams">
-              {{ 'common.edit' | translate }}
-            </a>
-          </div>
-        </tch-admin-section-card>
-
+        @for (section of sections(); track section.id) {
+          <tch-settings-summary-card [section]="section" />
+        }
       </div>
     </ng-template>
   </tch-async-view>

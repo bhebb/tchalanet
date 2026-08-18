@@ -20,7 +20,7 @@
 
 .biz-profile__facts {
   display: grid;
-  grid-template-columns: 10rem 1fr;
+  grid-template-columns: auto 1fr;
   gap: 0.5rem 1.25rem;
   margin: 0;
   align-items: baseline;
