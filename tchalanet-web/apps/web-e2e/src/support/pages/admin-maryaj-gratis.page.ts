@@ -14,7 +14,7 @@ export class AdminMaryajGratisPage {
     this.gamePanel = page.getByTestId('maryaj-gratis-game-panel');
     this.offerPanel = page.getByTestId('maryaj-gratis-offer-panel');
     this.generationPanel = page.getByTestId('maryaj-gratis-generation-panel');
-    this.editOffer = page.getByTestId('maryaj-gratis-edit-offer');
+    this.editOffer = page.getByTestId('maryaj-gratis-offer-card-edit');
     this.sellerSelectsToggle = page.getByTestId('maryaj-gratis-seller-selects-toggle');
     this.save = page.getByTestId('maryaj-gratis-save');
   }

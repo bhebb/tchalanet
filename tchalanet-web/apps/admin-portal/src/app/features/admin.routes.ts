@@ -197,11 +197,6 @@ export const adminRoutes: Route[] = [
       import('./setup/pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),
   },
   {
-    path: 'company/settings/config',
-    loadComponent: () =>
-      import('./setup/pages/settings/admin-config.page').then(m => m.AdminConfigPage),
-  },
-  {
     path: 'company/support',
     loadComponent: () =>
       import('./support/pages/admin-support.page').then(m => m.AdminSupportPage),
@@ -279,7 +274,7 @@ export const adminRoutes: Route[] = [
   },
   {
     path: 'settings/config',
-    redirectTo: 'company/settings/config',
+    redirectTo: 'company/settings',
     pathMatch: 'full',
   },
   { path: 'appearance', redirectTo: 'company/appearance', pathMatch: 'full' },

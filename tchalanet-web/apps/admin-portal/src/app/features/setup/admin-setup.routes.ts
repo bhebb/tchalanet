@@ -29,11 +29,6 @@ export const adminSetupRoutes: Route[] = [
       import('./pages/settings/admin-calendar-config.page').then(m => m.AdminCalendarConfigPage),
   },
   {
-    path: 'settings/config',
-    loadComponent: () =>
-      import('./pages/settings/admin-config.page').then(m => m.AdminConfigPage),
-  },
-  {
     path: 'settings/runtime',
     loadComponent: () =>
       import('./pages/settings/admin-runtime.page').then(m => m.AdminRuntimePage),

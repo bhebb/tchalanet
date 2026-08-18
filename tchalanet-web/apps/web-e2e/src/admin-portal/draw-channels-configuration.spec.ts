@@ -42,7 +42,7 @@ test.describe('Admin draw-channel configuration — desktop', () => {
       firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }),
     ).toBeVisible();
     await firstCard.getByRole('button', { name: /Plus d’actions|Plis aksyon|More actions/ }).click();
-    await expect(page.getByRole('menuitem', { name: /Voir détails|Gade detay|View details/ })).toBeVisible();
+    await expect(page.getByRole('menuitem', { name: /Voir les détails|Voir détails|Gade detay|View details/ })).toBeVisible();
     await page.keyboard.press('Escape');
     await firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }).click();
     const dialog = page.getByRole('dialog');
@@ -60,7 +60,7 @@ test.describe('Admin draw-channel configuration — desktop', () => {
     await page.keyboard.press('Escape');
 
     await firstCard.getByRole('button', { name: /Plus d’actions|Plis aksyon|More actions/ }).click();
-    await page.getByRole('menuitem', { name: /Voir détails|Gade detay|View details/ }).click();
+    await page.getByRole('menuitem', { name: /Voir les détails|Voir détails|Gade detay|View details/ }).click();
     await expect(page).toHaveURL(/\/app\/admin\/draw-channels\/channel-ht-1000$/);
     await expect(
       page.getByTestId('admin-page-header').getByRole('heading', { name: /Texas · 1000/ }),

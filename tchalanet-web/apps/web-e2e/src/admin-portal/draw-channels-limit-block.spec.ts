@@ -47,6 +47,7 @@ test.describe('Draw channels — page contract', () => {
     }
 
     await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
+    await apiStub.adminDrawChannels();
     await loginPage.login(creds);
     await page.goto('/app/admin/draw-channels');
   });
@@ -101,6 +102,7 @@ test.describe('Draw channels — config dialog contract', () => {
     }
 
     await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
+    await apiStub.adminDrawChannels();
     await loginPage.login(creds);
     await page.goto('/app/admin/draw-channels');
   });

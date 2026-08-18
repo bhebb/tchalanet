@@ -43,7 +43,7 @@ test.describe('Admin seller configuration — pricing overrides', () => {
         response.url().includes('/admin/controls/pricing-rules/seller-terminals/stub-terminal-1') &&
         response.request().method() === 'PUT',
     );
-    await row.getByRole('button', { name: /enregistrer|anregistre|save/i }).click();
+    await row.getByRole('button', { name: /enregistrer|anrejistre|save/i }).click();
 
     const response = await saveResponse;
     expect(response.status()).toBe(200);
@@ -53,7 +53,7 @@ test.describe('Admin seller configuration — pricing overrides', () => {
       odds: 12,
     });
     await expect(input).toHaveValue('12');
-    await expect(row.getByText('Override actif')).toBeVisible();
+    await expect(row.getByText(/Règle spéciale active|Règ espesyal aktif|Special rule active/i)).toBeVisible();
 
     const deleteResponse = page.waitForResponse(
       response =>
@@ -62,8 +62,8 @@ test.describe('Admin seller configuration — pricing overrides', () => {
           .includes('/admin/controls/pricing-rules/seller-terminals/stub-terminal-1/overrides/') &&
         response.request().method() === 'DELETE',
     );
-    await row.getByRole('button', { name: /revenir tenant|retounen tenant|tenant inheritance/i }).click();
+    await row.getByRole('button', { name: /revenir.*espace|retounen sou|revert to client/i }).click();
     expect((await deleteResponse).status()).toBe(200);
-    await expect(row.getByText('Hérite du tenant')).toBeVisible();
+    await expect(row.getByText(/Hérite de l'espace|Swiv règ tenansye|Inherits client workspace/i)).toBeVisible();
   });
 });

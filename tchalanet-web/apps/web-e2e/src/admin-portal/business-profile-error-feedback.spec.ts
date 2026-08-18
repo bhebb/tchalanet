@@ -25,7 +25,7 @@ test.describe('Admin business profile — local feedback contracts', () => {
     await apiStub.adminBusinessProfileCommissionFieldError();
     await page.goto('/app/admin/business-profile');
 
-    const commercial = page.locator('tch-admin-section-card').nth(2);
+    const commercial = page.locator('tch-admin-section-card').nth(4);
     await commercial.locator('button').first().click();
     await commercial.getByRole('spinbutton').fill('12');
     const updateResponse = page.waitForResponse(
@@ -46,7 +46,7 @@ test.describe('Admin business profile — local feedback contracts', () => {
     await apiStub.adminBusinessProfileAddressError();
     await page.goto('/app/admin/business-profile');
 
-    const address = page.locator('tch-admin-section-card').nth(3);
+    const address = page.locator('tch-admin-section-card').nth(2);
     await address.locator('button').first().click();
     await address.locator('button').last().click();
 
@@ -59,7 +59,7 @@ test.describe('Admin business profile — local feedback contracts', () => {
   test('successful commission and address saves render local success notices', async ({ page }) => {
     await page.goto('/app/admin/business-profile');
 
-    const commercial = page.locator('tch-admin-section-card').nth(2);
+    const commercial = page.locator('tch-admin-section-card').nth(4);
     await commercial.locator('button').first().click();
     await commercial.getByRole('spinbutton').fill('12');
     await commercial.locator('button').last().click();
@@ -70,7 +70,7 @@ test.describe('Admin business profile — local feedback contracts', () => {
     await expect(commissionSuccess).toBeInViewport();
     await expect(commissionSuccess).toBeFocused();
 
-    const address = page.locator('tch-admin-section-card').nth(3);
+    const address = page.locator('tch-admin-section-card').nth(2);
     await address.locator('button').first().click();
     await address.locator('button').last().click();
     const addressSuccessHost = address.locator('tch-notice.biz-profile__notice');

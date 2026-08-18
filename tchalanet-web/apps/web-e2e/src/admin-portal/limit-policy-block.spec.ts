@@ -26,7 +26,7 @@ test.describe('LimitPolicyBlockComponent — tenant config page', () => {
     }
     await apiStub.privateBootstrap(tenantAdminPrivateBootstrap);
     await loginPage.login(creds);
-    await loginPage.page.goto('/app/admin/setup/config');
+    await loginPage.page.goto('/app/admin/limits');
   });
 
   test('limit section renders without error', async ({ page }) => {
@@ -80,7 +80,7 @@ test.describe('LimitPolicyBlockComponent — tenant config page', () => {
     test.use({ viewport: { width: 360, height: 720 } });
 
     test('limit section fits within 360dp without overflow', async ({ page }) => {
-      await page.goto('/app/admin/setup/config');
+      await page.goto('/app/admin/limits');
 
       const section = page.locator('tch-admin-limits-section').first();
       await expect(section).toBeVisible({ timeout: 10_000 });
