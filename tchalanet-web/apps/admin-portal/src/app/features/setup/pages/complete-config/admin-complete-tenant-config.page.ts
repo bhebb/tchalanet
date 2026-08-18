@@ -232,7 +232,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly operationalSetupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
     const gamesStatus = this.sectionStatus('games_pricing');
     const subscription = this.subscription();
-    const settingsTarget = this.settingsTarget();
     const cards: SetupChecklistCardViewModel[] = [
       {
         id: 'pos_settings',
@@ -243,11 +242,10 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         body: this.translate.instant('admin.setup.section.posSettingsDesc'),
         bodyVariant: 'default',
         ctaKey: 'admin.setup.section.posSettingsCta',
-        route: settingsTarget.route,
+        route: TENANT_SETTINGS_OVERVIEW_ROUTE,
         queryParams: { from: 'setup' },
-        fragment: settingsTarget.fragment,
         emphasizeMissing: false,
-        sectionErrorTargets: ['admin.setup.settings'],
+        sectionErrorTargets: [],
       },
     ];
 
@@ -396,10 +394,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     return this.sectionErrors().filter(
       error => error.target != null && targets.includes(error.target),
     );
-  }
-
-  private settingsTarget(): SetupSettingsTarget {
-    return setupSettingsTarget(this.sectionMap().get('settings'));
   }
 
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {
