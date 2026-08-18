@@ -50,14 +50,14 @@ export class AdminParamsOverviewPage {
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;
 
-  readonly receiptFacts = computed<readonly ConsoleFact[]>(() => {
+  readonly receiptSummary = computed(() => {
     const r = this.config.value()?.document?.receipt;
-    if (!r) return [];
-    return [
-      { label: this.t('admin.settings.overview.receipt.enabled'), value: this.t((r.enabled ?? true) ? 'common.yes' : 'common.no') },
-      { label: this.t('admin.settings.overview.receipt.paperSize'), value: this.paperSizeLabel(r.defaultPaperSize ?? null) },
-      { label: this.t('admin.settings.overview.receipt.qrCode'), value: this.t((r.showQrCode ?? true) ? 'common.yes' : 'common.no') },
-    ];
+    if (!r) return null;
+    return {
+      enabled: r.enabled ?? true,
+      paperSize: this.paperSizeLabel(r.defaultPaperSize ?? null),
+      qrCode: r.showQrCode ?? true,
+    };
   });
 
   readonly deliveryChannels = computed(() => {

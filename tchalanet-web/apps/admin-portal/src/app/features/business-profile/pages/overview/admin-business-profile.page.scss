@@ -1,13 +1,23 @@
-@use '../../../../../../../../libs/ui/styles/src/lib/index' as ui;
+@use 'breakpoints' as ui;
 
 :host {
   display: block;
 }
 
 .biz-profile__main {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+
+  @include ui.up(expanded) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.biz-profile__card--full {
+  @include ui.up(expanded) {
+    grid-column: 1 / -1;
+  }
 }
 
 .biz-profile__notice {

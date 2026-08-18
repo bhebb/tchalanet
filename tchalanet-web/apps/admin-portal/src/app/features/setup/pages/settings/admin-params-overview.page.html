@@ -28,8 +28,29 @@
           [title]="'admin.settings.overview.receipt.title' | translate"
           icon="receipt_long"
         >
-          @if (receiptFacts().length > 0) {
-            <tch-console-facts [facts]="receiptFacts()" [compact]="true" />
+          @if (receiptSummary(); as r) {
+            <dl class="params-card__channels">
+              <div>
+                <dt>{{ 'admin.settings.overview.receipt.enabled' | translate }}</dt>
+                <dd>
+                  <span class="params-card__badge" [class.params-card__badge--active]="r.enabled">
+                    {{ (r.enabled ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.settings.overview.receipt.paperSize' | translate }}</dt>
+                <dd>{{ r.paperSize }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.settings.overview.receipt.qrCode' | translate }}</dt>
+                <dd>
+                  <span class="params-card__badge" [class.params-card__badge--active]="r.qrCode">
+                    {{ (r.qrCode ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
+                  </span>
+                </dd>
+              </div>
+            </dl>
           } @else {
             <p class="params-card__empty">{{ 'admin.settings.overview.receipt.noConfig' | translate }}</p>
           }

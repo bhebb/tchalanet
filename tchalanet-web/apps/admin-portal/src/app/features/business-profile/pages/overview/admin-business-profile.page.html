@@ -148,57 +148,6 @@
           }
         </tch-admin-section-card>
 
-        <!-- Paramètres commerciaux -->
-        <tch-admin-section-card
-          [title]="'admin.businessProfile.section.commercial' | translate"
-          icon="percent"
-          tchSectionErrorTarget="admin.businessProfile.commercial"
-          [tchSectionErrors]="sectionErrors()"
-        >
-          @if (commissionFormState() === 'success') {
-            <tch-notice
-              class="biz-profile__notice"
-              type="success"
-              [focusOnRender]="true"
-            >
-              {{ 'admin.businessProfile.commercial.saved' | translate }}
-            </tch-notice>
-          }
-          <p class="biz-profile__section-desc">{{ 'admin.businessProfile.commercial.description' | translate }}</p>
-          @if (!showCommissionForm()) {
-            <dl class="biz-profile__facts">
-              <div>
-                <dt>{{ 'admin.businessProfile.field.commission' | translate }}</dt>
-                <dd>{{ commissionRate() !== null ? (commissionRate() + ' %') : ('common.not_available' | translate) }}</dd>
-              </div>
-            </dl>
-            <button mat-stroked-button class="biz-profile__cta" (click)="openCommissionForm()">
-              {{ 'common.edit' | translate }}
-            </button>
-          } @else {
-            <form [formGroup]="commissionForm" (ngSubmit)="submitCommission()" class="biz-profile__form">
-              <mat-form-field appearance="outline" class="biz-profile__form-field biz-profile__form-field--sm">
-                <mat-label>{{ 'admin.businessProfile.field.commission' | translate }}</mat-label>
-                <input matInput type="number" formControlName="rate" min="0" max="100" step="0.01" />
-                <span matTextSuffix>%</span>
-              </mat-form-field>
-              <tch-field-error [control]="commissionForm.controls.rate" />
-              <tch-form-error-summary [messages]="commissionFormSummary()" />
-              @if (commissionFormError()) {
-                <tch-notice type="error">{{ commissionFormError() }}</tch-notice>
-              }
-              <div class="biz-profile__form-actions">
-                <button mat-button type="button" [disabled]="commissionFormState() === 'submitting'" (click)="cancelCommissionForm()">
-                  {{ 'common.cancel' | translate }}
-                </button>
-                <button mat-flat-button color="primary" type="submit" [disabled]="commissionFormState() === 'submitting'">
-                  {{ commissionFormState() === 'submitting' ? ('common.saving' | translate) : ('common.save' | translate) }}
-                </button>
-              </div>
-            </form>
-          }
-        </tch-admin-section-card>
-
         <!-- Adresse -->
         <tch-admin-section-card
           [title]="'admin.businessProfile.section.address' | translate"
@@ -304,6 +253,58 @@
                 </button>
                 <button mat-flat-button color="primary" type="submit" [disabled]="saveLocale.pending()">
                   {{ saveLocale.pending() ? ('common.saving' | translate) : ('common.save' | translate) }}
+                </button>
+              </div>
+            </form>
+          }
+        </tch-admin-section-card>
+
+        <!-- Paramètres commerciaux -->
+        <tch-admin-section-card
+          class="biz-profile__card--full"
+          [title]="'admin.businessProfile.section.commercial' | translate"
+          icon="percent"
+          tchSectionErrorTarget="admin.businessProfile.commercial"
+          [tchSectionErrors]="sectionErrors()"
+        >
+          @if (commissionFormState() === 'success') {
+            <tch-notice
+              class="biz-profile__notice"
+              type="success"
+              [focusOnRender]="true"
+            >
+              {{ 'admin.businessProfile.commercial.saved' | translate }}
+            </tch-notice>
+          }
+          <p class="biz-profile__section-desc">{{ 'admin.businessProfile.commercial.description' | translate }}</p>
+          @if (!showCommissionForm()) {
+            <dl class="biz-profile__facts">
+              <div>
+                <dt>{{ 'admin.businessProfile.field.commission' | translate }}</dt>
+                <dd>{{ commissionRate() !== null ? (commissionRate() + ' %') : ('common.not_available' | translate) }}</dd>
+              </div>
+            </dl>
+            <button mat-stroked-button class="biz-profile__cta" (click)="openCommissionForm()">
+              {{ 'common.edit' | translate }}
+            </button>
+          } @else {
+            <form [formGroup]="commissionForm" (ngSubmit)="submitCommission()" class="biz-profile__form">
+              <mat-form-field appearance="outline" class="biz-profile__form-field biz-profile__form-field--sm">
+                <mat-label>{{ 'admin.businessProfile.field.commission' | translate }}</mat-label>
+                <input matInput type="number" formControlName="rate" min="0" max="100" step="0.01" />
+                <span matTextSuffix>%</span>
+              </mat-form-field>
+              <tch-field-error [control]="commissionForm.controls.rate" />
+              <tch-form-error-summary [messages]="commissionFormSummary()" />
+              @if (commissionFormError()) {
+                <tch-notice type="error">{{ commissionFormError() }}</tch-notice>
+              }
+              <div class="biz-profile__form-actions">
+                <button mat-button type="button" [disabled]="commissionFormState() === 'submitting'" (click)="cancelCommissionForm()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="commissionFormState() === 'submitting'">
+                  {{ commissionFormState() === 'submitting' ? ('common.saving' | translate) : ('common.save' | translate) }}
                 </button>
               </div>
             </form>

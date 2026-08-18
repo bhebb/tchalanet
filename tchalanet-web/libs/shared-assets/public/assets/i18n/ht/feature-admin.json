@@ -412,7 +412,7 @@
           "title": "Resi ak enpresyon",
           "enabled": "Enpresyon",
           "paperSize": "Papye",
-          "qrCode": "QR kòd",
+          "qrCode": "Kòd QR",
           "noConfig": "Pa konfigire"
         },
         "delivery": {
