@@ -108,9 +108,12 @@ export class AdminCalendarConfigPage {
     holidayTemplateKeys: new FormControl<string[]>([], { nonNullable: true }),
     customHolidayMonthDay: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.pattern(/^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)],
+      validators: [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/)],
     }),
-    customHolidayLabel: new FormControl<string>('', { nonNullable: true }),
+    customHolidayLabel: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
     customHolidayOpen: new FormControl<boolean>(false, { nonNullable: true }),
   });
 
@@ -166,9 +169,8 @@ export class AdminCalendarConfigPage {
     const label = v.customHolidayLabel.trim();
     this.calendarForm.controls.customHolidayMonthDay.markAsTouched();
     this.calendarForm.controls.customHolidayLabel.markAsTouched();
-    this.calendarForm.controls.customHolidayLabel.setErrors(null);
-    if (this.calendarForm.controls.customHolidayMonthDay.invalid || !label) {
-      if (!label) this.calendarForm.controls.customHolidayLabel.setErrors({ required: true });
+    if (this.calendarForm.controls.customHolidayMonthDay.invalid ||
+        this.calendarForm.controls.customHolidayLabel.invalid) {
       return;
     }
     const key = `custom_${monthDay.replace('-', '_')}_${slug(label)}`;

@@ -104,6 +104,11 @@ describe('AdminCompleteTenantConfigPage setup classification', () => {
     });
   });
 
+  it('routes print-only settings issues to the overview (POS Printing card handles them)', () => {
+    const settings = { issues: [{ messageKey: 'settings.print.paper_size_missing' }] };
+    expect(setupSettingsTarget(settings)).toEqual({ route: '/app/admin/company/settings' });
+  });
+
   it('routes settings corrective actions to the matching settings section', () => {
     expect(setupSettingsTargetFromReason('settings.print.paper_size_missing')).toEqual({
       route: '/app/admin/company/settings/receipt',

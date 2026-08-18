@@ -506,14 +506,14 @@ export function isReadinessCardBlocking(kind: SetupChecklistBadgeKind): boolean 
 export function setupSettingsTarget(
   settings: { readonly issues?: readonly { readonly messageKey?: string | null }[] } | undefined,
 ): SetupSettingsTarget {
+  // Print issues are addressed by the dedicated POS Printing operational card —
+  // the main "Paramèt" required card should never land directly on receipt.
   const reason =
     settings?.issues?.find(
       item =>
         item.messageKey?.startsWith('settings.') &&
         !item.messageKey.startsWith('settings.print.'),
-    )?.messageKey ??
-    settings?.issues?.find(item => item.messageKey?.startsWith('settings.'))?.messageKey ??
-    '';
+    )?.messageKey ?? '';
   return setupSettingsTargetFromReason(reason);
 }
 
