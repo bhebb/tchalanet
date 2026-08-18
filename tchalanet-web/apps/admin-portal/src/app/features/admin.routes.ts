@@ -174,7 +174,22 @@ export const adminRoutes: Route[] = [
   {
     path: 'company/settings',
     loadComponent: () =>
-      import('./setup/pages/settings/admin-settings.page').then(m => m.AdminSettingsPage),
+      import('./setup/pages/settings/admin-params-overview.page').then(m => m.AdminParamsOverviewPage),
+  },
+  {
+    path: 'company/settings/receipt',
+    loadComponent: () =>
+      import('./setup/pages/settings/admin-receipt-config.page').then(m => m.AdminReceiptConfigPage),
+  },
+  {
+    path: 'company/settings/delivery',
+    loadComponent: () =>
+      import('./setup/pages/settings/admin-delivery-config.page').then(m => m.AdminDeliveryConfigPage),
+  },
+  {
+    path: 'company/settings/calendar',
+    loadComponent: () =>
+      import('./setup/pages/settings/admin-calendar-config.page').then(m => m.AdminCalendarConfigPage),
   },
   {
     path: 'company/settings/runtime',
@@ -240,6 +255,21 @@ export const adminRoutes: Route[] = [
   {
     path: 'settings',
     redirectTo: 'company/settings',
+    pathMatch: 'full',
+  },
+  {
+    path: 'settings/receipt',
+    redirectTo: 'company/settings/receipt',
+    pathMatch: 'full',
+  },
+  {
+    path: 'settings/delivery',
+    redirectTo: 'company/settings/delivery',
+    pathMatch: 'full',
+  },
+  {
+    path: 'settings/calendar',
+    redirectTo: 'company/settings/calendar',
     pathMatch: 'full',
   },
   {

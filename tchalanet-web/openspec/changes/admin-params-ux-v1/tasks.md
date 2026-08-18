@@ -80,10 +80,12 @@ Checkpoint obligatoire : lire ce fichier en début de session et cocher en temps
 
 ---
 
-## 7. Suppression (PR suivant)
+## 7. Suppression
 
-- [ ] Supprimer `AdminSettingsPage` (admin-settings.page.ts/.html/.scss)
-- [ ] Supprimer `AdminRuntimePage` si non utilisé ailleurs
+- [x] Supprimer `AdminSettingsPage` (admin-settings.page.ts/.html/.scss) — remplacé par AdminParamsOverviewPage
+- [x] Wirer `company/settings` → `AdminParamsOverviewPage` dans admin.routes.ts
+- [x] Ajouter routes `company/settings/receipt|delivery|calendar` + redirects compat
+- [ ] Supprimer `AdminRuntimePage` — conservé (page lecture seule valide, toujours accessible)
 
 ---
 
