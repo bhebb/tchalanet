@@ -1600,7 +1600,14 @@
         "identity": "Idantite",
         "region": "Rejyon",
         "commercial": "Paramèt komèsyal",
-        "address": "Adrès"
+        "address": "Adrès",
+        "locale": "Lang santral la"
+      },
+      "locale": {
+        "supported": "Lang ki disponib",
+        "fallback": "Lang dechanj",
+        "notice": "Lang dechanj la dwe nan lis lang ki disponib yo.",
+        "saved": "Paramèt lang yo anrejistre."
       },
       "commercial": {
         "description": "Itilize pou machann ki pa gen to espesifik.",

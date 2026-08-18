@@ -246,6 +246,72 @@
           }
         </tch-admin-section-card>
 
+        <!-- Lang santral la -->
+        <tch-admin-section-card
+          [title]="'admin.businessProfile.section.locale' | translate"
+          icon="language"
+        >
+          @if (localeFormState() === 'success') {
+            <tch-notice class="biz-profile__notice" type="success" [focusOnRender]="true">
+              {{ 'admin.businessProfile.locale.saved' | translate }}
+            </tch-notice>
+          }
+          @if (!showLocaleForm()) {
+            <dl class="biz-profile__facts">
+              <div>
+                <dt>{{ 'admin.businessProfile.locale.supported' | translate }}</dt>
+                <dd>{{ supportedLanguagesLabel() || ('common.not_available' | translate) }}</dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.businessProfile.locale.fallback' | translate }}</dt>
+                <dd>{{ fallbackLanguageLabel() || ('common.not_available' | translate) }}</dd>
+              </div>
+            </dl>
+            <button mat-stroked-button class="biz-profile__cta" (click)="openLocaleForm()">
+              {{ 'common.edit' | translate }}
+            </button>
+          } @else {
+            <form [formGroup]="localeForm" (ngSubmit)="submitLocale()" class="biz-profile__form">
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.businessProfile.locale.supported' | translate }}</mat-label>
+                <mat-select formControlName="supportedLanguages" multiple>
+                  @for (lang of languages(); track lang.code) {
+                    <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.supportedLanguages" />
+
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.businessProfile.locale.fallback' | translate }}</mat-label>
+                <mat-select formControlName="fallbackLanguage">
+                  @for (lang of languages(); track lang.code) {
+                    @if (localeForm.controls.supportedLanguages.value.includes(lang.code)) {
+                      <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                    }
+                  }
+                </mat-select>
+              </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.fallbackLanguage" />
+
+              <tch-notice type="info">{{ 'admin.businessProfile.locale.notice' | translate }}</tch-notice>
+
+              <tch-form-error-summary [messages]="localeFormSummary()" />
+              @if (localeFormError()) {
+                <tch-notice type="error">{{ localeFormError() }}</tch-notice>
+              }
+              <div class="biz-profile__form-actions">
+                <button mat-button type="button" [disabled]="saveLocale.pending()" (click)="cancelLocaleForm()">
+                  {{ 'common.cancel' | translate }}
+                </button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="saveLocale.pending()">
+                  {{ saveLocale.pending() ? ('common.saving' | translate) : ('common.save' | translate) }}
+                </button>
+              </div>
+            </form>
+          }
+        </tch-admin-section-card>
+
       </div>
 
       <div aside>

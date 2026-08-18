@@ -7,12 +7,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { form, maxLength, required, submit } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
@@ -20,6 +21,7 @@ import {
   webAppErrorFromProblemDetail,
   webAppErrorsFromProblemDetailFields,
 } from '@tch/api';
+import { RuntimeSettingsStore } from '@tch/shared-config';
 import {
   BadgeStatus,
   TchErrorPanel,
@@ -49,6 +51,7 @@ import {
   toErrorViewModel,
   withResolvedErrorCopies,
 } from '@tch/web/errors';
+import { tchMutation } from '@tch/web/async';
 import {
   TenantAdminOverviewApiService,
   AddressView,
@@ -57,6 +60,10 @@ import {
 } from '../../data-access/tenant-admin-overview-api.service';
 import { TenantGeneralConfigApiService } from '../../data-access/tenant-general-config-api.service';
 import { TenantCommercialConfigApiService } from '../../data-access/tenant-commercial-config-api.service';
+import {
+  TenantParametersApiService,
+  TenantInternalConfig,
+} from '../../../setup/data-access/tenant-parameters-api.service';
 
 type PageState = 'loading' | 'ready' | 'error';
 type FormState = 'idle' | 'submitting' | 'error' | 'success';
@@ -94,6 +101,7 @@ const ADDRESS_SECTION_TARGET = 'admin.businessProfile.address';
     TchIdentityCardComponent,
     ConsoleAddressFormSectionComponent,
     ConsoleAddressSummaryComponent,
+    MatSelectModule,
     TchLoading,
     TchErrorPanel,
     TchFieldError,
@@ -108,6 +116,8 @@ export class AdminBusinessProfilePage implements OnInit {
   private readonly api = inject(TenantAdminOverviewApiService);
   private readonly generalConfigApi = inject(TenantGeneralConfigApiService);
   private readonly commercialConfigApi = inject(TenantCommercialConfigApiService);
+  private readonly parametersApi = inject(TenantParametersApiService);
+  private readonly runtimeStore = inject(RuntimeSettingsStore);
   private readonly fb = inject(FormBuilder);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
@@ -171,11 +181,76 @@ export class AdminBusinessProfilePage implements OnInit {
     maxLength(path.postalCode, 20, { message: 'common.validation.invalid' });
   });
 
+  // Locale form — supportedLanguages + fallbackLanguage
+  readonly showLocaleForm = signal(false);
+  readonly localeFormState = signal<FormState>('idle');
+  readonly localeFormError = signal<string | null>(null);
+  readonly localeFormSummary = signal<readonly string[]>([]);
+  private readonly localeData = signal<TenantInternalConfig['locale'] | null>(null);
+  readonly languages = this.runtimeStore.tenantLanguageOptions;
+  readonly localeForm = this.fb.group({
+    supportedLanguages: new FormControl<string[]>(
+      [...this.runtimeStore.tenantSupportedLanguages()],
+      { nonNullable: true, validators: [Validators.required] },
+    ),
+    fallbackLanguage: new FormControl<string>(
+      this.runtimeStore.tenantSupportedLanguages()[0] ?? 'ht',
+      { nonNullable: true },
+    ),
+  });
+
+  readonly saveLocale = tchMutation<NonNullable<TenantInternalConfig['locale']>, void>({
+    run: locale =>
+      this.parametersApi.updateSettingsSection('locale', locale, { suppressShellFeedback: true }),
+    source: 'admin.businessProfile.locale',
+    onSuccess: (_result, input) => {
+      this.localeFormState.set('success');
+      this.showLocaleForm.set(false);
+      this.localeForm.markAsPristine();
+      this.localeData.set(input);
+      this.runtimeStore.applyTenantDashboardSettings({
+        supportedLanguages: input.supportedLanguages,
+        fallbackLanguage: input.fallbackLanguage,
+      });
+    },
+    onError: err => {
+      this.localeFormState.set('error');
+      const fieldErrors = this.serverFieldErrors(err, 'admin.businessProfile.locale');
+      const remaining = applyServerFieldErrors(this.localeForm, fieldErrors, {
+        'locale.supportedLanguages': 'supportedLanguages',
+        'admin.setup.locale.supportedLanguages': 'supportedLanguages',
+        'tenant.locale.supportedLanguages': 'supportedLanguages',
+        'locale.fallbackLanguage': 'fallbackLanguage',
+        'admin.setup.locale.fallbackLanguage': 'fallbackLanguage',
+        'tenant.locale.fallbackLanguage': 'fallbackLanguage',
+      });
+      if (remaining.length) {
+        this.localeFormSummary.set(this.messagesForErrors(remaining));
+        this.localeFormError.set(null);
+      } else {
+        this.localeFormError.set(
+          this.errorViewModel(err, 'admin.businessProfile.locale', 'section').message,
+        );
+      }
+    },
+  });
+
+  readonly supportedLanguagesLabel = computed(() => {
+    const codes = this.localeData()?.supportedLanguages ?? this.runtimeStore.tenantSupportedLanguages();
+    return codes.map(code => this.translate.instant(`admin.settings.runtime.languages.${code}`)).join(', ');
+  });
+
+  readonly fallbackLanguageLabel = computed(() => {
+    const code = this.localeData()?.fallbackLanguage ?? this.runtimeStore.tenantSupportedLanguages()[0];
+    return code ? this.translate.instant(`admin.settings.runtime.languages.${code}`) : null;
+  });
+
   constructor() {
     const cleanup = [
       clearServerFieldErrorsOnEdit(this.identityForm),
       clearServerFieldErrorsOnEdit(this.regionForm),
       clearServerFieldErrorsOnEdit(this.commissionForm),
+      clearServerFieldErrorsOnEdit(this.localeForm),
     ];
     this.destroyRef.onDestroy(() => cleanup.forEach(subscription => subscription.unsubscribe()));
   }
@@ -258,6 +333,15 @@ export class AdminBusinessProfilePage implements OnInit {
       error: (err: unknown) => {
         this.setSectionError(this.sectionErrorFromUnknown(err, COMMERCIAL_SECTION_TARGET));
       },
+    });
+    this.parametersApi.getTenantConfig({ suppressShellFeedback: true }).subscribe({
+      next: data => {
+        if (data?.locale) {
+          this.localeData.set(data.locale);
+          if (!this.localeForm.dirty) this.patchLocaleForm(data.locale);
+        }
+      },
+      error: () => { /* form uses runtime defaults on failure */ },
     });
   }
 
@@ -476,6 +560,49 @@ export class AdminBusinessProfilePage implements OnInit {
     });
   }
 
+  // ── Locale (supportedLanguages + fallbackLanguage) ─────────────
+
+  openLocaleForm(): void {
+    this.showLocaleForm.set(true);
+    this.localeFormState.set('idle');
+    this.localeFormError.set(null);
+    this.localeFormSummary.set([]);
+    clearServerFieldErrors(this.localeForm);
+    this.showIdentityForm.set(false);
+    this.showRegionForm.set(false);
+    this.showCommissionForm.set(false);
+    this.showAddressForm.set(false);
+  }
+
+  cancelLocaleForm(): void {
+    this.showLocaleForm.set(false);
+    this.localeFormError.set(null);
+    this.localeFormSummary.set([]);
+    clearServerFieldErrors(this.localeForm);
+    this.patchLocaleForm(this.localeData());
+  }
+
+  submitLocale(): void {
+    clearServerFieldErrors(this.localeForm);
+    this.saveLocale.clearFeedback();
+    if (this.localeForm.invalid) {
+      this.localeForm.markAllAsTouched();
+      return;
+    }
+    const v = this.localeForm.getRawValue();
+    const supportedLanguages = [...new Set(v.supportedLanguages)];
+    const fallbackLanguage = supportedLanguages.includes(v.fallbackLanguage)
+      ? v.fallbackLanguage
+      : supportedLanguages[0] ?? '';
+    this.localeForm.controls.supportedLanguages.setValue(supportedLanguages);
+    this.localeForm.controls.fallbackLanguage.setValue(fallbackLanguage);
+    this.saveLocale.execute({
+      ...(this.localeData() ?? {}),
+      supportedLanguages,
+      fallbackLanguage: fallbackLanguage || null,
+    });
+  }
+
   // ── Labels ─────────────────────────────────────────────────────
 
   statusBadge(status: string | null | undefined): BadgeStatus {
@@ -515,6 +642,12 @@ export class AdminBusinessProfilePage implements OnInit {
       AMBULANT: 'platform.tenants.type.ambulant',
     };
     return this.translate.instant(keys[type] ?? type);
+  }
+
+  private patchLocaleForm(locale: TenantInternalConfig['locale'] | null): void {
+    const supported = locale?.supportedLanguages ?? [...this.runtimeStore.tenantSupportedLanguages()];
+    const fallback = locale?.fallbackLanguage ?? supported[0] ?? 'ht';
+    this.localeForm.patchValue({ supportedLanguages: supported, fallbackLanguage: fallback });
   }
 
   private prefillForms(h: TenantHeader | null): void {

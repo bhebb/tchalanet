@@ -59,24 +59,24 @@ Checkpoint obligatoire : lire ce fichier en début de session et cocher en temps
 
 - [x] Retirer `AdminLimitsSectionComponent` du template
 - [x] Retirer `AdminLimitsSectionComponent` de l'array `imports` du composant
-- [ ] Retirer l'onglet locale (après migration vers BusinessProfile)
+- [x] Retirer l'onglet locale (migré vers BusinessProfile)
 
 ---
 
-## 5. Migration Locale → BusinessProfile (PR suivant)
+## 5. Migration Locale → BusinessProfile
 
-- [ ] Ajouter `TenantParametersApiService` dans `AdminBusinessProfilePage`
-- [ ] Ajouter section "Rejyon ak lang" avec localeForm (supportedLanguages, fallbackLanguage)
-- [ ] Mutation save locale : `updateSettingsSection('locale', ...)`
-- [ ] Effacement onglet locale dans `AdminConfigPage`
-- [ ] i18n pour la nouvelle section (HT/FR/EN)
+- [x] Ajouter `TenantParametersApiService` dans `AdminBusinessProfilePage`
+- [x] Ajouter section "Lang santral la" avec localeForm (supportedLanguages, fallbackLanguage)
+- [x] Mutation save locale : `updateSettingsSection('locale', ...)`
+- [x] Effacement onglet locale dans `AdminConfigPage`
+- [x] i18n pour la nouvelle section (HT/FR/EN)
 
 ---
 
 ## 6. i18n
 
 - [x] Ajouter clés `admin.settings.overview.*` (HT/FR/EN)
-- [ ] Ajouter clés `admin.businessProfile.locale.*` (HT/FR/EN) — tâche 5
+- [x] Ajouter clés `admin.businessProfile.locale.*` (HT/FR/EN)
 
 ---
 

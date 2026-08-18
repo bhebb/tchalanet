@@ -29,7 +29,7 @@
           icon="receipt_long"
         >
           @if (receiptFacts().length > 0) {
-            <tch-console-facts [facts]="receiptFacts()" />
+            <tch-console-facts [facts]="receiptFacts()" [compact]="true" />
           } @else {
             <p class="params-card__empty">{{ 'admin.settings.overview.receipt.noConfig' | translate }}</p>
           }
@@ -50,8 +50,21 @@
           [title]="'admin.settings.overview.delivery.title' | translate"
           icon="send"
         >
-          @if (deliveryFacts().length > 0) {
-            <tch-console-facts [facts]="deliveryFacts()" />
+          @if (deliveryChannels(); as d) {
+            <dl class="params-card__channels">
+              <div>
+                <dt>{{ 'admin.settings.overview.delivery.sms' | translate }}</dt>
+                <dd><span class="params-card__badge" [class.params-card__badge--active]="d.sms">{{ (d.sms ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}</span></dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.settings.overview.delivery.whatsapp' | translate }}</dt>
+                <dd><span class="params-card__badge" [class.params-card__badge--active]="d.whatsapp">{{ (d.whatsapp ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}</span></dd>
+              </div>
+              <div>
+                <dt>{{ 'admin.settings.overview.delivery.email' | translate }}</dt>
+                <dd><span class="params-card__badge" [class.params-card__badge--active]="d.email">{{ (d.email ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}</span></dd>
+              </div>
+            </dl>
           } @else {
             <p class="params-card__empty">{{ 'admin.settings.overview.delivery.noConfig' | translate }}</p>
           }
@@ -73,7 +86,7 @@
           icon="event"
         >
           @if (calendarFacts().length > 0) {
-            <tch-console-facts [facts]="calendarFacts()" />
+            <tch-console-facts [facts]="calendarFacts()" [compact]="true" />
           } @else {
             <p class="params-card__empty">{{ 'admin.settings.overview.calendar.noConfig' | translate }}</p>
           }

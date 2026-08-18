@@ -58,16 +58,14 @@ export class AdminParamsOverviewPage {
     ];
   });
 
-  readonly deliveryFacts = computed<readonly ConsoleFact[]>(() => {
+  readonly deliveryChannels = computed(() => {
     const delivery = this.config.value()?.communication?.buyerTicketDelivery;
-    if (!delivery) return [];
-    const active = this.t('admin.settings.overview.delivery.active');
-    const inactive = this.t('admin.settings.overview.delivery.inactive');
-    return [
-      { label: this.t('admin.settings.overview.delivery.sms'), value: delivery.sms?.enabled ? active : inactive },
-      { label: this.t('admin.settings.overview.delivery.whatsapp'), value: delivery.whatsapp?.enabled ? active : inactive },
-      { label: this.t('admin.settings.overview.delivery.email'), value: delivery.email?.enabled ? active : inactive },
-    ];
+    if (!delivery) return null;
+    return {
+      sms: delivery.sms?.enabled ?? false,
+      whatsapp: delivery.whatsapp?.enabled ?? false,
+      email: delivery.email?.enabled ?? false,
+    };
   });
 
   readonly calendarFacts = computed<readonly ConsoleFact[]>(() => {

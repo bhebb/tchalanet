@@ -1,22 +1,71 @@
+@use '../../../../../../../../libs/ui/styles/src/lib/breakpoints' as ui;
+
 .params-overview {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
   max-width: 680px;
 }
 
 .params-card {
+  &__channels {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    align-items: center;
+
+    div { display: contents; }
+
+    dt {
+      color: var(--tch-color-on-surface-variant);
+      font-size: 0.8125rem;
+    }
+
+    dd { margin: 0; }
+
+    @include ui.down(expanded) {
+      grid-template-columns: 1fr;
+      gap: 0.125rem;
+
+      div {
+        display: grid;
+        gap: 0.125rem;
+        padding-block: 0.5rem;
+        border-bottom: 1px solid var(--tch-color-outline-variant);
+      }
+
+      div:last-child { border-bottom: 0; }
+    }
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--tch-radius-sm, 0.375rem);
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--tch-color-surface-container-high);
+    color: var(--tch-color-on-surface-variant);
+
+    &--active {
+      background: color-mix(in srgb, var(--tch-color-success) 12%, transparent);
+      color: var(--tch-color-success);
+    }
+  }
+
   &__empty {
-    margin: 0 0 1rem;
+    margin: 0 0 0.75rem;
     color: var(--tch-color-on-surface-variant);
     font-size: var(--tch-font-size-body-sm);
   }
 
   &__actions {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
   }
 }
 
 tch-console-facts {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem;
 }
