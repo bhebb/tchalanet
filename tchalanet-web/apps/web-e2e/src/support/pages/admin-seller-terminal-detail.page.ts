@@ -35,8 +35,8 @@ export class AdminSellerTerminalDetailPage {
     await expect(this.aside.getByTestId('admin-detail-section')).toHaveCount(0);
     const actionLinks = this.page.getByTestId('admin-page-actions').getByRole('link');
     await expect(actionLinks.filter({ hasText: /retour|back/i })).toHaveCount(1);
-    await expect(actionLinks.filter({ hasText: /modifier|edit/i })).toHaveCount(1);
-    await expect(actionLinks.filter({ hasText: /barèmes|barem|pricing/i })).toHaveCount(1);
+    await expect(actionLinks.filter({ hasText: /modifier|modifye|edit/i })).toHaveCount(1);
+    await expect(actionLinks.filter({ hasText: /rapport|rapò|report/i })).toHaveCount(1);
   }
 
   async expectBlockingError(): Promise<void> {

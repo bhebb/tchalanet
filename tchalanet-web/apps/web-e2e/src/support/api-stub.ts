@@ -959,6 +959,13 @@ export class ApiStub {
         }),
       ),
     );
+    await this.apiRoute(/\/admin\/policies\/limits\/rules(?:\?|$)/, (r) => json(r, envelope(limitRulesStub)));
+    await this.apiRoute(/\/admin\/policies\/limits\/assignments(?:\?|$)/, (r) => {
+      if (r.request().method() === 'PUT') {
+        return json(r, envelope({ id: { value: 'limit-assignment-new' } }));
+      }
+      return json(r, envelope({ limitScopeRef: null, items: limitAssignmentsStub }));
+    });
     await this.apiRoute(/\/admin\/financials\/breakdown(?:\?|$)/, r =>
       json(
         r,
@@ -1177,6 +1184,33 @@ export class ApiStub {
     );
     await this.apiRoute(/\/admin\/commission\/overview(?:\?|$)/, r =>
       json(r, envelope({ tenantDefaultRate: 10 })),
+    );
+  }
+
+  /** Deterministic tenant-config for the params-overview and receipt/delivery/calendar pages. */
+  async adminParamsOverview(): Promise<void> {
+    if (!this.enabled) return;
+
+    await this.apiRoute(/\/admin\/tenant-config(?:\?|$)/, r =>
+      json(r, envelope({
+        document: {
+          receipt: { enabled: true, defaultPaperSize: 'RECEIPT_80MM', showQrCode: true },
+        },
+        communication: {
+          buyerTicketDelivery: {
+            sms: { enabled: false },
+            whatsapp: { enabled: false },
+            email: { enabled: true },
+          },
+        },
+        rules: {
+          businessCalendar: {
+            defaultOpen: true,
+            closedWeekdays: [],
+            holidays: [],
+          },
+        },
+      })),
     );
   }
 

@@ -55,8 +55,8 @@ test.describe('Admin setup quick actions access', () => {
     const gameSwitch = gameCard.locator('.gp-game-card__sale-toggle');
     await expect(gameSwitch).toBeEnabled();
     await gameCard.getByRole('button', { name: configureGame }).click();
-    await expect(page.getByRole('dialog').getByRole('heading', { name: /Bolèt|Bolet/ })).toBeVisible();
-    await page.keyboard.press('Escape');
+    await expect(page.getByRole('heading', { name: /Bolèt|Bolet/ })).toBeVisible();
+    await page.goBack();
 
     await gameSwitch.click();
     await expect(page.getByRole('dialog')).toBeVisible();

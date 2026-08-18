@@ -35,9 +35,9 @@ test.describe('Admin draw-channel configuration — mobile', () => {
     await expect(
       firstCard.getByRole('button', { name: /Configurer|Konfigire|Configure/ }),
     ).toBeVisible();
-    await expect(
-      firstCard.getByRole('button', { name: /Voir détails|Gade detay|View details/ }),
-    ).toBeVisible();
+    await firstCard.getByRole('button', { name: /Plus d'actions|Plis aksyon|More actions/ }).click();
+    await expect(page.getByRole('menuitem', { name: /Voir les détails|Voir détails|Gade detay|View details/ })).toBeVisible();
+    await page.keyboard.press('Escape');
 
     const configureButton = firstCard.getByRole('button', {
       name: /Configurer|Konfigire|Configure/,
