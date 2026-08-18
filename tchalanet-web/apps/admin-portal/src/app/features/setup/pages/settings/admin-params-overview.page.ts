@@ -42,7 +42,9 @@ export class AdminParamsOverviewPage {
   readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';
   readonly backRoute = this.fromSetup ? '/app/admin/setup' : '/app/admin/business-profile';
   readonly backLabel = this.fromSetup ? 'admin.setup.backToSetup' : 'admin.businessProfile.title';
-  readonly linkQueryParams = this.fromSetup ? { from: 'setup' } : undefined;
+  // Never forward from=setup to section sub-pages — back from delivery/receipt/calendar
+  // should always return here, not bypass this overview and jump straight to setup.
+  readonly linkQueryParams = undefined;
 
   readonly config = this.api.tenantConfigResource();
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
