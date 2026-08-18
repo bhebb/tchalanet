@@ -119,7 +119,7 @@ describe(AdminLimitsOverviewPage.name, () => {
 
     expect(stats).toContain('3 limit aktif');
     expect(stats).toContain('2 blokaj nimewo');
-    expect(stats).toContain('1 plafon');
+    expect(stats).toContain('1 limit miz');
   });
 
   it('inlineStats omits zero-count sections', () => {
