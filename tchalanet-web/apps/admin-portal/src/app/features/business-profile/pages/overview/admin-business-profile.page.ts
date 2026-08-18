@@ -189,13 +189,9 @@ export class AdminBusinessProfilePage implements OnInit {
   private readonly localeData = signal<TenantInternalConfig['locale'] | null>(null);
   readonly languages = this.runtimeStore.tenantLanguageOptions;
   readonly localeForm = this.fb.group({
-    supportedLanguages: new FormControl<string[]>(
-      [...this.runtimeStore.tenantSupportedLanguages()],
-      { nonNullable: true, validators: [Validators.required] },
-    ),
     fallbackLanguage: new FormControl<string>(
       this.runtimeStore.tenantSupportedLanguages()[0] ?? 'ht',
-      { nonNullable: true },
+      { nonNullable: true, validators: [Validators.required] },
     ),
   });
 
@@ -217,9 +213,6 @@ export class AdminBusinessProfilePage implements OnInit {
       this.localeFormState.set('error');
       const fieldErrors = this.serverFieldErrors(err, 'admin.businessProfile.locale');
       const remaining = applyServerFieldErrors(this.localeForm, fieldErrors, {
-        'locale.supportedLanguages': 'supportedLanguages',
-        'admin.setup.locale.supportedLanguages': 'supportedLanguages',
-        'tenant.locale.supportedLanguages': 'supportedLanguages',
         'locale.fallbackLanguage': 'fallbackLanguage',
         'admin.setup.locale.fallbackLanguage': 'fallbackLanguage',
         'tenant.locale.fallbackLanguage': 'fallbackLanguage',
@@ -233,11 +226,6 @@ export class AdminBusinessProfilePage implements OnInit {
         );
       }
     },
-  });
-
-  readonly supportedLanguagesLabel = computed(() => {
-    const codes = this.localeData()?.supportedLanguages ?? this.runtimeStore.tenantSupportedLanguages();
-    return codes.map(code => this.translate.instant(`admin.settings.runtime.languages.${code}`)).join(', ');
   });
 
   readonly fallbackLanguageLabel = computed(() => {
@@ -590,16 +578,9 @@ export class AdminBusinessProfilePage implements OnInit {
       return;
     }
     const v = this.localeForm.getRawValue();
-    const supportedLanguages = [...new Set(v.supportedLanguages)];
-    const fallbackLanguage = supportedLanguages.includes(v.fallbackLanguage)
-      ? v.fallbackLanguage
-      : supportedLanguages[0] ?? '';
-    this.localeForm.controls.supportedLanguages.setValue(supportedLanguages);
-    this.localeForm.controls.fallbackLanguage.setValue(fallbackLanguage);
     this.saveLocale.execute({
       ...(this.localeData() ?? {}),
-      supportedLanguages,
-      fallbackLanguage: fallbackLanguage || null,
+      fallbackLanguage: v.fallbackLanguage || null,
     });
   }
 
@@ -647,7 +628,7 @@ export class AdminBusinessProfilePage implements OnInit {
   private patchLocaleForm(locale: TenantInternalConfig['locale'] | null): void {
     const supported = locale?.supportedLanguages ?? [...this.runtimeStore.tenantSupportedLanguages()];
     const fallback = locale?.fallbackLanguage ?? supported[0] ?? 'ht';
-    this.localeForm.patchValue({ supportedLanguages: supported, fallbackLanguage: fallback });
+    this.localeForm.patchValue({ fallbackLanguage: fallback });
   }
 
   private prefillForms(h: TenantHeader | null): void {

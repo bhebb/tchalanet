@@ -1604,9 +1604,7 @@
         "locale": "Languages"
       },
       "locale": {
-        "supported": "Available languages",
         "fallback": "Default language",
-        "notice": "The default language must be in the list of available languages.",
         "saved": "Language settings saved."
       },
       "commercial": {

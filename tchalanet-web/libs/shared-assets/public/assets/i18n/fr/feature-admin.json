@@ -2360,9 +2360,7 @@
         "region": "Région"
       },
       "locale": {
-        "supported": "Langues disponibles",
         "fallback": "Langue par défaut",
-        "notice": "La langue par défaut doit figurer dans la liste des langues disponibles.",
         "saved": "Paramètres de langue enregistrés."
       }
     },
