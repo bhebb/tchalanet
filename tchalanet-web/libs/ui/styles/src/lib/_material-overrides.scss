@@ -247,3 +247,29 @@ optgroup {
   --mat-table-row-item-hover-state-layer-color: var(--tch-color-primary, #1a1b4b);
   --mat-table-row-item-hover-state-layer-opacity: 0.08;
 }
+
+// ── Admin secondary edit buttons (Modifye) ───────────────────────────────────
+// Used in business-profile cards and settings-overview cards.
+// Token cascade is unreliable post-preset-injection; direct class overrides used
+// (same pattern as .mat-mdc-option and .mat-mdc-row above).
+.biz-profile__cta,
+.settings-summary__actions a {
+  &.mdc-button--outlined {
+    border-color: var(--tch-color-primary, #1a1b4b) !important;
+    border-width: 1.5px;
+    color: var(--tch-color-primary, #1a1b4b) !important;
+  }
+
+  .mat-mdc-button-persistent-ripple::before {
+    background: var(--tch-color-primary, #1a1b4b);
+  }
+
+  &:hover .mat-mdc-button-persistent-ripple::before {
+    opacity: 0.06 !important;
+  }
+
+  &.cdk-keyboard-focused .mat-mdc-button-persistent-ripple::before,
+  &:focus-visible .mat-mdc-button-persistent-ripple::before {
+    opacity: 0.1 !important;
+  }
+}

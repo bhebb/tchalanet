@@ -21,6 +21,8 @@ import {
   type SettingsSummaryFact,
   type SettingsSummarySectionVm,
 } from './settings-summary-card.component';
+import { makeBadgeFact, makeTextFact, paperSizeLabel } from './params-overview.utils';
+export { makeBadgeFact, makeTextFact, paperSizeLabel } from './params-overview.utils';
 
 @Component({
   selector: 'tch-admin-params-overview-page',
@@ -122,16 +124,15 @@ export class AdminParamsOverviewPage {
   }
 
   private badge(label: string, active: boolean, activeText: string, inactiveText: string): SettingsSummaryFact {
-    return { label, value: active ? activeText : inactiveText, badge: true, active };
+    return makeBadgeFact(label, active, activeText, inactiveText);
   }
 
   private text(label: string, value: string): SettingsSummaryFact {
-    return { label, value, badge: false, active: false };
+    return makeTextFact(label, value);
   }
 
   private paperSizeLabel(size: string | null): string {
-    const map: Record<string, string> = { RECEIPT_58MM: '58 mm', RECEIPT_80MM: '80 mm', A4: 'A4' };
-    return size ? (map[size] ?? size) : '80 mm';
+    return paperSizeLabel(size);
   }
 
   private t(key: string, params?: Record<string, string | number>): string {
