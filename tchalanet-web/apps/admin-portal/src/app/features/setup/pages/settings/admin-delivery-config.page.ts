@@ -5,13 +5,14 @@ import {
   inject,
   untracked,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { mapHttpErrorToProblemDetail, webAppErrorsFromProblemDetailFields } from '@tch/api';
@@ -66,10 +67,10 @@ const COMMUNICATION_FIELD_TARGETS: Record<string, string> = {
     RouterLink,
     TranslatePipe,
     MatButtonModule,
-    MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatSlideToggleModule,
     AdminPageShellComponent,
     AdminSectionCardComponent,
     TchAsyncViewComponent,
@@ -94,13 +95,6 @@ export class AdminDeliveryConfigPage {
   readonly currencies = this.runtimeSettings.tenantCurrencyOptions;
   readonly paidByOptions = PAID_BY;
 
-  readonly config = this.api.tenantConfigResource();
-  readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
-  readonly configIsEmpty = () => false;
-  readonly readiness = this.api.readinessResource();
-
-  private lastConfig: TenantInternalConfig = {};
-
   readonly communicationForm = this.fb.group({
     smsEnabled: new FormControl<boolean>(false, { nonNullable: true }),
     smsAmount: new FormControl<number | null>(5, { validators: [Validators.min(0)] }),
@@ -115,6 +109,17 @@ export class AdminDeliveryConfigPage {
     emailCurrency: new FormControl<string>(DEFAULT_TENANT_CURRENCY, { nonNullable: true }),
     emailPaidBy: new FormControl<string>('TENANT', { nonNullable: true }),
   });
+
+  readonly smsEnabled = toSignal(this.communicationForm.controls.smsEnabled.valueChanges, { initialValue: false });
+  readonly whatsappEnabled = toSignal(this.communicationForm.controls.whatsappEnabled.valueChanges, { initialValue: false });
+  readonly emailEnabled = toSignal(this.communicationForm.controls.emailEnabled.valueChanges, { initialValue: false });
+
+  readonly config = this.api.tenantConfigResource();
+  readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
+  readonly configIsEmpty = () => false;
+  readonly readiness = this.api.readinessResource();
+
+  private lastConfig: TenantInternalConfig = {};
 
   readonly saveCommunication = tchMutation<
     NonNullable<TenantInternalConfig['communication']>,
