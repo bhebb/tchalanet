@@ -462,7 +462,6 @@ export class AdminConfigPage {
   private applyFieldErrors(
     err: unknown,
     form:
-      | typeof this.localeForm
       | typeof this.receiptForm
       | typeof this.communicationForm
       | typeof this.calendarForm,
