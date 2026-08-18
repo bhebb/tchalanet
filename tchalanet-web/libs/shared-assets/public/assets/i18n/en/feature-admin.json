@@ -1605,7 +1605,9 @@
       },
       "locale": {
         "fallback": "Default language",
-        "saved": "Language settings saved."
+        "saved": "Language settings saved.",
+        "supported": "Available languages",
+        "notice": "The default language must be in the list of available languages."
       },
       "commercial": {
         "description": "Commercial settings used for sales and commissions.",

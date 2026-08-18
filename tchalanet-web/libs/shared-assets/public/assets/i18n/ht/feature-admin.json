@@ -1605,7 +1605,9 @@
       },
       "locale": {
         "fallback": "Lang dechanj",
-        "saved": "Paramèt lang yo anrejistre."
+        "saved": "Paramèt lang yo anrejistre.",
+        "supported": "Lang ki disponib",
+        "notice": "Lang dechanj la dwe nan lis lang ki disponib yo."
       },
       "commercial": {
         "description": "Itilize pou machann ki pa gen to espesifik.",

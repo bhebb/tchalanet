@@ -259,6 +259,10 @@
           @if (!showLocaleForm()) {
             <dl class="biz-profile__facts">
               <div>
+                <dt>{{ 'admin.businessProfile.locale.supported' | translate }}</dt>
+                <dd>{{ supportedLanguagesLabel() || ('common.not_available' | translate) }}</dd>
+              </div>
+              <div>
                 <dt>{{ 'admin.businessProfile.locale.fallback' | translate }}</dt>
                 <dd>{{ fallbackLanguageLabel() || ('common.not_available' | translate) }}</dd>
               </div>
@@ -269,14 +273,26 @@
           } @else {
             <form [formGroup]="localeForm" (ngSubmit)="submitLocale()" class="biz-profile__form">
               <mat-form-field appearance="outline" class="biz-profile__form-field">
-                <mat-label>{{ 'admin.businessProfile.locale.fallback' | translate }}</mat-label>
-                <mat-select formControlName="fallbackLanguage">
+                <mat-label>{{ 'admin.businessProfile.locale.supported' | translate }}</mat-label>
+                <mat-select formControlName="supportedLanguages" multiple>
                   @for (lang of languages(); track lang.code) {
                     <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
+              <tch-field-error [control]="localeForm.controls.supportedLanguages" />
+              <mat-form-field appearance="outline" class="biz-profile__form-field">
+                <mat-label>{{ 'admin.businessProfile.locale.fallback' | translate }}</mat-label>
+                <mat-select formControlName="fallbackLanguage">
+                  @for (lang of languages(); track lang.code) {
+                    @if (localeForm.controls.supportedLanguages.value.includes(lang.code)) {
+                      <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                    }
+                  }
+                </mat-select>
+              </mat-form-field>
               <tch-field-error [control]="localeForm.controls.fallbackLanguage" />
+              <tch-notice type="info">{{ 'admin.businessProfile.locale.notice' | translate }}</tch-notice>
 
               <tch-form-error-summary [messages]="localeFormSummary()" />
               @if (localeFormError()) {

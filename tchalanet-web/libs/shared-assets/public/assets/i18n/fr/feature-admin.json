@@ -2361,7 +2361,9 @@
       },
       "locale": {
         "fallback": "Langue par défaut",
-        "saved": "Paramètres de langue enregistrés."
+        "saved": "Paramètres de langue enregistrés.",
+        "supported": "Langues disponibles",
+        "notice": "La langue par défaut doit figurer dans la liste des langues disponibles."
       }
     },
     "support": {
