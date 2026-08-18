@@ -109,8 +109,12 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly setup = computed<TenantSetupView | null>(() => this.overview()?.setup ?? null);
   readonly header = computed(() => this.overview()?.header ?? null);
 
-  readonly requiredTotalCount = computed(() => this.setup()?.totalSteps ?? 0);
-  readonly requiredCompletedCount = computed(() => this.setup()?.completedSteps ?? 0);
+  // Derived from the cards we actually display — the backend's totalSteps/completedSteps
+  // may include sections (like settings) that are now optional on the frontend.
+  readonly requiredTotalCount = computed(() => this.requiredSetupCards().length);
+  readonly requiredCompletedCount = computed(
+    () => this.requiredSetupCards().filter(c => c.status === 'READY').length,
+  );
   readonly progressPct = computed(() =>
     this.requiredTotalCount() > 0
       ? Math.min(100, Math.round((this.requiredCompletedCount() / this.requiredTotalCount()) * 100))
