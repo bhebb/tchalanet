@@ -219,12 +219,6 @@
         "limits": "Limit vant",
         "limitsDesc": "Limit vant ki aplike sou santral ou an.",
         "limitsCta": "Konfigire limit yo",
-        "posPrinting": "POS ak enpresyon",
-        "posPrintingDesc": "Konfigire resi, PDF ak paramèt enpresyon pa defo.",
-        "posPrintingCta": "Konfigire enpresyon",
-        "settings": "Paramèt santral la",
-        "settingsDesc": "Konfigire resi, livrezon tikè ak kalandriye vant pou santral ou a.",
-        "settingsCta": "Konfigire paramèt yo",
         "subscription": "Abònman",
         "subscriptionDesc": "Plan ak estati abònman ou.",
         "subscriptionNoPlan": "Pa gen plan aktif — kontakte Tchalanet.",
@@ -234,7 +228,10 @@
         "sellerTerminalLocked": "Kreyasyon machann yo bloke jiskaske etap obligatwa yo fini.",
         "identityDesc": "Idantite, adrès ak lang santral ou a.",
         "sellerTerminalCta": "Konfigire machann yo",
-        "sellerTerminalReady": "Machann yo pare"
+        "sellerTerminalReady": "Machann yo pare",
+        "posSettings": "POS ak enpresyon",
+        "posSettingsDesc": "Resi, livrezon tikè ak kalandriye vant pou santral ou a.",
+        "posSettingsCta": "Konfigire paramèt POS yo"
       },
       "description": "Swiv etap yo pou konfigire santral la epi rann li operasyonèl.",
       "progress": {

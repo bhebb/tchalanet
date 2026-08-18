@@ -220,12 +220,6 @@
         "limits": "Limites de vente",
         "limitsDesc": "Limites de vente appliquées à votre santral.",
         "limitsCta": "Configurer les limites",
-        "posPrinting": "POS et impression",
-        "posPrintingDesc": "Configurez les reçus, PDF et paramètres d’impression par défaut.",
-        "posPrintingCta": "Configurer l’impression",
-        "settings": "Paramètres du santral",
-        "settingsDesc": "Configurez les reçus, la livraison des tickets et le calendrier de vente de votre santral.",
-        "settingsCta": "Configurer les paramètres",
         "subscription": "Abonnement",
         "subscriptionDesc": "Plan et statut de votre abonnement.",
         "subscriptionNoPlan": "Aucun plan actif — contactez Tchalanet.",
@@ -235,7 +229,10 @@
         "sellerTerminalLocked": "La création des vendeurs est bloquée tant que les étapes obligatoires ne sont pas terminées.",
         "identityDesc": "Identité, adresse et langue de votre santral.",
         "sellerTerminalCta": "Configurer les terminaux vendeurs",
-        "sellerTerminalReady": "Terminaux vendeurs prêts"
+        "sellerTerminalReady": "Terminaux vendeurs prêts",
+        "posSettings": "POS et impression",
+        "posSettingsDesc": "Configurez les reçus, la livraison des tickets et le calendrier de vente.",
+        "posSettingsCta": "Configurer les paramètres POS"
       },
       "description": "Suivez les étapes pour configurer votre santral et le rendre opérationnel.",
       "status": {

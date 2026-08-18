@@ -161,9 +161,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
     // Real check now (readiness section "generated_draws"): at least one Draw instance
     // actually exists, not just that channels/games are configured.
     const generatedDrawsStatus: SetupChecklistStatus = this.sectionStatus('generated_draws');
-    const settingsStatus: SetupChecklistStatus = this.sectionStatus('settings');
-    const settingsTarget = this.settingsTarget();
-
     const cards: SetupChecklistCardViewModel[] = [
       {
         id: 'identity_address',
@@ -177,23 +174,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
         route: '/app/admin/business-profile',
         emphasizeMissing: true,
         sectionErrorTargets: ['admin.setup.identity', 'admin.setup.address'],
-      },
-      {
-        id: 'settings',
-        icon: 'tune',
-        titleKey: 'admin.setup.section.settings',
-        // Real check now (readiness section "settings"): backend evaluates tenant settings
-        // structurally and returns stable missing-reason codes.
-        status: settingsStatus,
-        badgeKind: 'required',
-        body: this.translate.instant('admin.setup.section.settingsDesc'),
-        bodyVariant: 'default',
-        ctaKey: 'admin.setup.section.settingsCta',
-        route: settingsTarget.route,
-        queryParams: { from: 'setup' },
-        fragment: settingsTarget.fragment,
-        emphasizeMissing: true,
-        sectionErrorTargets: ['admin.setup.settings'],
       },
       {
         id: 'games_pricing',
@@ -248,21 +228,22 @@ export class AdminCompleteTenantConfigPage implements OnInit {
   readonly operationalSetupCards = computed<readonly SetupChecklistCardViewModel[]>(() => {
     const gamesStatus = this.sectionStatus('games_pricing');
     const subscription = this.subscription();
+    const settingsTarget = this.settingsTarget();
     const cards: SetupChecklistCardViewModel[] = [
       {
-        id: 'pos_printing',
-        icon: 'print',
-        titleKey: 'admin.setup.section.posPrinting',
-        status: this.posPrintingStatus(),
-        badgeKind: 'operational',
-        body: this.translate.instant('admin.setup.section.posPrintingDesc'),
+        id: 'pos_settings',
+        icon: 'tune',
+        titleKey: 'admin.setup.section.posSettings',
+        status: this.sectionStatus('settings'),
+        badgeKind: 'optional',
+        body: this.translate.instant('admin.setup.section.posSettingsDesc'),
         bodyVariant: 'default',
-        statusLabelKey: this.posPrintingStatusLabelKey(),
-        ctaKey: 'admin.setup.section.posPrintingCta',
-        route: TENANT_SETTINGS_RECEIPT_ROUTE,
+        ctaKey: 'admin.setup.section.posSettingsCta',
+        route: settingsTarget.route,
         queryParams: { from: 'setup' },
+        fragment: settingsTarget.fragment,
         emphasizeMissing: false,
-        sectionErrorTargets: ['admin.setup.pos_printing'],
+        sectionErrorTargets: ['admin.setup.settings'],
       },
     ];
 
@@ -415,14 +396,6 @@ export class AdminCompleteTenantConfigPage implements OnInit {
 
   private settingsTarget(): SetupSettingsTarget {
     return setupSettingsTarget(this.sectionMap().get('settings'));
-  }
-
-  private posPrintingStatus(): SetupChecklistStatus {
-    return setupPosPrintingStatus(this.sectionMap().get('settings'));
-  }
-
-  private posPrintingStatusLabelKey(): string {
-    return setupPosPrintingStatusLabelKey(this.posPrintingStatus());
   }
 
   private addressLabel(addr: NonNullable<TenantAdminOverviewView['header']['address']>): string {

@@ -219,12 +219,6 @@
         "limits": "Sales limits",
         "limitsDesc": "Sales limits applied to your operator.",
         "limitsCta": "Configure limits",
-        "posPrinting": "POS & printing",
-        "posPrintingDesc": "Configure receipts, PDFs, and default printing settings.",
-        "posPrintingCta": "Configure printing",
-        "settings": "Operator settings",
-        "settingsDesc": "Configure receipts, ticket delivery, and the sales calendar for your operator.",
-        "settingsCta": "Configure settings",
         "subscription": "Subscription",
         "subscriptionDesc": "Your subscription plan and status.",
         "subscriptionNoPlan": "No active plan — contact Tchalanet.",
@@ -234,7 +228,10 @@
         "sellerTerminalLocked": "Seller creation is locked until the required setup steps are complete.",
         "identityDesc": "Identity, address, and language for your operator.",
         "sellerTerminalCta": "Configure sellers",
-        "sellerTerminalReady": "Sellers ready"
+        "sellerTerminalReady": "Sellers ready",
+        "posSettings": "POS & printing",
+        "posSettingsDesc": "Configure receipts, ticket delivery, and the sales calendar.",
+        "posSettingsCta": "Configure POS settings"
       },
       "description": "Follow the steps to configure your operator and make it operational.",
       "progress": {
