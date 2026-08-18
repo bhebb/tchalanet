@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import {
   TchAsyncReadyDirective,
@@ -14,6 +14,7 @@ import {
   resourceErrorVm,
 } from '@tch/web/async';
 import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { ConsoleFactsComponent, type ConsoleFact } from '@tch/web/console';
 import { TenantParametersApiService } from '../../data-access/tenant-parameters-api.service';
 
 @Component({
@@ -26,6 +27,7 @@ import { TenantParametersApiService } from '../../data-access/tenant-parameters-
     MatButtonModule,
     AdminPageShellComponent,
     AdminSectionCardComponent,
+    ConsoleFactsComponent,
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
   ],
@@ -35,6 +37,7 @@ import { TenantParametersApiService } from '../../data-access/tenant-parameters-
 export class AdminParamsOverviewPage {
   private readonly api = inject(TenantParametersApiService);
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
   readonly fromSetup = this.route.snapshot.queryParamMap.get('from') === 'setup';
   readonly backRoute = this.fromSetup ? '/app/admin/setup' : '/app/admin/business-profile';
@@ -45,42 +48,51 @@ export class AdminParamsOverviewPage {
   readonly configError = resourceErrorVm(this.config, 'admin.setup.config');
   readonly configIsEmpty = () => false;
 
-  readonly receiptSummary = computed(() => {
+  readonly receiptFacts = computed<readonly ConsoleFact[]>(() => {
     const r = this.config.value()?.document?.receipt;
-    if (!r) return null;
-    return {
-      enabled: r.enabled ?? true,
-      paperSize: this.paperSizeLabel(r.defaultPaperSize ?? null),
-      qrCode: r.showQrCode ?? true,
-    };
+    if (!r) return [];
+    return [
+      { label: this.t('admin.settings.overview.receipt.enabled'), value: this.t((r.enabled ?? true) ? 'common.yes' : 'common.no') },
+      { label: this.t('admin.settings.overview.receipt.paperSize'), value: this.paperSizeLabel(r.defaultPaperSize ?? null) },
+      { label: this.t('admin.settings.overview.receipt.qrCode'), value: this.t((r.showQrCode ?? true) ? 'common.yes' : 'common.no') },
+    ];
   });
 
-  readonly deliverySummary = computed(() => {
+  readonly deliveryFacts = computed<readonly ConsoleFact[]>(() => {
     const delivery = this.config.value()?.communication?.buyerTicketDelivery;
-    if (!delivery) return null;
-    return {
-      sms: delivery.sms?.enabled ?? false,
-      whatsapp: delivery.whatsapp?.enabled ?? false,
-      email: delivery.email?.enabled ?? false,
-    };
+    if (!delivery) return [];
+    const active = this.t('admin.settings.overview.delivery.active');
+    const inactive = this.t('admin.settings.overview.delivery.inactive');
+    return [
+      { label: this.t('admin.settings.overview.delivery.sms'), value: delivery.sms?.enabled ? active : inactive },
+      { label: this.t('admin.settings.overview.delivery.whatsapp'), value: delivery.whatsapp?.enabled ? active : inactive },
+      { label: this.t('admin.settings.overview.delivery.email'), value: delivery.email?.enabled ? active : inactive },
+    ];
   });
 
-  readonly calendarSummary = computed(() => {
+  readonly calendarFacts = computed<readonly ConsoleFact[]>(() => {
     const cal = this.config.value()?.rules?.businessCalendar;
-    if (!cal) return null;
-    return {
-      defaultOpen: cal.defaultOpen ?? true,
-      closedWeekdayCount: (cal.closedWeekdays ?? []).length,
-      holidayCount: (cal.holidays ?? []).length,
-    };
+    if (!cal) return [];
+    const facts: ConsoleFact[] = [
+      { label: this.t('admin.settings.overview.calendar.defaultOpen'), value: this.t((cal.defaultOpen ?? true) ? 'common.yes' : 'common.no') },
+    ];
+    const closedCount = (cal.closedWeekdays ?? []).length;
+    if (closedCount > 0) {
+      facts.push({ label: this.t('admin.settings.config.calendar.closedWeekdays'), value: String(closedCount) });
+    }
+    const holidayCount = (cal.holidays ?? []).length;
+    if (holidayCount > 0) {
+      facts.push({ label: this.t('admin.settings.config.calendar.recurringHolidays'), value: String(holidayCount) });
+    }
+    return facts;
   });
 
-  paperSizeLabel(size: string | null): string {
-    const map: Record<string, string> = {
-      RECEIPT_58MM: '58 mm',
-      RECEIPT_80MM: '80 mm',
-      A4: 'A4',
-    };
+  private paperSizeLabel(size: string | null): string {
+    const map: Record<string, string> = { RECEIPT_58MM: '58 mm', RECEIPT_80MM: '80 mm', A4: 'A4' };
     return size ? (map[size] ?? size) : '80 mm';
+  }
+
+  private t(key: string, params?: Record<string, string | number>): string {
+    return this.translate.instant(key, params);
   }
 }

@@ -28,21 +28,8 @@
           [title]="'admin.settings.overview.receipt.title' | translate"
           icon="receipt_long"
         >
-          @if (receiptSummary(); as r) {
-            <dl class="params-card__summary">
-              <div class="params-card__row">
-                <dt>{{ 'admin.settings.overview.receipt.enabled' | translate }}</dt>
-                <dd [class.params-card__value--active]="r.enabled">{{ (r.enabled ? 'common.yes' : 'common.no') | translate }}</dd>
-              </div>
-              <div class="params-card__row">
-                <dt>{{ 'admin.settings.overview.receipt.paperSize' | translate }}</dt>
-                <dd>{{ r.paperSize }}</dd>
-              </div>
-              <div class="params-card__row">
-                <dt>{{ 'admin.settings.overview.receipt.qrCode' | translate }}</dt>
-                <dd>{{ (r.qrCode ? 'common.yes' : 'common.no') | translate }}</dd>
-              </div>
-            </dl>
+          @if (receiptFacts().length > 0) {
+            <tch-console-facts [facts]="receiptFacts()" />
           } @else {
             <p class="params-card__empty">{{ 'admin.settings.overview.receipt.noConfig' | translate }}</p>
           }
@@ -63,27 +50,8 @@
           [title]="'admin.settings.overview.delivery.title' | translate"
           icon="send"
         >
-          @if (deliverySummary(); as d) {
-            <dl class="params-card__summary">
-              <div class="params-card__row">
-                <dt>{{ 'admin.settings.overview.delivery.sms' | translate }}</dt>
-                <dd [class.params-card__value--active]="d.sms">
-                  {{ (d.sms ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
-                </dd>
-              </div>
-              <div class="params-card__row">
-                <dt>{{ 'admin.settings.overview.delivery.whatsapp' | translate }}</dt>
-                <dd [class.params-card__value--active]="d.whatsapp">
-                  {{ (d.whatsapp ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
-                </dd>
-              </div>
-              <div class="params-card__row">
-                <dt>{{ 'admin.settings.overview.delivery.email' | translate }}</dt>
-                <dd [class.params-card__value--active]="d.email">
-                  {{ (d.email ? 'admin.settings.overview.delivery.active' : 'admin.settings.overview.delivery.inactive') | translate }}
-                </dd>
-              </div>
-            </dl>
+          @if (deliveryFacts().length > 0) {
+            <tch-console-facts [facts]="deliveryFacts()" />
           } @else {
             <p class="params-card__empty">{{ 'admin.settings.overview.delivery.noConfig' | translate }}</p>
           }
@@ -104,25 +72,8 @@
           [title]="'admin.settings.overview.calendar.title' | translate"
           icon="event"
         >
-          @if (calendarSummary(); as c) {
-            <dl class="params-card__summary">
-              <div class="params-card__row">
-                <dt>{{ 'admin.settings.overview.calendar.defaultOpen' | translate }}</dt>
-                <dd [class.params-card__value--active]="c.defaultOpen">{{ (c.defaultOpen ? 'common.yes' : 'common.no') | translate }}</dd>
-              </div>
-              @if (c.closedWeekdayCount > 0) {
-                <div class="params-card__row">
-                  <dt></dt>
-                  <dd>{{ 'admin.settings.overview.calendar.closedDays' | translate: { count: c.closedWeekdayCount } }}</dd>
-                </div>
-              }
-              @if (c.holidayCount > 0) {
-                <div class="params-card__row">
-                  <dt></dt>
-                  <dd>{{ 'admin.settings.overview.calendar.holidays' | translate: { count: c.holidayCount } }}</dd>
-                </div>
-              }
-            </dl>
+          @if (calendarFacts().length > 0) {
+            <tch-console-facts [facts]="calendarFacts()" />
           } @else {
             <p class="params-card__empty">{{ 'admin.settings.overview.calendar.noConfig' | translate }}</p>
           }

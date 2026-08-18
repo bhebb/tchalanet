@@ -5,35 +5,6 @@
 }
 
 .params-card {
-  &__summary {
-    display: grid;
-    gap: 0.375rem;
-    margin: 0 0 1rem;
-    padding: 0;
-  }
-
-  &__row {
-    display: flex;
-    gap: 1rem;
-    font-size: var(--tch-font-size-body-sm);
-
-    dt {
-      flex: 0 0 9rem;
-      color: var(--tch-color-on-surface-variant);
-      font-weight: normal;
-    }
-
-    dd {
-      margin: 0;
-      color: var(--tch-color-on-surface);
-      font-weight: var(--tch-weight-medium, 500);
-    }
-  }
-
-  &__value--active {
-    color: var(--tch-color-success);
-  }
-
   &__empty {
     margin: 0 0 1rem;
     color: var(--tch-color-on-surface-variant);
@@ -41,6 +12,11 @@
   }
 
   &__actions {
-    margin-top: 0.25rem;
+    margin-top: 1rem;
   }
+}
+
+tch-console-facts {
+  display: block;
+  margin-bottom: 0.25rem;
 }
