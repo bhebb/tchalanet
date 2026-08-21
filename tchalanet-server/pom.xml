@@ -32,32 +32,32 @@
 
     <!-- Library versions -->
     <archunit.version>1.5.0</archunit.version>
-    <aws-sdk.version>2.52.0</aws-sdk.version>
+    <aws-sdk.version>2.54.2</aws-sdk.version>
     <caffeine.version>3.2.4</caffeine.version>
     <firebase-admin.version>9.10.0</firebase-admin.version>
-    <json-schema-validator.version>3.0.6</json-schema-validator.version>
+    <json-schema-validator.version>3.0.7</json-schema-validator.version>
     <lombok.version>1.18.46</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <mockito.version>5.23.0</mockito.version>
     <pdfbox.version>3.0.8</pdfbox.version>
     <querydsl.version>5.1.0</querydsl.version>
-    <shedlock.version>7.7.0</shedlock.version>
+    <shedlock.version>7.9.0</shedlock.version>
     <springdoc.version>3.1.0</springdoc.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <zxing.version>3.5.4</zxing.version>
     <rome.version>2.1.0</rome.version>
-    <jackson.version>3.2.1</jackson.version>
+    <jackson.version>3.2.2</jackson.version>
     <hibernate.version>7.3.2.Final</hibernate.version>
     <!-- Spring Modulith -->
     <!-- Security overrides — explicit pins beyond Spring Boot 4.1.0 BOM -->
     <!-- CVE-2026-56820/55851/56745/… (CVSS 7.5–9.1) -->
-    <netty.version>4.2.16.Final</netty.version>
+    <netty.version>4.2.17.Final</netty.version>
     <!-- CVE-2026-53434/55276/59083/59084 (CVSS 7.3–9.1) -->
-    <tomcat.version>11.0.24</tomcat.version>
+    <tomcat.version>11.0.25</tomcat.version>
     <!-- CVE-2026-54291 (CVSS 8.2) -->
     <postgresql.version>42.7.13</postgresql.version>
     <!-- CVE-2026-49844 (CVSS 7+) -->
-    <log4j2.version>2.26.0</log4j2.version>
+    <log4j2.version>2.26.1</log4j2.version>
     <spring-modulith.version>2.1.0</spring-modulith.version>
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <!-- Build plugins -->
@@ -156,17 +156,17 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.22.1</version>
+        <version>2.22.2</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>2.22.1</version>
+        <version>2.22.2</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>2.22</version>
+        <version>2.22.1</version>
       </dependency>
 
       <!-- Mapping & Code Gen -->
