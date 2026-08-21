@@ -722,7 +722,7 @@
         },
         "field": {
           "tenant": "Operator",
-          "sellerTerminal": "Seller terminal",
+          "sellerTerminal": "Sales terminal",
           "limit": "Limit",
           "status": "Status",
           "debugHours": "Debug duration (hours)",
