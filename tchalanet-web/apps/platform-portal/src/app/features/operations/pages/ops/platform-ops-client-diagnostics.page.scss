@@ -1,0 +1,134 @@
+@use 'breakpoints' as ui;
+
+.client-diagnostics__filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.client-diagnostics__events {
+  display: grid;
+  gap: 1rem;
+}
+
+.client-diagnostics__policy {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) 12rem minmax(16rem, 1fr) auto auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.client-diagnostics__policy > div:first-child {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.client-diagnostics__policy-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.client-diagnostics__categories {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.client-diagnostics__notice {
+  color: var(--tch-color-status-ready);
+  margin: 0.75rem 0 0;
+}
+
+.client-diagnostics__event {
+  border: 1px solid var(--tch-color-outline-variant);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: var(--tch-color-surface-container-low);
+}
+
+.client-diagnostics__event > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.client-diagnostics__event dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+}
+
+.client-diagnostics__event dt {
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.client-diagnostics__event dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.client-diagnostics__message {
+  color: var(--tch-color-error);
+}
+
+.client-diagnostics__detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.client-diagnostics__detail-grid dt {
+  color: var(--tch-color-on-surface-variant);
+  font-size: 0.75rem;
+}
+
+.client-diagnostics__detail-grid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.client-diagnostics__stack {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.client-diagnostics__stack code {
+  display: block;
+  overflow-wrap: anywhere;
+  border-radius: var(--tch-radius-sm);
+  padding: 0.5rem;
+  background: var(--tch-color-surface-container);
+}
+
+.client-diagnostics__payload {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.client-diagnostics__payload pre {
+  max-height: 28rem;
+  margin: 0;
+  overflow: auto;
+  border-radius: var(--tch-radius-sm);
+  padding: 1rem;
+  background: var(--tch-color-surface-container);
+  color: var(--tch-color-on-surface);
+  white-space: pre-wrap;
+}
+
+.client-diagnostics__empty {
+  color: var(--tch-color-on-surface-variant);
+}
+
+@include ui.down(expanded) {
+  .client-diagnostics__filters,
+  .client-diagnostics__policy,
+  .client-diagnostics__event dl,
+  .client-diagnostics__detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

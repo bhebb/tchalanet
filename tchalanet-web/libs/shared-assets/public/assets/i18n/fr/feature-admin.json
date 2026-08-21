@@ -2505,7 +2505,9 @@
           "commission": "Commission",
           "commissionDesc": "Taux de commission appliqué à ce vendeur.",
           "status": "Statut",
-          "statusDesc": "Le vendeur sera immédiatement disponible si activé."
+          "statusDesc": "Le vendeur sera immédiatement disponible si activé.",
+          "diagnostics": "Diagnostic client",
+          "diagnosticsDesc": "Active temporairement l'envoi d'erreurs POS au serveur pour le support."
         },
         "field": {
           "terminalCode": "Code terminal",
@@ -2523,7 +2525,10 @@
           "initialPin": "PIN initial",
           "confirmPin": "Confirmer le PIN",
           "commissionRate": "Taux de commission (%)",
-          "active": "Activer le vendeur à la création"
+          "active": "Activer le vendeur à la création",
+          "diagnosticsEnabled": "Activer le mode debug après création",
+          "diagnosticsHours": "Durée (heures)",
+          "diagnosticsReason": "Raison support"
         },
         "placeholder": {
           "terminalCode": "TCH-XXXXXX",
@@ -2540,7 +2545,8 @@
         },
         "hint": {
           "pin": "Exactement 6 chiffres.",
-          "confirmPin": "Répétez les 6 chiffres."
+          "confirmPin": "Répétez les 6 chiffres.",
+          "diagnostics": "Maximum 24 heures. Les catégories API et impression seront collectées."
         },
         "validation": {
           "terminalCodeRequired": "Le code terminal est requis.",
@@ -2624,6 +2630,8 @@
           "activityDesc": "Dernières dates connues pour ce vendeur.",
           "security": "Sécurité",
           "securityDesc": "État du PIN et informations de blocage.",
+          "clientDiagnostics": "Diagnostic client",
+          "clientDiagnosticsDesc": "État du mode debug qui autorisera le POS à envoyer ses erreurs au serveur.",
           "control": "Contrôle"
         },
         "field": {
@@ -2640,7 +2648,28 @@
           "disabledAt": "Désactivé le",
           "commissionRate": "Commission",
           "addressId": "Adresse",
-          "tenantId": "Santral"
+          "tenantId": "Santral",
+          "clientDiagnosticsStatus": "Mode debug",
+          "clientDiagnosticsExpiresAt": "Expire le",
+          "clientDiagnosticsCategories": "Catégories",
+          "clientDiagnosticsMaxEvents": "Limite d'événements"
+        },
+        "clientDiagnostics": {
+          "action": {
+            "enable": "Activer 2h",
+            "disable": "Désactiver"
+          },
+          "notice": {
+            "enabled": "Le mode debug est activé pour 2 heures.",
+            "disabled": "Le mode debug est désactivé.",
+            "failed": "L'action diagnostic n'a pas pu être appliquée."
+          },
+          "status": {
+            "enabled": "Activé",
+            "disabled": "Désactivé",
+            "loading": "Chargement...",
+            "unavailable": "Indisponible"
+          }
         }
       },
       "overrides": {

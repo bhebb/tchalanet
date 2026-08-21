@@ -85,6 +85,13 @@
             />
 
             <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.clientDiagnostics"
+              descriptionKey="admin.sellerTerminals.detail.section.clientDiagnosticsDesc"
+              icon="bug_report"
+              [facts]="clientDiagnosticsFacts()"
+            />
+
+            <tch-seller-terminal-detail-facts-card
               titleKey="admin.sellerTerminals.detail.section.control"
               icon="tune"
               [facts]="controlFacts()"

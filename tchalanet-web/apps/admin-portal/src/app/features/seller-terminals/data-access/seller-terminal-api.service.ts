@@ -45,6 +45,15 @@ export interface SellerTerminalView extends SellerTerminalSummaryRow {
   pinResetAt?: string | null;
 }
 
+export interface SellerTerminalClientDiagnosticsView {
+  enabled: boolean;
+  expiresAt?: string | null;
+  maxEvents: number;
+  categories: readonly string[];
+  reason?: string | null;
+  updatedAt?: string | null;
+}
+
 export interface AddressRequest {
   line1: string;
   line2?: string | null;
@@ -189,6 +198,15 @@ export class SellerTerminalApi {
       const sellerTerminalId = id();
       return sellerTerminalId
         ? { path: `/admin/seller-terminals/${sellerTerminalId}`, options }
+        : undefined;
+    });
+  }
+
+  getClientDiagnosticsResource(id: () => string | null | undefined, options?: TchRequestOptions) {
+    return this.backend.getResource<SellerTerminalClientDiagnosticsView>(() => {
+      const sellerTerminalId = id();
+      return sellerTerminalId
+        ? { path: `/admin/seller-terminals/${sellerTerminalId}/diagnostics`, options }
         : undefined;
     });
   }

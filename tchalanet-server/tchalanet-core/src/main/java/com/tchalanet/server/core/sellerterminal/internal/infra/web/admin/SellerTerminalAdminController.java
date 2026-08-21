@@ -36,6 +36,8 @@ import com.tchalanet.server.platform.accesscontrol.api.RequiresPermission;
 import com.tchalanet.server.platform.audit.api.AuditLog;
 import com.tchalanet.server.platform.audit.api.model.AuditAction;
 import com.tchalanet.server.platform.audit.api.model.AuditEntityType;
+import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
 import com.tchalanet.server.platform.entitlement.api.RequiredQuota;
 import com.tchalanet.server.platform.entitlement.api.UsageKeys;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,6 +74,7 @@ public class SellerTerminalAdminController {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
+  private final ClientDiagnosticsApi clientDiagnosticsApi;
 
   // ── Queries ───────────────────────────────────────────────────────────────
 
@@ -158,6 +161,14 @@ public class SellerTerminalAdminController {
       @CurrentContext TchRequestContext ctx, @PathVariable SellerTerminalId id) {
     return ApiResponse.success(
         queryBus.ask(new GetSellerTerminalQuery(ctx.tenantIdRequired(), id)));
+  }
+
+  @GetMapping("/{id}/diagnostics")
+  @RequiresPermission("seller_terminal.read")
+  @Operation(summary = "Get seller terminal client diagnostics policy")
+  public ApiResponse<ClientDiagnosticPolicyView> clientDiagnostics(
+      @CurrentContext TchRequestContext ctx, @PathVariable SellerTerminalId id) {
+    return ApiResponse.success(clientDiagnosticsApi.getPolicy(ctx.tenantIdRequired(), id));
   }
 
   // ── Commands ──────────────────────────────────────────────────────────────

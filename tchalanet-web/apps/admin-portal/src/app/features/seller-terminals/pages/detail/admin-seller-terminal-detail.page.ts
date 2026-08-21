@@ -86,6 +86,14 @@ export class AdminSellerTerminalDetailPage {
     this.todayFinancials,
     'admin.sellerTerminals.detail.today',
   );
+  readonly clientDiagnostics = this.api.getClientDiagnosticsResource(
+    () => this.sellerTerminalId,
+    { suppressShellFeedback: true },
+  );
+  readonly clientDiagnosticsError = resourceErrorVm(
+    this.clientDiagnostics,
+    'admin.sellerTerminals.detail.clientDiagnostics',
+  );
   readonly todayStats = computed<SellerTerminalDailyFinancialRow>(() => {
     const id = this.sellerTerminalId;
     if (this.todayFinancials.status() === 'error') {
@@ -194,6 +202,49 @@ export class AdminSellerTerminalDetailPage {
     ];
   });
 
+  readonly clientDiagnosticsFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
+    if (this.clientDiagnostics.status() === 'error') {
+      return [
+        {
+          labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsStatus',
+          valueKey: 'admin.sellerTerminals.detail.clientDiagnostics.status.unavailable',
+        },
+      ];
+    }
+
+    const diagnostics = this.clientDiagnostics.value();
+    if (!diagnostics) {
+      return [
+        {
+          labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsStatus',
+          valueKey: 'admin.sellerTerminals.detail.clientDiagnostics.status.loading',
+        },
+      ];
+    }
+
+    return [
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsStatus',
+        valueKey: diagnostics.enabled
+          ? 'admin.sellerTerminals.detail.clientDiagnostics.status.enabled'
+          : 'admin.sellerTerminals.detail.clientDiagnostics.status.disabled',
+      },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsExpiresAt',
+        value: diagnostics.expiresAt,
+        kind: 'date',
+      },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsCategories',
+        value: diagnostics.categories.length ? diagnostics.categories.join(', ') : null,
+      },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsMaxEvents',
+        value: diagnostics.maxEvents || null,
+      },
+    ];
+  });
+
   readonly activityFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
@@ -208,6 +259,7 @@ export class AdminSellerTerminalDetailPage {
   reload(): void {
     this.sellerTerminal.reload();
     this.todayFinancials.reload();
+    this.clientDiagnostics.reload();
   }
 
   reloadTodayStats(): void {

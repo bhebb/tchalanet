@@ -710,7 +710,76 @@
     },
     "ops": {
       "title": "Ops",
-      "description": "Service status and operational monitoring"
+      "description": "Service status and operational monitoring",
+      "clientDiagnostics": {
+        "title": "Client diagnostics",
+        "description": "POS errors sent by terminals when debug mode is enabled.",
+        "section": {
+          "target": "Target",
+          "control": "Ops debug control",
+          "events": "Recent events",
+          "detail": "Event detail"
+        },
+        "field": {
+          "tenant": "Operator",
+          "sellerTerminal": "Seller terminal",
+          "limit": "Limit",
+          "status": "Status",
+          "debugHours": "Debug duration (hours)",
+          "reason": "Ops/support reason",
+          "http": "HTTP",
+          "request": "Request",
+          "printer": "Printer",
+          "device": "Device",
+          "eventId": "Event ID",
+          "exception": "Exception",
+          "endpoint": "Endpoint",
+          "appVersion": "App version",
+          "os": "OS",
+          "printerService": "Printer service",
+          "stackFrames": "Stack frames",
+          "sanitizedPayload": "Sanitized payload"
+        },
+        "placeholder": {
+          "tenant": "Search an operator",
+          "sellerTerminal": "Search a terminal in the operator"
+        },
+        "empty": {
+          "tenant": "No operator found",
+          "sellerTerminal": "No terminal found",
+          "events": "No diagnostic event for these filters."
+        },
+        "status": {
+          "enabled": "Enabled",
+          "disabled": "Disabled",
+          "selectTarget": "Select an operator and terminal, then load.",
+          "expiresAt": "expires {{value}}"
+        },
+        "action": {
+          "back": "Back to ops",
+          "open": "Open diagnostics",
+          "load": "Load",
+          "enable": "Enable debug",
+          "disable": "Disable",
+          "detail": "View detail",
+          "closeDetail": "Close detail"
+        },
+        "loading": "Loading diagnostics...",
+        "loadingDetail": "Loading diagnostic detail...",
+        "notice": {
+          "enabled": "Debug mode enabled for this terminal.",
+          "disabled": "Debug mode disabled for this terminal."
+        },
+        "error": {
+          "load": "Client diagnostics unavailable.",
+          "enable": "Unable to enable debug mode.",
+          "disable": "Unable to disable debug mode.",
+          "detail": "Diagnostic detail unavailable.",
+          "missingEnableInputs": "Operator, terminal, and reason are required to enable debug.",
+          "missingCategories": "Select at least one diagnostic category.",
+          "missingDisableInputs": "Operator and terminal are required to disable debug."
+        }
+      }
     },
     "onboarding": {
       "adminCreated": "Operator admin created",

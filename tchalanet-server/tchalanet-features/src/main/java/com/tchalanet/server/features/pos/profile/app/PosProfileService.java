@@ -13,6 +13,7 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalSettingsQuery;
 import com.tchalanet.server.features.pos.profile.model.PosProfileCommercialInfo;
+import com.tchalanet.server.features.pos.profile.model.PosProfileDiagnosticsInfo;
 import com.tchalanet.server.features.pos.profile.model.PosProfileNotificationSettings;
 import com.tchalanet.server.features.pos.profile.model.PosProfileReceiptSettings;
 import com.tchalanet.server.features.pos.profile.model.PosProfileResponse;
@@ -23,6 +24,7 @@ import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileCommercia
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSettingsRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
+import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +40,7 @@ public class PosProfileService {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
+  private final ClientDiagnosticsApi clientDiagnosticsApi;
 
   public PosProfileResponse profile(TchRequestContext ctx) {
     var sellerTerminalId = ctx.sellerTerminalIdRequired();
@@ -84,7 +87,8 @@ public class PosProfileService {
             currencyCode(currency),
             SUPPORTED_LOCALES,
             toReceiptSettings(settings.receipt()),
-            toNotificationSettings(settings.notifications())));
+            toNotificationSettings(settings.notifications())),
+        toDiagnostics(clientDiagnosticsApi.getPolicy(tenantId, sellerTerminalId)));
   }
 
   public PosProfileResponse updateTerminal(
@@ -178,6 +182,12 @@ public class PosProfileService {
   private static PosProfileNotificationSettings toNotificationSettings(
       SellerTerminalNotificationSettingsView settings) {
     return new PosProfileNotificationSettings(settings.enabled(), settings.criticalOnly());
+  }
+
+  private static PosProfileDiagnosticsInfo toDiagnostics(
+      com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView policy) {
+    return new PosProfileDiagnosticsInfo(
+        policy.enabled(), policy.expiresAt(), policy.maxEvents(), policy.categories());
   }
 
   private static String sellerDisplayName(String firstName, String lastName, String fallback) {

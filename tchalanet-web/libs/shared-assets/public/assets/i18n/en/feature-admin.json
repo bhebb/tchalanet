@@ -1769,7 +1769,9 @@
           "commission": "Commission",
           "commissionDesc": "Commission rate applied to this seller.",
           "status": "Status",
-          "statusDesc": "The seller will be available immediately when active."
+          "statusDesc": "The seller will be available immediately when active.",
+          "diagnostics": "Client diagnostics",
+          "diagnosticsDesc": "Temporarily allow the POS to send client errors to the server for support."
         },
         "field": {
           "terminalCode": "Terminal code",
@@ -1787,7 +1789,10 @@
           "initialPin": "Initial PIN",
           "confirmPin": "Confirm PIN",
           "commissionRate": "Commission rate (%)",
-          "active": "Activate seller on creation"
+          "active": "Activate seller on creation",
+          "diagnosticsEnabled": "Enable debug mode after creation",
+          "diagnosticsHours": "Duration (hours)",
+          "diagnosticsReason": "Support reason"
         },
         "placeholder": {
           "terminalCode": "TCH-XXXXXX",
@@ -1804,7 +1809,8 @@
         },
         "hint": {
           "pin": "Exactly 6 digits.",
-          "confirmPin": "Repeat the 6 digits."
+          "confirmPin": "Repeat the 6 digits.",
+          "diagnostics": "Maximum 24 hours. API and print categories will be collected."
         },
         "validation": {
           "terminalCodeRequired": "Terminal code is required.",
@@ -1888,6 +1894,8 @@
           "activityDesc": "Latest known dates for this seller.",
           "security": "Security",
           "securityDesc": "PIN state and blocking information.",
+          "clientDiagnostics": "Client diagnostics",
+          "clientDiagnosticsDesc": "Debug mode state that will allow the POS to send client errors to the server.",
           "control": "Control"
         },
         "field": {
@@ -1904,7 +1912,28 @@
           "disabledAt": "Disabled at",
           "commissionRate": "Commission",
           "addressId": "Address",
-          "tenantId": "Operator"
+          "tenantId": "Operator",
+          "clientDiagnosticsStatus": "Debug mode",
+          "clientDiagnosticsExpiresAt": "Expires at",
+          "clientDiagnosticsCategories": "Categories",
+          "clientDiagnosticsMaxEvents": "Event limit"
+        },
+        "clientDiagnostics": {
+          "action": {
+            "enable": "Enable 2h",
+            "disable": "Disable"
+          },
+          "notice": {
+            "enabled": "Debug mode is enabled for 2 hours.",
+            "disabled": "Debug mode is disabled.",
+            "failed": "The diagnostics action could not be applied."
+          },
+          "status": {
+            "enabled": "Enabled",
+            "disabled": "Disabled",
+            "loading": "Loading...",
+            "unavailable": "Unavailable"
+          }
         }
       },
       "overrides": {

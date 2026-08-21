@@ -92,6 +92,13 @@ export const platformOperationsRoutes: Route[] = [
       ),
   },
   {
+    path: 'client-diagnostics',
+    loadComponent: () =>
+      import('./pages/ops/platform-ops-client-diagnostics.page').then(
+        m => m.PlatformOpsClientDiagnosticsPage,
+      ),
+  },
+  {
     path: 'cache',
     loadComponent: () =>
       import('./pages/ops/platform-ops-cache.page').then(m => m.PlatformOpsCachePage),

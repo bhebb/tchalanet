@@ -24,6 +24,7 @@ import com.tchalanet.server.core.pricing.api.error.PricingErrorCodes;
 import com.tchalanet.server.core.pricing.internal.infra.web.admin.PricingOverrideAdminController;
 import com.tchalanet.server.core.sellerterminal.api.error.SellerTerminalErrorCodes;
 import com.tchalanet.server.core.sellerterminal.internal.infra.web.admin.SellerTerminalAdminController;
+import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Set;
@@ -118,7 +119,8 @@ class AdminSellerTerminalPricingProblemContractTest {
     conversionService.addConverter(
         new com.tchalanet.server.common.web.converter.StringToSellerTerminalIdConverter());
     return MockMvcBuilders.standaloneSetup(
-            new SellerTerminalAdminController(commandBus, mock(QueryBus.class)))
+            new SellerTerminalAdminController(
+                commandBus, mock(QueryBus.class), mock(ClientDiagnosticsApi.class)))
         .setControllerAdvice(new GlobalErrorHandler())
         .setCustomArgumentResolvers(new CurrentContextArgumentResolver())
         .setConversionService(conversionService)

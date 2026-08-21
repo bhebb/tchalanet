@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TranslateService } from '@ngx-translate/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -47,6 +48,7 @@ const LOCAL_ERROR_OPTIONS = { suppressShellFeedback: true } as const;
     AdminSectionErrorTargetDirective,
     TchErrorPanel,
     TchLoading,
+    TranslatePipe,
     MatButtonModule,
     MatIconModule,
   ],

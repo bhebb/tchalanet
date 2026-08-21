@@ -80,6 +80,60 @@ export interface AnalyticsReconciliationResponse {
   completedAt: string;
 }
 
+export interface ClientDiagnosticEventView {
+  id: string;
+  tenantId: { value: string } | string;
+  sellerTerminalId: { value: string } | string;
+  eventId: string;
+  category: string;
+  severity: string;
+  operation: string;
+  occurredAtClient: string;
+  receivedAtServer: string;
+  requestId?: string | null;
+  correlationId?: string | null;
+  errorCode?: string | null;
+  message?: string | null;
+  exceptionType?: string | null;
+  httpStatus?: number | null;
+  endpointKey?: string | null;
+  appVersion?: string | null;
+  platform?: string | null;
+  deviceModel?: string | null;
+  printerProvider?: string | null;
+  printerState?: string | null;
+}
+
+export interface ClientDiagnosticStackFrameView {
+  symbol?: string | null;
+  file?: string | null;
+  line?: number | null;
+  column?: number | null;
+}
+
+export interface ClientDiagnosticEventDetailView extends ClientDiagnosticEventView {
+  buildNumber?: string | null;
+  osVersion?: string | null;
+  printerService?: string | null;
+  stackFrames: readonly ClientDiagnosticStackFrameView[];
+}
+
+export interface ClientDiagnosticPolicyView {
+  enabled: boolean;
+  expiresAt?: string | null;
+  maxEvents: number;
+  categories: readonly string[];
+  reason?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface ClientDiagnosticPolicyRequest {
+  expiresAt: string;
+  maxEvents: number;
+  categories: readonly string[];
+  reason: string;
+}
+
 // ── Batch Gates ─────────────────────────────────────────────────────────────
 
 /** PUT /platform/ops/batch/gates/{jobKey} */
@@ -693,6 +747,69 @@ export class PlatformOpsApi {
     return this.backend.post<AnalyticsReconciliationResponse>(
       '/platform/ops/analytics/reconciliation',
       req,
+      options,
+    );
+  }
+
+  listClientDiagnosticEvents(
+    params: { tenantId?: string; sellerTerminalId?: string; limit?: number } = {},
+    options?: TchRequestOptions,
+  ): Observable<readonly ClientDiagnosticEventView[]> {
+    const q = new URLSearchParams(
+      Object.fromEntries(
+        Object.entries(params)
+          .filter(([, value]) => value !== undefined && value !== '')
+          .map(([key, value]) => [key, String(value)]),
+      ),
+    ).toString();
+    return this.backend.get<readonly ClientDiagnosticEventView[]>(
+      `/platform/ops/client-diagnostics/events${q ? '?' + q : ''}`,
+      options,
+    );
+  }
+
+  getClientDiagnosticEvent(
+    eventId: string,
+    options?: TchRequestOptions,
+  ): Observable<ClientDiagnosticEventDetailView> {
+    return this.backend.get<ClientDiagnosticEventDetailView>(
+      `/platform/ops/client-diagnostics/events/${encodeURIComponent(eventId)}`,
+      options,
+    );
+  }
+
+  getClientDiagnosticPolicy(
+    tenantId: string,
+    sellerTerminalId: string,
+    options?: TchRequestOptions,
+  ): Observable<ClientDiagnosticPolicyView> {
+    return this.backend.get<ClientDiagnosticPolicyView>(
+      `/platform/ops/client-diagnostics/policy?tenantId=${encodeURIComponent(tenantId)}&sellerTerminalId=${encodeURIComponent(sellerTerminalId)}`,
+      options,
+    );
+  }
+
+  enableClientDiagnosticPolicy(
+    tenantId: string,
+    sellerTerminalId: string,
+    req: ClientDiagnosticPolicyRequest,
+    options?: TchRequestOptions,
+  ): Observable<ClientDiagnosticPolicyView> {
+    return this.backend.put<ClientDiagnosticPolicyView>(
+      `/platform/ops/client-diagnostics/policy?tenantId=${encodeURIComponent(tenantId)}&sellerTerminalId=${encodeURIComponent(sellerTerminalId)}`,
+      req,
+      options,
+    );
+  }
+
+  disableClientDiagnosticPolicy(
+    tenantId: string,
+    sellerTerminalId: string,
+    options?: TchRequestOptions,
+  ): Observable<ClientDiagnosticPolicyView> {
+    return this.backend.post<ClientDiagnosticPolicyView>(
+      `/platform/ops/client-diagnostics/policy:disable?tenantId=${encodeURIComponent(tenantId)}&sellerTerminalId=${encodeURIComponent(sellerTerminalId)}`,
+      {},
       options,
     );
   }

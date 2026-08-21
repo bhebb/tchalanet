@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/client_diagnostics/client_diagnostics_reporter.dart';
 import '../../../tickets/data/models/cashier_sell_catalog_models.dart';
 import '../../../tickets/data/models/cashier_ticket_models.dart';
 import '../../../tickets/data/services/cashier_sell_catalog_service.dart';
@@ -28,7 +29,11 @@ final cashierReadinessProvider = FutureProvider<CashierReadinessResponse>((
 
 /// One compact account payload for POS profile and settings.
 final posProfileProvider = FutureProvider<PosProfileResponse>((ref) async {
-  return ref.watch(posProfileServiceProvider).fetchProfile();
+  final profile = await ref.watch(posProfileServiceProvider).fetchProfile();
+  ref
+      .read(clientDiagnosticsPolicyProvider.notifier)
+      .setPolicy(profile.diagnostics?.toPolicy());
+  return profile;
 });
 
 final posProfileSettingsUpdaterProvider = Provider<PosProfileSettingsUpdater>(

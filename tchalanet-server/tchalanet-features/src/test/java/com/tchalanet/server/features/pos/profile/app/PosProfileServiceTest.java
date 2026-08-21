@@ -25,6 +25,8 @@ import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalSetti
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileCommercialRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
+import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -40,7 +42,9 @@ class PosProfileServiceTest {
 
   private final CommandBus commandBus = mock(CommandBus.class);
   private final QueryBus queryBus = mock(QueryBus.class);
-  private final PosProfileService service = new PosProfileService(commandBus, queryBus);
+  private final ClientDiagnosticsApi clientDiagnosticsApi = mock(ClientDiagnosticsApi.class);
+  private final PosProfileService service =
+      new PosProfileService(commandBus, queryBus, clientDiagnosticsApi);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
   private final UserId userId = UserId.of(UUID.randomUUID());
@@ -51,6 +55,8 @@ class PosProfileServiceTest {
     when(queryBus.ask(any(GetSellerTerminalQuery.class))).thenReturn(sellerTerminal());
     when(queryBus.ask(any(GetSellerTerminalSettingsQuery.class)))
         .thenReturn(SellerTerminalSettingsView.defaults());
+    when(clientDiagnosticsApi.getPolicy(any(TenantId.class), any(SellerTerminalId.class)))
+        .thenReturn(ClientDiagnosticPolicyView.disabled());
   }
 
   @Test

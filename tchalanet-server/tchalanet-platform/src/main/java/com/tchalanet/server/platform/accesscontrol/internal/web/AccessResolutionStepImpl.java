@@ -34,6 +34,7 @@ public class AccessResolutionStepImpl implements AccessResolutionStep {
           "seller_terminal.me.read",
           "seller_terminal.pin.change",
           "cashier.home.read",
+          "client_diagnostics.write",
           "ticket.sell",
           "ticket.read_own",
           "ticket.reprint_own");

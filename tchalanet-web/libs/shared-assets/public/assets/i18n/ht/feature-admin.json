@@ -1769,7 +1769,9 @@
           "commission": "Komisyon",
           "commissionDesc": "Pousantaj komisyon pou machann sa a.",
           "status": "Estati",
-          "statusDesc": "Machann nan ap disponib touswit si li aktive."
+          "statusDesc": "Machann nan ap disponib touswit si li aktive.",
+          "diagnostics": "Dyagnostik kliyan",
+          "diagnosticsDesc": "Aktive tanporèman voye erè POS sou sèvè a pou sipò."
         },
         "field": {
           "terminalCode": "Kòd machin POS",
@@ -1787,7 +1789,10 @@
           "initialPin": "PIN inisyal",
           "confirmPin": "Konfime PIN",
           "commissionRate": "Pousantaj komisyon (%)",
-          "active": "Aktive machann nan lè li kreye"
+          "active": "Aktive machann nan lè li kreye",
+          "diagnosticsEnabled": "Aktive mòd debug apre kreyasyon",
+          "diagnosticsHours": "Dire (èdtan)",
+          "diagnosticsReason": "Rezon sipò"
         },
         "placeholder": {
           "terminalCode": "TCH-XXXXXX",
@@ -1804,7 +1809,8 @@
         },
         "hint": {
           "pin": "Egzakteman 6 chif.",
-          "confirmPin": "Repete 6 chif yo."
+          "confirmPin": "Repete 6 chif yo.",
+          "diagnostics": "Maksimòm 24 èdtan. Kategori API ak enpresyon ap kolekte."
         },
         "validation": {
           "terminalCodeRequired": "Kòd machin POS la obligatwa.",
@@ -1888,6 +1894,8 @@
           "activityDesc": "Dènye dat yo konnen pou machann sa a.",
           "security": "Sekirite",
           "securityDesc": "Eta PIN ak enfòmasyon blokaj.",
+          "clientDiagnostics": "Dyagnostik kliyan",
+          "clientDiagnosticsDesc": "Eta mòd debug ki pral pèmèt POS la voye erè li yo sou sèvè a.",
           "control": "Kontwòl"
         },
         "field": {
@@ -1904,7 +1912,28 @@
           "disabledAt": "Dezaktive",
           "commissionRate": "Komisyon",
           "addressId": "Adrès",
-          "tenantId": "Santral"
+          "tenantId": "Santral",
+          "clientDiagnosticsStatus": "Mòd debug",
+          "clientDiagnosticsExpiresAt": "Ekspire",
+          "clientDiagnosticsCategories": "Kategori",
+          "clientDiagnosticsMaxEvents": "Limit evènman"
+        },
+        "clientDiagnostics": {
+          "action": {
+            "enable": "Aktive 2è",
+            "disable": "Dezaktive"
+          },
+          "notice": {
+            "enabled": "Mòd debug la aktive pou 2 èdtan.",
+            "disabled": "Mòd debug la dezaktive.",
+            "failed": "Aksyon dyagnostik la pa reyisi."
+          },
+          "status": {
+            "enabled": "Aktive",
+            "disabled": "Dezaktive",
+            "loading": "Ap chaje...",
+            "unavailable": "Pa disponib"
+          }
         }
       },
       "overrides": {

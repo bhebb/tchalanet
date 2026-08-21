@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/auth/auth_token_client.dart';
 import '../../../../core/auth/firebase_auth_token_client.dart';
+import '../../../../core/client_diagnostics/client_diagnostics_models.dart';
+import '../../../../core/client_diagnostics/client_diagnostics_reporter.dart';
 import '../../../../core/runtime/runtime_repository.dart';
 import '../../../../core/storage/secure_token_storage.dart';
 import '../../../../core/storage/token_storage.dart';
@@ -15,20 +17,29 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(
     this._service,
     this._tokenStorage,
-    this._runtimeRepository,
-  );
+    this._runtimeRepository, [
+    this._diagnosticsReporter,
+  ]);
 
   final AuthTokenClient _service;
   final TokenStorage _tokenStorage;
   final RuntimeRepository _runtimeRepository;
+  final ClientDiagnosticsReporter? _diagnosticsReporter;
 
   @override
   Future<UserSession> login(AuthCredentials credentials) async {
-    final tokens = await _service.login(credentials);
-    await _storeTokens(tokens);
+    late final AuthTokenData tokens;
+    try {
+      tokens = await _service.login(credentials);
+      await _storeTokens(tokens);
+    } catch (error, stack) {
+      _recordAuthError('auth.login', error, stack);
+      rethrow;
+    }
     try {
       return await _buildSession(tokens.accessToken);
-    } catch (_) {
+    } catch (error, stack) {
+      _recordAuthError('auth.login.build_session', error, stack);
       await _service.logout();
       await _tokenStorage.clear();
       rethrow;
@@ -48,7 +59,8 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         await _storeTokens(tokens);
         return await _buildSession(tokens.accessToken);
-      } catch (_) {
+      } catch (error, stack) {
+        _recordAuthError('auth.restore.refresh', error, stack);
         await _service.logout();
         await _tokenStorage.clear();
         return null;
@@ -57,7 +69,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
     try {
       return await _buildSession(accessToken);
-    } catch (_) {
+    } catch (error, stack) {
+      _recordAuthError('auth.restore.build_session', error, stack);
       await _service.logout();
       await _tokenStorage.clear();
       return null;
@@ -130,6 +143,27 @@ class AuthRepositoryImpl implements AuthRepository {
       return {};
     }
   }
+
+  void _recordAuthError(String operation, Object error, StackTrace stack) {
+    _diagnosticsReporter?.record(
+      ClientDiagnosticEvent(
+        category: ClientDiagnosticCategory.connectivity,
+        occurredAtClient: DateTime.now().toUtc(),
+        severity: ClientDiagnosticSeverity.error,
+        operation: operation,
+        message: error.toString(),
+        exceptionType: error.runtimeType.toString(),
+        stackFrames: stack
+            .toString()
+            .split('\n')
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .take(24)
+            .map((line) => ClientDiagnosticStackFrame(symbol: line))
+            .toList(growable: false),
+      ),
+    );
+  }
 }
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -137,5 +171,6 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
     FirebaseAuthTokenClient(),
     ref.watch(tokenStorageProvider),
     ref.watch(runtimeRepositoryProvider),
+    ref.watch(clientDiagnosticsReporterProvider),
   );
 });

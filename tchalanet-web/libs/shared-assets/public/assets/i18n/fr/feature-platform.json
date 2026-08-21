@@ -777,7 +777,76 @@
     },
     "ops": {
       "title": "Opérations",
-      "description": "Statut des services et monitoring"
+      "description": "Statut des services et monitoring",
+      "clientDiagnostics": {
+        "title": "Diagnostics client",
+        "description": "Erreurs POS envoyées par les terminaux quand le mode debug est activé.",
+        "section": {
+          "target": "Cible",
+          "control": "Contrôle debug ops",
+          "events": "Événements récents",
+          "detail": "Détail événement"
+        },
+        "field": {
+          "tenant": "Santral",
+          "sellerTerminal": "Terminal vendeur",
+          "limit": "Limite",
+          "status": "État",
+          "debugHours": "Durée debug (heures)",
+          "reason": "Raison ops/support",
+          "http": "HTTP",
+          "request": "Request",
+          "printer": "Imprimante",
+          "device": "Device",
+          "eventId": "Event ID",
+          "exception": "Exception",
+          "endpoint": "Endpoint",
+          "appVersion": "Version app",
+          "os": "OS",
+          "printerService": "Service imprimante",
+          "stackFrames": "Stack frames",
+          "sanitizedPayload": "Payload sanitizé"
+        },
+        "placeholder": {
+          "tenant": "Chercher un santral",
+          "sellerTerminal": "Chercher un terminal dans le santral"
+        },
+        "empty": {
+          "tenant": "Aucun santral trouvé",
+          "sellerTerminal": "Aucun terminal trouvé",
+          "events": "Aucun événement diagnostic pour ces filtres."
+        },
+        "status": {
+          "enabled": "Activé",
+          "disabled": "Désactivé",
+          "selectTarget": "Sélectionnez un santral et un terminal puis chargez.",
+          "expiresAt": "expire {{value}}"
+        },
+        "action": {
+          "back": "Retour ops",
+          "open": "Ouvrir diagnostics",
+          "load": "Charger",
+          "enable": "Activer debug",
+          "disable": "Désactiver",
+          "detail": "Voir détail",
+          "closeDetail": "Fermer détail"
+        },
+        "loading": "Chargement des diagnostics...",
+        "loadingDetail": "Chargement du détail diagnostic...",
+        "notice": {
+          "enabled": "Mode debug activé pour ce terminal.",
+          "disabled": "Mode debug désactivé pour ce terminal."
+        },
+        "error": {
+          "load": "Diagnostics client indisponibles.",
+          "enable": "Activation du mode debug impossible.",
+          "disable": "Désactivation du mode debug impossible.",
+          "detail": "Détail diagnostic indisponible.",
+          "missingEnableInputs": "Santral, terminal et raison sont requis pour activer le debug.",
+          "missingCategories": "Sélectionnez au moins une catégorie diagnostic.",
+          "missingDisableInputs": "Santral et terminal sont requis pour désactiver le debug."
+        }
+      }
     },
     "onboarding": {
       "adminCreated": "Admin santral créé",
