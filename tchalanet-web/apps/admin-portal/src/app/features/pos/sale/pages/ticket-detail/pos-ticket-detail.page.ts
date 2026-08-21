@@ -470,7 +470,7 @@ export class PosTicketDetailPage implements OnInit {
     if (value === null || value === undefined || value === '') return '—';
     const numeric = Number(value);
     if (!Number.isFinite(numeric)) return String(value);
-    return new Intl.NumberFormat(this.translate.currentLang || 'fr', {
+    return new Intl.NumberFormat(this.translate.currentLang() || 'fr', {
       maximumFractionDigits: 2,
     }).format(numeric);
   }

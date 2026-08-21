@@ -94,7 +94,7 @@ export class DrawChannelConfigDialog {
     if (draw == null || close == null || close >= draw) return null;
     return {
       minutes: draw - close,
-      drawTime: formatDrawTimeForSalesNote(drawTime, this.translate.currentLang),
+      drawTime: formatDrawTimeForSalesNote(drawTime, this.translate.currentLang() ?? undefined),
     };
   });
   readonly canSave = computed(

@@ -13,7 +13,7 @@ export class PublicMarkdownContentService {
   private readonly translate = inject(TranslateService);
 
   load(file: PublicMarkdownFile): Observable<string> {
-    const lang = this.translate.currentLang || this.translate.defaultLang || 'ht';
+    const lang = this.translate.currentLang() || this.translate.fallbackLang() || 'ht';
     return this.http
       .get(`${TCH_PUBLIC_ASSETS.pagesPath}/${lang}/${file}.md`, { responseType: 'text' })
       .pipe(

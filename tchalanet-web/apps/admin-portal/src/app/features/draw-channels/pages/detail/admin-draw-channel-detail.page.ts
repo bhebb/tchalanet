@@ -375,7 +375,7 @@ export class AdminDrawChannelDetailPage {
       minutes: draw - close,
       drawTime: formatDrawTimeForSalesNote(
         normalizeTime(channel.drawTime),
-        this.translate.currentLang,
+        this.translate.currentLang() ?? undefined,
       ),
     });
   }

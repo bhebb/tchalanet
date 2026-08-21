@@ -116,7 +116,7 @@ export class GeneratedDrawsTableComponent {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
-    const locale = this.translate.currentLang === 'en' ? 'en-US' : this.translate.currentLang === 'ht' ? 'ht' : 'fr-FR';
+    const locale = this.translate.currentLang() === 'en' ? 'en-US' : this.translate.currentLang() === 'ht' ? 'ht' : 'fr-FR';
     const label = d.toLocaleDateString(locale, {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     }).toUpperCase();
