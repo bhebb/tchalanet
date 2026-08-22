@@ -12,6 +12,7 @@ import '../../../../../design_system/tokens/tch_spacing.dart';
 import '../../../../auth/presentation/view_models/auth_controller.dart';
 import '../../../tickets/printing/bluetooth_esc_pos_printer.dart';
 import '../../../tickets/printing/printer_service.dart';
+import '../../../tickets/printing/sunmi_internal_printer.dart';
 import '../../data/models/pos_profile_models.dart';
 import '../view_models/cashier_home_providers.dart';
 
@@ -110,7 +111,8 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                       icon: Icons.store_rounded,
                       label: translations.translate('pos.profile.tenant'),
                       value: _valueOrDash(
-                        profile.commercial.tenantCode ??
+                        profile.commercial.tenantDisplayName ??
+                            profile.commercial.tenantCode ??
                             profile.commercial.tenantId,
                       ),
                     ),
@@ -518,6 +520,7 @@ class _BluetoothPrinterSettingsState
     extends ConsumerState<_BluetoothPrinterSettings> {
   List<BluetoothPrinterDevice> _devices = const [];
   BluetoothPrinterDevice? _selected;
+  bool _sunmiAvailable = false;
   bool _busy = false;
   String? _error;
 
@@ -529,7 +532,14 @@ class _BluetoothPrinterSettingsState
     super.initState();
     Future<void>(() async {
       final selected = await _repository.selected();
-      if (mounted) setState(() => _selected = selected);
+      final sunmiAvailable = await const SunmiInternalPrinterAdapter()
+          .isAvailable();
+      if (mounted) {
+        setState(() {
+          _selected = selected;
+          _sunmiAvailable = sunmiAvailable;
+        });
+      }
     });
   }
 
@@ -571,17 +581,20 @@ class _BluetoothPrinterSettingsState
       _error = null;
     });
     try {
-      await _repository.write(
-        Uint8List.fromList(const [
-          0x1b, 0x40, // initialize
-          0x1b, 0x61, 0x01, // center
-          0x1b, 0x45, 0x01, // bold
-          84, 99, 104, 97, 108, 97, 110, 101, 116, 10, // Tchalanet
-          0x1b, 0x45, 0x00,
-          80, 114, 105, 110, 116, 32, 79, 75, 10, 10,
-          0x1d, 0x56, 0x00, // full cut when supported
-        ]),
-      );
+      final bytes = Uint8List.fromList(const [
+        0x1b, 0x40, // initialize
+        0x1b, 0x61, 0x01, // center
+        0x1b, 0x45, 0x01, // bold
+        84, 99, 104, 97, 108, 97, 110, 101, 116, 10, // Tchalanet
+        0x1b, 0x45, 0x00,
+        80, 114, 105, 110, 116, 32, 79, 75, 10, 10,
+        0x1d, 0x56, 0x00, // full cut when supported
+      ]);
+      if (_sunmiAvailable) {
+        await const SunmiInternalPrinterAdapter().print(bytes);
+      } else {
+        await _repository.write(bytes);
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -619,8 +632,12 @@ class _BluetoothPrinterSettingsState
           leading: const Icon(Icons.bluetooth_rounded),
           title: Text(translations.translate('pos.settings.printer')),
           subtitle: Text(
-            _selected?.name ??
-                translations.translate('pos.settings.printer_not_configured'),
+            _sunmiAvailable
+                ? 'Sunmi internal printer'
+                : _selected?.name ??
+                      translations.translate(
+                        'pos.settings.printer_not_configured',
+                      ),
           ),
         ),
         Row(
@@ -658,7 +675,7 @@ class _BluetoothPrinterSettingsState
               onTap: _busy ? null : () => _select(device),
             ),
           ),
-        if (_selected != null)
+        if (_sunmiAvailable || _selected != null)
           OutlinedButton.icon(
             onPressed: _busy ? null : _test,
             icon: const Icon(Icons.print_rounded),

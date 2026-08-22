@@ -30,7 +30,7 @@ export class AdminSellerTerminalDetailPage {
     await expect(this.aside).toHaveCount(1);
     await expect(this.identity).toHaveCount(1);
     await expect(this.identity).toBeVisible();
-    await expect(this.main.getByTestId('admin-detail-section')).toHaveCount(4);
+    await expect(this.main.getByTestId('admin-detail-section')).toHaveCount(5);
     // The summary is an identity card in the aside; detail sections remain in the main column.
     await expect(this.aside.getByTestId('admin-detail-section')).toHaveCount(0);
     const actionLinks = this.page.getByTestId('admin-page-actions').getByRole('link');

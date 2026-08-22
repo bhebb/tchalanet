@@ -72,6 +72,19 @@
       </tch-admin-section-card>
 
       <tch-admin-section-card
+        [title]="'platform.ops.clientDiagnostics.title' | translate"
+        icon="bug_report"
+      >
+        <p class="ops-overview__note">
+          {{ 'platform.ops.clientDiagnostics.description' | translate }}
+        </p>
+        <a mat-stroked-button routerLink="/app/platform/ops/client-diagnostics">
+          <mat-icon>arrow_forward</mat-icon>
+          {{ 'platform.ops.clientDiagnostics.action.open' | translate }}
+        </a>
+      </tch-admin-section-card>
+
+      <tch-admin-section-card
         title="Jobs"
         icon="schedule"
         tchSectionErrorTarget="platform.ops.overview.jobs"

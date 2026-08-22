@@ -1,0 +1,19 @@
+<div class="seller-terminal-target-picker">
+  <tch-search-select
+    [label]="tenantLabel()"
+    [placeholder]="tenantPlaceholder()"
+    icon="apartment"
+    [emptyLabel]="tenantEmptyLabel()"
+    [searchFn]="searchTenants"
+    (valueChange)="selectTenant($event)"
+  />
+
+  <tch-search-select
+    [label]="sellerTerminalLabel()"
+    [placeholder]="sellerTerminalPlaceholder()"
+    icon="point_of_sale"
+    [emptyLabel]="sellerTerminalEmptyLabel()"
+    [searchFn]="searchSellerTerminals"
+    (valueChange)="selectSellerTerminal($event)"
+  />
+</div>

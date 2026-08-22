@@ -18,8 +18,8 @@ Promotion vers prod **uniquement si** :
 - [ ] CI du SHA cible verte (tous workflows : `server-pr`, `web-pr`, `edge-pr`)
 - [ ] SHA déployé et smoke-testé en staging (gate `verify-production-promotion`)
 - [ ] Secrets prod complets dans Doppler `prd` + GitHub Secrets (Phase 1)
-- [ ] Postgres et Redis non exposés sur le host (override prod, Phase 2)
-- [ ] Dashboard Traefik inaccessible publiquement (router supprimé, Phase 2)
+- [x] Postgres et Redis non exposés sur le host (`compose/docker-compose-prod-overrides.yml` créé, inclus dans le deploy script pour `ENV=prod`)
+- [x] Dashboard Traefik inaccessible publiquement (router `traefik-dash` supprimé de `traefik/env/prod.yaml`)
 - [ ] Backup prod opérationnel et testé (Phase 8)
 - [ ] Observabilité prod visible dans Grafana (traces + logs, Phase 7)
 - [ ] Canal mobile prod décidé et prêt (Phase 10) :

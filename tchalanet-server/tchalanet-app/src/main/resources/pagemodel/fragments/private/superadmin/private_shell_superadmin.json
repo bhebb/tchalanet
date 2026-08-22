@@ -231,6 +231,13 @@
                 "icon": "schedule"
               },
               {
+                "id": "ops-client-diagnostics",
+                "label_key": "platform.nav.clientDiagnostics",
+                "path": "/app/platform/ops/client-diagnostics",
+                "kind": "internal",
+                "icon": "bug_report"
+              },
+              {
                 "id": "ops-cache",
                 "label_key": "platform.nav.cache",
                 "path": "/app/platform/ops/cache",

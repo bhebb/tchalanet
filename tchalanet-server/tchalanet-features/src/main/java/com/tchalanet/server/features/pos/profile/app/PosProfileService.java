@@ -13,6 +13,7 @@ import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalQuery;
 import com.tchalanet.server.core.sellerterminal.api.query.GetSellerTerminalSettingsQuery;
 import com.tchalanet.server.features.pos.profile.model.PosProfileCommercialInfo;
+import com.tchalanet.server.features.pos.profile.model.PosProfileDiagnosticsInfo;
 import com.tchalanet.server.features.pos.profile.model.PosProfileNotificationSettings;
 import com.tchalanet.server.features.pos.profile.model.PosProfileReceiptSettings;
 import com.tchalanet.server.features.pos.profile.model.PosProfileResponse;
@@ -23,6 +24,9 @@ import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileCommercia
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSettingsRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
+import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +42,8 @@ public class PosProfileService {
 
   private final CommandBus commandBus;
   private final QueryBus queryBus;
+  private final ClientDiagnosticsApi clientDiagnosticsApi;
+  private final TenantConfigApi tenantConfigApi;
 
   public PosProfileResponse profile(TchRequestContext ctx) {
     var sellerTerminalId = ctx.sellerTerminalIdRequired();
@@ -46,6 +52,7 @@ public class PosProfileService {
     var currency = ctx.tenantCurrency() == null ? null : ctx.tenantCurrency();
     var locale = ctx.locale() == null ? Locale.FRENCH : ctx.locale();
     var zone = ctx.tenantZoneId();
+    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdRequest(tenantId));
 
     var displayName =
         terminal.displayName() == null || terminal.displayName().isBlank()
@@ -76,6 +83,7 @@ public class PosProfileService {
         new PosProfileCommercialInfo(
             tenantId.value().toString(),
             ctx.effectiveTenantCode(),
+            tenantDisplayName(tenant.displayName(), tenant.name(), ctx.effectiveTenantCode()),
             currencyCode(currency),
             terminal.commissionRate()),
         new PosProfileSettingsInfo(
@@ -84,7 +92,8 @@ public class PosProfileService {
             currencyCode(currency),
             SUPPORTED_LOCALES,
             toReceiptSettings(settings.receipt()),
-            toNotificationSettings(settings.notifications())));
+            toNotificationSettings(settings.notifications())),
+        toDiagnostics(clientDiagnosticsApi.getPolicy(tenantId, sellerTerminalId)));
   }
 
   public PosProfileResponse updateTerminal(
@@ -180,10 +189,26 @@ public class PosProfileService {
     return new PosProfileNotificationSettings(settings.enabled(), settings.criticalOnly());
   }
 
+  private static PosProfileDiagnosticsInfo toDiagnostics(
+      com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView policy) {
+    return new PosProfileDiagnosticsInfo(
+        policy.enabled(), policy.expiresAt(), policy.maxEvents(), policy.categories());
+  }
+
   private static String sellerDisplayName(String firstName, String lastName, String fallback) {
     var fullName =
         ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
     return fullName.isBlank() ? fallback : fullName;
+  }
+
+  private static String tenantDisplayName(String displayName, String name, String fallback) {
+    if (displayName != null && !displayName.isBlank()) {
+      return displayName;
+    }
+    if (name != null && !name.isBlank()) {
+      return name;
+    }
+    return fallback;
   }
 
   private static String currencyCode(Currency currency) {

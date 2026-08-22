@@ -54,6 +54,7 @@ public final class PermissionKeys {
   // Seller terminals — POS self (hardcoded for SELLER_TERMINAL actor)
   public static final String SELLER_TERMINAL_ME_READ = "seller_terminal.me.read";
   public static final String SELLER_TERMINAL_PIN_CHANGE = "seller_terminal.pin.change";
+  public static final String CLIENT_DIAGNOSTICS_WRITE = "client_diagnostics.write";
 
   // Settings / pricing
   public static final String SETTINGS_READ = "settings.read";

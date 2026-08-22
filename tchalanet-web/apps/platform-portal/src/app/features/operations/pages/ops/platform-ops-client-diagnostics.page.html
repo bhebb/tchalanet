@@ -1,0 +1,259 @@
+<tch-admin-page-shell
+  [title]="'platform.ops.clientDiagnostics.title' | translate"
+  [description]="'platform.ops.clientDiagnostics.description' | translate"
+>
+  <a actions mat-stroked-button routerLink="/app/platform/ops">
+    <mat-icon>arrow_back</mat-icon>
+    {{ 'platform.ops.clientDiagnostics.action.back' | translate }}
+  </a>
+
+  <mat-tab-group class="client-diagnostics__tabs" mat-stretch-tabs="false" animationDuration="150ms">
+    <mat-tab [label]="'platform.ops.clientDiagnostics.tab.monitor' | translate">
+      <div class="client-diagnostics__tab-panel">
+        <div class="client-diagnostics__block">
+          <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.sessions' | translate" icon="playlist_add_check">
+            <button actions mat-stroked-button type="button" (click)="loadDebugSessions()">
+              <mat-icon>refresh</mat-icon>
+              {{ 'platform.ops.clientDiagnostics.action.refreshSessions' | translate }}
+            </button>
+
+            @if (sessionsLoading()) {
+              <tch-loading [label]="'platform.ops.clientDiagnostics.loadingSessions' | translate" />
+            } @else {
+              <div class="client-diagnostics__sessions">
+                @for (session of debugSessions(); track idValue(session.sellerTerminalId)) {
+                  <article class="client-diagnostics__session">
+                    <div>
+                      <strong>{{ session.terminalName || session.terminalCode || idValue(session.sellerTerminalId) }}</strong>
+                      <span>{{ session.tenantName || session.tenantCode || idValue(session.tenantId) }}</span>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>{{ 'platform.ops.clientDiagnostics.field.posCode' | translate }}</dt>
+                        <dd>{{ session.terminalCode || idValue(session.sellerTerminalId) }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ 'platform.ops.clientDiagnostics.field.debugEndsAt' | translate }}</dt>
+                        <dd>{{ session.expiresAt ? (session.expiresAt | date: 'dd/MM/yyyy HH:mm') : '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ 'platform.ops.clientDiagnostics.field.eventCount' | translate }}</dt>
+                        <dd>{{ session.eventCount }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ 'platform.ops.clientDiagnostics.field.lastEvent' | translate }}</dt>
+                        <dd>{{ session.lastEventAt ? (session.lastEventAt | date: 'dd/MM/yyyy HH:mm:ss') : '—' }}</dd>
+                      </div>
+                      <div>
+                        <dt>{{ 'platform.ops.clientDiagnostics.field.status' | translate }}</dt>
+                        <dd>{{ 'platform.ops.clientDiagnostics.status.enabled' | translate }}</dd>
+                      </div>
+                    </dl>
+                    <button mat-stroked-button type="button" (click)="selectDebugSession(session)">
+                      <mat-icon>visibility</mat-icon>
+                      {{ 'platform.ops.clientDiagnostics.action.viewEvents' | translate }}
+                    </button>
+                  </article>
+                } @empty {
+                  <p class="client-diagnostics__empty">{{ 'platform.ops.clientDiagnostics.empty.sessions' | translate }}</p>
+                }
+              </div>
+            }
+          </tch-admin-section-card>
+        </div>
+
+        @if (loading()) {
+          <tch-loading [label]="'platform.ops.clientDiagnostics.loading' | translate" />
+        } @else if (error()) {
+          <tch-error-panel [message]="error() ?? ('platform.ops.clientDiagnostics.error.load' | translate)" />
+        } @else {
+          <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.events' | translate" icon="bug_report">
+            <div class="client-diagnostics__events">
+              <div class="client-diagnostics__events-toolbar">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'platform.ops.clientDiagnostics.field.search' | translate }}</mat-label>
+                  <input matInput [(ngModel)]="eventSearch" name="eventSearch" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'platform.ops.clientDiagnostics.field.category' | translate }}</mat-label>
+                  <input
+                    matInput
+                    [(ngModel)]="eventCategoryFilter"
+                    name="eventCategoryFilter"
+                    [placeholder]="'platform.ops.clientDiagnostics.placeholder.category' | translate"
+                  />
+                </mat-form-field>
+                <mat-checkbox
+                  [checked]="allVisibleEventsSelected()"
+                  (change)="toggleVisibleEvents($event.checked)"
+                >
+                  {{ 'platform.ops.clientDiagnostics.action.selectAll' | translate }}
+                </mat-checkbox>
+                <button mat-stroked-button type="button" (click)="deleteSelectedEvents()" [disabled]="selectedEventCount() === 0 || loading()">
+                  <mat-icon>delete</mat-icon>
+                  {{ 'platform.ops.clientDiagnostics.action.deleteSelected' | translate:{ count: selectedEventCount() } }}
+                </button>
+                <button mat-stroked-button type="button" (click)="load()" [disabled]="loading() || !tenantId || !sellerTerminalId">
+                  <mat-icon>refresh</mat-icon>
+                  {{ 'platform.ops.clientDiagnostics.action.refreshEvents' | translate }}
+                </button>
+              </div>
+              @for (event of filteredEvents(); track event.id) {
+                <article class="client-diagnostics__event">
+                  <div>
+                    <mat-checkbox
+                      [checked]="selectedEventIds().has(event.id)"
+                      (change)="toggleEventSelection(event.id, $event.checked)"
+                    ></mat-checkbox>
+                    <strong>{{ event.category }} · {{ event.severity }}</strong>
+                    <span>{{ event.receivedAtServer | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+                  </div>
+                  <p>{{ event.operation }} @if (event.errorCode) { <span>· {{ event.errorCode }}</span> }</p>
+                  @if (event.message) {
+                    <p class="client-diagnostics__message">{{ event.message }}</p>
+                  }
+                  <dl>
+                    <div><dt>{{ 'platform.ops.clientDiagnostics.field.tenant' | translate }}</dt><dd>{{ eventTenantLabel(event) }}</dd></div>
+                    <div><dt>{{ 'platform.ops.clientDiagnostics.field.sellerTerminal' | translate }}</dt><dd>{{ eventTerminalLabel(event) }}</dd></div>
+                    <div><dt>{{ 'platform.ops.clientDiagnostics.field.http' | translate }}</dt><dd>{{ event.httpStatus ?? '—' }}</dd></div>
+                    <div><dt>{{ 'platform.ops.clientDiagnostics.field.request' | translate }}</dt><dd>{{ event.requestId ?? '—' }}</dd></div>
+                    <div><dt>{{ 'platform.ops.clientDiagnostics.field.printer' | translate }}</dt><dd>{{ event.printerProvider ?? '—' }} {{ event.printerState ?? '' }}</dd></div>
+                    <div><dt>{{ 'platform.ops.clientDiagnostics.field.device' | translate }}</dt><dd>{{ event.platform ?? '—' }} {{ event.deviceModel ?? '' }}</dd></div>
+                  </dl>
+                  <button mat-button type="button" (click)="openEvent(event)">
+                    <mat-icon>read_more</mat-icon>
+                    {{ 'platform.ops.clientDiagnostics.action.detail' | translate }}
+                  </button>
+                </article>
+              } @empty {
+                <p class="client-diagnostics__empty">{{ 'platform.ops.clientDiagnostics.empty.events' | translate }}</p>
+              }
+            </div>
+          </tch-admin-section-card>
+
+          @if (eventDetailLoading()) {
+            <tch-loading [label]="'platform.ops.clientDiagnostics.loadingDetail' | translate" />
+          } @else if (selectedEvent(); as detail) {
+            <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.detail' | translate" icon="article">
+              <button actions mat-stroked-button type="button" (click)="closeEvent()">
+                <mat-icon>close</mat-icon>
+                {{ 'platform.ops.clientDiagnostics.action.closeDetail' | translate }}
+              </button>
+
+              <div class="client-diagnostics__detail-grid">
+                <div><dt>{{ 'platform.ops.clientDiagnostics.field.eventId' | translate }}</dt><dd>{{ detail.eventId }}</dd></div>
+                <div><dt>{{ 'platform.ops.clientDiagnostics.field.exception' | translate }}</dt><dd>{{ detail.exceptionType ?? '—' }}</dd></div>
+                <div><dt>{{ 'platform.ops.clientDiagnostics.field.endpoint' | translate }}</dt><dd>{{ detail.endpointKey ?? '—' }}</dd></div>
+                <div><dt>{{ 'platform.ops.clientDiagnostics.field.appVersion' | translate }}</dt><dd>{{ detail.appVersion ?? '—' }} {{ detail.buildNumber ?? '' }}</dd></div>
+                <div><dt>{{ 'platform.ops.clientDiagnostics.field.os' | translate }}</dt><dd>{{ detail.osVersion ?? '—' }}</dd></div>
+                <div><dt>{{ 'platform.ops.clientDiagnostics.field.printerService' | translate }}</dt><dd>{{ detail.printerService ?? '—' }}</dd></div>
+              </div>
+
+              @if (detail.stackFrames.length) {
+                <div class="client-diagnostics__stack">
+                  <h3>{{ 'platform.ops.clientDiagnostics.field.stackFrames' | translate }}</h3>
+                  @for (frame of detail.stackFrames; track $index) {
+                    <code>{{ frame.symbol ?? '—' }} · {{ frame.file ?? '—' }}:{{ frame.line ?? 0 }}:{{ frame.column ?? 0 }}</code>
+                  }
+                </div>
+              }
+
+              <div class="client-diagnostics__payload">
+                <h3>{{ 'platform.ops.clientDiagnostics.field.sanitizedPayload' | translate }}</h3>
+                <pre>{{ detailJson(detail) }}</pre>
+              </div>
+            </tch-admin-section-card>
+          }
+        }
+      </div>
+    </mat-tab>
+
+    <mat-tab [label]="'platform.ops.clientDiagnostics.tab.activation' | translate">
+      <div class="client-diagnostics__tab-panel">
+        <div class="client-diagnostics__block">
+          <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.target' | translate" icon="filter_alt">
+            <form class="client-diagnostics__filters" (submit)="$event.preventDefault(); load()">
+              <tch-seller-terminal-target-picker
+                [tenantLabel]="'platform.ops.clientDiagnostics.field.tenant' | translate"
+                [tenantPlaceholder]="'platform.ops.clientDiagnostics.placeholder.tenant' | translate"
+                [tenantEmptyLabel]="'platform.ops.clientDiagnostics.empty.tenant' | translate"
+                [sellerTerminalLabel]="'platform.ops.clientDiagnostics.field.sellerTerminal' | translate"
+                [sellerTerminalPlaceholder]="'platform.ops.clientDiagnostics.placeholder.sellerTerminal' | translate"
+                [sellerTerminalEmptyLabel]="'platform.ops.clientDiagnostics.empty.sellerTerminal' | translate"
+                (targetChange)="updateTarget($event)"
+              />
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'platform.ops.clientDiagnostics.field.limit' | translate }}</mat-label>
+                <input matInput [(ngModel)]="limit" name="limit" type="number" min="1" max="200" />
+              </mat-form-field>
+
+              <button mat-flat-button color="primary" type="submit">
+                <mat-icon>refresh</mat-icon>
+                {{ 'platform.ops.clientDiagnostics.action.load' | translate }}
+              </button>
+            </form>
+          </tch-admin-section-card>
+        </div>
+
+        @if (policy()) {
+          <div class="client-diagnostics__block">
+            <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.control' | translate" icon="admin_panel_settings">
+              <div class="client-diagnostics__policy">
+                <div>
+                  <strong>{{ selectedTerminalLabel() ?? ('platform.ops.clientDiagnostics.field.sellerTerminal' | translate) }}</strong>
+                  @if (selectedTenantLabel()) {
+                    <small>{{ selectedTenantLabel() }}</small>
+                  }
+                  <strong>{{ 'platform.ops.clientDiagnostics.field.status' | translate }}</strong>
+                  <span>
+                    {{ (policy()!.enabled ? 'platform.ops.clientDiagnostics.status.enabled' : 'platform.ops.clientDiagnostics.status.disabled') | translate }}
+                    @if (policy()!.expiresAt) {
+                      · {{ 'platform.ops.clientDiagnostics.status.expiresAt' | translate:{ value: (policy()!.expiresAt | date: 'dd/MM/yyyy HH:mm') } }}
+                    }
+                  </span>
+                </div>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'platform.ops.clientDiagnostics.field.debugHours' | translate }}</mat-label>
+                  <input matInput [(ngModel)]="debugHours" name="debugHours" type="number" min="1" max="24" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'platform.ops.clientDiagnostics.field.reason' | translate }}</mat-label>
+                  <input matInput [(ngModel)]="reason" name="reason" maxlength="240" />
+                </mat-form-field>
+
+                <div class="client-diagnostics__categories">
+                  <mat-checkbox [(ngModel)]="includeApi" name="includeApi">API</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includeConnectivity" name="includeConnectivity">CONNECTIVITY</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includeSale" name="includeSale">SALE</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includePrint" name="includePrint">PRINT</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includeScanner" name="includeScanner">SCANNER</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includePrinterConfig" name="includePrinterConfig">PRINTER_CONFIG</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includeFlutter" name="includeFlutter">FLUTTER</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includeAsync" name="includeAsync">ASYNC</mat-checkbox>
+                  <mat-checkbox [(ngModel)]="includeDevice" name="includeDevice">DEVICE</mat-checkbox>
+                </div>
+
+                <div class="client-diagnostics__policy-actions">
+                  <button mat-flat-button color="primary" type="button" (click)="enableDebug()" [disabled]="policyPending()">
+                    <mat-icon>bug_report</mat-icon>
+                    {{ 'platform.ops.clientDiagnostics.action.enable' | translate }}
+                  </button>
+                  <button mat-stroked-button type="button" (click)="disableDebug()" [disabled]="policyPending()">
+                    <mat-icon>bug_report_off</mat-icon>
+                    {{ 'platform.ops.clientDiagnostics.action.disable' | translate }}
+                  </button>
+                </div>
+              </div>
+              @if (notice()) {
+                <p class="client-diagnostics__notice">{{ notice() }}</p>
+              }
+            </tch-admin-section-card>
+          </div>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</tch-admin-page-shell>

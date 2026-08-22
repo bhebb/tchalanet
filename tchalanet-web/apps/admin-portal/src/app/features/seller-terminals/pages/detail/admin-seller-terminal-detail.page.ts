@@ -17,12 +17,9 @@ import { resourceErrorVm, TchAsyncReadyDirective, TchAsyncViewComponent } from '
 
 import {
   SellerTerminalApi,
+  SellerTerminalDailyFinancialRow,
   SellerTerminalView,
 } from '../../data-access/seller-terminal-api.service';
-import {
-  AdminFinancialsApi,
-  SellerTerminalDailyFinancialRow,
-} from '../../../reports/data-access/admin-financials-api.service';
 import { TchNotice } from '@tch/ui/components';
 import {
   SellerTerminalDetailFact,
@@ -59,41 +56,29 @@ import { SellerTerminalDialogResult } from '../list/dialogs/seller-terminal-dial
 export class AdminSellerTerminalDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(SellerTerminalApi);
-  private readonly financialsApi = inject(AdminFinancialsApi);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
 
   readonly actionSuccess = signal<string | null>(null);
 
   readonly sellerTerminalId = this.route.snapshot.paramMap.get('sellerTerminalId');
-  readonly sellerTerminal = this.api.getResource(
+  readonly sellerTerminalDetail = this.api.getDetailResource(
     () => this.sellerTerminalId,
     { suppressShellFeedback: true },
   );
   readonly sellerTerminalError = resourceErrorVm(
-    this.sellerTerminal,
+    this.sellerTerminalDetail,
     'admin.sellerTerminals.detail',
   );
   readonly terminal = computed(() => {
-    if (this.sellerTerminal.status() === 'error') return null;
-    return this.sellerTerminal.value() ?? null;
+    if (this.sellerTerminalDetail.status() === 'error') return null;
+    return this.sellerTerminalDetail.value()?.terminal ?? null;
   });
-  readonly todayFinancials = this.financialsApi.getBreakdownResource(
-    () => ({ drawLimit: 1, sellerTerminalLimit: 500 }),
-    { suppressShellFeedback: true },
-  );
-  readonly todayFinancialsError = resourceErrorVm(
-    this.todayFinancials,
-    'admin.sellerTerminals.detail.today',
-  );
+  readonly tenant = computed(() => this.sellerTerminalDetail.value()?.tenant ?? null);
+  readonly limits = computed(() => this.sellerTerminalDetail.value()?.limits ?? null);
   readonly todayStats = computed<SellerTerminalDailyFinancialRow>(() => {
     const id = this.sellerTerminalId;
-    if (this.todayFinancials.status() === 'error') {
-      return emptyTodayStats(id ?? '');
-    }
-    const row = this.todayFinancials.value()?.sellerTerminalDailyRows
-      .find(item => item.sellerTerminalId === id);
-    return row ?? emptyTodayStats(id ?? '');
+    return this.sellerTerminalDetail.value()?.todayStats ?? emptyTodayStats(id ?? '');
   });
 
   readonly title = computed(() => {
@@ -141,7 +126,7 @@ export class AdminSellerTerminalDetailPage {
         kind: 'percent',
       },
       { labelKey: 'admin.sellerTerminals.detail.field.addressId', value: idValue(terminal.addressId) },
-      { labelKey: 'admin.sellerTerminals.detail.field.tenantId', value: idValue(terminal.tenantId) },
+      { labelKey: 'admin.sellerTerminals.detail.field.tenantId', value: this.tenantLabel() },
     ];
   });
 
@@ -194,6 +179,40 @@ export class AdminSellerTerminalDetailPage {
     ];
   });
 
+  readonly clientDiagnosticsFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
+    const diagnostics = this.sellerTerminalDetail.value()?.clientDiagnostics;
+    if (!diagnostics) {
+      return [
+        {
+          labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsStatus',
+          valueKey: 'admin.sellerTerminals.detail.clientDiagnostics.status.loading',
+        },
+      ];
+    }
+
+    return [
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsStatus',
+        valueKey: diagnostics.enabled
+          ? 'admin.sellerTerminals.detail.clientDiagnostics.status.enabled'
+          : 'admin.sellerTerminals.detail.clientDiagnostics.status.disabled',
+      },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsExpiresAt',
+        value: diagnostics.expiresAt,
+        kind: 'date',
+      },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsCategories',
+        value: diagnostics.categories.length ? diagnostics.categories.join(', ') : null,
+      },
+      {
+        labelKey: 'admin.sellerTerminals.detail.field.clientDiagnosticsMaxEvents',
+        value: diagnostics.maxEvents || null,
+      },
+    ];
+  });
+
   readonly activityFacts = computed<readonly SellerTerminalDetailFact[]>(() => {
     const terminal = this.terminal();
     if (!terminal) return [];
@@ -206,12 +225,11 @@ export class AdminSellerTerminalDetailPage {
   });
 
   reload(): void {
-    this.sellerTerminal.reload();
-    this.todayFinancials.reload();
+    this.sellerTerminalDetail.reload();
   }
 
   reloadTodayStats(): void {
-    this.todayFinancials.reload();
+    this.sellerTerminalDetail.reload();
   }
 
   openBlock(terminal: SellerTerminalView): void {
@@ -248,6 +266,11 @@ export class AdminSellerTerminalDetailPage {
     });
   }
 
+  private tenantLabel(): string | null {
+    const tenant = this.tenant();
+    if (!tenant) return idValue(this.terminal()?.tenantId);
+    return tenant.displayName || tenant.name || tenant.code || idValue(tenant.tenantId);
+  }
 }
 
 function idValue(value: { value?: string | null } | string | null | undefined): string | null {

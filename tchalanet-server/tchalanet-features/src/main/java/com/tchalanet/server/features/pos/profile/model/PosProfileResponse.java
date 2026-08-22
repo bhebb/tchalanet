@@ -5,4 +5,5 @@ public record PosProfileResponse(
     PosProfileTerminalInfo terminal,
     PosProfileSellerInfo seller,
     PosProfileCommercialInfo commercial,
-    PosProfileSettingsInfo settings) {}
+    PosProfileSettingsInfo settings,
+    PosProfileDiagnosticsInfo diagnostics) {}

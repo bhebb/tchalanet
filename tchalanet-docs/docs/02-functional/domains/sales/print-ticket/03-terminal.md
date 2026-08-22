@@ -33,9 +33,18 @@ Provide terminal/POS flows to print tickets using the normative endpoints: ESC/P
 
 - ESC/POS:
   - Fetch bytes; send to printer driver/interface.
+  - The requested receipt paper size comes from the terminal receipt settings.
+  - Direct printer adapters declare their supported paper sizes. A fixed-width
+    device, such as the Sunmi internal printer, declares its own paper-size
+    override instead of forcing all printer clients to use that size.
+  - Sunmi support targets the compatible internal printer service, not a single
+    device generation.
   - If printer error: retry (bounded attempts, e.g., 3) and present recovery options (reprint later, save).
 - PDF fallback:
   - Use when ESC/POS device unavailable.
+- SMS/email fallback:
+  - Use configured customer delivery channels when paper printing is unavailable
+    and the ticket verification code exists.
 - Do not cache prints; respect `Cache-Control: no-store`.
 - Reprint allowed for authorized roles only.
 

@@ -1,20 +1,12 @@
 http:
   routers:
-    traefik-dash:
-      rule: Host(`traefik.tchalanet.com`)
-      entryPoints: [ websecure ]
-      service: api@internal
-      tls:
-        certResolver: letsencrypt
-      middlewares: [ secure-headers@file ]
-
     api:
       rule: Host(`api.tchalanet.com`)
       entryPoints: [websecure]
       service: api-svc
       tls:
         certResolver: letsencrypt
-      middlewares: [secure-headers@file, gzip@file]
+      middlewares: [secure-headers@file, gzip@file, rate-limit-api@file]
 
     edge:
       rule: Host(`edge.tchalanet.com`)
@@ -22,7 +14,7 @@ http:
       service: edge-svc
       tls:
         certResolver: letsencrypt
-      middlewares: [secure-headers@file, gzip@file]
+      middlewares: [secure-headers@file, gzip@file, rate-limit-api@file]
 
   services:
     api-svc:

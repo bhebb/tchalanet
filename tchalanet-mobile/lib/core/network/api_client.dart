@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/firebase_auth_token_client.dart';
+import '../client_diagnostics/api_client_diagnostics_interceptor.dart';
+import '../client_diagnostics/client_diagnostics_reporter.dart';
 import '../config/app_config.dart';
 import '../i18n/i18n_repository.dart';
 import '../notifications/app_notification_controller.dart';
@@ -84,6 +86,11 @@ final apiClientProvider = Provider<Dio>((ref) {
   dio.interceptors.add(
     ApiNoticeInterceptor(
       ref.read(appNotificationProvider.notifier).showApiNotice,
+    ),
+  );
+  dio.interceptors.add(
+    ApiClientDiagnosticsInterceptor(
+      ref.read(clientDiagnosticsReporterProvider),
     ),
   );
 

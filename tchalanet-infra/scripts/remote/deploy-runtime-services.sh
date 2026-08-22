@@ -182,8 +182,11 @@ require_file "compose/docker-compose-project.yml"
 require_file "compose/docker-compose-redis.yml"
 require_file "compose/docker-compose-api.yml"
 require_file "compose/docker-compose-edge-service.yml"
-if [ "$ENV" = "staging" ]; then
+if [ "$ENV" = "staging" ] || [ "$ENV" = "prod" ]; then
   require_file "compose/docker-compose-postgres.yml"
+fi
+if [ "$ENV" = "prod" ]; then
+  require_file "compose/docker-compose-prod-overrides.yml"
 fi
 require_file "scripts/remote/prepare-firebase-admin-credentials.sh"
 require_file "scripts/remote/prepare-server-signing-keys.sh"
@@ -327,8 +330,11 @@ compose_cmd=(
   -f compose/docker-compose-api.yml
   -f compose/docker-compose-edge-service.yml
 )
-if [ "$ENV" = "staging" ]; then
+if [ "$ENV" = "staging" ] || [ "$ENV" = "prod" ]; then
   compose_cmd+=(-f compose/docker-compose-postgres.yml)
+fi
+if [ "$ENV" = "prod" ]; then
+  compose_cmd+=(-f compose/docker-compose-prod-overrides.yml)
 fi
 if [ "$ENABLE_FIREBASE_EMULATOR" = "1" ]; then
   compose_cmd+=(-f compose/docker-compose-firebase-emulator.yml)
@@ -399,8 +405,8 @@ if [ "$FORCE_RECREATE" = "1" ]; then
   up_args+=(--force-recreate)
 fi
 
-if [ "$ENV" = "staging" ] && [ "$DEPLOY_API" = "1" ]; then
-  log "Starting staging Postgres container"
+if ([ "$ENV" = "staging" ] || [ "$ENV" = "prod" ]) && [ "$DEPLOY_API" = "1" ]; then
+  log "Starting Postgres container"
   IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
     "${compose_cmd[@]}" up -d --force-recreate postgres
   for attempt in $(seq 1 24); do

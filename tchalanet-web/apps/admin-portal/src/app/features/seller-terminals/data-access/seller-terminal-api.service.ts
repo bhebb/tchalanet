@@ -3,6 +3,7 @@ import { TchBackendClient, TchPage, TchRequestOptions } from '@tch/api';
 import type { ConsoleSellerTerminalStatus } from '@tch/web/console';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import type { CombinedLimitData } from '../../limits/data-access/admin-limits-api.service';
 
 export type SellerTerminalStatus = Extract<
   ConsoleSellerTerminalStatus,
@@ -43,6 +44,45 @@ export interface SellerTerminalView extends SellerTerminalSummaryRow {
   disabledAt?: string | null;
   mustChangePin?: boolean | null;
   pinResetAt?: string | null;
+}
+
+export interface SellerTerminalClientDiagnosticsView {
+  enabled: boolean;
+  expiresAt?: string | null;
+  maxEvents: number;
+  categories: readonly string[];
+  reason?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface SellerTerminalDailyFinancialRow {
+  readonly sellerTerminalId: string;
+  readonly refDate: string;
+  readonly ticketsSold: number;
+  readonly grossSales: number;
+  readonly sellerCommission: number;
+  readonly buyerCharges: number;
+  readonly sellerCharges: number;
+  readonly tenantCharges: number;
+  readonly waivedCharges: number;
+  readonly promotionLines: number;
+  readonly promotionPricedLines: number;
+  readonly promotionPayoutBase: number;
+  readonly netRevenueEstimated: number;
+  readonly netRevenuePaidBasis: number;
+}
+
+export interface SellerTerminalDetailView {
+  terminal: SellerTerminalView;
+  tenant: {
+    tenantId: { value: string } | string;
+    code: string;
+    name: string;
+    displayName: string;
+  };
+  clientDiagnostics: SellerTerminalClientDiagnosticsView;
+  todayStats?: SellerTerminalDailyFinancialRow | null;
+  limits: CombinedLimitData;
 }
 
 export interface AddressRequest {
@@ -189,6 +229,15 @@ export class SellerTerminalApi {
       const sellerTerminalId = id();
       return sellerTerminalId
         ? { path: `/admin/seller-terminals/${sellerTerminalId}`, options }
+        : undefined;
+    });
+  }
+
+  getDetailResource(id: () => string | null | undefined, options?: TchRequestOptions) {
+    return this.backend.getResource<SellerTerminalDetailView>(() => {
+      const sellerTerminalId = id();
+      return sellerTerminalId
+        ? { path: `/admin/seller-terminals/${sellerTerminalId}/detail`, options }
         : undefined;
     });
   }

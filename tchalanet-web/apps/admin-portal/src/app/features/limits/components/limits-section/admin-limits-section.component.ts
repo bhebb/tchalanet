@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -47,7 +48,6 @@ type LimitGroup = string;
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
     AdminSectionCardComponent,
-    BlockNumberQuickDialogComponent,
   ],
   template: `
     <tch-admin-section-card [title]="sectionTitle()" icon="shield">
@@ -282,6 +282,8 @@ export class AdminLimitsSectionComponent {
   readonly inheritedScopeLabel = input<string | undefined>(undefined);
   readonly allowedRuleKeys = input<RuleKey[] | null>(null);
   readonly effectiveAt = input<string | null>(null);
+  readonly preloadedData = input<CombinedLimitData | null>(null);
+  readonly changed = output<void>();
   // Kept for backwards compat with callers — no longer drives the template
   readonly defaultExpandedGroups = input<LimitGroup[]>([]);
   readonly sectionTitle = input.required<string>();
@@ -308,6 +310,7 @@ export class AdminLimitsSectionComponent {
       targetId: this.targetId,
       inheritedTargetType: this.inheritedTargetType,
       inheritedTargetId: this.inheritedTargetId,
+      preloadedData: this.preloadedData,
     });
 
   readonly loadError = resourceErrorVm(this.combinedResource, 'admin.limits.section');
@@ -383,7 +386,12 @@ export class AdminLimitsSectionComponent {
     ref.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-        if (result) this.combinedResource.reload();
+        if (!result) return;
+        if (this.preloadedData()) {
+          this.changed.emit();
+        } else {
+          this.combinedResource.reload();
+        }
       });
   }
 
@@ -401,7 +409,12 @@ export class AdminLimitsSectionComponent {
     ref.afterClosed()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(result => {
-        if (result) this.combinedResource.reload();
+        if (!result) return;
+        if (this.preloadedData()) {
+          this.changed.emit();
+        } else {
+          this.combinedResource.reload();
+        }
       });
   }
 

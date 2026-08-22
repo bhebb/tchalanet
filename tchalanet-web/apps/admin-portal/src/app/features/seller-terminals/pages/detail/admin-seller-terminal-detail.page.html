@@ -47,7 +47,7 @@
   }
 
   <tch-async-view
-    [resource]="sellerTerminal"
+    [resource]="sellerTerminalDetail"
     [error]="sellerTerminalError()"
     [loadingLabel]="'admin.sellerTerminals.detail.loading' | translate"
     [retryLabel]="'common.retry' | translate"
@@ -59,7 +59,6 @@
           <div main class="seller-terminal-detail__main">
             <tch-seller-terminal-today-stats-card
               [stats]="todayStats()"
-              [error]="todayFinancialsError()"
               (retry)="reloadTodayStats()"
             />
 
@@ -82,6 +81,13 @@
               descriptionKey="admin.sellerTerminals.detail.section.securityDesc"
               icon="lock"
               [facts]="securityFacts()"
+            />
+
+            <tch-seller-terminal-detail-facts-card
+              titleKey="admin.sellerTerminals.detail.section.clientDiagnostics"
+              descriptionKey="admin.sellerTerminals.detail.section.clientDiagnosticsDesc"
+              icon="bug_report"
+              [facts]="clientDiagnosticsFacts()"
             />
 
             <tch-seller-terminal-detail-facts-card
@@ -114,6 +120,8 @@
             [inheritedScopeLabel]="'admin.limits.section.scope.tenant' | translate"
             [sectionTitle]="'sellerTerminal.limitsSection.title' | translate"
             [allowedRuleKeys]="['BLOCK_SELECTION_PER_DRAW', 'MAX_STAKE_EXPOSURE_PER_SELECTION_PER_DRAW']"
+            [preloadedData]="limits()"
+            (changed)="reload()"
           />
         }
       }

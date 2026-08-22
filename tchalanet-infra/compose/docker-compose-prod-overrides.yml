@@ -1,0 +1,21 @@
+# Production overrides — security hardening
+# Include this file in prod deployments to lock down host port exposure.
+#
+# Usage (in deploy-infra-runtime.yml or on the server):
+#   docker compose -f docker-compose-postgres.yml \
+#                  -f docker-compose-redis.yml \
+#                  -f docker-compose-prod-overrides.yml up -d
+#
+# Postgres and Redis must NOT be reachable outside the server.
+# For ad-hoc access use SSH tunnelling:
+#   ssh -L 5432:localhost:5432 prod
+#   ssh -L 6379:localhost:6379 prod
+
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    ports:
+      - "127.0.0.1:6379:6379"

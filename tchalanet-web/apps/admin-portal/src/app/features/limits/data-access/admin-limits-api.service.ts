@@ -2,7 +2,7 @@ import { Injectable, Injector, ResourceRef, Signal, inject } from '@angular/core
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TchBackendClient } from '@tch/api';
 import type { TchRequestOptions } from '@tch/api';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import type {
@@ -64,17 +64,22 @@ export class AdminLimitsApi {
     targetId: Signal<string | null>;
     inheritedTargetType: Signal<TargetType | null>;
     inheritedTargetId: Signal<string | null>;
+    preloadedData?: Signal<CombinedLimitData | null>;
   }): ResourceRef<CombinedLimitData | undefined> {
-    return rxResource<CombinedLimitData, readonly [TargetType, string | null, TargetType | null, string | null]>({
+    return rxResource<CombinedLimitData, readonly [TargetType, string | null, TargetType | null, string | null, CombinedLimitData | null]>({
       injector: this.injector,
       params: () => [
         params.targetType(),
         params.targetId(),
         params.inheritedTargetType(),
         params.inheritedTargetId(),
+        params.preloadedData?.() ?? null,
       ],
       stream: ({ params: p }) => {
-        const [target, targetId, inheritedType, inheritedId] = p;
+        const [target, targetId, inheritedType, inheritedId, preloaded] = p;
+        if (preloaded) {
+          return of(preloaded);
+        }
         const opts: TchRequestOptions = { suppressShellFeedback: true };
 
         if (inheritedType) {

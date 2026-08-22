@@ -1,4 +1,54 @@
+import '../../../../../core/client_diagnostics/client_diagnostics_models.dart';
 import 'cashier_home_models.dart' show idValue;
+
+class PosProfileDiagnosticsInfo {
+  const PosProfileDiagnosticsInfo({
+    required this.enabled,
+    required this.maxEvents,
+    required this.categories,
+    this.expiresAt,
+  });
+
+  final bool enabled;
+  final DateTime? expiresAt;
+  final int maxEvents;
+  final List<String> categories;
+
+  factory PosProfileDiagnosticsInfo.fromJson(Map<String, dynamic> json) =>
+      PosProfileDiagnosticsInfo(
+        enabled: json['enabled'] as bool? ?? false,
+        expiresAt: json['expiresAt'] != null
+            ? DateTime.tryParse(json['expiresAt'] as String)
+            : null,
+        maxEvents: (json['maxEvents'] as num?)?.toInt() ?? 100,
+        categories:
+            (json['categories'] as List<dynamic>?)
+                ?.map((category) => category.toString())
+                .toList() ??
+            const [],
+      );
+
+  ClientDiagnosticsPolicy toPolicy() => ClientDiagnosticsPolicy(
+    enabled: enabled,
+    expiresAt: expiresAt?.toUtc(),
+    maxEvents: maxEvents,
+    categories: categories
+        .map(_diagnosticCategory)
+        .whereType<ClientDiagnosticCategory>()
+        .toSet(),
+  );
+}
+
+ClientDiagnosticCategory? _diagnosticCategory(String value) {
+  final normalized = value.toUpperCase();
+  if (normalized == ClientDiagnosticCategory.printerConfig.wireName) {
+    return ClientDiagnosticCategory.printerConfig;
+  }
+  for (final category in ClientDiagnosticCategory.values) {
+    if (category.wireName == normalized) return category;
+  }
+  return null;
+}
 
 class PosProfileTerminalInfo {
   const PosProfileTerminalInfo({
@@ -71,12 +121,14 @@ class PosProfileCommercialInfo {
   const PosProfileCommercialInfo({
     this.tenantId,
     this.tenantCode,
+    this.tenantDisplayName,
     this.currency,
     this.commissionRate,
   });
 
   final String? tenantId;
   final String? tenantCode;
+  final String? tenantDisplayName;
   final String? currency;
   final num? commissionRate;
 
@@ -84,6 +136,7 @@ class PosProfileCommercialInfo {
       PosProfileCommercialInfo(
         tenantId: idValue(json['tenantId']),
         tenantCode: json['tenantCode'] as String?,
+        tenantDisplayName: json['tenantDisplayName'] as String?,
         currency: json['currency'] as String?,
         commissionRate: json['commissionRate'] as num?,
       );
@@ -175,6 +228,7 @@ class PosProfileResponse {
     required this.seller,
     required this.commercial,
     required this.settings,
+    this.diagnostics,
     this.version,
   });
 
@@ -183,6 +237,7 @@ class PosProfileResponse {
   final PosProfileSellerInfo seller;
   final PosProfileCommercialInfo commercial;
   final PosProfileSettingsInfo settings;
+  final PosProfileDiagnosticsInfo? diagnostics;
 
   factory PosProfileResponse.fromJson(Map<String, dynamic> json) =>
       PosProfileResponse(
@@ -199,5 +254,10 @@ class PosProfileResponse {
         settings: PosProfileSettingsInfo.fromJson(
           (json['settings'] as Map<String, dynamic>?) ?? const {},
         ),
+        diagnostics: json['diagnostics'] is Map<String, dynamic>
+            ? PosProfileDiagnosticsInfo.fromJson(
+                json['diagnostics'] as Map<String, dynamic>,
+              )
+            : null,
       );
 }
