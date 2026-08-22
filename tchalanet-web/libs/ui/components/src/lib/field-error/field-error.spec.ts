@@ -4,7 +4,7 @@ import { Component, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { getTestBed, TestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { TchFieldError } from './field-error';
@@ -19,7 +19,7 @@ describe(TchFieldError.name, () => {
   afterEach(() => TestBed.resetTestingModule());
 
   it('translates local reactive-form validation keys instead of embedding French copy', () => {
-    TestBed.configureTestingModule({ imports: [FieldErrorHost, TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ imports: [FieldErrorHost], providers: [provideTranslateService()] });
     const translate = TestBed.inject(TranslateService);
     translate.setTranslation('ht', {
       common: { validation: { required: 'Chan sa a obligatwa.' } },
@@ -35,7 +35,7 @@ describe(TchFieldError.name, () => {
   });
 
   it('shows every presentation-owned server message for a field', () => {
-    TestBed.configureTestingModule({ imports: [FieldErrorHost, TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ imports: [FieldErrorHost], providers: [provideTranslateService()] });
     const fixture = TestBed.createComponent(FieldErrorHost);
     fixture.componentInstance.control.setErrors({
       server: [
@@ -50,7 +50,7 @@ describe(TchFieldError.name, () => {
   });
 
   it('refreshes when server errors change on the same control instance', () => {
-    TestBed.configureTestingModule({ imports: [FieldErrorHost, TranslateModule.forRoot()] });
+    TestBed.configureTestingModule({ imports: [FieldErrorHost], providers: [provideTranslateService()] });
     const fixture = TestBed.createComponent(FieldErrorHost);
     fixture.detectChanges();
 
