@@ -27,6 +27,11 @@ import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerReq
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.TenantStatus;
+import com.tchalanet.server.platform.tenant.api.model.TenantType;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
+import com.tchalanet.server.platform.tenant.api.model.view.TenantConfigView;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -43,8 +48,9 @@ class PosProfileServiceTest {
   private final CommandBus commandBus = mock(CommandBus.class);
   private final QueryBus queryBus = mock(QueryBus.class);
   private final ClientDiagnosticsApi clientDiagnosticsApi = mock(ClientDiagnosticsApi.class);
+  private final TenantConfigApi tenantConfigApi = mock(TenantConfigApi.class);
   private final PosProfileService service =
-      new PosProfileService(commandBus, queryBus, clientDiagnosticsApi);
+      new PosProfileService(commandBus, queryBus, clientDiagnosticsApi, tenantConfigApi);
 
   private final TenantId tenantId = TenantId.of(UUID.randomUUID());
   private final UserId userId = UserId.of(UUID.randomUUID());
@@ -57,6 +63,7 @@ class PosProfileServiceTest {
         .thenReturn(SellerTerminalSettingsView.defaults());
     when(clientDiagnosticsApi.getPolicy(any(TenantId.class), any(SellerTerminalId.class)))
         .thenReturn(ClientDiagnosticPolicyView.disabled());
+    when(tenantConfigApi.getTenantById(any(GetTenantByIdRequest.class))).thenReturn(tenant());
   }
 
   @Test
@@ -70,6 +77,7 @@ class PosProfileServiceTest {
     assertThat(response.seller().displayName()).isEqualTo("Ada Lovelace");
     assertThat(response.seller().email()).isEqualTo("ada@tchalanet.test");
     assertThat(response.commercial().tenantCode()).isEqualTo("tenant-demo");
+    assertThat(response.commercial().tenantDisplayName()).isEqualTo("Tenant Demo");
     assertThat(response.commercial().currency()).isEqualTo("HTG");
     assertThat(response.commercial().commissionRate()).isEqualByComparingTo("12.50");
     assertThat(response.settings().locale()).isEqualTo("fr-FR");
@@ -78,6 +86,25 @@ class PosProfileServiceTest {
     assertThat(response.settings().receipt().autoPrint()).isTrue();
     assertThat(response.settings().receipt().copyCount()).isEqualTo(1);
     assertThat(response.settings().notifications().enabled()).isTrue();
+  }
+
+  private TenantConfigView tenant() {
+    return new TenantConfigView(
+        tenantId,
+        "tenant-demo",
+        "Tenant Demo Legal",
+        "Tenant Demo",
+        TenantType.BORLETTE,
+        ZoneId.of("America/Port-au-Prince"),
+        Currency.getInstance("HTG"),
+        TenantStatus.ACTIVE,
+        null,
+        null,
+        null,
+        null,
+        new BigDecimal("12.50"),
+        Instant.parse("2026-01-01T00:00:00Z"),
+        Instant.parse("2026-01-01T00:00:00Z"));
   }
 
   @Test

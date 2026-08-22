@@ -16,14 +16,6 @@ import com.tchalanet.server.core.analytics.api.query.GetTenantKpisQuery;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalStatus;
 import com.tchalanet.server.core.sellerterminal.api.model.SellerTerminalSummaryRow;
 import com.tchalanet.server.core.sellerterminal.api.query.ListSellerTerminalsQuery;
-import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticBatchRequest;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventDetailView;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventView;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticIngestionContext;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticIngestionResult;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyRequest;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
 import java.math.BigDecimal;
 import java.time.ZoneId;
 import java.util.Currency;
@@ -41,8 +33,7 @@ class SellerTerminalAdminControllerTest {
   @Test
   void summary_uses_tenant_analytics_for_today() {
     var controller =
-        new SellerTerminalAdminController(
-            new NoopCommandBus(), new SummaryQueryBus(), new NoopClientDiagnosticsApi());
+        new SellerTerminalAdminController(new NoopCommandBus(), new SummaryQueryBus());
 
     var response = controller.summary(context());
 
@@ -136,43 +127,4 @@ class SellerTerminalAdminControllerTest {
     }
   }
 
-  private static final class NoopClientDiagnosticsApi implements ClientDiagnosticsApi {
-    @Override
-    public ClientDiagnosticIngestionResult ingest(
-        ClientDiagnosticIngestionContext context, ClientDiagnosticBatchRequest request) {
-      throw new AssertionError("No diagnostics ingestion expected");
-    }
-
-    @Override
-    public ClientDiagnosticPolicyView getPolicy(
-        TenantId tenantId, SellerTerminalId sellerTerminalId) {
-      return ClientDiagnosticPolicyView.disabled();
-    }
-
-    @Override
-    public ClientDiagnosticPolicyView enablePolicy(
-        TenantId tenantId,
-        SellerTerminalId sellerTerminalId,
-        ClientDiagnosticPolicyRequest request,
-        UUID actorUserId) {
-      throw new AssertionError("No diagnostics enable expected");
-    }
-
-    @Override
-    public ClientDiagnosticPolicyView disablePolicy(
-        TenantId tenantId, SellerTerminalId sellerTerminalId, UUID actorUserId) {
-      throw new AssertionError("No diagnostics disable expected");
-    }
-
-    @Override
-    public List<ClientDiagnosticEventView> recentEvents(
-        TenantId tenantId, SellerTerminalId sellerTerminalId, int limit) {
-      throw new AssertionError("No diagnostics events expected");
-    }
-
-    @Override
-    public ClientDiagnosticEventDetailView eventDetail(UUID eventId) {
-      throw new AssertionError("No diagnostics detail expected");
-    }
-  }
 }

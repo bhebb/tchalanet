@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticCategory;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticDebugSessionView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventDetailView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventView;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +52,35 @@ public class ClientDiagnosticsJdbcRepository {
     } catch (EmptyResultDataAccessException ignored) {
       return ClientDiagnosticPolicyView.disabled();
     }
+  }
+
+  public Optional<ClientDiagnosticResolvedTarget> resolveTarget(
+      String tenantCode, String terminalCode) {
+    var params = new ArrayList<>();
+    var sql =
+        new StringBuilder(
+            """
+        SELECT t.id AS tenant_id, st.id AS seller_terminal_id
+          FROM seller_terminal st
+          JOIN tenant t ON t.id = st.tenant_id AND t.deleted_at IS NULL
+         WHERE st.deleted_at IS NULL
+           AND lower(st.terminal_code) = lower(?)
+        """);
+    params.add(terminalCode);
+    if (tenantCode != null && !tenantCode.isBlank()) {
+      sql.append(" AND lower(t.code) = lower(?)");
+      params.add(tenantCode.trim());
+    }
+    sql.append(" LIMIT 2");
+    var rows =
+        jdbc.query(
+            sql.toString(),
+            (rs, rowNum) ->
+                new ClientDiagnosticResolvedTarget(
+                    TenantId.of(UUID.fromString(rs.getString("tenant_id"))),
+                    SellerTerminalId.of(UUID.fromString(rs.getString("seller_terminal_id")))),
+            params.toArray());
+    return rows.size() == 1 ? Optional.of(rows.getFirst()) : Optional.empty();
   }
 
   public void enablePolicy(
@@ -186,6 +217,46 @@ public class ClientDiagnosticsJdbcRepository {
     return jdbc.query(sql.toString(), (rs, rowNum) -> event(rs), params.toArray());
   }
 
+  public List<ClientDiagnosticDebugSessionView> activeDebugSessions() {
+    return jdbc.query(
+        """
+        SELECT p.tenant_id,
+               t.code AS tenant_code,
+               t.display_name AS tenant_name,
+               p.seller_terminal_id,
+               st.terminal_code,
+               st.display_name AS terminal_name,
+               p.expires_at,
+               p.max_events,
+               p.categories,
+               p.reason,
+               p.updated_at,
+               COALESCE(events.event_count, 0) AS event_count,
+               events.last_event_at,
+               events.last_severity,
+               events.last_category
+          FROM client_diagnostic_policy p
+          JOIN tenant t ON t.id = p.tenant_id AND t.deleted_at IS NULL
+          JOIN seller_terminal st ON st.id = p.seller_terminal_id AND st.deleted_at IS NULL
+          LEFT JOIN LATERAL (
+            SELECT count(*) AS event_count,
+                   max(e.received_at_server) AS last_event_at,
+                   (array_agg(e.severity ORDER BY e.received_at_server DESC))[1] AS last_severity,
+                   (array_agg(e.category ORDER BY e.received_at_server DESC))[1] AS last_category
+              FROM client_diagnostic_event e
+             WHERE e.tenant_id = p.tenant_id
+               AND e.seller_terminal_id = p.seller_terminal_id
+               AND e.deleted_at IS NULL
+          ) events ON true
+         WHERE p.enabled = true
+           AND p.expires_at > now()
+           AND p.deleted_at IS NULL
+         ORDER BY events.last_event_at DESC NULLS LAST, p.expires_at ASC
+         LIMIT 100
+        """,
+        (rs, rowNum) -> debugSession(rs));
+  }
+
   public ClientDiagnosticEventDetailView eventDetail(UUID eventId) {
     return jdbc.queryForObject(
         """
@@ -199,6 +270,21 @@ public class ClientDiagnosticsJdbcRepository {
         """,
         (rs, rowNum) -> eventDetail(rs),
         eventId);
+  }
+
+  public int deleteEvents(List<UUID> eventIds) {
+    var deleted = 0;
+    for (UUID eventId : eventIds) {
+      deleted +=
+          jdbc.update(
+              """
+              UPDATE client_diagnostic_event
+                 SET deleted_at = now()
+               WHERE id = ? AND deleted_at IS NULL
+              """,
+              eventId);
+    }
+    return deleted;
   }
 
   public int countEventsSince(TenantId tenantId, SellerTerminalId sellerTerminalId, Instant since) {
@@ -269,6 +355,27 @@ public class ClientDiagnosticsJdbcRepository {
         rs.getString("device_model"),
         rs.getString("printer_provider"),
         rs.getString("printer_state"));
+  }
+
+  private static ClientDiagnosticDebugSessionView debugSession(ResultSet rs) throws SQLException {
+    var lastSeverity = rs.getString("last_severity");
+    var lastCategory = rs.getString("last_category");
+    return new ClientDiagnosticDebugSessionView(
+        TenantId.of(UUID.fromString(rs.getString("tenant_id"))),
+        rs.getString("tenant_code"),
+        rs.getString("tenant_name"),
+        SellerTerminalId.of(UUID.fromString(rs.getString("seller_terminal_id"))),
+        rs.getString("terminal_code"),
+        rs.getString("terminal_name"),
+        instant(rs, "expires_at"),
+        rs.getInt("max_events"),
+        categories(rs.getArray("categories")),
+        rs.getString("reason"),
+        instant(rs, "updated_at"),
+        rs.getLong("event_count"),
+        instant(rs, "last_event_at"),
+        lastSeverity == null ? null : ClientDiagnosticSeverity.valueOf(lastSeverity),
+        lastCategory == null ? null : ClientDiagnosticCategory.valueOf(lastCategory));
   }
 
   private ClientDiagnosticEventDetailView eventDetail(ResultSet rs) throws SQLException {

@@ -714,8 +714,13 @@
       "clientDiagnostics": {
         "title": "Client diagnostics",
         "description": "POS errors sent by terminals when debug mode is enabled.",
+        "tab": {
+          "monitor": "POS in debug",
+          "activation": "Enable debug"
+        },
         "section": {
           "target": "Target",
+          "sessions": "POS in debug",
           "control": "Ops debug control",
           "events": "Recent events",
           "detail": "Event detail"
@@ -727,6 +732,12 @@
           "status": "Status",
           "debugHours": "Debug duration (hours)",
           "reason": "Ops/support reason",
+          "search": "Search events",
+          "category": "Category",
+          "posCode": "POS code",
+          "debugEndsAt": "Debug ends",
+          "eventCount": "Events",
+          "lastEvent": "Last event",
           "http": "HTTP",
           "request": "Request",
           "printer": "Printer",
@@ -742,11 +753,13 @@
         },
         "placeholder": {
           "tenant": "Search an operator",
-          "sellerTerminal": "Search a terminal in the operator"
+          "sellerTerminal": "Search a terminal in the operator",
+          "category": "API, SALE, PRINT..."
         },
         "empty": {
           "tenant": "No operator found",
           "sellerTerminal": "No terminal found",
+          "sessions": "No POS currently in debug.",
           "events": "No diagnostic event for these filters."
         },
         "status": {
@@ -759,22 +772,31 @@
           "back": "Back to ops",
           "open": "Open diagnostics",
           "load": "Load",
+          "refreshSessions": "Refresh POS in debug",
+          "refreshEvents": "Refresh events",
+          "viewEvents": "View events",
           "enable": "Enable debug",
           "disable": "Disable",
           "detail": "View detail",
-          "closeDetail": "Close detail"
+          "closeDetail": "Close detail",
+          "selectAll": "Select all visible",
+          "deleteSelected": "Delete {{count}} event(s)"
         },
         "loading": "Loading diagnostics...",
+        "loadingSessions": "Loading POS in debug...",
         "loadingDetail": "Loading diagnostic detail...",
         "notice": {
           "enabled": "Debug mode enabled for this terminal.",
-          "disabled": "Debug mode disabled for this terminal."
+          "disabled": "Debug mode disabled for this terminal.",
+          "deleted": "{{count}} event(s) deleted."
         },
         "error": {
           "load": "Client diagnostics unavailable.",
+          "sessions": "Debug sessions unavailable.",
           "policy": "Terminal debug configuration unavailable.",
           "enable": "Unable to enable debug mode.",
           "disable": "Unable to disable debug mode.",
+          "delete": "Unable to delete diagnostic events.",
           "detail": "Diagnostic detail unavailable.",
           "missingEnableInputs": "Operator, terminal, and reason are required to enable debug.",
           "missingCategories": "Select at least one diagnostic category.",

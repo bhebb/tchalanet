@@ -127,11 +127,34 @@ export interface ClientDiagnosticPolicyView {
   updatedAt?: string | null;
 }
 
+export interface ClientDiagnosticDebugSessionView {
+  tenantId: { value: string } | string;
+  tenantCode?: string | null;
+  tenantName?: string | null;
+  sellerTerminalId: { value: string } | string;
+  terminalCode?: string | null;
+  terminalName?: string | null;
+  expiresAt?: string | null;
+  maxEvents: number;
+  categories: readonly string[];
+  reason?: string | null;
+  updatedAt?: string | null;
+  eventCount: number;
+  lastEventAt?: string | null;
+  lastSeverity?: string | null;
+  lastCategory?: string | null;
+}
+
 export interface ClientDiagnosticPolicyRequest {
   expiresAt: string;
   maxEvents: number;
   categories: readonly string[];
   reason: string;
+}
+
+export interface DeleteClientDiagnosticEventsResult {
+  requested: number;
+  deleted: number;
 }
 
 // ── Batch Gates ─────────────────────────────────────────────────────────────
@@ -768,12 +791,32 @@ export class PlatformOpsApi {
     );
   }
 
+  listClientDiagnosticDebugSessions(
+    options?: TchRequestOptions,
+  ): Observable<readonly ClientDiagnosticDebugSessionView[]> {
+    return this.backend.get<readonly ClientDiagnosticDebugSessionView[]>(
+      '/platform/ops/client-diagnostics/debug-sessions',
+      options,
+    );
+  }
+
   getClientDiagnosticEvent(
     eventId: string,
     options?: TchRequestOptions,
   ): Observable<ClientDiagnosticEventDetailView> {
     return this.backend.get<ClientDiagnosticEventDetailView>(
       `/platform/ops/client-diagnostics/events/${encodeURIComponent(eventId)}`,
+      options,
+    );
+  }
+
+  deleteClientDiagnosticEvents(
+    eventIds: readonly string[],
+    options?: TchRequestOptions,
+  ): Observable<DeleteClientDiagnosticEventsResult> {
+    return this.backend.post<DeleteClientDiagnosticEventsResult>(
+      '/platform/ops/client-diagnostics/events:delete',
+      { eventIds },
       options,
     );
   }

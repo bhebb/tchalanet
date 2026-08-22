@@ -8,6 +8,7 @@ import '../core/notifications/app_notification.dart';
 import '../core/notifications/app_notification_controller.dart';
 import '../core/runtime/runtime_controller.dart';
 import '../features/auth/presentation/view_models/auth_controller.dart';
+import '../features/cashier/home/presentation/view_models/cashier_home_providers.dart';
 import '../features/notifications/presentation/view_models/notification_summary_controller.dart';
 
 class RuntimePollingHost extends ConsumerStatefulWidget {
@@ -21,9 +22,12 @@ class RuntimePollingHost extends ConsumerStatefulWidget {
 
 class _RuntimePollingHostState extends ConsumerState<RuntimePollingHost>
     with WidgetsBindingObserver {
+  static const _diagnosticsPolicyRefreshInterval = Duration(minutes: 1);
+
   Timer? _timer;
   bool? _authenticated;
   String? _publicLocale;
+  DateTime? _lastDiagnosticsPolicyRefresh;
 
   @override
   void initState() {
@@ -77,8 +81,27 @@ class _RuntimePollingHostState extends ConsumerState<RuntimePollingHost>
         .read(runtimeControllerProvider.notifier)
         .refreshTenantState();
     _applyRuntimeData();
+    if (outcome != RuntimeRefreshOutcome.sessionExpired) {
+      await _refreshDiagnosticsPolicyIfDue();
+    }
     if (outcome == RuntimeRefreshOutcome.sessionExpired && mounted) {
       await ref.read(authControllerProvider.notifier).logout();
+    }
+  }
+
+  Future<void> _refreshDiagnosticsPolicyIfDue() async {
+    final now = DateTime.now();
+    final lastRefresh = _lastDiagnosticsPolicyRefresh;
+    if (lastRefresh != null &&
+        now.difference(lastRefresh) < _diagnosticsPolicyRefreshInterval) {
+      return;
+    }
+    _lastDiagnosticsPolicyRefresh = now;
+    try {
+      ref.invalidate(posProfileProvider);
+      await ref.read(posProfileProvider.future);
+    } catch (_) {
+      // Client diagnostics are ops/support best-effort and must never impact POS flows.
     }
   }
 

@@ -25,6 +25,8 @@ import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSellerReq
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileSettingsRequest;
 import com.tchalanet.server.features.pos.profile.model.UpdatePosProfileTerminalRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
+import com.tchalanet.server.platform.tenant.api.TenantConfigApi;
+import com.tchalanet.server.platform.tenant.api.model.request.GetTenantByIdRequest;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +43,7 @@ public class PosProfileService {
   private final CommandBus commandBus;
   private final QueryBus queryBus;
   private final ClientDiagnosticsApi clientDiagnosticsApi;
+  private final TenantConfigApi tenantConfigApi;
 
   public PosProfileResponse profile(TchRequestContext ctx) {
     var sellerTerminalId = ctx.sellerTerminalIdRequired();
@@ -49,6 +52,7 @@ public class PosProfileService {
     var currency = ctx.tenantCurrency() == null ? null : ctx.tenantCurrency();
     var locale = ctx.locale() == null ? Locale.FRENCH : ctx.locale();
     var zone = ctx.tenantZoneId();
+    var tenant = tenantConfigApi.getTenantById(new GetTenantByIdRequest(tenantId));
 
     var displayName =
         terminal.displayName() == null || terminal.displayName().isBlank()
@@ -79,6 +83,7 @@ public class PosProfileService {
         new PosProfileCommercialInfo(
             tenantId.value().toString(),
             ctx.effectiveTenantCode(),
+            tenantDisplayName(tenant.displayName(), tenant.name(), ctx.effectiveTenantCode()),
             currencyCode(currency),
             terminal.commissionRate()),
         new PosProfileSettingsInfo(
@@ -194,6 +199,16 @@ public class PosProfileService {
     var fullName =
         ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
     return fullName.isBlank() ? fallback : fullName;
+  }
+
+  private static String tenantDisplayName(String displayName, String name, String fallback) {
+    if (displayName != null && !displayName.isBlank()) {
+      return displayName;
+    }
+    if (name != null && !name.isBlank()) {
+      return name;
+    }
+    return fallback;
   }
 
   private static String currencyCode(Currency currency) {

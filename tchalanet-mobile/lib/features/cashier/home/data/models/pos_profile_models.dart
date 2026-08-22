@@ -121,12 +121,14 @@ class PosProfileCommercialInfo {
   const PosProfileCommercialInfo({
     this.tenantId,
     this.tenantCode,
+    this.tenantDisplayName,
     this.currency,
     this.commissionRate,
   });
 
   final String? tenantId;
   final String? tenantCode;
+  final String? tenantDisplayName;
   final String? currency;
   final num? commissionRate;
 
@@ -134,6 +136,7 @@ class PosProfileCommercialInfo {
       PosProfileCommercialInfo(
         tenantId: idValue(json['tenantId']),
         tenantCode: json['tenantCode'] as String?,
+        tenantDisplayName: json['tenantDisplayName'] as String?,
         currency: json['currency'] as String?,
         commissionRate: json['commissionRate'] as num?,
       );

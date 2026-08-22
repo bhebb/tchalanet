@@ -6,10 +6,13 @@ import com.tchalanet.server.common.types.id.SellerTerminalId;
 import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticDebugSessionView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventDetailView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.DeleteClientDiagnosticEventsRequest;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.DeleteClientDiagnosticEventsResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -80,8 +83,19 @@ public class PlatformClientDiagnosticsController {
             limit));
   }
 
+  @GetMapping("/debug-sessions")
+  public ApiResponse<List<ClientDiagnosticDebugSessionView>> activeDebugSessions() {
+    return ApiResponse.success(clientDiagnosticsApi.activeDebugSessions());
+  }
+
   @GetMapping("/events/{eventId}")
   public ApiResponse<ClientDiagnosticEventDetailView> eventDetail(@PathVariable UUID eventId) {
     return ApiResponse.success(clientDiagnosticsApi.eventDetail(eventId));
+  }
+
+  @PostMapping("/events:delete")
+  public ApiResponse<DeleteClientDiagnosticEventsResult> deleteEvents(
+      @Valid @RequestBody DeleteClientDiagnosticEventsRequest request) {
+    return ApiResponse.success(clientDiagnosticsApi.deleteEvents(request.eventIds()));
   }
 }

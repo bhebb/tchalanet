@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 
 import 'client_diagnostics_models.dart';
@@ -7,6 +9,15 @@ class ApiClientDiagnosticsInterceptor extends Interceptor {
   ApiClientDiagnosticsInterceptor(this._reporter);
 
   final ClientDiagnosticsReporter _reporter;
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final path = response.requestOptions.path;
+    if (!path.contains('/client-diagnostics/')) {
+      unawaited(_reporter.flush());
+    }
+    handler.next(response);
+  }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {

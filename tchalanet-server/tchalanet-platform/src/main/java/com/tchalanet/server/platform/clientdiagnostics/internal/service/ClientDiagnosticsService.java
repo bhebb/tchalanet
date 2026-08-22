@@ -5,6 +5,7 @@ import com.tchalanet.server.common.types.id.TenantId;
 import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticBatchRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticCategory;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticDebugSessionView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventDetailView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticEventView;
@@ -13,6 +14,9 @@ import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosti
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticIngestionStatus;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPublicBatchRequest;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPublicPolicyRequest;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.DeleteClientDiagnosticEventsResult;
 import com.tchalanet.server.platform.clientdiagnostics.internal.persistence.ClientDiagnosticsJdbcRepository;
 import java.time.Duration;
 import java.time.Instant;
@@ -102,6 +106,37 @@ public class ClientDiagnosticsService implements ClientDiagnosticsApi {
   }
 
   @Override
+  public ClientDiagnosticPolicyView publicPolicy(ClientDiagnosticPublicPolicyRequest request) {
+    return repository
+        .resolveTarget(request.tenantCode(), request.terminalCode())
+        .map(target -> getPolicy(target.tenantId(), target.sellerTerminalId()))
+        .orElseGet(ClientDiagnosticPolicyView::disabled);
+  }
+
+  @Override
+  public ClientDiagnosticIngestionResult ingestPublic(
+      String requestId, ClientDiagnosticPublicBatchRequest request) {
+    var receivedAtServer = Instant.now();
+    var received = request.events().size();
+    return repository
+        .resolveTarget(request.tenantCode(), request.terminalCode())
+        .map(
+            target ->
+                ingest(
+                    new ClientDiagnosticIngestionContext(
+                        target.tenantId(), target.sellerTerminalId(), requestId, receivedAtServer),
+                    new ClientDiagnosticBatchRequest(request.events())))
+        .orElseGet(
+            () ->
+                new ClientDiagnosticIngestionResult(
+                    ClientDiagnosticIngestionStatus.DISABLED,
+                    received,
+                    0,
+                    received,
+                    receivedAtServer));
+  }
+
+  @Override
   public ClientDiagnosticPolicyView getPolicy(
       TenantId tenantId, SellerTerminalId sellerTerminalId) {
     var policy = repository.getPolicy(tenantId, sellerTerminalId);
@@ -156,7 +191,18 @@ public class ClientDiagnosticsService implements ClientDiagnosticsApi {
   }
 
   @Override
+  public List<ClientDiagnosticDebugSessionView> activeDebugSessions() {
+    return repository.activeDebugSessions();
+  }
+
+  @Override
   public ClientDiagnosticEventDetailView eventDetail(UUID eventId) {
     return repository.eventDetail(eventId);
+  }
+
+  @Override
+  public DeleteClientDiagnosticEventsResult deleteEvents(List<UUID> eventIds) {
+    var deleted = repository.deleteEvents(eventIds);
+    return new DeleteClientDiagnosticEventsResult(eventIds.size(), deleted);
   }
 }

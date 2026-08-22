@@ -714,8 +714,13 @@
       "clientDiagnostics": {
         "title": "Dyagnostik kliyan",
         "description": "Erè POS tèminal yo voye lè mòd debug aktive.",
+        "tab": {
+          "monitor": "POS ki an debug",
+          "activation": "Aktive debug"
+        },
         "section": {
           "target": "Sib",
+          "sessions": "POS ki an debug",
           "control": "Kontwòl debug ops",
           "events": "Dènye evènman yo",
           "detail": "Detay evènman"
@@ -727,6 +732,12 @@
           "status": "Eta",
           "debugHours": "Dire debug (èdtan)",
           "reason": "Rezon ops/sipò",
+          "search": "Chèche evènman",
+          "category": "Kategori",
+          "posCode": "Kòd POS",
+          "debugEndsAt": "Fen debug",
+          "eventCount": "Evènman",
+          "lastEvent": "Dènye evènman",
           "http": "HTTP",
           "request": "Request",
           "printer": "Enprimant",
@@ -742,11 +753,13 @@
         },
         "placeholder": {
           "tenant": "Chèche yon santral",
-          "sellerTerminal": "Chèche yon tèminal nan santral la"
+          "sellerTerminal": "Chèche yon tèminal nan santral la",
+          "category": "API, SALE, PRINT..."
         },
         "empty": {
           "tenant": "Pa gen santral",
           "sellerTerminal": "Pa gen tèminal",
+          "sessions": "Pa gen POS ki an debug kounye a.",
           "events": "Pa gen evènman dyagnostik pou filtè sa yo."
         },
         "status": {
@@ -759,22 +772,31 @@
           "back": "Retounen ops",
           "open": "Louvri dyagnostik",
           "load": "Chaje",
+          "refreshSessions": "Rafrechi POS ki an debug",
+          "refreshEvents": "Rafrechi evènman yo",
+          "viewEvents": "Gade evènman yo",
           "enable": "Aktive debug",
           "disable": "Dezaktive",
           "detail": "Gade detay",
-          "closeDetail": "Fèmen detay"
+          "closeDetail": "Fèmen detay",
+          "selectAll": "Chwazi tout sa ki vizib",
+          "deleteSelected": "Efase {{count}} evènman"
         },
         "loading": "Ap chaje dyagnostik yo...",
+        "loadingSessions": "Ap chaje POS ki an debug yo...",
         "loadingDetail": "Ap chaje detay dyagnostik la...",
         "notice": {
           "enabled": "Mòd debug aktive pou tèminal sa a.",
-          "disabled": "Mòd debug dezaktive pou tèminal sa a."
+          "disabled": "Mòd debug dezaktive pou tèminal sa a.",
+          "deleted": "{{count}} evènman efase."
         },
         "error": {
           "load": "Dyagnostik kliyan pa disponib.",
+          "sessions": "Sesyon debug yo pa disponib.",
           "policy": "Konfigirasyon debug tèminal la pa disponib.",
           "enable": "Pa ka aktive mòd debug la.",
           "disable": "Pa ka dezaktive mòd debug la.",
+          "delete": "Pa ka efase evènman yo.",
           "detail": "Detay dyagnostik la pa disponib.",
           "missingEnableInputs": "Santral, tèminal ak rezon obligatwa pou aktive debug.",
           "missingCategories": "Chwazi omwen yon kategori dyagnostik.",

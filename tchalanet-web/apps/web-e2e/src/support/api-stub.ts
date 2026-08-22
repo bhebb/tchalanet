@@ -934,49 +934,49 @@ export class ApiStub {
   async adminSellerTerminalDetail(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.apiRoute(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/seller-terminals\/stub-terminal-1\/detail(?:\?|$)/, r =>
       json(
         r,
         envelope({
-          id: { value: 'stub-terminal-1' },
-          tenantId: { value: 'stub-tenant' },
-          terminalCode: 'POS-001',
-          displayName: 'Bhebbb',
-          firstName: 'Stevens',
-          lastName: 'Nelson',
-          email: 'stevens@example.test',
-          phoneNumber: '+509 3700 0000',
-          status: 'ACTIVE',
-          commissionRate: 13,
-          addressId: { value: 'stub-address' },
-          activatedAt: '2026-07-23T19:20:00Z',
-          lastSeenAt: '2026-07-31T13:08:00Z',
-          blockedAt: null,
-          blockedReason: null,
-          disabledAt: null,
-          mustChangePin: false,
-          pinResetAt: null,
-        }),
-      ),
-    );
-    await this.apiRoute(/\/admin\/policies\/limits\/rules(?:\?|$)/, (r) => json(r, envelope(limitRulesStub)));
-    await this.apiRoute(/\/admin\/policies\/limits\/assignments(?:\?|$)/, (r) => {
-      if (r.request().method() === 'PUT') {
-        return json(r, envelope({ id: { value: 'limit-assignment-new' } }));
-      }
-      return json(r, envelope({ limitScopeRef: null, items: limitAssignmentsStub }));
-    });
-    await this.apiRoute(/\/admin\/financials\/breakdown(?:\?|$)/, r =>
-      json(
-        r,
-        envelope({
-          from: '2026-07-31',
-          to: '2026-07-31',
-          summary: {
+          terminal: {
+            id: { value: 'stub-terminal-1' },
+            tenantId: { value: 'stub-tenant' },
+            terminalCode: 'POS-001',
+            displayName: 'Bhebbb',
+            firstName: 'Stevens',
+            lastName: 'Nelson',
+            email: 'stevens@example.test',
+            phoneNumber: '+509 3700 0000',
+            status: 'ACTIVE',
+            commissionRate: 13,
+            addressId: { value: 'stub-address' },
+            activatedAt: '2026-07-23T19:20:00Z',
+            lastSeenAt: '2026-07-31T13:08:00Z',
+            blockedAt: null,
+            blockedReason: null,
+            disabledAt: null,
+            mustChangePin: false,
+            pinResetAt: null,
+          },
+          tenant: {
+            tenantId: { value: 'stub-tenant' },
+            code: 'tchalanet',
+            name: 'Tchalanet LLC',
+            displayName: 'Tchalanet',
+          },
+          clientDiagnostics: {
+            enabled: true,
+            expiresAt: '2026-08-22T12:53:00Z',
+            maxEvents: 100,
+            categories: ['API', 'CONNECTIVITY', 'SALE', 'PRINT'],
+            reason: 'Support test',
+            updatedAt: '2026-08-22T10:53:00Z',
+          },
+          todayStats: {
+            sellerTerminalId: 'stub-terminal-1',
+            refDate: '2026-07-31',
             ticketsSold: 4,
             grossSales: 1894,
-            winningsCalculated: 0,
-            payoutsPaid: 0,
             sellerCommission: 246.22,
             buyerCharges: 0,
             sellerCharges: 0,
@@ -984,34 +984,23 @@ export class ApiStub {
             waivedCharges: 0,
             promotionLines: 0,
             promotionPricedLines: 0,
-            promotionPayoutBase: 0,
             netRevenueEstimated: 1647.78,
             netRevenuePaidBasis: 1647.78,
           },
-          dailyRows: [],
-          drawRows: [],
-          sellerTerminalDrawRows: [],
-          sellerTerminalDailyRows: [
-            {
-              sellerTerminalId: 'stub-terminal-1',
-              refDate: '2026-07-31',
-              ticketsSold: 4,
-              grossSales: 1894,
-              sellerCommission: 246.22,
-              buyerCharges: 0,
-              sellerCharges: 0,
-              tenantCharges: 0,
-              waivedCharges: 0,
-              promotionLines: 0,
-              promotionPricedLines: 0,
-              promotionPayoutBase: 0,
-              netRevenueEstimated: 1647.78,
-              netRevenuePaidBasis: 1647.78,
-            },
-          ],
+          limits: {
+            specs: limitRulesStub,
+            assignments: limitAssignmentsStub,
+            inheritedAssignments: [],
+          },
         }),
       ),
     );
+    await this.apiRoute(/\/admin\/policies\/limits\/assignments(?:\?|$)/, (r) => {
+      if (r.request().method() === 'PUT') {
+        return json(r, envelope({ id: { value: 'limit-assignment-new' } }));
+      }
+      return unexpectedApiCall(r);
+    });
   }
 
   /** Deterministic seller configuration data used by the pricing override flow. */
@@ -1170,7 +1159,7 @@ export class ApiStub {
   async adminSellerTerminalDetailError(): Promise<void> {
     if (!this.enabled) return;
 
-    await this.apiRoute(/\/admin\/seller-terminals\/stub-terminal-1(?:\?|$)/, r =>
+    await this.apiRoute(/\/admin\/seller-terminals\/stub-terminal-1\/detail(?:\?|$)/, r =>
       json(r, problemDetail('admin.sellerTerminal.unavailable', 'req-terminal-detail-503'), 503),
     );
   }

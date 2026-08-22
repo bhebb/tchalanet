@@ -6,6 +6,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
@@ -16,6 +17,7 @@ import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import {
   ClientDiagnosticEventView,
   ClientDiagnosticEventDetailView,
+  ClientDiagnosticDebugSessionView,
   ClientDiagnosticPolicyView,
   PlatformOpsApi,
 } from '../../data-access/platform-ops-api.service';
@@ -43,6 +45,7 @@ import {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
+    MatTabsModule,
   ],
   templateUrl: './platform-ops-client-diagnostics.page.html',
   styleUrls: ['./platform-ops-client-diagnostics.page.scss'],
@@ -54,8 +57,11 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly notice = signal<string | null>(null);
+  readonly sessionsLoading = signal(false);
+  readonly debugSessions = signal<readonly ClientDiagnosticDebugSessionView[]>([]);
   readonly events = signal<readonly ClientDiagnosticEventView[]>([]);
   readonly selectedEvent = signal<ClientDiagnosticEventDetailView | null>(null);
+  readonly selectedEventIds = signal<ReadonlySet<string>>(new Set<string>());
   readonly eventDetailLoading = signal(false);
   readonly policy = signal<ClientDiagnosticPolicyView | null>(null);
   readonly policyPending = signal(false);
@@ -67,6 +73,8 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
   tenantId = '';
   sellerTerminalId = '';
   limit = 100;
+  eventSearch = '';
+  eventCategoryFilter = '';
   debugHours = 2;
   reason = '';
   includeApi = true;
@@ -80,7 +88,22 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
   includeDevice = true;
 
   ngOnInit(): void {
-    this.load();
+    this.loadDebugSessions();
+  }
+
+  loadDebugSessions(): void {
+    this.sessionsLoading.set(true);
+    this.error.set(null);
+    this.api.listClientDiagnosticDebugSessions({ suppressShellFeedback: true }).subscribe({
+      next: sessions => {
+        this.debugSessions.set(sessions);
+        this.sessionsLoading.set(false);
+      },
+      error: () => {
+        this.error.set(this.t('platform.ops.clientDiagnostics.error.sessions'));
+        this.sessionsLoading.set(false);
+      },
+    });
   }
 
   load(): void {
@@ -96,9 +119,10 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     ).subscribe({
       next: events => {
         this.events.set(events);
-        if (events.length > 0) {
+        this.selectedEventIds.set(new Set<string>());
+        if (this.tenantId.trim() && this.sellerTerminalId.trim()) {
           this.targetCollapsed.set(true);
-          this.controlCollapsed.set(true);
+          this.controlCollapsed.set(events.length > 0);
         }
         this.loading.set(false);
         this.loadPolicyIfTargeted();
@@ -117,10 +141,25 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     this.selectedTerminalLabel.set(this.terminalLabel(selection));
     this.policy.set(null);
     this.events.set([]);
+    this.selectedEventIds.set(new Set<string>());
     this.selectedEvent.set(null);
     this.targetCollapsed.set(false);
     this.controlCollapsed.set(false);
     this.loadPolicyIfTargeted();
+  }
+
+  selectDebugSession(session: ClientDiagnosticDebugSessionView): void {
+    this.tenantId = this.idValue(session.tenantId);
+    this.sellerTerminalId = this.idValue(session.sellerTerminalId);
+    this.selectedTenantLabel.set(this.tenantLabel(session));
+    this.selectedTerminalLabel.set(this.debugSessionTerminalLabel(session));
+    this.policy.set(null);
+    this.events.set([]);
+    this.selectedEventIds.set(new Set<string>());
+    this.selectedEvent.set(null);
+    this.targetCollapsed.set(true);
+    this.controlCollapsed.set(true);
+    this.load();
   }
 
   toggleTargetCollapsed(): void {
@@ -163,6 +202,7 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
         this.policy.set(policy);
         this.notice.set(this.t('platform.ops.clientDiagnostics.notice.enabled'));
         this.policyPending.set(false);
+        this.loadDebugSessions();
       },
       error: (err: unknown) => {
         this.error.set(this.errorMessage(err, 'platform.ops.clientDiagnostics.error.enable'));
@@ -186,6 +226,7 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
         this.policy.set(policy);
         this.notice.set(this.t('platform.ops.clientDiagnostics.notice.disabled'));
         this.policyPending.set(false);
+        this.loadDebugSessions();
       },
       error: (err: unknown) => {
         this.error.set(this.errorMessage(err, 'platform.ops.clientDiagnostics.error.disable'));
@@ -217,8 +258,96 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     this.selectedEvent.set(null);
   }
 
+  selectedEventCount(): number {
+    return this.selectedEventIds().size;
+  }
+
+  filteredEvents(): readonly ClientDiagnosticEventView[] {
+    const category = this.eventCategoryFilter.trim().toUpperCase();
+    const search = this.eventSearch.trim().toLowerCase();
+    return this.events().filter(event => {
+      const matchesCategory = !category || event.category === category;
+      const haystack = [
+        event.category,
+        event.severity,
+        event.operation,
+        event.errorCode,
+        event.message,
+        event.endpointKey,
+        event.requestId,
+        this.eventTenantLabel(event),
+        this.eventTerminalLabel(event),
+      ].filter(Boolean).join(' ').toLowerCase();
+      return matchesCategory && (!search || haystack.includes(search));
+    });
+  }
+
+  allVisibleEventsSelected(): boolean {
+    const visible = this.filteredEvents();
+    return visible.length > 0 && visible.every(event => this.selectedEventIds().has(event.id));
+  }
+
+  toggleEventSelection(eventId: string, checked: boolean): void {
+    const next = new Set(this.selectedEventIds());
+    if (checked) {
+      next.add(eventId);
+    } else {
+      next.delete(eventId);
+    }
+    this.selectedEventIds.set(next);
+  }
+
+  toggleVisibleEvents(checked: boolean): void {
+    const next = new Set(this.selectedEventIds());
+    for (const event of this.filteredEvents()) {
+      if (checked) {
+        next.add(event.id);
+      } else {
+        next.delete(event.id);
+      }
+    }
+    this.selectedEventIds.set(next);
+  }
+
+  deleteSelectedEvents(): void {
+    const eventIds = [...this.selectedEventIds()];
+    if (eventIds.length === 0) return;
+    this.loading.set(true);
+    this.error.set(null);
+    this.api.deleteClientDiagnosticEvents(eventIds, { suppressShellFeedback: true }).subscribe({
+      next: result => {
+        this.notice.set(
+          this.t('platform.ops.clientDiagnostics.notice.deleted', { count: result.deleted }),
+        );
+        this.selectedEventIds.set(new Set<string>());
+        this.selectedEvent.set(null);
+        this.loading.set(false);
+        this.load();
+        this.loadDebugSessions();
+      },
+      error: (err: unknown) => {
+        this.error.set(this.errorMessage(err, 'platform.ops.clientDiagnostics.error.delete'));
+        this.loading.set(false);
+      },
+    });
+  }
+
   detailJson(detail: ClientDiagnosticEventDetailView): string {
     return JSON.stringify(detail, null, 2);
+  }
+
+  eventTenantLabel(event: ClientDiagnosticEventView): string {
+    if (this.matchesSelectedTarget(event)) {
+      return this.selectedTenantLabel() ?? this.idValue(event.tenantId);
+    }
+    return this.idValue(event.tenantId);
+  }
+
+  eventTerminalLabel(event: ClientDiagnosticEventView): string {
+    if (this.matchesSelectedTarget(event)) {
+      return this.selectedTerminalLabel() ?? this.idValue(event.sellerTerminalId);
+    }
+    return this.idValue(event.sellerTerminalId);
   }
 
   private loadPolicyIfTargeted(): void {
@@ -237,8 +366,8 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     });
   }
 
-  private t(key: string): string {
-    return this.translate.instant(key);
+  private t(key: string, params?: Record<string, unknown>): string {
+    return this.translate.instant(key, params);
   }
 
   private errorMessage(err: unknown, fallbackKey: string): string {
@@ -267,5 +396,20 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     const terminal = selection.sellerTerminal;
     if (!terminal) return null;
     return [terminal.displayName, terminal.terminalCode].filter(Boolean).join(' · ');
+  }
+
+  private tenantLabel(session: ClientDiagnosticDebugSessionView): string {
+    return [session.tenantName, session.tenantCode].filter(Boolean).join(' · ') || this.idValue(session.tenantId);
+  }
+
+  private debugSessionTerminalLabel(session: ClientDiagnosticDebugSessionView): string {
+    return [session.terminalName, session.terminalCode].filter(Boolean).join(' · ') || this.idValue(session.sellerTerminalId);
+  }
+
+  private matchesSelectedTarget(event: ClientDiagnosticEventView): boolean {
+    return (
+      this.idValue(event.tenantId) === this.tenantId &&
+      this.idValue(event.sellerTerminalId) === this.sellerTerminalId
+    );
   }
 }

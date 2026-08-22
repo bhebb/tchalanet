@@ -13,6 +13,7 @@ class ClientDiagnosticsQueue {
 
   bool get isEmpty => _events.isEmpty;
   bool get isNotEmpty => _events.isNotEmpty;
+  List<ClientDiagnosticEvent> get all => List.unmodifiable(_events);
 
   void add(ClientDiagnosticEvent event, {required int policyMaxEvents}) {
     if (_isDuplicate(event)) return;
@@ -26,12 +27,25 @@ class ClientDiagnosticsQueue {
     _pruneFingerprints(event.occurredAtClient.toUtc());
   }
 
+  void addAll(
+    Iterable<ClientDiagnosticEvent> events, {
+    required int policyMaxEvents,
+  }) {
+    for (final event in events) {
+      add(event, policyMaxEvents: policyMaxEvents);
+    }
+  }
+
   List<ClientDiagnosticEvent> take(int maxBatchSize) =>
       _events.take(maxBatchSize).toList(growable: false);
 
   void removeFirst(int count) {
     if (count <= 0) return;
     _events.removeRange(0, count.clamp(0, _events.length));
+  }
+
+  void removeWhere(bool Function(ClientDiagnosticEvent event) test) {
+    _events.removeWhere(test);
   }
 
   void clear() {

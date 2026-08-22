@@ -33,6 +33,7 @@ final posProfileProvider = FutureProvider<PosProfileResponse>((ref) async {
   ref
       .read(clientDiagnosticsPolicyProvider.notifier)
       .setPolicy(profile.diagnostics?.toPolicy());
+  await ref.read(clientDiagnosticsReporterProvider).flush();
   return profile;
 });
 

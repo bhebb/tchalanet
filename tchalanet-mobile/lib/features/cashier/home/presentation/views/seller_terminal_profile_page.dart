@@ -111,7 +111,8 @@ class SellerTerminalProfilePage extends ConsumerWidget {
                       icon: Icons.store_rounded,
                       label: translations.translate('pos.profile.tenant'),
                       value: _valueOrDash(
-                        profile.commercial.tenantCode ??
+                        profile.commercial.tenantDisplayName ??
+                            profile.commercial.tenantCode ??
                             profile.commercial.tenantId,
                       ),
                     ),

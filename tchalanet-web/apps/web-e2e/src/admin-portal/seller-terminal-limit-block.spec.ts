@@ -12,8 +12,8 @@ import { credsFor } from '../support/env';
  * Covers:
  * - Limit section renders below the detail layout without error
  * - The section uses SELLER_TERMINAL scope (inherits from TENANT)
- * - Rows without an assignment show the unconfigured ("Non configuré") state
- * - Edit action opens the upsert dialog
+ * - Preloaded assignments render without extra fetches
+ * - Add action opens the upsert dialog
  *
  * Auth: tenant admin via Firebase emulator. REST stubs provide deterministic
  * seller-terminal + limit-policy data.
@@ -51,32 +51,22 @@ test.describe('Seller terminal detail — limit block', () => {
     await expect(section).toBeVisible({ timeout: 12_000 });
 
     // The first group header (RESTRICTIONS or EXPOSITION) must be visible in the section card
-    const groupHeader = section.locator('.lpb__group-header').first();
+    const groupHeader = section.locator('.ls__group-title').first();
     await expect(groupHeader).toBeVisible({ timeout: 8_000 });
   });
 
-  test('rows without assignment show unconfigured state', async ({ page }) => {
+  test('preloaded assignments render as active rows', async ({ page }) => {
     const section = page.locator('tch-admin-limits-section');
     await expect(section).toBeVisible({ timeout: 12_000 });
 
-    // Groups are collapsed by default — expand the first group to reveal rows
-    const groupHeader = section.locator('.lpb__group-header').first();
-    await groupHeader.click();
-
-    // Under the stub, BLOCK_SELECTION_PER_DRAW has no assignment at SELLER_TERMINAL scope
-    await expect(section.locator('.lpb__row-empty').first()).toBeVisible({ timeout: 8_000 });
+    await expect(section.locator('.ls__row').first()).toBeVisible({ timeout: 8_000 });
   });
 
-  test('clicking edit on a row opens the upsert dialog', async ({ page }) => {
+  test('clicking add opens the upsert dialog', async ({ page }) => {
     const section = page.locator('tch-admin-limits-section');
     await expect(section).toBeVisible({ timeout: 12_000 });
 
-    // Groups are collapsed by default — expand the first group to expose action buttons
-    const groupHeader = section.locator('.lpb__group-header').first();
-    await groupHeader.click();
-
-    const editBtn = section.locator('.lpb__action-btn').first();
-    await editBtn.click();
+    await section.locator('.ls__actions button').last().click();
 
     await expect(page.locator('mat-dialog-container')).toBeVisible({ timeout: 5_000 });
   });

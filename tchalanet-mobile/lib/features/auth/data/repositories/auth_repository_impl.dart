@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,7 +34,7 @@ class AuthRepositoryImpl implements AuthRepository {
       tokens = await _service.login(credentials);
       await _storeTokens(tokens);
     } catch (error, stack) {
-      _recordAuthError('auth.login', error, stack);
+      _recordAuthError('auth.login', error, stack, credentials.terminalCode);
       rethrow;
     }
     try {
@@ -144,8 +145,14 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  void _recordAuthError(String operation, Object error, StackTrace stack) {
-    _diagnosticsReporter?.record(
+  void _recordAuthError(
+    String operation,
+    Object error,
+    StackTrace stack, [
+    String? terminalCode,
+  ]) {
+    final reporter = _diagnosticsReporter;
+    reporter?.record(
       ClientDiagnosticEvent(
         category: ClientDiagnosticCategory.connectivity,
         occurredAtClient: DateTime.now().toUtc(),
@@ -163,6 +170,11 @@ class AuthRepositoryImpl implements AuthRepository {
             .toList(growable: false),
       ),
     );
+    if (reporter != null &&
+        terminalCode != null &&
+        terminalCode.trim().isNotEmpty) {
+      unawaited(reporter.flushPublic(terminalCode: terminalCode));
+    }
   }
 }
 
