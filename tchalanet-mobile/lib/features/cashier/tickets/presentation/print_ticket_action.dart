@@ -92,7 +92,7 @@ Future<void> printTicket(
         return;
       }
     } on ApiException catch (error) {
-      if (error.code != _reprintReasonRequiredCode ||
+      if (!_shouldRetryWithDefaultReprintReason(error) ||
           reprintReason?.trim().isNotEmpty == true) {
         rethrow;
       }
@@ -162,6 +162,14 @@ Future<void> printTicket(
   }
 }
 
+bool _shouldRetryWithDefaultReprintReason(ApiException error) {
+  if (error.code == _reprintReasonRequiredCode) return true;
+  if (error.statusCode != 400) return false;
+  final code = error.code;
+  if (code == null || code.isEmpty) return true;
+  return code.contains('reprint') || code.contains('print');
+}
+
 void _recordPrintDiagnostic(
   WidgetRef ref,
   String ticketId,
@@ -218,6 +226,7 @@ Future<void> requestTicketReprint(
         var showValidation = false;
         return StatefulBuilder(
           builder: (context, setDialogState) => AlertDialog(
+            scrollable: true,
             title: Text(translations.translate('pos.tickets.reprint_title')),
             content: Column(
               mainAxisSize: MainAxisSize.min,

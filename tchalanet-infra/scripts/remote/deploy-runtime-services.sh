@@ -405,8 +405,8 @@ if [ "$FORCE_RECREATE" = "1" ]; then
   up_args+=(--force-recreate)
 fi
 
-if [ "$ENV" = "staging" ] && [ "$DEPLOY_API" = "1" ]; then
-  log "Starting staging Postgres container"
+if ([ "$ENV" = "staging" ] || [ "$ENV" = "prod" ]) && [ "$DEPLOY_API" = "1" ]; then
+  log "Starting Postgres container"
   IMAGE_TAG="$COMPOSE_API_TAG" TCH_EDGE_IMAGE="$COMPOSE_EDGE_IMAGE" TCH_EDGE_TAG="$COMPOSE_EDGE_TAG" \
     "${compose_cmd[@]}" up -d --force-recreate postgres
   for attempt in $(seq 1 24); do

@@ -11,12 +11,17 @@ class PrinterCapability {
     required this.adapterId,
     required this.available,
     this.paperSizes = const {},
+    this.forcedPaperSize,
     this.reason,
   });
 
   final String adapterId;
   final bool available;
   final Set<ReceiptPaperSize> paperSizes;
+
+  /// Use when the hardware has a fixed roll width, for example Sunmi internal
+  /// printers that should always receive 58 mm receipts.
+  final ReceiptPaperSize? forcedPaperSize;
   final String? reason;
 }
 

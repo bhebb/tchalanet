@@ -1,5 +1,30 @@
 @use 'breakpoints' as ui;
 
+:host {
+  display: block;
+}
+
+tch-admin-section-card,
+.client-diagnostics__block,
+tch-loading,
+tch-error-panel {
+  display: block;
+  margin-block: 1rem;
+}
+
+.client-diagnostics__collapsed {
+  width: 100%;
+  justify-content: flex-start;
+  border-radius: var(--tch-radius-lg);
+  padding: 0.85rem 1rem;
+  background: var(--tch-color-surface-container-low);
+}
+
+.client-diagnostics__collapsed span {
+  margin-left: 0.75rem;
+  color: var(--tch-color-on-surface-variant);
+}
+
 .client-diagnostics__filters {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 9rem auto;
@@ -14,7 +39,7 @@
 
 .client-diagnostics__policy {
   display: grid;
-  grid-template-columns: minmax(12rem, 1fr) 12rem minmax(16rem, 1fr) auto auto;
+  grid-template-columns: minmax(12rem, 1fr) 12rem minmax(16rem, 1fr);
   gap: 1rem;
   align-items: center;
 }
@@ -24,14 +49,23 @@
   gap: 0.25rem;
 }
 
+.client-diagnostics__policy > div:first-child small {
+  color: var(--tch-color-on-surface-variant);
+}
+
 .client-diagnostics__policy-actions {
   display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .client-diagnostics__categories {
   display: flex;
+  grid-column: 1 / -1;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .client-diagnostics__notice {

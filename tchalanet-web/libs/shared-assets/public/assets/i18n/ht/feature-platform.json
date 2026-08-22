@@ -772,6 +772,7 @@
         },
         "error": {
           "load": "Dyagnostik kliyan pa disponib.",
+          "policy": "Konfigirasyon debug tèminal la pa disponib.",
           "enable": "Pa ka aktive mòd debug la.",
           "disable": "Pa ka dezaktive mòd debug la.",
           "detail": "Detay dyagnostik la pa disponib.",

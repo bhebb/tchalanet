@@ -9,8 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { ProblemDetail, webAppErrorFromProblemDetail } from '@tch/api';
 import { TchErrorPanel, TchLoading } from '@tch/ui/components';
 import { AdminPageShellComponent, AdminSectionCardComponent } from '@tch/ui/console';
+import { resolveErrorFeedbackCopy } from '@tch/web/errors';
 import {
   ClientDiagnosticEventView,
   ClientDiagnosticEventDetailView,
@@ -57,6 +59,10 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
   readonly eventDetailLoading = signal(false);
   readonly policy = signal<ClientDiagnosticPolicyView | null>(null);
   readonly policyPending = signal(false);
+  readonly selectedTenantLabel = signal<string | null>(null);
+  readonly selectedTerminalLabel = signal<string | null>(null);
+  readonly targetCollapsed = signal(false);
+  readonly controlCollapsed = signal(false);
 
   tenantId = '';
   sellerTerminalId = '';
@@ -90,6 +96,10 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     ).subscribe({
       next: events => {
         this.events.set(events);
+        if (events.length > 0) {
+          this.targetCollapsed.set(true);
+          this.controlCollapsed.set(true);
+        }
         this.loading.set(false);
         this.loadPolicyIfTargeted();
       },
@@ -103,9 +113,22 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
   updateTarget(selection: SellerTerminalTargetSelection): void {
     this.tenantId = selection.tenantId ?? '';
     this.sellerTerminalId = selection.sellerTerminalId ?? '';
+    this.selectedTenantLabel.set(selection.tenant?.name ?? selection.tenant?.code ?? null);
+    this.selectedTerminalLabel.set(this.terminalLabel(selection));
     this.policy.set(null);
     this.events.set([]);
     this.selectedEvent.set(null);
+    this.targetCollapsed.set(false);
+    this.controlCollapsed.set(false);
+    this.loadPolicyIfTargeted();
+  }
+
+  toggleTargetCollapsed(): void {
+    this.targetCollapsed.set(!this.targetCollapsed());
+  }
+
+  toggleControlCollapsed(): void {
+    this.controlCollapsed.set(!this.controlCollapsed());
   }
 
   enableDebug(): void {
@@ -141,8 +164,8 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
         this.notice.set(this.t('platform.ops.clientDiagnostics.notice.enabled'));
         this.policyPending.set(false);
       },
-      error: () => {
-        this.error.set(this.t('platform.ops.clientDiagnostics.error.enable'));
+      error: (err: unknown) => {
+        this.error.set(this.errorMessage(err, 'platform.ops.clientDiagnostics.error.enable'));
         this.policyPending.set(false);
       },
     });
@@ -164,8 +187,8 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
         this.notice.set(this.t('platform.ops.clientDiagnostics.notice.disabled'));
         this.policyPending.set(false);
       },
-      error: () => {
-        this.error.set(this.t('platform.ops.clientDiagnostics.error.disable'));
+      error: (err: unknown) => {
+        this.error.set(this.errorMessage(err, 'platform.ops.clientDiagnostics.error.disable'));
         this.policyPending.set(false);
       },
     });
@@ -207,12 +230,23 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     }
     this.api.getClientDiagnosticPolicy(tenantId, sellerTerminalId, { suppressShellFeedback: true }).subscribe({
       next: policy => this.policy.set(policy),
-      error: () => this.policy.set(null),
+      error: (err: unknown) => {
+        this.policy.set(null);
+        this.error.set(this.errorMessage(err, 'platform.ops.clientDiagnostics.error.policy'));
+      },
     });
   }
 
   private t(key: string): string {
     return this.translate.instant(key);
+  }
+
+  private errorMessage(err: unknown, fallbackKey: string): string {
+    const problem = (err as { error?: ProblemDetail })?.error;
+    if (!problem) return this.t(fallbackKey);
+    const normalized = webAppErrorFromProblemDetail(problem, fallbackKey, 'section');
+    const copy = resolveErrorFeedbackCopy(normalized, key => this.translate.instant(key));
+    return copy.message || copy.title || this.t(fallbackKey);
   }
 
   private selectedCategories(): readonly string[] {
@@ -229,4 +263,9 @@ export class PlatformOpsClientDiagnosticsPage implements OnInit {
     return categories;
   }
 
+  private terminalLabel(selection: SellerTerminalTargetSelection): string | null {
+    const terminal = selection.sellerTerminal;
+    if (!terminal) return null;
+    return [terminal.displayName, terminal.terminalCode].filter(Boolean).join(' · ');
+  }
 }

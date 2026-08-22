@@ -7,83 +7,113 @@
     {{ 'platform.ops.clientDiagnostics.action.back' | translate }}
   </a>
 
-  <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.target' | translate" icon="filter_alt">
-    <form class="client-diagnostics__filters" (submit)="$event.preventDefault(); load()">
-      <tch-seller-terminal-target-picker
-        [tenantLabel]="'platform.ops.clientDiagnostics.field.tenant' | translate"
-        [tenantPlaceholder]="'platform.ops.clientDiagnostics.placeholder.tenant' | translate"
-        [tenantEmptyLabel]="'platform.ops.clientDiagnostics.empty.tenant' | translate"
-        [sellerTerminalLabel]="'platform.ops.clientDiagnostics.field.sellerTerminal' | translate"
-        [sellerTerminalPlaceholder]="'platform.ops.clientDiagnostics.placeholder.sellerTerminal' | translate"
-        [sellerTerminalEmptyLabel]="'platform.ops.clientDiagnostics.empty.sellerTerminal' | translate"
-        (targetChange)="updateTarget($event)"
-      />
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'platform.ops.clientDiagnostics.field.limit' | translate }}</mat-label>
-        <input matInput [(ngModel)]="limit" name="limit" type="number" min="1" max="200" />
-      </mat-form-field>
-
-      <button mat-flat-button color="primary" type="submit">
-        <mat-icon>refresh</mat-icon>
-        {{ 'platform.ops.clientDiagnostics.action.load' | translate }}
+  <div class="client-diagnostics__block">
+    @if (targetCollapsed()) {
+      <button class="client-diagnostics__collapsed" mat-stroked-button type="button" (click)="toggleTargetCollapsed()">
+        <mat-icon>expand_more</mat-icon>
+        {{ 'platform.ops.clientDiagnostics.section.target' | translate }}
+        @if (selectedTerminalLabel()) {
+          <span>{{ selectedTerminalLabel() }}</span>
+        }
       </button>
-    </form>
-  </tch-admin-section-card>
-
-  <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.control' | translate" icon="admin_panel_settings">
-    <div class="client-diagnostics__policy">
-      <div>
-        <strong>{{ 'platform.ops.clientDiagnostics.field.status' | translate }}</strong>
-        <span>
-          @if (policy()) {
-            {{ (policy()!.enabled ? 'platform.ops.clientDiagnostics.status.enabled' : 'platform.ops.clientDiagnostics.status.disabled') | translate }}
-            @if (policy()!.expiresAt) {
-              · {{ 'platform.ops.clientDiagnostics.status.expiresAt' | translate:{ value: (policy()!.expiresAt | date: 'dd/MM/yyyy HH:mm') } }}
-            }
-          } @else {
-            {{ 'platform.ops.clientDiagnostics.status.selectTarget' | translate }}
-          }
-        </span>
-      </div>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'platform.ops.clientDiagnostics.field.debugHours' | translate }}</mat-label>
-        <input matInput [(ngModel)]="debugHours" name="debugHours" type="number" min="1" max="24" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'platform.ops.clientDiagnostics.field.reason' | translate }}</mat-label>
-        <input matInput [(ngModel)]="reason" name="reason" maxlength="240" />
-      </mat-form-field>
-
-      <div class="client-diagnostics__categories">
-        <mat-checkbox [(ngModel)]="includeApi" name="includeApi">API</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeConnectivity" name="includeConnectivity">CONNECTIVITY</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeSale" name="includeSale">SALE</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includePrint" name="includePrint">PRINT</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeScanner" name="includeScanner">SCANNER</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includePrinterConfig" name="includePrinterConfig">PRINTER_CONFIG</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeFlutter" name="includeFlutter">FLUTTER</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeAsync" name="includeAsync">ASYNC</mat-checkbox>
-        <mat-checkbox [(ngModel)]="includeDevice" name="includeDevice">DEVICE</mat-checkbox>
-      </div>
-
-      <div class="client-diagnostics__policy-actions">
-        <button mat-flat-button color="primary" type="button" (click)="enableDebug()" [disabled]="policyPending()">
-          <mat-icon>bug_report</mat-icon>
-          {{ 'platform.ops.clientDiagnostics.action.enable' | translate }}
+    } @else {
+      <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.target' | translate" icon="filter_alt">
+        <button actions mat-stroked-button type="button" (click)="toggleTargetCollapsed()">
+          <mat-icon>expand_less</mat-icon>
         </button>
-        <button mat-stroked-button type="button" (click)="disableDebug()" [disabled]="policyPending()">
-          <mat-icon>bug_report_off</mat-icon>
-          {{ 'platform.ops.clientDiagnostics.action.disable' | translate }}
-        </button>
-      </div>
-    </div>
-    @if (notice()) {
-      <p class="client-diagnostics__notice">{{ notice() }}</p>
+        <form class="client-diagnostics__filters" (submit)="$event.preventDefault(); load()">
+          <tch-seller-terminal-target-picker
+            [tenantLabel]="'platform.ops.clientDiagnostics.field.tenant' | translate"
+            [tenantPlaceholder]="'platform.ops.clientDiagnostics.placeholder.tenant' | translate"
+            [tenantEmptyLabel]="'platform.ops.clientDiagnostics.empty.tenant' | translate"
+            [sellerTerminalLabel]="'platform.ops.clientDiagnostics.field.sellerTerminal' | translate"
+            [sellerTerminalPlaceholder]="'platform.ops.clientDiagnostics.placeholder.sellerTerminal' | translate"
+            [sellerTerminalEmptyLabel]="'platform.ops.clientDiagnostics.empty.sellerTerminal' | translate"
+            (targetChange)="updateTarget($event)"
+          />
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'platform.ops.clientDiagnostics.field.limit' | translate }}</mat-label>
+            <input matInput [(ngModel)]="limit" name="limit" type="number" min="1" max="200" />
+          </mat-form-field>
+
+          <button mat-flat-button color="primary" type="submit">
+            <mat-icon>refresh</mat-icon>
+            {{ 'platform.ops.clientDiagnostics.action.load' | translate }}
+          </button>
+        </form>
+      </tch-admin-section-card>
     }
-  </tch-admin-section-card>
+  </div>
+
+  @if (policy()) {
+    <div class="client-diagnostics__block">
+      @if (controlCollapsed()) {
+        <button class="client-diagnostics__collapsed" mat-stroked-button type="button" (click)="toggleControlCollapsed()">
+          <mat-icon>expand_more</mat-icon>
+          {{ 'platform.ops.clientDiagnostics.section.control' | translate }}
+          <span>{{ selectedTerminalLabel() }}</span>
+        </button>
+      } @else {
+        <tch-admin-section-card [title]="'platform.ops.clientDiagnostics.section.control' | translate" icon="admin_panel_settings">
+          <button actions mat-stroked-button type="button" (click)="toggleControlCollapsed()">
+            <mat-icon>expand_less</mat-icon>
+          </button>
+          <div class="client-diagnostics__policy">
+            <div>
+              <strong>{{ selectedTerminalLabel() ?? ('platform.ops.clientDiagnostics.field.sellerTerminal' | translate) }}</strong>
+              @if (selectedTenantLabel()) {
+                <small>{{ selectedTenantLabel() }}</small>
+              }
+              <strong>{{ 'platform.ops.clientDiagnostics.field.status' | translate }}</strong>
+              <span>
+                {{ (policy()!.enabled ? 'platform.ops.clientDiagnostics.status.enabled' : 'platform.ops.clientDiagnostics.status.disabled') | translate }}
+                @if (policy()!.expiresAt) {
+                  · {{ 'platform.ops.clientDiagnostics.status.expiresAt' | translate:{ value: (policy()!.expiresAt | date: 'dd/MM/yyyy HH:mm') } }}
+                }
+              </span>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'platform.ops.clientDiagnostics.field.debugHours' | translate }}</mat-label>
+              <input matInput [(ngModel)]="debugHours" name="debugHours" type="number" min="1" max="24" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'platform.ops.clientDiagnostics.field.reason' | translate }}</mat-label>
+              <input matInput [(ngModel)]="reason" name="reason" maxlength="240" />
+            </mat-form-field>
+
+            <div class="client-diagnostics__categories">
+              <mat-checkbox [(ngModel)]="includeApi" name="includeApi">API</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includeConnectivity" name="includeConnectivity">CONNECTIVITY</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includeSale" name="includeSale">SALE</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includePrint" name="includePrint">PRINT</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includeScanner" name="includeScanner">SCANNER</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includePrinterConfig" name="includePrinterConfig">PRINTER_CONFIG</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includeFlutter" name="includeFlutter">FLUTTER</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includeAsync" name="includeAsync">ASYNC</mat-checkbox>
+              <mat-checkbox [(ngModel)]="includeDevice" name="includeDevice">DEVICE</mat-checkbox>
+            </div>
+
+            <div class="client-diagnostics__policy-actions">
+              <button mat-flat-button color="primary" type="button" (click)="enableDebug()" [disabled]="policyPending()">
+                <mat-icon>bug_report</mat-icon>
+                {{ 'platform.ops.clientDiagnostics.action.enable' | translate }}
+              </button>
+              <button mat-stroked-button type="button" (click)="disableDebug()" [disabled]="policyPending()">
+                <mat-icon>bug_report_off</mat-icon>
+                {{ 'platform.ops.clientDiagnostics.action.disable' | translate }}
+              </button>
+            </div>
+          </div>
+          @if (notice()) {
+            <p class="client-diagnostics__notice">{{ notice() }}</p>
+          }
+        </tch-admin-section-card>
+      }
+    </div>
+  }
 
   @if (loading()) {
     <tch-loading [label]="'platform.ops.clientDiagnostics.loading' | translate" />

@@ -772,6 +772,7 @@
         },
         "error": {
           "load": "Client diagnostics unavailable.",
+          "policy": "Terminal debug configuration unavailable.",
           "enable": "Unable to enable debug mode.",
           "disable": "Unable to disable debug mode.",
           "detail": "Diagnostic detail unavailable.",

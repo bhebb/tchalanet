@@ -839,6 +839,7 @@
         },
         "error": {
           "load": "Diagnostics client indisponibles.",
+          "policy": "Configuration debug du terminal indisponible.",
           "enable": "Activation du mode debug impossible.",
           "disable": "Désactivation du mode debug impossible.",
           "detail": "Détail diagnostic indisponible.",

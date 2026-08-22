@@ -22,6 +22,9 @@ Vérifiez que vous avez :
 - un tirage ouvert ;
 - une imprimante ou méthode de reçu si le test impression est demandé.
 
+Pour préparer l'imprimante, voir
+[Configurer l'imprimante POS](printer-setup.md).
+
 ## Ce que le vendeur valide
 
 - Installation ou ouverture de l'app mobile staging.

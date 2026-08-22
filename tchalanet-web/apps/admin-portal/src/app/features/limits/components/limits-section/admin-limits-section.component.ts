@@ -47,7 +47,6 @@ type LimitGroup = string;
     TchAsyncViewComponent,
     TchAsyncReadyDirective,
     AdminSectionCardComponent,
-    BlockNumberQuickDialogComponent,
   ],
   template: `
     <tch-admin-section-card [title]="sectionTitle()" icon="shield">
