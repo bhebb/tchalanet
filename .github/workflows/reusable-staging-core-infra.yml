@@ -66,7 +66,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Setup hcloud
-        uses: hetznercloud/setup-hcloud@ac9e7d74fb41a3ca44a6a3da123bd5aa70731e3a # v2.0.0
+        uses: hetznercloud/setup-hcloud@28cdd3fc4a4a8013e86d57c7254be72df92fcc02 # v2.0.1
         with:
           token: ${{ secrets.HCLOUD_TOKEN }}
 
