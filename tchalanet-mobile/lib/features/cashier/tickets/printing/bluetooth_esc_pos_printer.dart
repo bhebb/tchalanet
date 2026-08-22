@@ -163,7 +163,10 @@ class BluetoothEscPosPrinterRepository {
         _selectedBle?.remoteId == device.remoteId) {
       return _writeCharacteristic!;
     }
-    await device.connect(timeout: const Duration(seconds: 8));
+    await device.connect(
+      license: ble.License.commercial,
+      timeout: const Duration(seconds: 8),
+    );
     final services = await device.discoverServices();
     for (final service in services) {
       for (final characteristic in service.characteristics) {
