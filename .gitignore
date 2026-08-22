@@ -111,6 +111,8 @@ tchalanet-mobile/android/app/src/*
 !tchalanet-mobile/android/app/src/debug/
 !tchalanet-mobile/android/app/src/profile/
 tchalanet-mobile/android/app/src/main/*
+!tchalanet-mobile/android/app/src/main/aidl/
+!tchalanet-mobile/android/app/src/main/aidl/**
 !tchalanet-mobile/android/app/src/main/kotlin/
 !tchalanet-mobile/android/app/src/main/res/
 tchalanet-mobile/android/app/src/main/res/*
