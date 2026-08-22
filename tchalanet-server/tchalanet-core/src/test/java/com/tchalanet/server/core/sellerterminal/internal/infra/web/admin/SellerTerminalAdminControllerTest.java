@@ -32,8 +32,7 @@ class SellerTerminalAdminControllerTest {
 
   @Test
   void summary_uses_tenant_analytics_for_today() {
-    var controller =
-        new SellerTerminalAdminController(new NoopCommandBus(), new SummaryQueryBus());
+    var controller = new SellerTerminalAdminController(new NoopCommandBus(), new SummaryQueryBus());
 
     var response = controller.summary(context());
 
@@ -126,5 +125,4 @@ class SellerTerminalAdminControllerTest {
       throw new AssertionError("No command expected");
     }
   }
-
 }

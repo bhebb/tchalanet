@@ -3,9 +3,9 @@ package com.tchalanet.server.platform.clientdiagnostics.internal.web;
 import com.tchalanet.server.common.web.api.ApiResponse;
 import com.tchalanet.server.platform.clientdiagnostics.api.ClientDiagnosticsApi;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticIngestionResult;
+import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPublicBatchRequest;
 import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPublicPolicyRequest;
-import com.tchalanet.server.platform.clientdiagnostics.api.model.ClientDiagnosticPolicyView;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -38,13 +38,13 @@ public class PublicClientDiagnosticsController {
 
   @PostMapping("/events")
   public ResponseEntity<ApiResponse<ClientDiagnosticIngestionResult>> ingest(
-      HttpServletRequest httpRequest, @Valid @RequestBody ClientDiagnosticPublicBatchRequest request) {
+      HttpServletRequest httpRequest,
+      @Valid @RequestBody ClientDiagnosticPublicBatchRequest request) {
     return ResponseEntity.ok()
         .cacheControl(CacheControl.noStore())
         .header("Pragma", "no-cache")
         .body(
             ApiResponse.success(
-                clientDiagnosticsApi.ingestPublic(
-                    httpRequest.getHeader("X-Request-Id"), request)));
+                clientDiagnosticsApi.ingestPublic(httpRequest.getHeader("X-Request-Id"), request)));
   }
 }

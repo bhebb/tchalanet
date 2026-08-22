@@ -94,11 +94,11 @@ public class ClientDiagnosticsJdbcRepository {
     var categoryNames = categories.stream().map(Enum::name).toArray(String[]::new);
     jdbc.execute(
         (org.springframework.jdbc.core.ConnectionCallback<Void>)
-        connection -> {
-          Array categoryArray = connection.createArrayOf("text", categoryNames);
-          try (var ps =
-              connection.prepareStatement(
-                  """
+            connection -> {
+              Array categoryArray = connection.createArrayOf("text", categoryNames);
+              try (var ps =
+                  connection.prepareStatement(
+                      """
                   INSERT INTO client_diagnostic_policy (
                     tenant_id, seller_terminal_id, enabled, expires_at, max_events, categories, reason, created_by, updated_by
                   )
@@ -114,20 +114,20 @@ public class ClientDiagnosticsJdbcRepository {
                     updated_at = now(),
                     version = client_diagnostic_policy.version + 1
                   """)) {
-            ps.setObject(1, tenantId.value());
-            ps.setObject(2, sellerTerminalId.value());
-            ps.setTimestamp(3, Timestamp.from(expiresAt));
-            ps.setInt(4, maxEvents);
-            ps.setArray(5, categoryArray);
-            ps.setString(6, reason);
-            ps.setObject(7, actorUserId);
-            ps.setObject(8, actorUserId);
-            ps.executeUpdate();
-          } finally {
-            categoryArray.free();
-          }
-          return null;
-        });
+                ps.setObject(1, tenantId.value());
+                ps.setObject(2, sellerTerminalId.value());
+                ps.setTimestamp(3, Timestamp.from(expiresAt));
+                ps.setInt(4, maxEvents);
+                ps.setArray(5, categoryArray);
+                ps.setString(6, reason);
+                ps.setObject(7, actorUserId);
+                ps.setObject(8, actorUserId);
+                ps.executeUpdate();
+              } finally {
+                categoryArray.free();
+              }
+              return null;
+            });
   }
 
   public void disablePolicy(

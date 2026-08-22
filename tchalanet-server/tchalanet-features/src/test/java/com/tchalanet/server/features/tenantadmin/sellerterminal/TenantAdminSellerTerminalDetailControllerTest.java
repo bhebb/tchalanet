@@ -46,9 +46,11 @@ class TenantAdminSellerTerminalDetailControllerTest {
   private final ClientDiagnosticsApi clientDiagnosticsApi = mock(ClientDiagnosticsApi.class);
   private final TenantConfigApi tenantConfigApi = mock(TenantConfigApi.class);
   private final TenantAdminSellerTerminalDetailController controller =
-      new TenantAdminSellerTerminalDetailController(queryBus, clientDiagnosticsApi, tenantConfigApi);
+      new TenantAdminSellerTerminalDetailController(
+          queryBus, clientDiagnosticsApi, tenantConfigApi);
 
-  private final TenantId tenantId = TenantId.of(UUID.fromString("00000000-0000-0000-0000-000000000003"));
+  private final TenantId tenantId =
+      TenantId.of(UUID.fromString("00000000-0000-0000-0000-000000000003"));
   private final SellerTerminalId sellerTerminalId =
       SellerTerminalId.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
@@ -63,7 +65,9 @@ class TenantAdminSellerTerminalDetailControllerTest {
     when(clientDiagnosticsApi.getPolicy(tenantId, sellerTerminalId)).thenReturn(diagnostics);
     when(queryBus.ask(any(ListAvailableLimitRulesQuery.class))).thenReturn(List.of());
     when(queryBus.ask(any(ListLimitAssignmentsByScopeQuery.class)))
-        .thenAnswer(invocation -> new ListLimitAssignmentsView(LimitScopeQueryRef.tenant(tenantId), List.of()));
+        .thenAnswer(
+            invocation ->
+                new ListLimitAssignmentsView(LimitScopeQueryRef.tenant(tenantId), List.of()));
     when(queryBus.ask(any(GetTenantFinancialBreakdownQuery.class)))
         .thenReturn(
             new TenantFinancialBreakdownView(

@@ -64,15 +64,13 @@ public class TenantAdminSellerTerminalDetailController {
   }
 
   private TenantSummary tenantSummary(TenantConfigView tenant) {
-    return new TenantSummary(
-        tenant.tenantId(), tenant.code(), tenant.name(), tenant.displayName());
+    return new TenantSummary(tenant.tenantId(), tenant.code(), tenant.name(), tenant.displayName());
   }
 
   private LimitBundle limits(TenantId tenantId, SellerTerminalId id) {
     List<LimitRuleSpec> specs = queryBus.ask(new ListAvailableLimitRulesQuery());
     ListLimitAssignmentsView assignments =
-        queryBus.ask(
-            new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.sellerTerminal(id)));
+        queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.sellerTerminal(id)));
     ListLimitAssignmentsView inheritedAssignments =
         queryBus.ask(new ListLimitAssignmentsByScopeQuery(LimitScopeQueryRef.tenant(tenantId)));
     return new LimitBundle(specs, assignments.items(), inheritedAssignments.items());
@@ -102,11 +100,7 @@ public class TenantAdminSellerTerminalDetailController {
       TenantFinancialBreakdownView.SellerTerminalDailyFinancialRow todayStats,
       LimitBundle limits) {}
 
-  public record TenantSummary(
-      TenantId tenantId,
-      String code,
-      String name,
-      String displayName) {}
+  public record TenantSummary(TenantId tenantId, String code, String name, String displayName) {}
 
   public record LimitBundle(
       List<LimitRuleSpec> specs,
