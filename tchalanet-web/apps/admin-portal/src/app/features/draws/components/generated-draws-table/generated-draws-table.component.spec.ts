@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -45,7 +46,7 @@ describe('GeneratedDrawsTableComponent — resultActionHint', () => {
         {
           provide: TranslateService,
           useValue: {
-            currentLang: 'fr',
+            currentLang: signal('fr'),
             instant: (key: string) =>
               ({
                 'admin.generatedDraws.hint.resultToEnter': 'Résultat à saisir',

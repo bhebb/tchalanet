@@ -88,7 +88,7 @@ export class PublicOperatorsPage {
   private readonly i18n = inject(TranslateService);
 
   private readonly langChange = toSignal(
-    this.i18n.onLangChange.pipe(map(e => e.lang), startWith(this.i18n.currentLang)),
+    this.i18n.onLangChange.pipe(map(e => e.lang), startWith(this.i18n.currentLang())),
   );
 
   readonly benefits = BENEFITS;

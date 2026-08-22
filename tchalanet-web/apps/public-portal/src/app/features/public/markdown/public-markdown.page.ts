@@ -38,7 +38,7 @@ export class PublicMarkdownPage {
 
   private readonly lang$ = this.translate.onLangChange.pipe(
     map(e => e.lang),
-    startWith(this.translate.currentLang || this.translate.defaultLang),
+    startWith(this.translate.currentLang() || this.translate.fallbackLang()),
   );
 
   readonly html = toSignal(
